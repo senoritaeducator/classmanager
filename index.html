@@ -6,90 +6,262 @@
     <title>Advanced Class Manager — LazifAI</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: linear-gradient(135deg, #ece9ff 0%, #f5f7ff 30%, #fdfbff 100%);
+            background: radial-gradient(circle at top left, #e0e7ff 0, #f5f7ff 30%, #fdfbff 65%, #ffffff 100%);
             min-height: 100vh;
             padding: 16px;
-            color: #1f2933;
+            color: #0f172a;
         }
-        .container { max-width: 1100px; margin: 0 auto; }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
 
         /* Header */
         .top-bar {
-            display: flex; flex-wrap: wrap;
-            justify-content: space-between; align-items: flex-start;
-            gap: 16px; margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 16px;
+            margin-bottom: 16px;
         }
+
         .brand-block {
-            background: #ffffff; border-radius: 16px;
+            flex: 1 1 260px;
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 40%, #a855f7 100%);
+            border-radius: 20px;
             padding: 16px 18px;
-            box-shadow: 0 8px 20px rgba(15,23,42,0.06);
-            flex: 1 1 220px;
+            color: #eef2ff;
+            box-shadow: 0 14px 30px rgba(79, 70, 229, 0.35);
+            position: relative;
+            overflow: hidden;
         }
+
+        .brand-block::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 60%);
+            pointer-events: none;
+        }
+
         .brand-title {
-            font-size: 1.4rem; font-weight: 700;
-            letter-spacing: 0.03em; color: #4338ca; margin-bottom: 4px;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .brand-sub { font-size: 0.85rem; color: #6b7280; }
+
+        .brand-title span.icon {
+            font-size: 1.3rem;
+        }
+
+        .brand-sub {
+            font-size: 0.84rem;
+            opacity: 0.9;
+        }
+
+        .brand-pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+            font-size: 0.72rem;
+        }
+
+        .brand-pill {
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(15,23,42,0.15);
+            border: 1px solid rgba(191, 219, 254, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
         .teacher-block {
-            background: #ffffff; border-radius: 16px;
-            padding: 12px 16px; min-width: 220px;
-            box-shadow: 0 8px 20px rgba(15,23,42,0.06);
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 12px 16px;
+            min-width: 230px;
+            box-shadow: 0 10px 26px rgba(15,23,42,0.08);
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
+
+        .teacher-block::before {
+            content: "👩‍🏫";
+            position: absolute;
+            right: 10px;
+            bottom: 6px;
+            font-size: 1.6rem;
+            opacity: 0.14;
+        }
+
         .teacher-label {
-            font-size: 0.8rem; text-transform: uppercase;
-            letter-spacing: 0.06em; color: #9ca3af; margin-bottom: 2px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #9ca3af;
+            margin-bottom: 4px;
         }
-        .teacher-name { font-weight: 600; font-size: 0.95rem; color: #111827; }
-        .teacher-id { font-size: 0.8rem; color: #6b7280; }
+
+        .teacher-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #111827;
+        }
+
+        .teacher-id {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
 
         /* Tabs */
-        .main-tabs { display: flex; gap: 8px; margin: 8px 0 16px; }
-        .main-tab-btn {
-            flex: 1; padding: 10px 12px; border-radius: 999px;
-            border: 1px solid #e5e7eb; background: #f9fafb;
-            font-size: 0.9rem; font-weight: 600; color: #4b5563;
-            cursor: pointer; display: flex; align-items: center;
-            justify-content: center; gap: 6px; transition: all 0.2s ease;
+        .main-tabs {
+            display: flex;
+            gap: 8px;
+            margin: 8px 0 14px;
         }
-        .main-tab-btn.active {
-            background: #4f46e5; color: #ffffff;
-            border-color: #4f46e5;
-            box-shadow: 0 8px 18px rgba(79,70,229,0.35);
-        }
-        .main-tab-btn:not(.active):hover { background: #eef2ff; }
-        .section { display: none; }
-        .section.show { display: block; }
 
-        /* Cards + Layout */
+        .main-tab-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: rgba(249, 250, 251, 0.95);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4b5563;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.18s ease;
+        }
+
+        .main-tab-btn span.tab-icon {
+            font-size: 1.05rem;
+        }
+
+        .main-tab-btn.active {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 10px 22px rgba(79,70,229,0.35);
+            transform: translateY(-1px);
+        }
+
+        .main-tab-btn:not(.active):hover {
+            background: #eef2ff;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.show {
+            display: block;
+        }
+
+        /* Section cards */
         .section-card {
-            background: #ffffff; border-radius: 18px;
+            background: #ffffff;
+            border-radius: 18px;
             padding: 16px 16px 18px;
             box-shadow: 0 10px 26px rgba(15,23,42,0.06);
             margin-bottom: 14px;
+            border: 1px solid #e5e7eb;
+            position: relative;
+            overflow: hidden;
         }
-        .section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
-        .section-title { font-size: 1.05rem; font-weight: 600; color: #111827; }
-        .section-caption { font-size: 0.8rem; color: #6b7280; }
 
-        .card-row { display: flex; flex-wrap: wrap; gap: 12px; }
-        .card-column { flex: 1 1 260px; }
+        .section-card::before {
+            content: "";
+            position: absolute;
+            inset-inline-start: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #4f46e5, #a855f7);
+            opacity: 0.4;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+
+        .section-title-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title-icon {
+            font-size: 1.05rem;
+        }
+
+        .section-title {
+            font-size: 1.02rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .section-caption {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .card-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .card-column {
+            flex: 1 1 260px;
+        }
 
         /* Form */
-        .form-group { margin-bottom: 10px; }
-        label {
-            display: block; font-size: 0.8rem; color: #4b5563;
-            margin-bottom: 4px; font-weight: 500;
+        .form-group {
+            margin-bottom: 10px;
         }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            color: #4b5563;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
         input, select, textarea {
-            width: 100%; padding: 7px 9px;
+            width: 100%;
+            padding: 7px 9px;
             border-radius: 8px;
             border: 1px solid #d1d5db;
-            font-size: 0.9rem; outline: none;
+            font-size: 0.9rem;
+            outline: none;
             background: #f9fafb;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
         }
+
         input:focus, select:focus, textarea:focus {
             border-color: #4f46e5;
             box-shadow: 0 0 0 1px rgba(79,70,229,0.18);
@@ -98,61 +270,296 @@
 
         /* Buttons */
         .btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            gap: 6px; padding: 8px 12px; border-radius: 999px;
-            border: none; font-size: 0.88rem; font-weight: 600;
-            cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
         }
-        .btn-primary { background: #4f46e5; color: #ffffff; box-shadow: 0 6px 14px rgba(79,70,229,0.25); }
-        .btn-primary:hover { background: #4338ca; }
-        .btn-outline { background: #ffffff; color: #4b5563; border: 1px solid #d1d5db; }
-        .btn-outline:hover { background: #f3f4ff; border-color: #4f46e5; color: #111827; }
-        .btn-soft { background: #eef2ff; color: #4338ca; }
-        .btn-soft:hover { background: #e0e7ff; }
-        .btn-block { width: 100%; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            box-shadow: 0 6px 14px rgba(79,70,229,0.25);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.05);
+            transform: translateY(-0.5px);
+        }
+
+        .btn-outline {
+            background: #ffffff;
+            color: #4b5563;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-outline:hover {
+            background: #f3f4ff;
+            border-color: #4f46e5;
+            color: #111827;
+        }
+
+        .btn-soft {
+            background: #eef2ff;
+            color: #4338ca;
+            border: 1px solid transparent;
+        }
+
+        .btn-soft:hover {
+            background: #e0e7ff;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .inline-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        /* Messages */
+        .status-block {
+            margin-top: 8px;
+            font-size: 0.82rem;
+        }
+
+        .success, .error, .info, .loading {
+            padding: 8px;
+            margin-top: 4px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            border-left-width: 4px;
+            border-left-style: solid;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #166534;
+            border-left-color: #16a34a;
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border-left-color: #ef4444;
+        }
+
+        .info {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-left-color: #3b82f6;
+        }
+
+        .loading {
+            background: #fef9c3;
+            color: #92400e;
+            border-left-color: #facc15;
+        }
 
         /* Table */
-        .table-wrap { margin-top: 8px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
-        th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
-        thead { background: #f3f4ff; }
-        th { font-weight: 600; color: #374151; }
+        .table-wrap {
+            margin-top: 8px;
+            overflow-x: auto;
+        }
 
-        /* Class cards */
-        .classes-list { margin-top: 6px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        thead {
+            background: #f3f4ff;
+        }
+
+        th {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Classes controls & cards */
+        .classes-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .classes-list {
+            margin-top: 6px;
+        }
+
         .class-card {
-            border-radius: 14px; border: 1px solid #e5e7eb;
-            padding: 10px 12px; margin-bottom: 10px; background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffffff, #f9fafb);
+            box-shadow: 0 4px 12px rgba(15,23,42,0.06);
         }
+
         .class-card__row {
-            display: flex; justify-content: space-between;
-            gap: 8px; margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
         }
-        .class-student { font-weight: 600; font-size: 0.98rem; color: #111827; }
-        .meta { font-size: 0.8rem; color: #6b7280; }
-        .badge { padding: 3px 7px; border-radius:999px; font-size:0.7rem; font-weight:600; }
-        .badge-green { background:#dcfce7; color:#166534; }
+
+        .class-student {
+            font-weight: 600;
+            font-size: 0.98rem;
+            color: #111827;
+        }
+
+        .meta {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .badge {
+            padding: 3px 7px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #166534;
+        }
 
         .expand-block {
-            margin-top: 8px; padding-top: 6px;
+            margin-top: 8px;
+            padding-top: 6px;
             border-top: 1px dashed #e5e7eb;
         }
+
         .msg-preview {
-            padding: 8px; background: #f9fafb;
-            border-radius: 8px; border: 1px dashed #d1d5db;
-            white-space: pre-wrap; font-size: 0.84rem;
+            padding: 8px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px dashed #d1d5db;
+            white-space: pre-wrap;
+            font-size: 0.84rem;
         }
 
+        /* Toasts */
+        .toast-container {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 9999;
+        }
+
+        .toast {
+            min-width: 180px;
+            max-width: 260px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 12px 28px rgba(15,23,42,0.35);
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.22s ease, transform 0.22s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-success {
+            background: #16a34a;
+            color: #ecfdf3;
+        }
+
+        .toast-error {
+            background: #b91c1c;
+            color: #fee2e2;
+        }
+
+        .toast-info {
+            background: #2563eb;
+            color: #dbeafe;
+        }
+
+        .toast-icon {
+            font-size: 1rem;
+        }
+
+        /* Footer */
         .footer {
             margin-top: 20px;
-            font-size: 0.78rem; color: #9ca3af; text-align: center;
+            font-size: 0.78rem;
+            color: #9ca3af;
+            text-align: center;
         }
-        .footer span { font-weight: 600; color:#4f46e5; }
 
-        @media(max-width:640px) {
-            body { padding:12px; }
-            .section-card { padding:14px; }
-            .class-card__row { flex-direction:column; align-items:flex-start; }
+        .footer span {
+            font-weight: 600;
+            color: #4f46e5;
+        }
+
+        .footer-version {
+            margin-top: 2px;
+            font-size: 0.74rem;
+            color: #9ca3af;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 12px;
+            }
+
+            .section-card {
+                padding: 14px;
+            }
+
+            .brand-block, .teacher-block {
+                padding: 12px 14px;
+            }
+
+            .brand-title {
+                font-size: 1.2rem;
+            }
+
+            .main-tab-btn {
+                font-size: 0.85rem;
+                padding: 8px 10px;
+            }
+
+            .class-card__row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -162,8 +569,16 @@
 
     <header class="top-bar">
         <div class="brand-block">
-            <div class="brand-title">Advanced Class Manager</div>
-            <div class="brand-sub">Complete Dashboard — Powered by LazifAI</div>
+            <div class="brand-title">
+                <span class="icon">📊</span>
+                <span>Advanced Class Manager</span>
+            </div>
+            <div class="brand-sub">Teacher's Dashboard — Powered by LazifAI</div>
+            <div class="brand-pill-row">
+                <div class="brand-pill">👥 Manage students</div>
+                <div class="brand-pill">📚 Schedule & reschedule classes</div>
+                <div class="brand-pill">💬 One-click message templates</div>
+            </div>
         </div>
         <div class="teacher-block">
             <div class="teacher-label">WELCOME</div>
@@ -173,8 +588,14 @@
     </header>
 
     <nav class="main-tabs">
-        <button class="main-tab-btn active" data-section="students">👥 Manage Students</button>
-        <button class="main-tab-btn" data-section="classes">📚 Manage Classes</button>
+        <button class="main-tab-btn active" data-section="students">
+            <span class="tab-icon">👥</span>
+            <span>Manage Students</span>
+        </button>
+        <button class="main-tab-btn" data-section="classes">
+            <span class="tab-icon">📚</span>
+            <span>Manage Classes</span>
+        </button>
     </nav>
 
     <!-- STUDENTS -->
@@ -182,8 +603,11 @@
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title">Manage Students</div>
-                    <div class="section-caption">Add, delete & view all active students.</div>
+                    <div class="section-title-row">
+                        <span class="section-title-icon">👥</span>
+                        <div class="section-title">Manage Students</div>
+                    </div>
+                    <div class="section-caption">Add, delete & view all active students linked to your classes.</div>
                 </div>
             </div>
 
@@ -191,25 +615,31 @@
                 <div class="card-column">
                     <div class="form-group">
                         <label>Add Student</label>
-                        <input id="student-name-input" type="text" placeholder="Enter student name"/>
+                        <input id="student-name-input" type="text" placeholder="Enter student name" />
                     </div>
-                    <button id="add-student-btn" class="btn btn-primary btn-block">➕ Add Student</button>
+                    <button id="add-student-btn" class="btn btn-primary btn-block">
+                        ➕ Add Student
+                    </button>
 
-                    <div class="form-group" style="margin-top:16px;">
+                    <div class="form-group" style="margin-top: 16px;">
                         <label>Delete Student</label>
                         <select id="student-delete-select">
                             <option value="">Select student to delete</option>
                         </select>
                     </div>
-                    <button id="delete-student-btn" class="btn btn-outline btn-block">🗑 Delete Student</button>
+                    <button id="delete-student-btn" class="btn btn-outline btn-block">
+                        🗑 Delete Student
+                    </button>
 
                     <div id="manage-students-msg" class="status-block"></div>
                 </div>
 
                 <div class="card-column">
                     <label>All Active Students</label>
-                    <div class="inline-actions" style="margin-top:4px;">
-                        <button id="refresh-students-btn" class="btn btn-soft">🔄 Refresh</button>
+                    <div class="inline-actions" style="margin-top: 4px;">
+                        <button id="refresh-students-btn" class="btn btn-soft">
+                            🔄 Refresh
+                        </button>
                     </div>
 
                     <div id="all-students-content" class="table-wrap"></div>
@@ -225,8 +655,11 @@
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title">Schedule Class</div>
-                    <div class="section-caption">Create class & calendar event.</div>
+                    <div class="section-title-row">
+                        <span class="section-title-icon">📅</span>
+                        <div class="section-title">Schedule Class</div>
+                    </div>
+                    <div class="section-caption">Create a class & Google Calendar event for an existing student.</div>
                 </div>
             </div>
 
@@ -240,17 +673,19 @@
 
                 <div class="card-column">
                     <label>Class Date</label>
-                    <input type="date" id="schedule-date"/>
+                    <input type="date" id="schedule-date" />
                 </div>
 
                 <div class="card-column">
                     <label>Start Time</label>
-                    <input type="time" id="schedule-time"/>
+                    <input type="time" id="schedule-time" />
                 </div>
             </div>
 
-            <div class="inline-actions" style="margin-top:4px;">
-                <button id="schedule-class-btn" class="btn btn-primary">✅ Schedule Class</button>
+            <div class="inline-actions" style="margin-top: 4px;">
+                <button id="schedule-class-btn" class="btn btn-primary">
+                    ✅ Schedule Class
+                </button>
             </div>
 
             <div id="schedule-msg" class="status-block"></div>
@@ -260,17 +695,22 @@
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title">View & Manage Classes</div>
+                    <div class="section-title-row">
+                        <span class="section-title-icon">🗂️</span>
+                        <div class="section-title">View & Manage Classes</div>
+                    </div>
                     <div class="section-caption">Filter by date, generate messages, or reschedule classes.</div>
                 </div>
             </div>
 
             <div class="classes-controls">
-                <div class="form-group" style="margin-bottom:0;">
+                <div class="form-group" style="margin-bottom: 0;">
                     <label>Select Date</label>
-                    <input type="date" id="view-date"/>
+                    <input type="date" id="view-date" />
                 </div>
-                <button id="view-classes-btn" class="btn btn-soft">📅 Load Classes</button>
+                <button id="view-classes-btn" class="btn btn-soft">
+                    📅 Load Classes
+                </button>
             </div>
 
             <div id="view-classes-output" class="classes-list"></div>
@@ -279,359 +719,404 @@
     </section>
 
     <footer class="footer">
-        Powered by <span>LazifAI</span> — Advanced Class Manager.
+        <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
+        <div class="footer-version">🔱ॐ नमः शिवाय 🔱</div>
     </footer>
 
+    <div id="toast-container" class="toast-container"></div>
 </div>
 
 <script>
-/* Webhooks unchanged */
-const WEBHOOKS = {
-    ADD: "https://hook.eu2.make.com/hvddse2wcpf6w3m6t2tepmreloar7cjt",
-    DELETE: "https://hook.eu2.make.com/79eede2kxvv66jm31atr8jjxmtf5ag9q",
-    STUDENTS: "https://hook.eu2.make.com/kemhxja7ouav3ibxeqay4ktpmshw6xsl",
-    SCHEDULE: "https://hook.eu2.make.com/m0iyppobmi5ut4bmkkl86rpn6vmjgx1l",
-    FETCH_CLASS: "https://hook.eu2.make.com/2y3wy4smt4q9ui0buu15bpm6rbp0eg5p",
-    RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70"
-};
+    /* Webhooks (unchanged) */
+    const WEBHOOKS = {
+        ADD: "https://hook.eu2.make.com/hvddse2wcpf6w3m6t2tepmreloar7cjt",
+        DELETE: "https://hook.eu2.make.com/79eede2kxvv66jm31atr8jjxmtf5ag9q",
+        STUDENTS: "https://hook.eu2.make.com/kemhxja7ouav3ibxeqay4ktpmshw6xsl",
+        SCHEDULE: "https://hook.eu2.make.com/m0iyppobmi5ut4bmkkl86rpn6vmjgx1l",
+        FETCH_CLASS: "https://hook.eu2.make.com/2y3wy4smt4q9ui0buu15bpm6rbp0eg5p",
+        RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70"
+    };
 
-/* Helpers */
-function clearAllMessages() {
-    document.getElementById("manage-students-msg").innerHTML = "";
-    document.getElementById("schedule-msg").innerHTML = "";
-}
-function showMessage(target, html) {
-    const el = document.querySelector(target);
-    if (el) el.innerHTML = html;
-}
-async function fetchAPI(url, payload) {
-    const res = await fetch(url, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload || {})
-    });
-    const text = await res.text();
-    try { return JSON.parse(text); }
-    catch {
-        if (text.trim().toLowerCase() === "accepted") return {};
-        throw new Error("Invalid JSON: " + text);
+    /* Helpers */
+    function clearAllMessages() {
+        document.getElementById("manage-students-msg").innerHTML = "";
+        document.getElementById("schedule-msg").innerHTML = "";
     }
-}
 
-/* Tabs */
-const mainTabButtons = document.querySelectorAll(".main-tab-btn");
-const sectionStudents = document.getElementById("section-students");
-const sectionClasses = document.getElementById("section-classes");
+    function showMessage(target, html) {
+        const el = document.querySelector(target);
+        if (el) el.innerHTML = html;
+    }
 
-function showMainSection(sec) {
-    clearAllMessages();
-    mainTabButtons.forEach(btn =>
-        btn.classList.toggle("active", btn.dataset.section === sec)
-    );
-    sectionStudents.classList.toggle("show", sec === "students");
-    sectionClasses.classList.toggle("show", sec === "classes");
-}
+    function showToast(message, type = "success") {
+        const container = document.getElementById("toast-container");
+        if (!container) return;
 
-mainTabButtons.forEach(btn =>
-    btn.addEventListener("click", () => showMainSection(btn.dataset.section))
-);
+        const toast = document.createElement("div");
+        toast.className = `toast toast-${type === "error" ? "error" : type === "info" ? "info" : "success"}`;
 
-/* Load Students */
-async function loadStudentsForDropdowns() {
-    try {
-        const r = await fetchAPI(WEBHOOKS.STUDENTS, {action: "getAllStudents"});
-        const s = r.students || r.data || [];
-        const delSel = document.getElementById("student-delete-select");
-        const schSel = document.getElementById("schedule-student-select");
+        const icon = document.createElement("span");
+        icon.className = "toast-icon";
+        icon.textContent = type === "error" ? "⚠️" : type === "info" ? "ℹ️" : "✅";
 
-        delSel.innerHTML = '<option value="">Select student to delete</option>';
-        schSel.innerHTML = '<option value="">Select student</option>';
+        const text = document.createElement("span");
+        text.textContent = message;
 
-        s.forEach(x => {
-            const n = x.name || x.StudentName || x.student || x;
-            if (!n) return;
-            delSel.innerHTML += `<option value="${n}">${n}</option>`;
-            schSel.innerHTML += `<option value="${n}">${n}</option>`;
+        toast.appendChild(icon);
+        toast.appendChild(text);
+        container.appendChild(toast);
+
+        requestAnimationFrame(() => {
+            toast.classList.add("show");
         });
-    } catch {}
-}
 
-async function loadAllStudentsTable() {
-    const c = document.getElementById("all-students-content");
-    c.innerHTML = '<div class="info">Loading students...</div>';
-    try {
-        const r = await fetchAPI(WEBHOOKS.STUDENTS, {action:"getAllStudents"});
-        const s = r.students || r.data || [];
-        if (!s.length) {
-            c.innerHTML = '<div class="info">No students found.</div>';
-            return;
+        setTimeout(() => {
+            toast.classList.remove("show");
+            setTimeout(() => toast.remove(), 200);
+        }, 2200);
+    }
+
+    async function fetchAPI(url, payload) {
+        const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload || {})
+        });
+        const text = await res.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            if (text.trim().toLowerCase() === "accepted") return {};
+            throw new Error("Invalid JSON: " + text);
         }
-        let h = '<table><thead><tr><th>#</th><th>Name</th></tr></thead><tbody>';
-        s.forEach((x,i)=>
-            h += `<tr><td>${i+1}</td><td>${x.name||x.StudentName||x.student||x}</td></tr>`
+    }
+
+    /* Tabs */
+    const mainTabButtons = document.querySelectorAll(".main-tab-btn");
+    const sectionStudents = document.getElementById("section-students");
+    const sectionClasses = document.getElementById("section-classes");
+
+    function showMainSection(sec) {
+        clearAllMessages();
+        mainTabButtons.forEach(btn =>
+            btn.classList.toggle("active", btn.dataset.section === sec)
         );
-        h += '</tbody></table>';
-        c.innerHTML = h;
-    } catch {
-        c.innerHTML = '<div class="error">❌ Error loading students.</div>';
-    }
-}
-
-document.getElementById("refresh-students-btn").addEventListener("click",()=>{
-    loadAllStudentsTable();
-    loadStudentsForDropdowns();
-});
-
-/* Add Student */
-document.getElementById("add-student-btn").addEventListener("click", async ()=>{
-    clearAllMessages();
-    const name = document.getElementById("student-name-input").value.trim();
-    const msg = document.getElementById("manage-students-msg");
-
-    if (!name) {
-        msg.innerHTML = '<div class="error">❌ Enter a name.</div>';
-        return;
+        sectionStudents.classList.toggle("show", sec === "students");
+        sectionClasses.classList.toggle("show", sec === "classes");
     }
 
-    msg.innerHTML = '<div class="loading">Adding...</div>';
-    try {
-        await fetchAPI(WEBHOOKS.ADD, {StudentName:name});
-        msg.innerHTML = '<div class="success">✅ Added.</div>';
-        document.getElementById("student-name-input").value = "";
-        loadStudentsForDropdowns();
-        loadAllStudentsTable();
-    } catch {
-        msg.innerHTML = '<div class="error">❌ Failed.</div>';
-    }
-});
-
-/* Delete Student */
-document.getElementById("delete-student-btn").addEventListener("click", async ()=>{
-    clearAllMessages();
-    const sel = document.getElementById("student-delete-select").value;
-    const msg = document.getElementById("manage-students-msg");
-
-    if (!sel) {
-        msg.innerHTML = '<div class="error">❌ Select a student.</div>';
-        return;
-    }
-
-    msg.innerHTML = '<div class="loading">Deleting...</div>';
-    try {
-        await fetchAPI(WEBHOOKS.DELETE, {StudentName:sel});
-        msg.innerHTML = '<div class="success">✅ Deleted.</div>';
-        loadStudentsForDropdowns();
-        loadAllStudentsTable();
-    } catch {
-        msg.innerHTML = '<div class="error">❌ Failed.</div>';
-    }
-});
-
-/* Schedule Class */
-document.getElementById("schedule-class-btn").addEventListener("click", async ()=>{
-    clearAllMessages();
-    const st = document.getElementById("schedule-student-select").value;
-    const dt = document.getElementById("schedule-date").value;
-    const tm = document.getElementById("schedule-time").value;
-    const msg = document.getElementById("schedule-msg");
-
-    if (!st || !dt || !tm) {
-        msg.innerHTML = '<div class="error">❌ Select all fields.</div>';
-        return;
-    }
-
-    msg.innerHTML = '<div class="loading">Scheduling...</div>';
-    try {
-        await fetchAPI(WEBHOOKS.SCHEDULE, {
-            Action: "ScheduleClass",
-            StudentName: st,
-            ClassDate: dt,
-            StartTime: tm,
-            DurationMinutes: 60,   // required by Make/Google Calendar
-            RepeatWeeks: false
-        });
-        msg.innerHTML = '<div class="success">✅ Scheduled.</div>';
-    } catch {
-        msg.innerHTML = '<div class="error">❌ Failed.</div>';
-    }
-});
-
-/* renderClassCards with no-classes fix */
-function renderClassCards(classes) {
-    const container = document.getElementById("view-classes-output");
-
-    // Filter out empty/garbage objects from Make
-    const valid = (classes || []).filter(c =>
-        c && (
-            c.StudentName || c.student ||
-            c.ClassDate || c.date ||
-            c.StartTime || c.time
-        )
+    mainTabButtons.forEach(btn =>
+        btn.addEventListener("click", () => showMainSection(btn.dataset.section))
     );
 
-    if (!valid.length) {
-        container.innerHTML = '<div class="info">No classes scheduled for this date.</div>';
-        return;
+    /* Load Students */
+    async function loadStudentsForDropdowns() {
+        try {
+            const r = await fetchAPI(WEBHOOKS.STUDENTS, { action: "getAllStudents" });
+            const s = r.students || r.data || [];
+            const delSel = document.getElementById("student-delete-select");
+            const schSel = document.getElementById("schedule-student-select");
+
+            delSel.innerHTML = '<option value="">Select student to delete</option>';
+            schSel.innerHTML = '<option value="">Select student</option>';
+
+            s.forEach(x => {
+                const n = x.name || x.StudentName || x.student || x;
+                if (!n || typeof n !== "string") return;
+                delSel.innerHTML += `<option value="${n}">${n}</option>`;
+                schSel.innerHTML += `<option value="${n}">${n}</option>`;
+            });
+        } catch {
+            // silent fail for dropdowns; table load has its own error
+        }
     }
 
-    container.innerHTML = "";
+    async function loadAllStudentsTable() {
+        const c = document.getElementById("all-students-content");
+        c.innerHTML = '<div class="info">Loading students...</div>';
+        try {
+            const r = await fetchAPI(WEBHOOKS.STUDENTS, { action: "getAllStudents" });
+            const s = r.students || r.data || [];
+            const clean = s.filter(x => {
+                const n = x.name || x.StudentName || x.student || x;
+                return n && typeof n === "string";
+            });
 
-    valid.forEach(c => {
-        const student = c.StudentName || c.student || "Unknown student";
-        const date = c.ClassDate || c.date || "Unknown date";
-        const time = c.StartTime || c.time || "Unknown time";
-        const classId = c.ClassID || c.id || "-";
-        const calId = c.CalendarEventID || "";
-
-        const card = document.createElement("div");
-        card.className = "class-card";
-
-        card.innerHTML = `
-            <div class="class-card__row">
-                <div>
-                    <div class="class-student">${student}</div>
-                    <div class="meta">${date} • ${time}</div>
-                    <div class="meta">Class ID: ${classId}</div>
-                    ${calId ? `<div class="meta">Event ID: ${calId}</div>` : ""}
-                </div>
-                <div><span class="badge badge-green">Scheduled</span></div>
-            </div>
-
-            <div class="inline-actions">
-                <button class="btn btn-soft btn-generate">💬 Generate Message</button>
-                <button class="btn btn-outline btn-reschedule">🔁 Reschedule</button>
-            </div>
-
-            <div class="expand-block generate-area" style="display:none;">
-                <label>Message Type</label>
-                <select class="msg-type-select">
-                    <option value="ps">PS Class</option>
-                    <option value="meet">Google Meet</option>
-                </select>
-                <label style="margin-top:6px;">Message Preview</label>
-                <div class="msg-preview"></div>
-                <div class="inline-actions" style="margin-top:6px;">
-                    <button class="btn btn-primary btn-copy">📋 Copy</button>
-                    <button class="btn btn-outline btn-wa">💬 WhatsApp</button>
-                </div>
-            </div>
-
-            <div class="expand-block resched-area" style="display:none;">
-                <div class="form-group">
-                    <label>New Date</label>
-                    <input type="date" class="res-date" value="${date}">
-                </div>
-                <div class="form-group">
-                    <label>New Time</label>
-                    <input type="time" class="res-time" value="${time}">
-                </div>
-                <button class="btn btn-primary btn-block btn-res-submit">Save Reschedule</button>
-            </div>
-        `;
-
-        /* Messaging */
-        const msgArea = card.querySelector(".generate-area");
-        const preview = card.querySelector(".msg-preview");
-        const typeSel = card.querySelector(".msg-type-select");
-
-        function buildMsg(t) {
-            const baseA =
-                `Hi, this is a reminder that ${student} has a class on ${date} at ${time}.\n\n` +
-                `Please join using your PlanetSpark class link.\n\n` +
-                `Regards,\nSenorita Saha\nPowered by LazifAI.`;
-
-            const baseB =
-                `Hi, this is a reminder that ${student} has a class on ${date} at ${time}.\n\n` +
-                `Google Meet link:\nhttps://meet.google.com/dfp-vzbo-yhc\n\n` +
-                `Regards,\nSenorita Saha\nPowered by LazifAI.`;
-
-            return t === "meet" ? baseB : baseA;
-        }
-
-        card.querySelector(".btn-generate").addEventListener("click", () => {
-            const show = msgArea.style.display === "none";
-            msgArea.style.display = show ? "block" : "none";
-            if (show) preview.textContent = buildMsg(typeSel.value);
-        });
-
-        typeSel.addEventListener("change", () => {
-            if (msgArea.style.display !== "none") {
-                preview.textContent = buildMsg(typeSel.value);
-            }
-        });
-
-        card.querySelector(".btn-copy").addEventListener("click", () => {
-            navigator.clipboard.writeText(preview.textContent || "");
-            showMessage("#view-classes-output", '<div class="success">✅ Copied.</div>');
-        });
-
-        card.querySelector(".btn-wa").addEventListener("click", () => {
-            const url = "https://wa.me/?text=" + encodeURIComponent(preview.textContent || "");
-            window.open(url, "_blank");
-        });
-
-        const resArea = card.querySelector(".resched-area");
-        card.querySelector(".btn-reschedule").addEventListener("click", () => {
-            const show = resArea.style.display === "none";
-            resArea.style.display = show ? "block" : "none";
-        });
-
-        card.querySelector(".btn-res-submit").addEventListener("click", async () => {
-            const nd = card.querySelector(".res-date").value;
-            const nt = card.querySelector(".res-time").value;
-
-            if (!nd || !nt) {
-                showMessage("#view-classes-output", '<div class="error">❌ Select date & time.</div>');
+            if (!clean.length) {
+                c.innerHTML = '<div class="info">No students found.</div>';
                 return;
             }
 
-            showMessage("#view-classes-output", '<div class="loading">Rescheduling...</div>');
+            let h = '<table><thead><tr><th>#</th><th>Name</th></tr></thead><tbody>';
+            clean.forEach((x, i) => {
+                const n = x.name || x.StudentName || x.student || x;
+                h += `<tr><td>${i + 1}</td><td>${n}</td></tr>`;
+            });
+            h += "</tbody></table>";
+            c.innerHTML = h;
+        } catch {
+            c.innerHTML = '<div class="error">❌ Error loading students.</div>';
+        }
+    }
 
-            try {
-                await fetchAPI(WEBHOOKS.RESCHED, {
-                    StudentName: student,
-                    OldDate: date,
-                    NewDate: nd,
-                    NewTime: nt,
-                    CalendarEventID: calId,
-                    ClassID: classId
-                });
-                showMessage("#view-classes-output", '<div class="success">✅ Rescheduled.</div>');
-            } catch {
-                showMessage("#view-classes-output", '<div class="error">❌ Failed.</div>');
-            }
-        });
-
-        container.appendChild(card);
+    document.getElementById("refresh-students-btn").addEventListener("click", () => {
+        loadAllStudentsTable();
+        loadStudentsForDropdowns();
     });
-}
 
-/* Load classes */
-document.getElementById("view-classes-btn").addEventListener("click", async ()=>{
-    clearAllMessages();
-    const date = document.getElementById("view-date").value;
-    const out = document.getElementById("view-classes-output");
+    /* Add Student */
+    document.getElementById("add-student-btn").addEventListener("click", async () => {
+        clearAllMessages();
+        const name = document.getElementById("student-name-input").value.trim();
+        const msg = document.getElementById("manage-students-msg");
 
-    if (!date) {
-        out.innerHTML = '<div class="error">❌ Select a date.</div>';
-        return;
+        if (!name) {
+            msg.innerHTML = '<div class="error">❌ Enter a name.</div>';
+            return;
+        }
+
+        msg.innerHTML = '<div class="loading">Adding student...</div>';
+        try {
+            await fetchAPI(WEBHOOKS.ADD, { StudentName: name });
+            msg.innerHTML = '<div class="success">✅ Student added.</div>';
+            document.getElementById("student-name-input").value = "";
+            loadStudentsForDropdowns();
+            loadAllStudentsTable();
+        } catch {
+            msg.innerHTML = '<div class="error">❌ Failed to add student.</div>';
+        }
+    });
+
+    /* Delete Student */
+    document.getElementById("delete-student-btn").addEventListener("click", async () => {
+        clearAllMessages();
+        const sel = document.getElementById("student-delete-select").value;
+        const msg = document.getElementById("manage-students-msg");
+
+        if (!sel) {
+            msg.innerHTML = '<div class="error">❌ Select a student.</div>';
+            return;
+        }
+
+        msg.innerHTML = '<div class="loading">Deleting student...</div>';
+        try {
+            await fetchAPI(WEBHOOKS.DELETE, { StudentName: sel });
+            msg.innerHTML = '<div class="success">✅ Student deleted.</div>';
+            loadStudentsForDropdowns();
+            loadAllStudentsTable();
+        } catch {
+            msg.innerHTML = '<div class="error">❌ Failed to delete student.</div>';
+        }
+    });
+
+    /* Schedule Class */
+    document.getElementById("schedule-class-btn").addEventListener("click", async () => {
+        clearAllMessages();
+        const st = document.getElementById("schedule-student-select").value;
+        const dt = document.getElementById("schedule-date").value;
+        const tm = document.getElementById("schedule-time").value;
+        const msg = document.getElementById("schedule-msg");
+
+        if (!st || !dt || !tm) {
+            msg.innerHTML = '<div class="error">❌ Select student, date & time.</div>';
+            return;
+        }
+
+        msg.innerHTML = '<div class="loading">Scheduling class...</div>';
+        try {
+            await fetchAPI(WEBHOOKS.SCHEDULE, {
+                Action: "ScheduleClass",
+                StudentName: st,
+                ClassDate: dt,
+                StartTime: tm,
+                DurationMinutes: 60,
+                RepeatWeeks: false
+            });
+            msg.innerHTML = '<div class="success">✅ Class scheduled.</div>';
+        } catch {
+            msg.innerHTML = '<div class="error">❌ Failed to schedule class.</div>';
+        }
+    });
+
+    /* renderClassCards — with no-classes + empty-object filter */
+    function renderClassCards(classes) {
+        const container = document.getElementById("view-classes-output");
+
+        const valid = (classes || []).filter(c =>
+            c && (
+                c.StudentName || c.student ||
+                c.ClassDate || c.date ||
+                c.StartTime || c.time
+            )
+        );
+
+        if (!valid.length) {
+            container.innerHTML = '<div class="info">No classes scheduled for this date.</div>';
+            return;
+        }
+
+        container.innerHTML = "";
+
+        valid.forEach(c => {
+            const student = c.StudentName || c.student || "Unknown student";
+            const date = c.ClassDate || c.date || "Unknown date";
+            const time = c.StartTime || c.time || "Unknown time";
+            const classId = c.ClassID || c.id || "-";
+            const calId = c.CalendarEventID || "";
+
+            const card = document.createElement("div");
+            card.className = "class-card";
+
+            card.innerHTML = `
+                <div class="class-card__row">
+                    <div>
+                        <div class="class-student">👤 ${student}</div>
+                        <div class="meta">📅 ${date} • ⏰ ${time}</div>
+                        <div class="meta">🆔 Class ID: ${classId}</div>
+                        ${calId ? `<div class="meta">📎 Event ID: ${calId}</div>` : ""}
+                    </div>
+                    <div><span class="badge badge-green">Scheduled</span></div>
+                </div>
+
+                <div class="inline-actions">
+                    <button class="btn btn-soft btn-generate">💬 Generate Message</button>
+                    <button class="btn btn-outline btn-reschedule">🔁 Reschedule</button>
+                </div>
+
+                <div class="expand-block generate-area" style="display:none;">
+                    <label>Message Type</label>
+                    <select class="msg-type-select">
+                        <option value="ps">PS Class</option>
+                        <option value="meet">Google Meet</option>
+                    </select>
+                    <label style="margin-top:6px;">Message Preview</label>
+                    <div class="msg-preview"></div>
+                    <div class="inline-actions" style="margin-top:6px;">
+                        <button class="btn btn-primary btn-copy">📋 Copy</button>
+                        <button class="btn btn-outline btn-wa">💬 WhatsApp</button>
+                    </div>
+                </div>
+
+                <div class="expand-block resched-area" style="display:none;">
+                    <div class="form-group">
+                        <label>New Date</label>
+                        <input type="date" class="res-date" value="${date}">
+                    </div>
+                    <div class="form-group">
+                        <label>New Time</label>
+                        <input type="time" class="res-time" value="${time}">
+                    </div>
+                    <button class="btn btn-primary btn-block btn-res-submit">Save Reschedule</button>
+                </div>
+            `;
+
+            /* Messaging */
+            const msgArea = card.querySelector(".generate-area");
+            const preview = card.querySelector(".msg-preview");
+            const typeSel = card.querySelector(".msg-type-select");
+
+            function buildMsg(t) {
+                const A =
+                    `Hi, this is a reminder that ${student} has a class on ${date} at ${time}.\n\n` +
+                    `Please join using your PlanetSpark class link.\n\n` +
+                    `Regards,\nSenorita Saha\nPowered by LazifAI.`;
+
+                const B =
+                    `Hi, this is a reminder that ${student} has a class on ${date} at ${time}.\n\n` +
+                    `Google Meet link:\nhttps://meet.google.com/dfp-vzbo-yhc\n\n` +
+                    `Regards,\nSenorita Saha\nPowered by LazifAI.`;
+
+                return t === "meet" ? B : A;
+            }
+
+            card.querySelector(".btn-generate").addEventListener("click", () => {
+                const show = msgArea.style.display === "none";
+                msgArea.style.display = show ? "block" : "none";
+                if (show) preview.textContent = buildMsg(typeSel.value);
+            });
+
+            typeSel.addEventListener("change", () => {
+                if (msgArea.style.display !== "none") {
+                    preview.textContent = buildMsg(typeSel.value);
+                }
+            });
+
+            /* Copy (uses toast, does NOT close cards) */
+            card.querySelector(".btn-copy").addEventListener("click", () => {
+                const text = preview.textContent || "";
+                navigator.clipboard.writeText(text);
+                showToast("Message copied to clipboard", "success");
+            });
+
+            /* WhatsApp */
+            card.querySelector(".btn-wa").addEventListener("click", () => {
+                const url = "https://wa.me/?text=" + encodeURIComponent(preview.textContent || "");
+                window.open(url, "_blank");
+            });
+
+            /* Reschedule */
+            const resArea = card.querySelector(".resched-area");
+            card.querySelector(".btn-reschedule").addEventListener("click", () => {
+                const show = resArea.style.display === "none";
+                resArea.style.display = show ? "block" : "none";
+            });
+
+            card.querySelector(".btn-res-submit").addEventListener("click", async () => {
+                const nd = card.querySelector(".res-date").value;
+                const nt = card.querySelector(".res-time").value;
+
+                if (!nd || !nt) {
+                    showMessage("#view-classes-output", '<div class="error">❌ Select date & time.</div>');
+                    return;
+                }
+
+                showMessage("#view-classes-output", '<div class="loading">Rescheduling...</div>');
+
+                try {
+                    await fetchAPI(WEBHOOKS.RESCHED, {
+                        StudentName: student,
+                        OldDate: date,
+                        NewDate: nd,
+                        NewTime: nt,
+                        CalendarEventID: calId,
+                        ClassID: classId
+                    });
+                    showMessage("#view-classes-output", '<div class="success">✅ Rescheduled.</div>');
+                } catch {
+                    showMessage("#view-classes-output", '<div class="error">❌ Failed.</div>');
+                }
+            });
+
+            container.appendChild(card);
+        });
     }
 
-    out.innerHTML = '<div class="loading">Loading...</div>';
-    try {
-        const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, {selectedDate:date});
-        renderClassCards(d.classes || []);
-    } catch {
-        out.innerHTML = '<div class="error">❌ Error loading classes.</div>';
-    }
-});
+    /* Load classes */
+    document.getElementById("view-classes-btn").addEventListener("click", async () => {
+        clearAllMessages();
+        const date = document.getElementById("view-date").value;
+        const out = document.getElementById("view-classes-output");
 
-/* init */
-window.addEventListener("load", ()=>{
-    showMainSection("students");
-    loadStudentsForDropdowns();
-    loadAllStudentsTable();
-});
+        if (!date) {
+            out.innerHTML = '<div class="error">❌ Select a date.</div>';
+            return;
+        }
+
+        out.innerHTML = '<div class="loading">Loading classes...</div>';
+        try {
+            const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: date });
+            renderClassCards(d.classes || []);
+        } catch {
+            out.innerHTML = '<div class="error">❌ Error loading classes.</div>';
+        }
+    });
+
+    /* Init */
+    window.addEventListener("load", () => {
+        showMainSection("students");
+        loadStudentsForDropdowns();
+        loadAllStudentsTable();
+    });
 </script>
 
 </body>
