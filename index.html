@@ -1,78 +1,638 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class Manager - Senorita Saha</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Class Manager — LazifAI</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #ece9ff 0%, #f5f7ff 30%, #fdfbff 100%);
             min-height: 100vh;
-            padding: 10px;
+            padding: 16px;
+            color: #1f2933;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        /* Header */
+        .top-bar {
+            display: flex; flex-wrap: wrap;
+            justify-content: space-between; align-items: flex-start;
+            gap: 16px; margin-bottom: 16px;
+        }
+        .brand-block {
+            background: #ffffff; border-radius: 16px;
+            padding: 16px 18px;
+            box-shadow: 0 8px 20px rgba(15,23,42,0.06);
+            flex: 1 1 220px;
+        }
+        .brand-title {
+            font-size: 1.4rem; font-weight: 700;
+            letter-spacing: 0.03em; color: #4338ca; margin-bottom: 4px;
+        }
+        .brand-sub { font-size: 0.85rem; color: #6b7280; }
+        .teacher-block {
+            background: #ffffff; border-radius: 16px;
+            padding: 12px 16px; min-width: 220px;
+            box-shadow: 0 8px 20px rgba(15,23,42,0.06);
+        }
+        .teacher-label {
+            font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 0.06em; color: #9ca3af; margin-bottom: 2px;
+        }
+        .teacher-name { font-weight: 600; font-size: 0.95rem; color: #111827; }
+        .teacher-id { font-size: 0.8rem; color: #6b7280; }
+
+        /* Tabs */
+        .main-tabs { display: flex; gap: 8px; margin: 8px 0 16px; }
+        .main-tab-btn {
+            flex: 1; padding: 10px 12px; border-radius: 999px;
+            border: 1px solid #e5e7eb; background: #f9fafb;
+            font-size: 0.9rem; font-weight: 600; color: #4b5563;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center; gap: 6px; transition: all 0.2s ease;
+        }
+        .main-tab-btn.active {
+            background: #4f46e5; color: #ffffff;
+            border-color: #4f46e5;
+            box-shadow: 0 8px 18px rgba(79,70,229,0.35);
+        }
+        .main-tab-btn:not(.active):hover { background: #eef2ff; }
+        .section { display: none; }
+        .section.show { display: block; }
+
+        /* Cards + Layout */
+        .section-card {
+            background: #ffffff; border-radius: 18px;
+            padding: 16px 16px 18px;
+            box-shadow: 0 10px 26px rgba(15,23,42,0.06);
+            margin-bottom: 14px;
+        }
+        .section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+        .section-title { font-size: 1.05rem; font-weight: 600; color: #111827; }
+        .section-caption { font-size: 0.8rem; color: #6b7280; }
+
+        .card-row { display: flex; flex-wrap: wrap; gap: 12px; }
+        .card-column { flex: 1 1 260px; }
+
+        /* Form */
+        .form-group { margin-bottom: 10px; }
+        label {
+            display: block; font-size: 0.8rem; color: #4b5563;
+            margin-bottom: 4px; font-weight: 500;
+        }
+        input, select, textarea {
+            width: 100%; padding: 7px 9px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 0.9rem; outline: none;
+            background: #f9fafb;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 1px rgba(79,70,229,0.18);
+            background: #ffffff;
         }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 6px; padding: 8px 12px; border-radius: 999px;
+            border: none; font-size: 0.88rem; font-weight: 600;
+            cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+        }
+        .btn-primary { background: #4f46e5; color: #ffffff; box-shadow: 0 6px 14px rgba(79,70,229,0.25); }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-outline { background: #ffffff; color: #4b5563; border: 1px solid #d1d5db; }
+        .btn-outline:hover { background: #f3f4ff; border-color: #4f46e5; color: #111827; }
+        .btn-soft { background: #eef2ff; color: #4338ca; }
+        .btn-soft:hover { background: #e0e7ff; }
+        .btn-block { width: 100%; }
+
+        /* Table */
+        .table-wrap { margin-top: 8px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+        th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        thead { background: #f3f4ff; }
+        th { font-weight: 600; color: #374151; }
+
+        /* Class cards */
+        .classes-list { margin-top: 6px; }
+        .class-card {
+            border-radius: 14px; border: 1px solid #e5e7eb;
+            padding: 10px 12px; margin-bottom: 10px; background: #ffffff;
+        }
+        .class-card__row {
+            display: flex; justify-content: space-between;
+            gap: 8px; margin-bottom: 6px;
+        }
+        .class-student { font-weight: 600; font-size: 0.98rem; color: #111827; }
+        .meta { font-size: 0.8rem; color: #6b7280; }
+        .badge { padding: 3px 7px; border-radius:999px; font-size:0.7rem; font-weight:600; }
+        .badge-green { background:#dcfce7; color:#166534; }
+
+        .expand-block {
+            margin-top: 8px; padding-top: 6px;
+            border-top: 1px dashed #e5e7eb;
+        }
+        .msg-preview {
+            padding: 8px; background: #f9fafb;
+            border-radius: 8px; border: 1px dashed #d1d5db;
+            white-space: pre-wrap; font-size: 0.84rem;
         }
 
-        .header {
-            background: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        .footer {
+            margin-top: 20px;
+            font-size: 0.78rem; color: #9ca3af; text-align: center;
+        }
+        .footer span { font-weight: 600; color:#4f46e5; }
+
+        @media(max-width:640px) {
+            body { padding:12px; }
+            .section-card { padding:14px; }
+            .class-card__row { flex-direction:column; align-items:flex-start; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <header class="top-bar">
+        <div class="brand-block">
+            <div class="brand-title">Advanced Class Manager</div>
+            <div class="brand-sub">Complete Dashboard — Powered by LazifAI</div>
+        </div>
+        <div class="teacher-block">
+            <div class="teacher-label">WELCOME</div>
+            <div class="teacher-name">Senorita Saha</div>
+            <div class="teacher-id">Teacher ID: 181577</div>
+        </div>
+    </header>
+
+    <nav class="main-tabs">
+        <button class="main-tab-btn active" data-section="students">👥 Manage Students</button>
+        <button class="main-tab-btn" data-section="classes">📚 Manage Classes</button>
+    </nav>
+
+    <!-- STUDENTS -->
+    <section id="section-students" class="section show">
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">Manage Students</div>
+                    <div class="section-caption">Add, delete & view all active students.</div>
+                </div>
+            </div>
+
+            <div class="card-row">
+                <div class="card-column">
+                    <div class="form-group">
+                        <label>Add Student</label>
+                        <input id="student-name-input" type="text" placeholder="Enter student name"/>
+                    </div>
+                    <button id="add-student-btn" class="btn btn-primary btn-block">➕ Add Student</button>
+
+                    <div class="form-group" style="margin-top:16px;">
+                        <label>Delete Student</label>
+                        <select id="student-delete-select">
+                            <option value="">Select student to delete</option>
+                        </select>
+                    </div>
+                    <button id="delete-student-btn" class="btn btn-outline btn-block">🗑 Delete Student</button>
+
+                    <div id="manage-students-msg" class="status-block"></div>
+                </div>
+
+                <div class="card-column">
+                    <label>All Active Students</label>
+                    <div class="inline-actions" style="margin-top:4px;">
+                        <button id="refresh-students-btn" class="btn btn-soft">🔄 Refresh</button>
+                    </div>
+
+                    <div id="all-students-content" class="table-wrap"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CLASSES -->
+    <section id="section-classes" class="section">
+
+        <!-- Schedule -->
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">Schedule Class</div>
+                    <div class="section-caption">Create class & calendar event.</div>
+                </div>
+            </div>
+
+            <div class="card-row">
+                <div class="card-column">
+                    <label>Student</label>
+                    <select id="schedule-student-select">
+                        <option value="">Select student</option>
+                    </select>
+                </div>
+
+                <div class="card-column">
+                    <label>Class Date</label>
+                    <input type="date" id="schedule-date"/>
+                </div>
+
+                <div class="card-column">
+                    <label>Start Time</label>
+                    <input type="time" id="schedule-time"/>
+                </div>
+            </div>
+
+            <div class="inline-actions" style="margin-top:4px;">
+                <button id="schedule-class-btn" class="btn btn-primary">✅ Schedule Class</button>
+            </div>
+
+            <div id="schedule-msg" class="status-block"></div>
+        </div>
+
+        <!-- View Classes -->
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">View & Manage Classes</div>
+                    <div class="section-caption">Filter by date, generate messages, or reschedule classes.</div>
+                </div>
+            </div>
+
+            <div class="classes-controls">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>Select Date</label>
+                    <input type="date" id="view-date"/>
+                </div>
+                <button id="view-classes-btn" class="btn btn-soft">📅 Load Classes</button>
+            </div>
+
+            <div id="view-classes-output" class="classes-list"></div>
+        </div>
+
+    </section>
+
+    <footer class="footer">
+        Powered by <span>LazifAI</span> — Advanced Class Manager.
+    </footer>
+
+</div>
+
+<script>
+/* Webhooks unchanged */
+const WEBHOOKS = {
+    ADD: "https://hook.eu2.make.com/hvddse2wcpf6w3m6t2tepmreloar7cjt",
+    DELETE: "https://hook.eu2.make.com/79eede2kxvv66jm31atr8jjxmtf5ag9q",
+    STUDENTS: "https://hook.eu2.make.com/kemhxja7ouav3ibxeqay4ktpmshw6xsl",
+    SCHEDULE: "https://hook.eu2.make.com/m0iyppobmi5ut4bmkkl86rpn6vmjgx1l",
+    FETCH_CLASS: "https://hook.eu2.make.com/2y3wy4smt4q9ui0buu15bpm6rbp0eg5p",
+    RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70"
+};
+
+/* Helpers */
+function clearAllMessages() {
+    document.getElementById("manage-students-msg").innerHTML = "";
+    document.getElementById("schedule-msg").innerHTML = "";
+}
+function showMessage(target, html) {
+    const el = document.querySelector(target);
+    if (el) el.innerHTML = html;
+}
+async function fetchAPI(url, payload) {
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload || {})
+    });
+    const text = await res.text();
+    try { return JSON.parse(text); }
+    catch {
+        if (text.trim().toLowerCase() === "accepted") return {};
+        throw new Error("Invalid JSON: " + text);
+    }
+}
+
+/* Tabs */
+const mainTabButtons = document.querySelectorAll(".main-tab-btn");
+const sectionStudents = document.getElementById("section-students");
+const sectionClasses = document.getElementById("section-classes");
+
+function showMainSection(sec) {
+    clearAllMessages();
+    mainTabButtons.forEach(btn =>
+        btn.classList.toggle("active", btn.dataset.section === sec)
+    );
+    sectionStudents.classList.toggle("show", sec === "students");
+    sectionClasses.classList.toggle("show", sec === "classes");
+}
+
+mainTabButtons.forEach(btn =>
+    btn.addEventListener("click", () => showMainSection(btn.dataset.section))
+);
+
+/* Load Students */
+async function loadStudentsForDropdowns() {
+    try {
+        const r = await fetchAPI(WEBHOOKS.STUDENTS, {action: "getAllStudents"});
+        const s = r.students || r.data || [];
+        const delSel = document.getElementById("student-delete-select");
+        const schSel = document.getElementById("schedule-student-select");
+
+        delSel.innerHTML = '<option value="">Select student to delete</option>';
+        schSel.innerHTML = '<option value="">Select student</option>';
+
+        s.forEach(x => {
+            const n = x.name || x.StudentName || x.student || x;
+            if (!n) return;
+            delSel.innerHTML += `<option value="${n}">${n}</option>`;
+            schSel.innerHTML += `<option value="${n}">${n}</option>`;
+        });
+    } catch {}
+}
+
+async function loadAllStudentsTable() {
+    const c = document.getElementById("all-students-content");
+    c.innerHTML = '<div class="info">Loading students...</div>';
+    try {
+        const r = await fetchAPI(WEBHOOKS.STUDENTS, {action:"getAllStudents"});
+        const s = r.students || r.data || [];
+        if (!s.length) {
+            c.innerHTML = '<div class="info">No students found.</div>';
+            return;
+        }
+        let h = '<table><thead><tr><th>#</th><th>Name</th></tr></thead><tbody>';
+        s.forEach((x,i)=>
+            h += `<tr><td>${i+1}</td><td>${x.name||x.StudentName||x.student||x}</td></tr>`
+        );
+        h += '</tbody></table>';
+        c.innerHTML = h;
+    } catch {
+        c.innerHTML = '<div class="error">❌ Error loading students.</div>';
+    }
+}
+
+document.getElementById("refresh-students-btn").addEventListener("click",()=>{
+    loadAllStudentsTable();
+    loadStudentsForDropdowns();
+});
+
+/* Add Student */
+document.getElementById("add-student-btn").addEventListener("click", async ()=>{
+    clearAllMessages();
+    const name = document.getElementById("student-name-input").value.trim();
+    const msg = document.getElementById("manage-students-msg");
+
+    if (!name) {
+        msg.innerHTML = '<div class="error">❌ Enter a name.</div>';
+        return;
+    }
+
+    msg.innerHTML = '<div class="loading">Adding...</div>';
+    try {
+        await fetchAPI(WEBHOOKS.ADD, {StudentName:name});
+        msg.innerHTML = '<div class="success">✅ Added.</div>';
+        document.getElementById("student-name-input").value = "";
+        loadStudentsForDropdowns();
+        loadAllStudentsTable();
+    } catch {
+        msg.innerHTML = '<div class="error">❌ Failed.</div>';
+    }
+});
+
+/* Delete Student */
+document.getElementById("delete-student-btn").addEventListener("click", async ()=>{
+    clearAllMessages();
+    const sel = document.getElementById("student-delete-select").value;
+    const msg = document.getElementById("manage-students-msg");
+
+    if (!sel) {
+        msg.innerHTML = '<div class="error">❌ Select a student.</div>';
+        return;
+    }
+
+    msg.innerHTML = '<div class="loading">Deleting...</div>';
+    try {
+        await fetchAPI(WEBHOOKS.DELETE, {StudentName:sel});
+        msg.innerHTML = '<div class="success">✅ Deleted.</div>';
+        loadStudentsForDropdowns();
+        loadAllStudentsTable();
+    } catch {
+        msg.innerHTML = '<div class="error">❌ Failed.</div>';
+    }
+});
+
+/* Schedule Class */
+document.getElementById("schedule-class-btn").addEventListener("click", async ()=>{
+    clearAllMessages();
+    const st = document.getElementById("schedule-student-select").value;
+    const dt = document.getElementById("schedule-date").value;
+    const tm = document.getElementById("schedule-time").value;
+    const msg = document.getElementById("schedule-msg");
+
+    if (!st || !dt || !tm) {
+        msg.innerHTML = '<div class="error">❌ Select all fields.</div>';
+        return;
+    }
+
+    msg.innerHTML = '<div class="loading">Scheduling...</div>';
+    try {
+        await fetchAPI(WEBHOOKS.SCHEDULE, {
+            Action: "ScheduleClass",
+            StudentName: st,
+            ClassDate: dt,
+            StartTime: tm,
+            DurationMinutes: 60,   // required by Make/Google Calendar
+            RepeatWeeks: false
+        });
+        msg.innerHTML = '<div class="success">✅ Scheduled.</div>';
+    } catch {
+        msg.innerHTML = '<div class="error">❌ Failed.</div>';
+    }
+});
+
+/* renderClassCards with no-classes fix */
+function renderClassCards(classes) {
+    const container = document.getElementById("view-classes-output");
+
+    // Filter out empty/garbage objects from Make
+    const valid = (classes || []).filter(c =>
+        c && (
+            c.StudentName || c.student ||
+            c.ClassDate || c.date ||
+            c.StartTime || c.time
+        )
+    );
+
+    if (!valid.length) {
+        container.innerHTML = '<div class="info">No classes scheduled for this date.</div>';
+        return;
+    }
+
+    container.innerHTML = "";
+
+    valid.forEach(c => {
+        const student = c.StudentName || c.student || "Unknown student";
+        const date = c.ClassDate || c.date || "Unknown date";
+        const time = c.StartTime || c.time || "Unknown time";
+        const classId = c.ClassID || c.id || "-";
+        const calId = c.CalendarEventID || "";
+
+        const card = document.createElement("div");
+        card.className = "class-card";
+
+        card.innerHTML = `
+            <div class="class-card__row">
+                <div>
+                    <div class="class-student">${student}</div>
+                    <div class="meta">${date} • ${time}</div>
+                    <div class="meta">Class ID: ${classId}</div>
+                    ${calId ? `<div class="meta">Event ID: ${calId}</div>` : ""}
+                </div>
+                <div><span class="badge badge-green">Scheduled</span></div>
+            </div>
+
+            <div class="inline-actions">
+                <button class="btn btn-soft btn-generate">💬 Generate Message</button>
+                <button class="btn btn-outline btn-reschedule">🔁 Reschedule</button>
+            </div>
+
+            <div class="expand-block generate-area" style="display:none;">
+                <label>Message Type</label>
+                <select class="msg-type-select">
+                    <option value="ps">PS Class</option>
+                    <option value="meet">Google Meet</option>
+                </select>
+                <label style="margin-top:6px;">Message Preview</label>
+                <div class="msg-preview"></div>
+                <div class="inline-actions" style="margin-top:6px;">
+                    <button class="btn btn-primary btn-copy">📋 Copy</button>
+                    <button class="btn btn-outline btn-wa">💬 WhatsApp</button>
+                </div>
+            </div>
+
+            <div class="expand-block resched-area" style="display:none;">
+                <div class="form-group">
+                    <label>New Date</label>
+                    <input type="date" class="res-date" value="${date}">
+                </div>
+                <div class="form-group">
+                    <label>New Time</label>
+                    <input type="time" class="res-time" value="${time}">
+                </div>
+                <button class="btn btn-primary btn-block btn-res-submit">Save Reschedule</button>
+            </div>
+        `;
+
+        /* Messaging */
+        const msgArea = card.querySelector(".generate-area");
+        const preview = card.querySelector(".msg-preview");
+        const typeSel = card.querySelector(".msg-type-select");
+
+        function buildMsg(t) {
+            const baseA =
+                `Hi, this is a reminder that ${student} has a class on ${date} at ${time}.\n\n` +
+                `Please join using your PlanetSpark class link.\n\n` +
+                `Regards,\nSenorita Saha\nPowered by LazifAI.`;
+
+            const baseB =
+                `Hi, this is a reminder that ${student} has a class on ${date} at ${time}.\n\n` +
+                `Google Meet link:\nhttps://meet.google.com/dfp-vzbo-yhc\n\n` +
+                `Regards,\nSenorita Saha\nPowered by LazifAI.`;
+
+            return t === "meet" ? baseB : baseA;
         }
 
-        .header h1 {
-            font-size: 24px;
-            color: #667eea;
-            margin-bottom: 8px;
-        }
+        card.querySelector(".btn-generate").addEventListener("click", () => {
+            const show = msgArea.style.display === "none";
+            msgArea.style.display = show ? "block" : "none";
+            if (show) preview.textContent = buildMsg(typeSel.value);
+        });
 
-        .header .welcome {
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-            margin: 8px 0;
-        }
+        typeSel.addEventListener("change", () => {
+            if (msgArea.style.display !== "none") {
+                preview.textContent = buildMsg(typeSel.value);
+            }
+        });
 
-        .header .tagline {
-            font-size: 11px;
-            color: #666;
-            margin-top: 5px;
-        }
+        card.querySelector(".btn-copy").addEventListener("click", () => {
+            navigator.clipboard.writeText(preview.textContent || "");
+            showMessage("#view-classes-output", '<div class="success">✅ Copied.</div>');
+        });
 
-        .menu {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
+        card.querySelector(".btn-wa").addEventListener("click", () => {
+            const url = "https://wa.me/?text=" + encodeURIComponent(preview.textContent || "");
+            window.open(url, "_blank");
+        });
 
-        .menu button {
-            padding: 16px 12px;
-            background: white;
-            color: #667eea;
-            border: none;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: bold;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: all 0.3s;
-            min-height: 60px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
+        const resArea = card.querySelector(".resched-area");
+        card.querySelector(".btn-reschedule").addEventListener("click", () => {
+            const show = resArea.style.display === "none";
+            resArea.style.display = show ? "block" : "none";
+        });
 
-        .menu button:active {
-            transform: scale(0.95);
-        }
+        card.querySelector(".btn-res-submit").addEventListener("click", async () => {
+            const nd = card.querySelector(".res-date").value;
+            const nt = card.querySelector(".res-time").value;
+
+            if (!nd || !nt) {
+                showMessage("#view-classes-output", '<div class="error">❌ Select date & time.</div>');
+                return;
+            }
+
+            showMessage("#view-classes-output", '<div class="loading">Rescheduling...</div>');
+
+            try {
+                await fetchAPI(WEBHOOKS.RESCHED, {
+                    StudentName: student,
+                    OldDate: date,
+                    NewDate: nd,
+                    NewTime: nt,
+                    CalendarEventID: calId,
+                    ClassID: classId
+                });
+                showMessage("#view-classes-output", '<div class="success">✅ Rescheduled.</div>');
+            } catch {
+                showMessage("#view-classes-output", '<div class="error">❌ Failed.</div>');
+            }
+        });
+
+        container.appendChild(card);
+    });
+}
+
+/* Load classes */
+document.getElementById("view-classes-btn").addEventListener("click", async ()=>{
+    clearAllMessages();
+    const date = document.getElementById("view-date").value;
+    const out = document.getElementById("view-classes-output");
+
+    if (!date) {
+        out.innerHTML = '<div class="error">❌ Select a date.</div>';
+        return;
+    }
+
+    out.innerHTML = '<div class="loading">Loading...</div>';
+    try {
+        const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, {selectedDate:date});
+        renderClassCards(d.classes || []);
+    } catch {
+        out.innerHTML = '<div class="error">❌ Error loading classes.</div>';
+    }
+});
+
+/* init */
+window.addEventListener("load", ()=>{
+    showMainSection("students");
+    loadStudentsForDropdowns();
+    loadAllStudentsTable();
+});
+</script>
+
+</body>
+</html>
