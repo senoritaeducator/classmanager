@@ -70,10 +70,21 @@
 
         .brand-pill-row {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 6px;
             margin-top: 10px;
             font-size: 0.72rem;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .brand-pill-row::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .brand-pill-row::-webkit-scrollbar-thumb {
+            background: rgba(15,23,42,0.35);
+            border-radius: 999px;
         }
 
         .brand-pill {
@@ -84,6 +95,7 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            white-space: nowrap;
         }
 
         .teacher-block {
@@ -128,11 +140,64 @@
             color: #6b7280;
         }
 
+        .teacher-clock {
+            margin-top: 4px;
+            font-size: 0.8rem;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* NEW avatar styling */
+        .teacher-avatar {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+        }
+
+        @media (max-width: 768px) {
+            .teacher-avatar {
+                right: 12px;
+                top: 12px;
+                width: 44px;
+                height: 44px;
+            }
+        }
+
         /* Tabs */
+        .global-search-wrap {
+            margin: 6px 0 8px;
+            display: none; /* search hidden, logic still intact */
+        }
+
+        .global-search-input {
+            width: 100%;
+            padding: 7px 10px;
+            border-radius: 999px;
+            border: 1px solid #d1d5db;
+            font-size: 0.86rem;
+            background: #f9fafb;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .global-search-input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 1px rgba(79,70,229,0.18);
+            background: #ffffff;
+        }
+
         .main-tabs {
             display: flex;
             gap: 8px;
-            margin: 8px 0 14px;
+            margin: 4px 0 12px;
         }
 
         .main-tab-btn {
@@ -186,6 +251,12 @@
             border: 1px solid #e5e7eb;
             position: relative;
             overflow: hidden;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 32px rgba(15,23,42,0.08);
         }
 
         .section-card::before {
@@ -228,6 +299,12 @@
             color: #6b7280;
         }
 
+        .section-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .card-row {
             display: flex;
             flex-wrap: wrap;
@@ -236,6 +313,161 @@
 
         .card-column {
             flex: 1 1 260px;
+        }
+
+        /* Overview mini-cards */
+        .overview-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .overview-tile {
+            flex: 1 1 180px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            font-size: 0.8rem;
+        }
+
+        .overview-title {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #9ca3af;
+            margin-bottom: 2px;
+        }
+
+        .overview-main {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .overview-sub {
+            font-size: 0.78rem;
+            color: #6b7280;
+        }
+
+        .overview-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .overview-refresh-btn {
+            border: none;
+            background: #eef2ff;
+            border-radius: 999px;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 6px;
+        }
+
+        .overview-refresh-btn:hover {
+            background: #e0e7ff;
+        }
+
+
+        .weekly-strip {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 6px;
+            margin-top: 4px;
+            overflow-x: auto;
+        }
+
+        .weekly-day {
+            min-width: 48px;
+            padding: 4px 6px;
+            border-radius: 10px;
+            background: #eef2ff;
+            font-size: 0.74rem;
+            text-align: center;
+            color: #4338ca;
+        }
+
+        .weekly-day.has-classes {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .weekly-day.today {
+            background: #dcfce7;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        /* NEW: Students tile animation */
+        .students-tile {
+            position: relative;
+        }
+
+        .students-tile::before {
+            content: "👩‍🏫";
+            position: absolute;
+            right: 10px;
+            bottom: 8px;
+            font-size: 1.6rem;
+            opacity: 0.7;
+            animation: gentlyBounce 3.2s ease-in-out infinite;
+        }
+
+        @keyframes gentlyBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* NEW: Motivation tile */
+        .motivation-tile {
+            background: radial-gradient(circle at top left, #eef2ff, #e0f2fe 40%, #fce7f3 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .motivation-tile::before {
+            content: "✨";
+            position: absolute;
+            right: 12px;
+            bottom: 8px;
+            font-size: 1.4rem;
+            opacity: 0.5;
+            animation: floatSparkle 4s ease-in-out infinite;
+        }
+
+        @keyframes floatSparkle {
+            0%, 100% { transform: translateY(0); opacity: 0.4; }
+            50% { transform: translateY(-4px); opacity: 0.8; }
+        }
+
+        /* NEW: Today classes list styles */
+        .today-classes-list {
+            max-height: 120px;
+            overflow-y: auto;
+            margin-top: 8px;
+        }
+
+        .today-class-item {
+            font-size: 0.84rem;
+            padding: 4px 0;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+
+        .today-class-item:last-child {
+            border-bottom: none;
+        }
+
+        /* NEW: Prevent animation overlap in motivation tile */
+        .motivation-tile .overview-main,
+        .motivation-tile .overview-sub {
+            padding-right: 40px; /* Make space for sparkle animation */
         }
 
         /* Form */
@@ -266,6 +498,23 @@
             border-color: #4f46e5;
             box-shadow: 0 0 0 1px rgba(79,70,229,0.18);
             background: #ffffff;
+        }
+
+        .schedule-hint {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .schedule-hint button {
+            border: none;
+            background: none;
+            padding: 0;
+            margin-left: 4px;
+            font-size: 0.75rem;
+            color: #4f46e5;
+            cursor: pointer;
+            text-decoration: underline;
         }
 
         /* Buttons */
@@ -418,6 +667,16 @@
             margin-bottom: 10px;
             background: linear-gradient(135deg, #ffffff, #f9fafb);
             box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .class-accent {
+            position: absolute;
+            inset-inline-start: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
         }
 
         .class-card__row {
@@ -515,6 +774,129 @@
             font-size: 1rem;
         }
 
+        /* Bulk reminders modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+        }
+
+        .modal-backdrop.show {
+            display: flex;
+        }
+
+        .modal {
+            max-width: 640px;
+            width: 100%;
+            max-height: 80vh;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 14px 16px;
+            box-shadow: 0 24px 40px rgba(15,23,42,0.35);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .modal-title {
+            font-size: 0.98rem;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .modal-footer {
+            margin-top: 8px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: #6b7280;
+        }
+
+        .bulk-item {
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+        }
+
+        .bulk-item-header {
+            font-size: 0.86rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .bulk-item-meta {
+            font-size: 0.76rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        /* Quick action FAB */
+        .fab-container {
+            position: fixed;
+            right: 16px;
+            bottom: 80px;
+            z-index: 9997;
+        }
+
+        .fab-main {
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            box-shadow: 0 12px 30px rgba(15,23,42,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .fab-menu {
+            position: absolute;
+            bottom: 52px;
+            right: 0;
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .fab-menu.show {
+            display: flex;
+        }
+
+        .fab-item {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 8px 18px rgba(15,23,42,0.25);
+        }
+
         /* Footer */
         .footer {
             margin-top: 20px;
@@ -532,6 +914,11 @@
             margin-top: 2px;
             font-size: 0.74rem;
             color: #9ca3af;
+        }
+
+        /* NEW: Fix no classes spacing */
+        .today-classes-list:empty {
+            display: none;
         }
 
         @media (max-width: 640px) {
@@ -560,6 +947,14 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
+
+            .fab-container {
+                bottom: 72px;
+            }
+
+            .modal {
+                max-width: 95vw;
+            }
         }
     </style>
 </head>
@@ -575,17 +970,35 @@
             </div>
             <div class="brand-sub">Teacher's Dashboard — Powered by LazifAI</div>
             <div class="brand-pill-row">
-                <div class="brand-pill">👥 Manage students</div>
-                <div class="brand-pill">📚 Schedule & reschedule classes</div>
-                <div class="brand-pill">💬 One-click message templates</div>
+                <div class="brand-pill" id="clock-sydney">🇦🇺 Sydney: --:-- --</div>
+                <div class="brand-pill" id="clock-perth">🇦🇺 Perth: --:-- --</div>
+                <div class="brand-pill" id="clock-london">🇬🇧 London: --:-- --</div>
+                <div class="brand-pill" id="clock-uae">🇦🇪 UAE: --:-- --</div>
+                <div class="brand-pill" id="clock-nz">🇳🇿 NZ: --:-- --</div>
             </div>
         </div>
         <div class="teacher-block">
             <div class="teacher-label">WELCOME</div>
             <div class="teacher-name">Senorita Saha</div>
             <div class="teacher-id">Teacher ID: 181577</div>
+            <div class="teacher-clock" id="clock-india">🕒 India: --:-- --</div>
+
+            <!-- NEW: profile photo -->
+            <img
+                src="senorita-profile.jpg"
+                alt="Senorita Saha"
+                class="teacher-avatar" />
         </div>
     </header>
+
+    <div class="global-search-wrap">
+        <input
+            type="text"
+            id="global-search"
+            class="global-search-input"
+            placeholder="🔎 Search students or classes by name, date or time..."
+        />
+    </div>
 
     <nav class="main-tabs">
         <button class="main-tab-btn active" data-section="students">
@@ -651,6 +1064,51 @@
     <!-- CLASSES -->
     <section id="section-classes" class="section">
 
+        <!-- Overview -->
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <div class="section-title-row">
+                        <span class="section-title-icon">📈</span>
+                        <div class="section-title">Today & Week Overview</div>
+                    </div>
+                    <div class="section-caption">Quick glance at your students, today’s workload and this week.</div>
+                </div>
+            </div>
+            <div class="overview-grid">
+                <div class="overview-tile students-tile">
+                    <div class="overview-title">Students</div>
+                    <div class="overview-main" id="stats-total-students">--</div>
+                    <div class="overview-sub" id="stats-students-sub">Total active students</div>
+                </div>
+                <div class="overview-tile">
+                    <div class="overview-title">
+                    Today at a glance
+                    <button type="button" class="overview-refresh-btn" id="refresh-today-btn" title="Refresh today">⟳</button>
+                </div>
+                    <div class="overview-main" id="stats-today-main">No data</div>
+                    <div class="overview-sub" id="stats-today-sub"></div> <!-- no helper text -->
+                    <div class="today-classes-list" id="today-classes-list"></div>
+                </div>
+                <div class="overview-tile">
+                    <div class="overview-title">
+                    This week
+                    <button type="button" class="overview-refresh-btn" id="refresh-week-btn" title="Refresh this week">⟳</button>
+                </div>
+                    <div class="overview-main" id="stats-week-main">--</div>
+                    <div class="overview-sub"></div> <!-- no "(approx)" -->
+                    <div class="weekly-strip" id="weekly-strip"></div>
+                </div>
+                <div class="overview-tile motivation-tile">
+                    <div class="overview-title">Motivation</div>
+                    <div class="overview-main" id="motivation-main">
+                        Today's corrections become tomorrow's clarity.
+                    </div>
+                    <div class="overview-sub" id="motivation-sub"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Schedule -->
         <div class="section-card">
             <div class="section-header">
@@ -679,6 +1137,7 @@
                 <div class="card-column">
                     <label>Start Time</label>
                     <input type="time" id="schedule-time" />
+                    <div id="schedule-suggestion" class="schedule-hint"></div>
                 </div>
             </div>
 
@@ -701,6 +1160,11 @@
                     </div>
                     <div class="section-caption">Filter by date, generate messages, or reschedule classes.</div>
                 </div>
+                <div class="section-header-right">
+                    <button id="send-all-reminders-btn" class="btn btn-soft" style="display:none;">
+                        📤 Send All Reminders
+                    </button>
+                </div>
             </div>
 
             <div class="classes-controls">
@@ -719,11 +1183,37 @@
     </section>
 
     <footer class="footer">
-        <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
-        <div class="footer-version">🔱ॐ नमः शिवाय 🔱</div>
+        <div>Powered by <span>LazifAI</span> — Advanced Class Manager.</div>
+        <div class="footer-version">🕉️ॐ नमः शिवाय🕉️</div>
+        <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>
+
+    <!-- Bulk reminders modal -->
+    <div id="bulk-reminder-backdrop" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Send All Reminders</div>
+                <button id="bulk-reminder-close" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
+            </div>
+            <div class="modal-body" id="bulk-reminder-body"></div>
+            <div class="modal-footer">
+                <div>Choose template for each student, then copy or open in WhatsApp.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick action FAB -->
+    <div class="fab-container">
+        <button class="fab-main" id="fab-main" title="Quick actions">⚡</button>
+        <div class="fab-menu" id="fab-menu">
+            <div class="fab-item" id="fab-add-student">➕ Add Student</div>
+            <div class="fab-item" id="fab-schedule-class">📅 Schedule Class</div>
+            <div class="fab-item" id="fab-load-today">📆 Load Today</div>
+            <div class="fab-item" id="fab-go-classes">🗂 Classes Tab</div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -737,10 +1227,59 @@
         RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70"
     };
 
-    /* Helpers */
+    /* Global state */
+    const APP_STATE = {
+        students: [],
+        allStudentsClean: [],
+        todayDate: null,
+        currentClassesDate: null,
+        currentClasses: [],
+        suggestedTimes: [],
+        weeklyCounts: {} // dateStr -> count
+    };
+
+    const STUDENT_COLORS = [
+        "#6366f1","#ec4899","#10b981","#f97316",
+        "#0ea5e9","#a855f7","#f59e0b","#22c55e"
+    ];
+    const studentColorMap = {};
+
+    /* NEW: Motivation quotes */
+    const MOTIVATION_QUOTES = [
+        "Small daily efforts create lifetime fluency.",
+        "Every corrected sentence builds a more confident speaker.",
+        "Consistency beats intensity. One focused class at a time.",
+        "Your patience today is your students' confidence tomorrow.",
+        "Great communicators are trained, not born."
+    ];
+
+    let motivationIndex = -1;
+
+    function showNextMotivation() {
+        const main = document.getElementById("motivation-main");
+        const sub = document.getElementById("motivation-sub");
+        if (!main || !sub || !MOTIVATION_QUOTES.length) return;
+
+        motivationIndex = (motivationIndex + 1) % MOTIVATION_QUOTES.length;
+        main.textContent = MOTIVATION_QUOTES[motivationIndex];
+        sub.textContent = ""; // Remove "Teacher motivation" text
+    }
+
+    function getStudentColor(name) {
+        if (!name) return "#4f46e5";
+        if (!studentColorMap[name]) {
+            const keys = Object.keys(studentColorMap);
+            const idx = keys.length % STUDENT_COLORS.length;
+            studentColorMap[name] = STUDENT_COLORS[idx];
+        }
+        return studentColorMap[name];
+    }
+
     function clearAllMessages() {
-        document.getElementById("manage-students-msg").innerHTML = "";
-        document.getElementById("schedule-msg").innerHTML = "";
+        const m1 = document.getElementById("manage-students-msg");
+        const m2 = document.getElementById("schedule-msg");
+        if (m1) m1.innerHTML = "";
+        if (m2) m2.innerHTML = "";
     }
 
     function showMessage(target, html) {
@@ -791,6 +1330,82 @@
         }
     }
 
+    /* World clocks */
+    function initWorldClocks() {
+        const ids = {
+            india: "Asia/Kolkata",
+            sydney: "Australia/Sydney",
+            perth: "Australia/Perth",
+            london: "Europe/London",
+            uae: "Asia/Dubai",
+            nz: "Pacific/Auckland"
+        };
+
+        function formatTime(tz) {
+            const now = new Date();
+            return now.toLocaleTimeString("en-GB", {
+                timeZone: tz,
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true
+            });
+        }
+
+        // NEW: Function to get current date in IST (YYYY-MM-DD)
+        function getCurrentISTDateString() {
+            const now = new Date();
+            const dateInIST = new Date(now.toLocaleString("en-US", { timeZone: ids.india }));
+            return dateInIST.toISOString().slice(0, 10);
+        }
+
+        function updateClocks() {
+            // Update clock displays
+            const elIndia = document.getElementById("clock-india");
+            if (elIndia) elIndia.textContent = "🕒 India: " + formatTime(ids.india);
+
+            const s = document.getElementById("clock-sydney");
+            if (s) s.textContent = "🇦🇺 Sydney: " + formatTime(ids.sydney);
+
+            const p = document.getElementById("clock-perth");
+            if (p) p.textContent = "🇦🇺 Perth: " + formatTime(ids.perth);
+
+            const l = document.getElementById("clock-london");
+            if (l) l.textContent = "🇬🇧 London: " + formatTime(ids.london);
+
+            const u = document.getElementById("clock-uae");
+            if (u) u.textContent = "🇦🇪 UAE: " + formatTime(ids.uae);
+
+            const n = document.getElementById("clock-nz");
+            if (n) n.textContent = "🇳🇿 NZ: " + formatTime(ids.nz);
+
+            // NEW: Check for date change
+            const currentISTDate = getCurrentISTDateString();
+            if (currentISTDate !== APP_STATE.todayDate) {
+                console.log("Date changed from", APP_STATE.todayDate, "to", currentISTDate);
+                const oldDate = APP_STATE.todayDate;
+                APP_STATE.todayDate = currentISTDate;
+                
+                // Update the view date input only if it was showing the old "today" date
+                const viewInput = document.getElementById("view-date");
+                if (viewInput && viewInput.value === oldDate) {
+                    viewInput.value = currentISTDate;
+                }
+                
+                // Also update schedule date if it was showing the old date
+                const schedInput = document.getElementById("schedule-date");
+                if (schedInput && schedInput.value === oldDate) {
+                    schedInput.value = currentISTDate;
+                }
+                
+                // Reload today's overview data to update overview cards only
+                fetchTodayOverview();
+            }
+        }
+
+        updateClocks();
+        setInterval(updateClocks, 1000);
+    }
+
     /* Tabs */
     const mainTabButtons = document.querySelectorAll(".main-tab-btn");
     const sectionStudents = document.getElementById("section-students");
@@ -809,25 +1424,63 @@
         btn.addEventListener("click", () => showMainSection(btn.dataset.section))
     );
 
-    /* Load Students */
+    /* Student helpers */
+    function updateStudentStats() {
+        const total = APP_STATE.allStudentsClean.length;
+        const el = document.getElementById("stats-total-students");
+        const sub = document.getElementById("stats-students-sub");
+        if (el) el.textContent = total || "--";
+        if (sub) sub.textContent = total ? "Total active students" : "Add students to get started.";
+    }
+
+    function renderStudentTable(filterText = "") {
+        const c = document.getElementById("all-students-content");
+        if (!c) return;
+
+        const q = (filterText || "").trim().toLowerCase();
+        const data = q
+            ? APP_STATE.allStudentsClean.filter(n => n.toLowerCase().includes(q))
+            : APP_STATE.allStudentsClean.slice();
+
+        if (!data.length) {
+            c.innerHTML = '<div class="info">No students found.</div>';
+            return;
+        }
+
+        let h = '<table><thead><tr><th>#</th><th>Name</th></tr></thead><tbody>';
+        data.forEach((n, i) => {
+            h += `<tr><td>${i + 1}</td><td>${n}</td></tr>`;
+        });
+        h += "</tbody></table>";
+        c.innerHTML = h;
+    }
+
     async function loadStudentsForDropdowns() {
         try {
             const r = await fetchAPI(WEBHOOKS.STUDENTS, { action: "getAllStudents" });
             const s = r.students || r.data || [];
+            APP_STATE.students = s;
+
             const delSel = document.getElementById("student-delete-select");
             const schSel = document.getElementById("schedule-student-select");
 
             delSel.innerHTML = '<option value="">Select student to delete</option>';
             schSel.innerHTML = '<option value="">Select student</option>';
 
+            const cleanNames = [];
             s.forEach(x => {
                 const n = x.name || x.StudentName || x.student || x;
                 if (!n || typeof n !== "string") return;
+                cleanNames.push(n);
                 delSel.innerHTML += `<option value="${n}">${n}</option>`;
                 schSel.innerHTML += `<option value="${n}">${n}</option>`;
             });
+
+            APP_STATE.allStudentsClean = cleanNames;
+            updateStudentStats();
+            renderStudentTable();
         } catch {
-            // silent fail for dropdowns; table load has its own error
+            // silent fail here; table loader has its own error handling
         }
     }
 
@@ -837,23 +1490,15 @@
         try {
             const r = await fetchAPI(WEBHOOKS.STUDENTS, { action: "getAllStudents" });
             const s = r.students || r.data || [];
-            const clean = s.filter(x => {
-                const n = x.name || x.StudentName || x.student || x;
-                return n && typeof n === "string";
-            });
+            APP_STATE.students = s;
 
-            if (!clean.length) {
-                c.innerHTML = '<div class="info">No students found.</div>';
-                return;
-            }
+            const clean = s
+                .map(x => x.name || x.StudentName || x.student || x)
+                .filter(n => n && typeof n === "string");
 
-            let h = '<table><thead><tr><th>#</th><th>Name</th></tr></thead><tbody>';
-            clean.forEach((x, i) => {
-                const n = x.name || x.StudentName || x.student || x;
-                h += `<tr><td>${i + 1}</td><td>${n}</td></tr>`;
-            });
-            h += "</tbody></table>";
-            c.innerHTML = h;
+            APP_STATE.allStudentsClean = clean;
+            updateStudentStats();
+            renderStudentTable();
         } catch {
             c.innerHTML = '<div class="error">❌ Error loading students.</div>';
         }
@@ -909,6 +1554,60 @@
         }
     });
 
+    /* Suggested time helpers (localStorage based) */
+    function loadSuggestedTimes() {
+        try {
+            const raw = localStorage.getItem("acm_suggested_times");
+            if (!raw) return;
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) {
+                APP_STATE.suggestedTimes = arr;
+            }
+        } catch {}
+    }
+
+    function saveSuggestedTimes() {
+        try {
+            localStorage.setItem("acm_suggested_times", JSON.stringify(APP_STATE.suggestedTimes || []));
+        } catch {}
+    }
+
+    function recordUsedTime(timeStr) {
+        if (!timeStr) return;
+        APP_STATE.suggestedTimes.push(timeStr);
+        if (APP_STATE.suggestedTimes.length > 100) {
+            APP_STATE.suggestedTimes = APP_STATE.suggestedTimes.slice(-100);
+        }
+        saveSuggestedTimes();
+        updateSuggestedTimeHint();
+    }
+
+    function updateSuggestedTimeHint() {
+        const el = document.getElementById("schedule-suggestion");
+        if (!el) return;
+        const list = APP_STATE.suggestedTimes || [];
+        if (!list.length) {
+            el.textContent = "";
+            return;
+        }
+        const freq = {};
+        let best = list[0];
+        list.forEach(t => {
+            freq[t] = (freq[t] || 0) + 1;
+            if (freq[t] > (freq[best] || 0)) {
+                best = t;
+            }
+        });
+        el.innerHTML = `Suggested time based on your history: <strong>${best}</strong><button type="button" id="use-suggested-time">Use</button>`;
+        const btn = document.getElementById("use-suggested-time");
+        if (btn) {
+            btn.addEventListener("click", () => {
+                const input = document.getElementById("schedule-time");
+                if (input) input.value = best;
+            });
+        }
+    }
+
     /* Schedule Class */
     document.getElementById("schedule-class-btn").addEventListener("click", async () => {
         clearAllMessages();
@@ -933,16 +1632,113 @@
                 RepeatWeeks: false
             });
             msg.innerHTML = '<div class="success">✅ Class scheduled.</div>';
+            recordUsedTime(tm);
         } catch {
             msg.innerHTML = '<div class="error">❌ Failed to schedule class.</div>';
         }
     });
 
-    /* renderClassCards — with no-classes + empty-object filter */
-    function renderClassCards(classes) {
-        const container = document.getElementById("view-classes-output");
+    /* Stats for classes */
+    function updateClassesStats(dateStr, classes) {
+        APP_STATE.currentClassesDate = dateStr;
+        APP_STATE.currentClasses = classes || [];
 
-        const valid = (classes || []).filter(c =>
+        // basic weekly summary (just counts for loaded date)
+        if (dateStr) {
+            APP_STATE.weeklyCounts[dateStr] = (classes || []).length;
+        }
+
+        const todayMain = document.getElementById("stats-today-main");
+        const todaySub = document.getElementById("stats-today-sub");
+        const weekMain = document.getElementById("stats-week-main");
+        const weeklyStrip = document.getElementById("weekly-strip");
+        const todayList = document.getElementById("today-classes-list");
+
+        // today at a glance
+        if (dateStr === APP_STATE.todayDate && classes && classes.length) {
+            const sorted = [...classes].sort((a, b) => {
+                const ta = (a.StartTime || a.time || "00:00");
+                const tb = (b.StartTime || b.time || "00:00");
+                return ta.localeCompare(tb);
+            });
+            
+            // Update main summary
+            if (todayMain) todayMain.textContent = `${classes.length} class${classes.length > 1 ? "es" : ""} today`;
+            if (todaySub) todaySub.textContent = "";
+            
+            // Render list of all classes
+            if (todayList) {
+                todayList.innerHTML = "";
+                sorted.forEach(cls => {
+                    const time = cls.StartTime || cls.time || "Unknown time";
+                    const student = cls.StudentName || cls.student || "Unknown student";
+                    
+                    const item = document.createElement("div");
+                    item.className = "today-class-item";
+                    item.textContent = `${time} - ${student}`;
+                    todayList.appendChild(item);
+                });
+            }
+        } else if (dateStr === APP_STATE.todayDate) {
+            if (todayMain) todayMain.textContent = "No classes today";
+            if (todaySub) todaySub.textContent = "Enjoy your free time.";
+            if (todayList) todayList.innerHTML = "";
+        } else {
+            if (todayList) todayList.innerHTML = "";
+        }
+
+        // weekly counts (approx)
+        const dates = Object.keys(APP_STATE.weeklyCounts);
+        const totalWeek = dates.reduce((sum, d) => sum + (APP_STATE.weeklyCounts[d] || 0), 0);
+        if (weekMain) weekMain.textContent = totalWeek ? `${totalWeek} total` : "--";
+
+        if (weeklyStrip) {
+            weeklyStrip.innerHTML = "";
+            if (!APP_STATE.todayDate) return;
+            const base = new Date(APP_STATE.todayDate);
+            const baseDay = base.getDay(); // 0 Sun .. 6 Sat
+            // show Monday-Sunday of current week
+            const start = new Date(base);
+            const diffToMonday = (baseDay + 6) % 7;
+            start.setDate(base.getDate() - diffToMonday);
+
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(start);
+                d.setDate(start.getDate() + i);
+                const iso = d.toISOString().slice(0, 10);
+                const count = APP_STATE.weeklyCounts[iso] || 0;
+                const div = document.createElement("div");
+                div.className = "weekly-day";
+                if (count > 0) div.classList.add("has-classes");
+                if (iso === APP_STATE.todayDate) div.classList.add("today");
+                const label = d.toLocaleDateString("en-GB", { weekday: "short" });
+                div.textContent = `${label}\n${count || "-"}`;
+                weeklyStrip.appendChild(div);
+            }
+        }
+    }
+
+    /* Message builder shared */
+    function buildMessageText(type, student, date, time) {
+        const A =
+            `Hi, this is a reminder that ${student} has an English class scheduled on ${date} at ${time}.\n\n` +
+            `Please join using your PlanetSpark class link.\n\n` +
+            `Regards,\nSenorita Saha\nPowered by LazifAI.`;
+
+        const B =
+            `Hi, this is a reminder that ${student} has an English class scheduled on ${date} at ${time}.\n\n` +
+            `Google Meet link:\nhttps://meet.google.com/dfp-vzbo-yhc\n\n` +
+            `Regards,\nSenorita Saha\nPowered by LazifAI.`;
+
+        return type === "meet" ? B : A;
+    }
+
+    /* renderClassCards — with no-classes + empty-object filter + search + accents */
+    function renderClassCards(classes, dateStr, searchQuery = "") {
+        const container = document.getElementById("view-classes-output");
+        const sendAllBtn = document.getElementById("send-all-reminders-btn");
+
+        let valid = (classes || []).filter(c =>
             c && (
                 c.StudentName || c.student ||
                 c.ClassDate || c.date ||
@@ -950,12 +1746,19 @@
             )
         );
 
+        APP_STATE.currentClasses = valid;
+        APP_STATE.currentClassesDate = dateStr || null;
+        // Don't call updateClassesStats here to avoid interfering with overview cards
+
         if (!valid.length) {
             container.innerHTML = '<div class="info">No classes scheduled for this date.</div>';
+            if (sendAllBtn) sendAllBtn.style.display = "none";
             return;
         }
 
+        const q = (searchQuery || "").trim().toLowerCase();
         container.innerHTML = "";
+        let renderedCount = 0;
 
         valid.forEach(c => {
             const student = c.StudentName || c.student || "Unknown student";
@@ -964,10 +1767,18 @@
             const classId = c.ClassID || c.id || "-";
             const calId = c.CalendarEventID || "";
 
+            const searchText = (student + " " + date + " " + time + " " + classId).toLowerCase();
+            if (q && !searchText.includes(q)) return;
+
             const card = document.createElement("div");
             card.className = "class-card";
 
-            card.innerHTML = `
+            const accent = document.createElement("div");
+            accent.className = "class-accent";
+            accent.style.background = getStudentColor(student);
+            card.appendChild(accent);
+
+            card.insertAdjacentHTML("beforeend", `
                 <div class="class-card__row">
                     <div>
                         <div class="class-student">👤 ${student}</div>
@@ -1008,36 +1819,22 @@
                     </div>
                     <button class="btn btn-primary btn-block btn-res-submit">Save Reschedule</button>
                 </div>
-            `;
+            `);
 
             /* Messaging */
             const msgArea = card.querySelector(".generate-area");
             const preview = card.querySelector(".msg-preview");
             const typeSel = card.querySelector(".msg-type-select");
 
-            function buildMsg(t) {
-                const A =
-                    `Hi, this is a reminder that ${student} has a class on ${date} at ${time}.\n\n` +
-                    `Please join using your PlanetSpark class link.\n\n` +
-                    `Regards,\nSenorita Saha\nPowered by LazifAI.`;
-
-                const B =
-                    `Hi, this is a reminder that ${student} has a class on ${date} at ${time}.\n\n` +
-                    `Google Meet link:\nhttps://meet.google.com/dfp-vzbo-yhc\n\n` +
-                    `Regards,\nSenorita Saha\nPowered by LazifAI.`;
-
-                return t === "meet" ? B : A;
-            }
-
             card.querySelector(".btn-generate").addEventListener("click", () => {
                 const show = msgArea.style.display === "none";
                 msgArea.style.display = show ? "block" : "none";
-                if (show) preview.textContent = buildMsg(typeSel.value);
+                if (show) preview.textContent = buildMessageText(typeSel.value, student, date, time);
             });
 
             typeSel.addEventListener("change", () => {
                 if (msgArea.style.display !== "none") {
-                    preview.textContent = buildMsg(typeSel.value);
+                    preview.textContent = buildMessageText(typeSel.value, student, date, time);
                 }
             });
 
@@ -1082,40 +1879,233 @@
                         ClassID: classId
                     });
                     showMessage("#view-classes-output", '<div class="success">✅ Rescheduled.</div>');
+                    showToast("Class rescheduled", "success");
+                    recordUsedTime(nt);
                 } catch {
                     showMessage("#view-classes-output", '<div class="error">❌ Failed.</div>');
+                    showToast("Reschedule failed", "error");
                 }
             });
 
             container.appendChild(card);
+            renderedCount++;
         });
+
+        if (!renderedCount) {
+            container.innerHTML = '<div class="info">No classes match your search for this date.</div>';
+            if (sendAllBtn) sendAllBtn.style.display = "none";
+        } else if (sendAllBtn) {
+            sendAllBtn.style.display = "inline-flex";
+            sendAllBtn.textContent = `📤 Send All Reminders (${renderedCount})`;
+        }
     }
 
     /* Load classes */
-    document.getElementById("view-classes-btn").addEventListener("click", async () => {
-        clearAllMessages();
-        const date = document.getElementById("view-date").value;
+    async function fetchClassesForDate(date) {
         const out = document.getElementById("view-classes-output");
-
         if (!date) {
             out.innerHTML = '<div class="error">❌ Select a date.</div>';
             return;
         }
-
         out.innerHTML = '<div class="loading">Loading classes...</div>';
         try {
             const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: date });
-            renderClassCards(d.classes || []);
+            renderClassCards(d.classes || [], date);
         } catch {
             out.innerHTML = '<div class="error">❌ Error loading classes.</div>';
         }
+    }
+
+    /* NEW: Separate function to update overview cards only */
+    async function fetchTodayOverview() {
+        if (!APP_STATE.todayDate) return;
+        
+        try {
+            const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: APP_STATE.todayDate });
+            updateClassesStats(APP_STATE.todayDate, d.classes || []);
+        } catch (e) {
+            console.error("Failed to load today overview:", e);
+            updateClassesStats(APP_STATE.todayDate, []);
+        }
+    }
+
+    // Manual refresh buttons for Today at a glance and This week
+    const refreshTodayBtn = document.getElementById("refresh-today-btn");
+    if (refreshTodayBtn) {
+        refreshTodayBtn.addEventListener("click", () => {
+            fetchTodayOverview();
+        });
+    }
+    const refreshWeekBtn = document.getElementById("refresh-week-btn");
+    if (refreshWeekBtn) {
+        refreshWeekBtn.addEventListener("click", () => {
+            fetchTodayOverview();
+        });
+    }
+
+
+    document.getElementById("view-classes-btn").addEventListener("click", async () => {
+        clearAllMessages();
+        const date = document.getElementById("view-date").value;
+        fetchClassesForDate(date);
     });
 
-    /* Init */
-    window.addEventListener("load", () => {
+    /* Bulk reminders modal */
+    const bulkBackdrop = document.getElementById("bulk-reminder-backdrop");
+    const bulkBody = document.getElementById("bulk-reminder-body");
+    const bulkClose = document.getElementById("bulk-reminder-close");
+    const sendAllBtn = document.getElementById("send-all-reminders-btn");
+
+    function openBulkReminderModal() {
+        if (!APP_STATE.currentClasses || !APP_STATE.currentClasses.length) return;
+        bulkBody.innerHTML = "";
+
+        APP_STATE.currentClasses.forEach((c, index) => {
+            const student = c.StudentName || c.student || "Unknown student";
+            const date = c.ClassDate || c.date || "Unknown date";
+            const time = c.StartTime || c.time || "Unknown time";
+
+            const item = document.createElement("div");
+            item.className = "bulk-item";
+
+            item.innerHTML = `
+                <div class="bulk-item-header">🧑 ${student}</div>
+                <div class="bulk-item-meta">📅 ${date} • ⏰ ${time}</div>
+                <div class="form-group">
+                    <label>Message Type for this student</label>
+                    <select class="bulk-type">
+                        <option value="ps">PS Class</option>
+                        <option value="meet">Google Meet</option>
+                    </select>
+                </div>
+                <div class="msg-preview bulk-preview"></div>
+                <div class="inline-actions" style="margin-top:6px;">
+                    <button class="btn btn-primary bulk-copy">📋 Copy</button>
+                    <button class="btn btn-outline bulk-wa">💬 WhatsApp</button>
+                </div>
+            `;
+
+            const typeSel = item.querySelector(".bulk-type");
+            const preview = item.querySelector(".bulk-preview");
+            const copyBtn = item.querySelector(".bulk-copy");
+            const waBtn = item.querySelector(".bulk-wa");
+
+            function updatePreview() {
+                preview.textContent = buildMessageText(typeSel.value, student, date, time);
+            }
+
+            typeSel.addEventListener("change", updatePreview);
+            updatePreview();
+
+            copyBtn.addEventListener("click", () => {
+                navigator.clipboard.writeText(preview.textContent || "");
+                showToast(`Copied message for ${student}`, "success");
+            });
+
+            waBtn.addEventListener("click", () => {
+                const url = "https://wa.me/?text=" + encodeURIComponent(preview.textContent || "");
+                window.open(url, "_blank");
+            });
+
+            bulkBody.appendChild(item);
+        });
+
+        bulkBackdrop.classList.add("show");
+    }
+
+    if (sendAllBtn) {
+        sendAllBtn.addEventListener("click", () => {
+            if (!APP_STATE.currentClasses || !APP_STATE.currentClasses.length) return;
+            openBulkReminderModal();
+        });
+    }
+
+    if (bulkClose) {
+        bulkClose.addEventListener("click", () => bulkBackdrop.classList.remove("show"));
+    }
+
+    bulkBackdrop.addEventListener("click", (e) => {
+        if (e.target === bulkBackdrop) {
+            bulkBackdrop.classList.remove("show");
+        }
+    });
+
+    /* Global search */
+    document.getElementById("global-search").addEventListener("input", (e) => {
+        const q = e.target.value || "";
+        // students
+        renderStudentTable(q);
+        // classes
+        if (APP_STATE.currentClasses && APP_STATE.currentClasses.length && APP_STATE.currentClassesDate) {
+            renderClassCards(APP_STATE.currentClasses, APP_STATE.currentClassesDate, q);
+        }
+    });
+
+    /* Quick action FAB */
+    const fabMain = document.getElementById("fab-main");
+    const fabMenu = document.getElementById("fab-menu");
+    const fabAddStudent = document.getElementById("fab-add-student");
+    const fabSchedule = document.getElementById("fab-schedule-class");
+    const fabLoadToday = document.getElementById("fab-load-today");
+    const fabGoClasses = document.getElementById("fab-go-classes");
+
+    fabMain.addEventListener("click", () => {
+        fabMenu.classList.toggle("show");
+    });
+
+    fabAddStudent.addEventListener("click", () => {
         showMainSection("students");
+        fabMenu.classList.remove("show");
+        document.getElementById("student-name-input")?.focus();
+    });
+
+    fabSchedule.addEventListener("click", () => {
+        showMainSection("classes");
+        fabMenu.classList.remove("show");
+        document.getElementById("schedule-date")?.focus();
+    });
+
+    fabGoClasses.addEventListener("click", () => {
+        showMainSection("classes");
+        fabMenu.classList.remove("show");
+    });
+
+    fabLoadToday.addEventListener("click", () => {
+        showMainSection("classes");
+        fabMenu.classList.remove("show");
+        if (APP_STATE.todayDate) {
+            const viewInput = document.getElementById("view-date");
+            if (viewInput) viewInput.value = APP_STATE.todayDate;
+            fetchClassesForDate(APP_STATE.todayDate);
+        }
+    });
+
+    /* init */
+    window.addEventListener("load", () => {
+        // set today date
+        const todayIso = new Date().toISOString().slice(0, 10);
+        APP_STATE.todayDate = todayIso;
+        const viewInput = document.getElementById("view-date");
+        const schedDate = document.getElementById("schedule-date");
+        if (viewInput) viewInput.value = todayIso;
+        if (schedDate) schedDate.value = todayIso;
+
+        showMainSection("students");
+        initWorldClocks();
         loadStudentsForDropdowns();
         loadAllStudentsTable();
+        loadSuggestedTimes();
+        updateSuggestedTimeHint();
+
+        // NEW: Load today's overview data only (not the full view classes list)
+        fetchTodayOverview();
+
+        // NEW: Auto-refresh overview every 10 minutes
+        setInterval(fetchTodayOverview, 10 * 60 * 1000);
+
+        // NEW: motivation quotes rotation
+        showNextMotivation();
+        setInterval(showNextMotivation, 30000); // change quote every 30s
     });
 </script>
 
