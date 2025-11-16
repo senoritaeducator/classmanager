@@ -1136,8 +1136,24 @@
 
                 <div class="card-column">
                     <label>Start Time</label>
-                    <input type="time" id="schedule-time" />
-                    <div id="schedule-suggestion" class="schedule-hint"></div>
+                    <input type="text" id="schedule-time" placeholder="hh:mm AM/PM" />
+                    <!-- suggestion removed -->
+    <div id="slot-warning" class="error" style="display:none; margin-top:4px;">⚠️ This time slot is already booked!</div>
+                </div>
+
+                <div class="card-column">
+                    <label>Repeat (weeks)</label>
+                    <select id="schedule-repeat" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid #d1d5db;background:#f9fafb;">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
                 </div>
             </div>
 
@@ -1227,6 +1243,17 @@
         RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70"
     };
 
+// Get current date in IST timezone (UTC+5:30)
+function getCurrentISTDateString() {
+    return new Date().toLocaleDateString('en-CA', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+}
+
+
     /* Global state */
     const APP_STATE = {
         students: [],
@@ -1315,6 +1342,8 @@
         }, 2200);
     }
 
+function hideSlotWarning(){ const w = document.getElementById("slot-warning"); if (w) w.style.display = "none"; }
+
     async function fetchAPI(url, payload) {
         const res = await fetch(url, {
             method: "POST",
@@ -1330,7 +1359,107 @@
         }
     }
 
-    /* World clocks */
+    
+    /* ===== Date/time helpers (display) ===== */
+
+    function parseLocalDateFromInput(isoYMD) {
+        // isoYMD expected YYYY-MM-DD or DD-MM-YYYY; prefer YYYY-MM-DD here
+        if(!isoYMD) return null;
+        // accept both formats
+        if(isoYMD.indexOf('-')===2) { // DD-MM-YYYY
+            const parts = isoYMD.split('-');
+            return new Date(parseInt(parts[2],10), parseInt(parts[1],10)-1, parseInt(parts[0],10));
+        }
+        const parts = isoYMD.split('-');
+        return new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10));
+    }
+
+    function formatDateToISO(d) {
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth()+1).padStart(2,'0');
+        const dd = String(d.getDate()).padStart(2,'0');
+        return yyyy + '-' + mm + '-' + dd;
+    }
+
+    function addDaysLocal(isoDate, days) {
+        const base = parseLocalDateFromInput(isoDate);
+        if(!base) return isoDate;
+        const d = new Date(base.getTime());
+        d.setDate(d.getDate() + days);
+        return formatDateToISO(d);
+    }
+
+    async function scheduleOccurrences(studentName, dateISO, time24, repeatCount, msgElem) {
+        if(!msgElem) msgElem = { innerHTML: function(){} };
+        msgElem.innerHTML = '<div class="loading">Scheduling class...</div>';
+        try {
+            for (let i = 0; i <= repeatCount; i++) {
+                const occDate = addDaysLocal(dateISO, i * 7); // compute local date for occurrence
+                await fetchAPI(WEBHOOKS.SCHEDULE, {
+                    Action: "ScheduleClass",
+                    StudentName: studentName,
+                    ClassDate: occDate,
+                    StartTime: time24,
+                    DurationMinutes: 60,
+                    RepeatWeeks: false
+                });
+            }
+            msgElem.innerHTML = '<div class="success">✅ Class scheduled.</div>';
+            recordUsedTime(time24);
+            // refresh lists
+            loadStudentsForDropdowns();
+            loadAllStudentsTable();
+            fetchTodayOverview();
+            const viewInput = document.getElementById("view-date");
+            if (viewInput && viewInput.value) {
+                fetchClassesForDate(viewInput.value);
+            }
+        } catch (err) {
+            console.error(err);
+            msgElem.innerHTML = '<div class="error">❌ Failed to schedule class.</div>';
+        }
+    }
+
+    function isoToDisplayDate(isoDate) {
+        if (!isoDate) return '';
+        let d = new Date(isoDate);
+        if (isNaN(d)) {
+            const parts = (isoDate||'').split('T')[0].split('-');
+            if (parts.length===3) return parts[2].padStart(2,'0') + '-' + parts[1].padStart(2,'0') + '-' + parts[0];
+            return isoDate;
+        }
+        return d.toLocaleDateString('en-GB'); // DD-MM-YYYY
+    }
+
+    function time24To12(t24) {
+        if (!t24) return '';
+        const [hms] = (t24||'').split('.');
+        const parts = hms.split(':');
+        let hh = parseInt(parts[0]||'0',10);
+        const mm = (parts[1]||'00').padStart(2,'0');
+        const ampm = hh >= 12 ? 'PM' : 'AM';
+        hh = hh % 12;
+        if (hh === 0) hh = 12;
+        return `${hh}:${mm} ${ampm}`;
+    }
+
+    /* removed duplicate addDaysLocal */
+    /* ===== AM/PM parser for schedule inputs ===== */
+    function parseUserTimeTo24(t) {
+        if (!t) return "";
+        t = t.trim().toUpperCase();
+        const m = t.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/);
+        if (!m) return "";
+        let hh = parseInt(m[1], 10);
+        const mm = m[2] ? m[2] : "00";
+        const ampm = m[3];
+        if (ampm === "PM" && hh !== 12) hh += 12;
+        if (ampm === "AM" && hh === 12) hh = 0;
+        return String(hh).padStart(2, "0") + ":" + mm;
+    }
+    /* ===== end AM/PM parser ===== */
+
+/* World clocks */
     function initWorldClocks() {
         const ids = {
             india: "Asia/Kolkata",
@@ -1351,13 +1480,7 @@
             });
         }
 
-        // NEW: Function to get current date in IST (YYYY-MM-DD)
-        function getCurrentISTDateString() {
-            const now = new Date();
-            const dateInIST = new Date(now.toLocaleString("en-US", { timeZone: ids.india }));
-            return dateInIST.toISOString().slice(0, 10);
-        }
-
+        
         function updateClocks() {
             // Update clock displays
             const elIndia = document.getElementById("clock-india");
@@ -1412,6 +1535,7 @@
     const sectionClasses = document.getElementById("section-classes");
 
     function showMainSection(sec) {
+        hideSlotWarning();
         clearAllMessages();
         mainTabButtons.forEach(btn =>
             btn.classList.toggle("active", btn.dataset.section === sec)
@@ -1582,58 +1706,70 @@
         updateSuggestedTimeHint();
     }
 
-    function updateSuggestedTimeHint() {
-        const el = document.getElementById("schedule-suggestion");
-        if (!el) return;
-        const list = APP_STATE.suggestedTimes || [];
-        if (!list.length) {
-            el.textContent = "";
-            return;
-        }
-        const freq = {};
-        let best = list[0];
-        list.forEach(t => {
-            freq[t] = (freq[t] || 0) + 1;
-            if (freq[t] > (freq[best] || 0)) {
-                best = t;
-            }
-        });
-        el.innerHTML = `Suggested time based on your history: <strong>${best}</strong><button type="button" id="use-suggested-time">Use</button>`;
-        const btn = document.getElementById("use-suggested-time");
-        if (btn) {
-            btn.addEventListener("click", () => {
-                const input = document.getElementById("schedule-time");
-                if (input) input.value = best;
-            });
-        }
-    }
+    
+function updateSuggestedTimeHint() {
+    const el = document.getElementById("schedule-suggestion");
+    if (el) el.innerHTML = "";
+}
+
 
     /* Schedule Class */
-    document.getElementById("schedule-class-btn").addEventListener("click", async () => {
+    
+document.getElementById("schedule-class-btn").addEventListener("click", async () => {
         clearAllMessages();
         const st = document.getElementById("schedule-student-select").value;
-        const dt = document.getElementById("schedule-date").value;
-        const tm = document.getElementById("schedule-time").value;
+        const dt = document.getElementById("schedule-date").value; // ISO YYYY-MM-DD
+        const userTime = document.getElementById("schedule-time").value;
+        const tm = parseUserTimeTo24(userTime);
+        const repeat = parseInt(document.getElementById("schedule-repeat").value || "0", 10);
         const msg = document.getElementById("schedule-msg");
 
         if (!st || !dt || !tm) {
+            msg.innerHTML = '<div class="error">❌ Enter time as hh:mm AM/PM.</div>';
+            if (!tm) return;
             msg.innerHTML = '<div class="error">❌ Select student, date & time.</div>';
             return;
         }
 
+        // Conflict check: call FETCH_CLASS for that date and compare StartTime
+        msg.innerHTML = '<div class="loading">Checking slot availability...</div>';
+        try {
+            const existing = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: dt });
+            const classes = existing.classes || [];
+            const conflict = classes.some(c => (c.StartTime||c.time||'').trim() === tm.trim());
+            if (conflict) {
+                const warn = document.getElementById('slot-warning'); if(warn){ warn.style.display='block'; return; }
+            }
+        } catch (e) {
+            console.warn('Slot check failed', e);
+        }
+
         msg.innerHTML = '<div class="loading">Scheduling class...</div>';
         try {
-            await fetchAPI(WEBHOOKS.SCHEDULE, {
-                Action: "ScheduleClass",
-                StudentName: st,
-                ClassDate: dt,
-                StartTime: tm,
-                DurationMinutes: 60,
-                RepeatWeeks: false
-            });
-            msg.innerHTML = '<div class="success">✅ Class scheduled.</div>';
+            for (let i = 0; i <= repeat; i++) {
+                const occDate = addDaysLocal(dt, i * 7); // compute ISO date for occurrence
+                await fetchAPI(WEBHOOKS.SCHEDULE, {
+                    Action: "ScheduleClass",
+                    StudentName: st,
+                    ClassDate: occDate,
+                    StartTime: tm,
+                    DurationMinutes: 60,
+                    RepeatWeeks: false
+                });
+            }
+            msg.innerHTML = '<div class="success">✅ Class scheduled.</div>'; hideSlotWarning();
             recordUsedTime(tm);
-        } catch {
+            // refresh lists
+            loadStudentsForDropdowns();
+            loadAllStudentsTable();
+            // refresh overview and current view date
+            fetchTodayOverview();
+            const viewInput = document.getElementById("view-date");
+            if (viewInput && viewInput.value) {
+                fetchClassesForDate(viewInput.value);
+            }
+        } catch (err) {
+            console.error(err);
             msg.innerHTML = '<div class="error">❌ Failed to schedule class.</div>';
         }
     });
@@ -1670,12 +1806,13 @@
             if (todayList) {
                 todayList.innerHTML = "";
                 sorted.forEach(cls => {
-                    const time = cls.StartTime || cls.time || "Unknown time";
+                    const time = cls.StartTime || cls.time || "";
+                    const timeDisplay = time24To12(time) || 'Unknown time';
                     const student = cls.StudentName || cls.student || "Unknown student";
                     
                     const item = document.createElement("div");
                     item.className = "today-class-item";
-                    item.textContent = `${time} - ${student}`;
+                    item.textContent = `${timeDisplay} - ${student}`;
                     todayList.appendChild(item);
                 });
             }
@@ -1719,7 +1856,9 @@
     }
 
     /* Message builder shared */
-    function buildMessageText(type, student, date, time) {
+    function buildMessageText(type, student, dateISO, time24) {
+        const date = isoToDisplayDate(dateISO);
+        const time = time24To12(time24);
         const A =
             `Hi, this is a reminder that ${student} has an English class scheduled on ${date} at ${time}.\n\n` +
             `Please join using your PlanetSpark class link.\n\n` +
@@ -1727,7 +1866,7 @@
 
         const B =
             `Hi, this is a reminder that ${student} has an English class scheduled on ${date} at ${time}.\n\n` +
-            `Google Meet link:\nhttps://meet.google.com/dfp-vzbo-yhc\n\n` +
+            `Meeting Link: ______________________ (paste link here)\n\n` +
             `Regards,\nSenorita Saha\nPowered by LazifAI.`;
 
         return type === "meet" ? B : A;
@@ -1762,8 +1901,10 @@
 
         valid.forEach(c => {
             const student = c.StudentName || c.student || "Unknown student";
-            const date = c.ClassDate || c.date || "Unknown date";
-            const time = c.StartTime || c.time || "Unknown time";
+            const date = c.ClassDate || c.date || "";
+            const dateDisplay = isoToDisplayDate(date) || "Unknown date";
+            const time = c.StartTime || c.time || "";
+            const timeDisplay = time24To12(time) || "Unknown time";
             const classId = c.ClassID || c.id || "-";
             const calId = c.CalendarEventID || "";
 
@@ -1782,7 +1923,7 @@
                 <div class="class-card__row">
                     <div>
                         <div class="class-student">👤 ${student}</div>
-                        <div class="meta">📅 ${date} • ⏰ ${time}</div>
+                        <div class="meta">📅 ${dateDisplay} • ⏰ ${timeDisplay}</div>
                         <div class="meta">🆔 Class ID: ${classId}</div>
                         ${calId ? `<div class="meta">📎 Event ID: ${calId}</div>` : ""}
                     </div>
@@ -1814,9 +1955,10 @@
                         <input type="date" class="res-date" value="${date}">
                     </div>
                     <div class="form-group">
-                        <label>New Time</label>
-                        <input type="time" class="res-time" value="${time}">
-                    </div>
+    <label>New Time</label>
+    <input type="text" class="res-time" value="${timeDisplay}" placeholder="hh:mm AM/PM">
+    <div class="slot-warning-resched error" style="display:none; margin-top:4px;">⚠️ This time slot is already booked!</div>
+</div>
                     <button class="btn btn-primary btn-block btn-res-submit">Save Reschedule</button>
                 </div>
             `);
@@ -1860,14 +2002,28 @@
 
             card.querySelector(".btn-res-submit").addEventListener("click", async () => {
                 const nd = card.querySelector(".res-date").value;
-                const nt = card.querySelector(".res-time").value;
+                const userNewTime = card.querySelector(".res-time").value;
+                const nt = parseUserTimeTo24(userNewTime);
 
                 if (!nd || !nt) {
+                    showMessage("#view-classes-output", '<div class="error">❌ Enter time as hh:mm AM/PM.</div>');
                     showMessage("#view-classes-output", '<div class="error">❌ Select date & time.</div>');
                     return;
                 }
 
-                showMessage("#view-classes-output", '<div class="loading">Rescheduling...</div>');
+                // Check for slot conflict (excluding current class)
+    
+    try {
+        const existing = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: nd });
+        const classes = existing.classes || [];
+        const conflict = classes.some(c => (c.StartTime||c.time||'').trim() === nt.trim() && (c.ClassID || c.id) !== classId);
+        if (conflict) {
+            const warn = card.querySelector('.slot-warning-resched');
+            if(warn) { warn.style.display='block'; return; }
+        }
+    } catch(e){ console.warn('Slot check failed', e);} 
+
+    showMessage("#view-classes-output", '<div class="loading">Rescheduling...</div>');
 
                 try {
                     await fetchAPI(WEBHOOKS.RESCHED, {
@@ -1888,6 +2044,29 @@
             });
 
             container.appendChild(card);
+
+// Auto-hide warning
+const resDateInput = card.querySelector(".res-date");
+const resTimeInput = card.querySelector(".res-time");
+const slotWarning = card.querySelector(".slot-warning-resched");
+if(resDateInput && resTimeInput && slotWarning){
+ const hideWarning=()=>slotWarning.style.display="none";
+ resDateInput.addEventListener("change", hideWarning);
+ resTimeInput.addEventListener("input", hideWarning);
+}
+
+// time auto detection
+if(resTimeInput){
+ const existingError=resTimeInput.parentNode.querySelector(".small");
+ if(existingError) existingError.remove();
+ const errDiv=document.createElement("div");
+ errDiv.className="small";errDiv.style.color="red";errDiv.style.marginTop="4px";errDiv.style.display="none";errDiv.innerText="Invalid time format";
+ resTimeInput.parentNode.appendChild(errDiv);
+ resTimeInput.addEventListener("blur",()=>{
+   const normalized=normalizeUserTime(resTimeInput.value);
+   if(normalized===null){errDiv.style.display="block";} else {errDiv.style.display="none";resTimeInput.value=normalized;}
+ });
+}
             renderedCount++;
         });
 
@@ -1962,15 +2141,17 @@
 
         APP_STATE.currentClasses.forEach((c, index) => {
             const student = c.StudentName || c.student || "Unknown student";
-            const date = c.ClassDate || c.date || "Unknown date";
-            const time = c.StartTime || c.time || "Unknown time";
+            const date = c.ClassDate || c.date || "";
+            const dateDisplay = isoToDisplayDate(date) || "Unknown date";
+            const time = c.StartTime || c.time || "";
+            const timeDisplay = time24To12(time) || "Unknown time";
 
             const item = document.createElement("div");
             item.className = "bulk-item";
 
             item.innerHTML = `
                 <div class="bulk-item-header">🧑 ${student}</div>
-                <div class="bulk-item-meta">📅 ${date} • ⏰ ${time}</div>
+                <div class="bulk-item-meta">📅 ${dateDisplay} • ⏰ ${timeDisplay}</div>
                 <div class="form-group">
                     <label>Message Type for this student</label>
                     <select class="bulk-type">
@@ -2082,13 +2263,14 @@
 
     /* init */
     window.addEventListener("load", () => {
+    document.getElementById("schedule-time")?.addEventListener("input", hideSlotWarning);
+    document.getElementById("schedule-date")?.addEventListener("change", hideSlotWarning);
         // set today date
-        const todayIso = new Date().toISOString().slice(0, 10);
-        APP_STATE.todayDate = todayIso;
+        APP_STATE.todayDate = getCurrentISTDateString();
         const viewInput = document.getElementById("view-date");
         const schedDate = document.getElementById("schedule-date");
-        if (viewInput) viewInput.value = todayIso;
-        if (schedDate) schedDate.value = todayIso;
+        if (viewInput) viewInput.value = APP_STATE.todayDate;
+        if (schedDate) schedDate.value = APP_STATE.todayDate;
 
         showMainSection("students");
         initWorldClocks();
@@ -2107,7 +2289,61 @@
         showNextMotivation();
         setInterval(showNextMotivation, 30000); // change quote every 30s
     });
-</script>
 
+// === Time Normalizer with Error Indicator ===
+function normalizeUserTime(t) {
+    if (!t) return "";
+    t = t.trim().toUpperCase();
+    t = t.replace(/\s+/g,"");
+
+    // Match 24h: "16:00"
+    let m24 = t.match(/^(\d{1,2}):(\d{2})$/);
+    if (m24){
+        let hh=parseInt(m24[1],10), mm=m24[2];
+        if(hh>23||mm>59) return null;
+        let ap = hh>=12?"PM":"AM";
+        hh = (hh%12)||12;
+        return hh + ":" + mm + " " + ap;
+    }
+
+    // Match hAM, hPM, h:mmAM, h:mmPM
+    let m12 = t.match(/^(\d{1,2})(?::(\d{2}))?(AM|PM)$/);
+    if (m12){
+        let hh=parseInt(m12[1],10), mm=m12[2]?m12[2]:"00";
+        if(hh<1||hh>12||mm>59) return null;
+        return hh + ":" + mm + " " + m12[3];
+    }
+
+    return null;
+}
+
+function attachNormalizer(selector){
+    document.querySelectorAll(selector).forEach(field=>{
+        let err = document.createElement("div");
+        err.className="small";
+        err.style.color="red";
+        err.style.marginTop="4px";
+        err.style.display="none";
+        err.innerText="Invalid time format";
+        field.insertAdjacentElement("afterend", err);
+
+        field.addEventListener("blur", ()=>{
+            const fixed = normalizeUserTime(field.value);
+            if(fixed===null){
+                err.style.display="block";
+            } else {
+                err.style.display="none";
+                field.value = fixed;
+            }
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+    attachNormalizer("#schedule-time");
+    attachNormalizer(".res-time");
+});
+
+</script>
 </body>
 </html>
