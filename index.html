@@ -983,7 +983,6 @@
             <div class="teacher-id">Teacher ID: 181577</div>
             <div class="teacher-clock" id="clock-india">🕒 India: --:-- --</div>
 
-            <!-- NEW: profile photo -->
             <img
                 src="senorita-profile.jpg"
                 alt="Senorita Saha"
@@ -1011,7 +1010,6 @@
         </button>
     </nav>
 
-    <!-- STUDENTS -->
     <section id="section-students" class="section show">
         <div class="section-card">
             <div class="section-header">
@@ -1061,10 +1059,8 @@
         </div>
     </section>
 
-    <!-- CLASSES -->
     <section id="section-classes" class="section">
 
-        <!-- Overview -->
         <div class="section-card">
             <div class="section-header">
                 <div>
@@ -1084,11 +1080,10 @@
                 <div class="overview-tile">
                     <div class="overview-title">
                     Today at a glance
-                    <button type="button" class="overview-refresh-btn" id="refresh-today-btn" title="Refresh today">⟳</button>
+                    <button type="button" class="overview-refresh-btn" id="refresh-today-btn" title="Refresh today's data">⟳</button>
                 </div>
                     <div class="overview-main" id="stats-today-main">No data</div>
-                    <div class="overview-sub" id="stats-today-sub"></div> <!-- no helper text -->
-                    <div class="today-classes-list" id="today-classes-list"></div>
+                    <div class="overview-sub" id="stats-today-sub"></div> <div class="today-classes-list" id="today-classes-list"></div>
                 </div>
                 <div class="overview-tile">
                     <div class="overview-title">
@@ -1096,8 +1091,7 @@
                     <button type="button" class="overview-refresh-btn" id="refresh-week-btn" title="Refresh this week">⟳</button>
                 </div>
                     <div class="overview-main" id="stats-week-main">--</div>
-                    <div class="overview-sub"></div> <!-- no "(approx)" -->
-                    <div class="weekly-strip" id="weekly-strip"></div>
+                    <div class="overview-sub"></div> <div class="weekly-strip" id="weekly-strip"></div>
                 </div>
                 <div class="overview-tile motivation-tile">
                     <div class="overview-title">Motivation</div>
@@ -1109,7 +1103,6 @@
             </div>
         </div>
 
-        <!-- Schedule -->
         <div class="section-card">
             <div class="section-header">
                 <div>
@@ -1137,8 +1130,7 @@
                 <div class="card-column">
                     <label>Start Time</label>
                     <input type="text" id="schedule-time" placeholder="hh:mm AM/PM" />
-                    <!-- suggestion removed -->
-    <div id="slot-warning" class="error" style="display:none; margin-top:4px;">⚠️ This time slot is already booked!</div>
+                    <div id="slot-warning" class="error" style="display:none; margin-top:4px;">⚠️ This time slot is already booked!</div>
                 </div>
 
                 <div class="card-column">
@@ -1166,7 +1158,6 @@
             <div id="schedule-msg" class="status-block"></div>
         </div>
 
-        <!-- View Classes -->
         <div class="section-card">
             <div class="section-header">
                 <div>
@@ -1199,14 +1190,17 @@
     </section>
 
     <footer class="footer">
-        <div>Powered by <span>LazifAI</span> — Advanced Class Manager.</div>
+        <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
         <div class="footer-version">🕉️ॐ नमः शिवाय🕉️</div>
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
+	<div id="acm-version-info"
+     style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
+    v3.4 — Updated: 17-Nov-2025 19:30
+</div>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- Bulk reminders modal -->
     <div id="bulk-reminder-backdrop" class="modal-backdrop">
         <div class="modal">
             <div class="modal-header">
@@ -1220,7 +1214,6 @@
         </div>
     </div>
 
-    <!-- Quick action FAB -->
     <div class="fab-container">
         <button class="fab-main" id="fab-main" title="Quick actions">⚡</button>
         <div class="fab-menu" id="fab-menu">
@@ -1243,16 +1236,77 @@
         RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70"
     };
 
-// Get current date in IST timezone (UTC+5:30)
-function getCurrentISTDateString() {
-    return new Date().toLocaleDateString('en-CA', {
-        timeZone: 'Asia/Kolkata',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    });
-}
+    // Get current date in IST timezone (UTC+5:30)
+    function getCurrentISTDateString() {
+        return new Date().toLocaleDateString('en-CA', {
+            timeZone: 'Asia/Kolkata',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    }
 
+    /* =========================================
+       CACHING LOGIC (Reduce API Calls)
+       ========================================= */
+    const CACHE_PREFIX = "acm_cache_";
+
+    function getCache(key, maxAgeMs = 300000) {
+        try {
+            const raw = localStorage.getItem(CACHE_PREFIX + key);
+            if (!raw) return null;
+            
+            const payload = JSON.parse(raw);
+            // Validate payload structure
+            if (!payload.timestamp || !payload.data) {
+                clearCache(key);
+                return null;
+            }
+
+            const age = Date.now() - payload.timestamp;
+            
+            if (maxAgeMs > 0 && age > maxAgeMs) {
+                console.log(`[ACM Cache] Expired: ${key} (${Math.floor(age/1000)}s old)`);
+                clearCache(key);
+                return null;
+            }
+            
+            console.log(`[ACM Cache] Hit: ${key} (${Math.floor(age/1000)}s old)`);
+            return payload.data;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function setCache(key, data) {
+        try {
+            const payload = {
+                data: data,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(payload));
+        } catch (e) {
+            console.error("Cache save failed", e);
+        }
+    }
+
+    function clearCache(key) {
+        try {
+            localStorage.removeItem(CACHE_PREFIX + key);
+        } catch (e) {}
+    }
+    
+    // Specialized cache for weekly counts to avoid re-fetching full data for the strip
+    function updateWeeklyCountCache(date, count) {
+        let counts = getCache("weekly_counts") || {};
+        counts[date] = count;
+        setCache("weekly_counts", counts);
+    }
+
+    function getWeeklyCount(date) {
+        let counts = getCache("weekly_counts") || {};
+        return counts[date]; // undefined if not yet visited
+    }
 
     /* Global state */
     const APP_STATE = {
@@ -1262,7 +1316,7 @@ function getCurrentISTDateString() {
         currentClassesDate: null,
         currentClasses: [],
         suggestedTimes: [],
-        weeklyCounts: {} // dateStr -> count
+        weeklyCounts: {} // Runtime mirror
     };
 
     const STUDENT_COLORS = [
@@ -1271,7 +1325,7 @@ function getCurrentISTDateString() {
     ];
     const studentColorMap = {};
 
-    /* NEW: Motivation quotes */
+    /* Motivation quotes */
     const MOTIVATION_QUOTES = [
         "Small daily efforts create lifetime fluency.",
         "Every corrected sentence builds a more confident speaker.",
@@ -1342,7 +1396,7 @@ function getCurrentISTDateString() {
         }, 2200);
     }
 
-function hideSlotWarning(){ const w = document.getElementById("slot-warning"); if (w) w.style.display = "none"; }
+    function hideSlotWarning(){ const w = document.getElementById("slot-warning"); if (w) w.style.display = "none"; }
 
     async function fetchAPI(url, payload) {
         const res = await fetch(url, {
@@ -1389,37 +1443,6 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
         return formatDateToISO(d);
     }
 
-    async function scheduleOccurrences(studentName, dateISO, time24, repeatCount, msgElem) {
-        if(!msgElem) msgElem = { innerHTML: function(){} };
-        msgElem.innerHTML = '<div class="loading">Scheduling class...</div>';
-        try {
-            for (let i = 0; i <= repeatCount; i++) {
-                const occDate = addDaysLocal(dateISO, i * 7); // compute local date for occurrence
-                await fetchAPI(WEBHOOKS.SCHEDULE, {
-                    Action: "ScheduleClass",
-                    StudentName: studentName,
-                    ClassDate: occDate,
-                    StartTime: time24,
-                    DurationMinutes: 60,
-                    RepeatWeeks: false
-                });
-            }
-            msgElem.innerHTML = '<div class="success">✅ Class scheduled.</div>';
-            recordUsedTime(time24);
-            // refresh lists
-            loadStudentsForDropdowns();
-            loadAllStudentsTable();
-            fetchTodayOverview();
-            const viewInput = document.getElementById("view-date");
-            if (viewInput && viewInput.value) {
-                fetchClassesForDate(viewInput.value);
-            }
-        } catch (err) {
-            console.error(err);
-            msgElem.innerHTML = '<div class="error">❌ Failed to schedule class.</div>';
-        }
-    }
-
     function isoToDisplayDate(isoDate) {
         if (!isoDate) return '';
         let d = new Date(isoDate);
@@ -1443,7 +1466,6 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
         return `${hh}:${mm} ${ampm}`;
     }
 
-    /* removed duplicate addDaysLocal */
     /* ===== AM/PM parser for schedule inputs ===== */
     function parseUserTimeTo24(t) {
         if (!t) return "";
@@ -1459,7 +1481,7 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
     }
     /* ===== end AM/PM parser ===== */
 
-/* World clocks */
+    /* World clocks */
     function initWorldClocks() {
         const ids = {
             india: "Asia/Kolkata",
@@ -1480,7 +1502,6 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
             });
         }
 
-        
         function updateClocks() {
             // Update clock displays
             const elIndia = document.getElementById("clock-india");
@@ -1501,7 +1522,7 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
             const n = document.getElementById("clock-nz");
             if (n) n.textContent = "🇳🇿 NZ: " + formatTime(ids.nz);
 
-            // NEW: Check for date change
+            // Check for date change
             const currentISTDate = getCurrentISTDateString();
             if (currentISTDate !== APP_STATE.todayDate) {
                 console.log("Date changed from", APP_STATE.todayDate, "to", currentISTDate);
@@ -1520,7 +1541,7 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
                     schedInput.value = currentISTDate;
                 }
                 
-                // Reload today's overview data to update overview cards only
+                // Reload today's overview data
                 fetchTodayOverview();
             }
         }
@@ -1579,11 +1600,28 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
         c.innerHTML = h;
     }
 
-    async function loadStudentsForDropdowns() {
+    // Unified Student Fetcher with Cache
+    async function fetchStudents(forceRefresh = false) {
+        if (!forceRefresh) {
+            const cached = getCache("students");
+            if (cached) {
+                console.log("[ACM Cache] Students loaded from cache.");
+                APP_STATE.students = cached;
+                return cached;
+            }
+        }
+        // Fetch from API
+        console.log("[ACM API] Fetching students...");
+        const r = await fetchAPI(WEBHOOKS.STUDENTS, { action: "getAllStudents" });
+        const s = r.students || r.data || [];
+        APP_STATE.students = s;
+        setCache("students", s);
+        return s;
+    }
+
+    async function loadStudentsForDropdowns(forceRefresh = false) {
         try {
-            const r = await fetchAPI(WEBHOOKS.STUDENTS, { action: "getAllStudents" });
-            const s = r.students || r.data || [];
-            APP_STATE.students = s;
+            const s = await fetchStudents(forceRefresh);
 
             const delSel = document.getElementById("student-delete-select");
             const schSel = document.getElementById("schedule-student-select");
@@ -1603,19 +1641,17 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
             APP_STATE.allStudentsClean = cleanNames;
             updateStudentStats();
             renderStudentTable();
-        } catch {
-            // silent fail here; table loader has its own error handling
+        } catch (e) {
+            // silent fail
         }
     }
 
-    async function loadAllStudentsTable() {
+    async function loadAllStudentsTable(forceRefresh = false) {
         const c = document.getElementById("all-students-content");
-        c.innerHTML = '<div class="info">Loading students...</div>';
+        if(!c.innerHTML.includes("table")) c.innerHTML = '<div class="info">Loading students...</div>';
+        
         try {
-            const r = await fetchAPI(WEBHOOKS.STUDENTS, { action: "getAllStudents" });
-            const s = r.students || r.data || [];
-            APP_STATE.students = s;
-
+            const s = await fetchStudents(forceRefresh);
             const clean = s
                 .map(x => x.name || x.StudentName || x.student || x)
                 .filter(n => n && typeof n === "string");
@@ -1628,9 +1664,10 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
         }
     }
 
+    // Refresh button forces API call
     document.getElementById("refresh-students-btn").addEventListener("click", () => {
-        loadAllStudentsTable();
-        loadStudentsForDropdowns();
+        loadAllStudentsTable(true);
+        loadStudentsForDropdowns(true);
     });
 
     /* Add Student */
@@ -1649,8 +1686,10 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
             await fetchAPI(WEBHOOKS.ADD, { StudentName: name });
             msg.innerHTML = '<div class="success">✅ Student added.</div>';
             document.getElementById("student-name-input").value = "";
-            loadStudentsForDropdowns();
-            loadAllStudentsTable();
+            // Force refresh to update cache
+            clearCache("students"); 
+            loadStudentsForDropdowns(true);
+            loadAllStudentsTable(true);
         } catch {
             msg.innerHTML = '<div class="error">❌ Failed to add student.</div>';
         }
@@ -1671,8 +1710,10 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
         try {
             await fetchAPI(WEBHOOKS.DELETE, { StudentName: sel });
             msg.innerHTML = '<div class="success">✅ Student deleted.</div>';
-            loadStudentsForDropdowns();
-            loadAllStudentsTable();
+            // Force refresh to update cache
+            clearCache("students"); 
+            loadStudentsForDropdowns(true);
+            loadAllStudentsTable(true);
         } catch {
             msg.innerHTML = '<div class="error">❌ Failed to delete student.</div>';
         }
@@ -1705,17 +1746,14 @@ function hideSlotWarning(){ const w = document.getElementById("slot-warning"); i
         saveSuggestedTimes();
         updateSuggestedTimeHint();
     }
-
     
-function updateSuggestedTimeHint() {
-    const el = document.getElementById("schedule-suggestion");
-    if (el) el.innerHTML = "";
-}
-
+    function updateSuggestedTimeHint() {
+        const el = document.getElementById("schedule-suggestion");
+        if (el) el.innerHTML = "";
+    }
 
     /* Schedule Class */
-    
-document.getElementById("schedule-class-btn").addEventListener("click", async () => {
+    document.getElementById("schedule-class-btn").addEventListener("click", async () => {
         clearAllMessages();
         const st = document.getElementById("schedule-student-select").value;
         const dt = document.getElementById("schedule-date").value; // ISO YYYY-MM-DD
@@ -1731,11 +1769,11 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
             return;
         }
 
-        // Conflict check: call FETCH_CLASS for that date and compare StartTime
-        msg.innerHTML = '<div class="loading">Checking slot availability...</div>';
+        // Conflict check: Use Cache First to save credits!
+        msg.innerHTML = '<div class="loading">Checking slot availability (cache)...</div>';
         try {
-            const existing = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: dt });
-            const classes = existing.classes || [];
+            // Use short cache expiry (1 min) for conflict checks to balance accuracy & credits
+            const classes = await fetchClasses(dt, 60000);
             const conflict = classes.some(c => (c.StartTime||c.time||'').trim() === tm.trim());
             if (conflict) {
                 const warn = document.getElementById('slot-warning'); if(warn){ warn.style.display='block'; return; }
@@ -1746,8 +1784,10 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
 
         msg.innerHTML = '<div class="loading">Scheduling class...</div>';
         try {
+            const involvedDates = [];
             for (let i = 0; i <= repeat; i++) {
                 const occDate = addDaysLocal(dt, i * 7); // compute ISO date for occurrence
+                involvedDates.push(occDate);
                 await fetchAPI(WEBHOOKS.SCHEDULE, {
                     Action: "ScheduleClass",
                     StudentName: st,
@@ -1759,15 +1799,17 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
             }
             msg.innerHTML = '<div class="success">✅ Class scheduled.</div>'; hideSlotWarning();
             recordUsedTime(tm);
-            // refresh lists
-            loadStudentsForDropdowns();
-            loadAllStudentsTable();
-            // refresh overview and current view date
-            fetchTodayOverview();
+            
+            // Update Caches - Invalidate specific dates
+            involvedDates.forEach(d => clearCache("classes_" + d));
+            
+            // Refresh data if viewing relevant dates
+            fetchTodayOverview(true); 
             const viewInput = document.getElementById("view-date");
-            if (viewInput && viewInput.value) {
-                fetchClassesForDate(viewInput.value);
+            if (viewInput && viewInput.value && involvedDates.includes(viewInput.value)) {
+                fetchClassesForDate(viewInput.value, true);
             }
+            
         } catch (err) {
             console.error(err);
             msg.innerHTML = '<div class="error">❌ Failed to schedule class.</div>';
@@ -1779,11 +1821,6 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
         APP_STATE.currentClassesDate = dateStr;
         APP_STATE.currentClasses = classes || [];
 
-        // basic weekly summary (just counts for loaded date)
-        if (dateStr) {
-            APP_STATE.weeklyCounts[dateStr] = (classes || []).length;
-        }
-
         const todayMain = document.getElementById("stats-today-main");
         const todaySub = document.getElementById("stats-today-sub");
         const weekMain = document.getElementById("stats-week-main");
@@ -1791,18 +1828,23 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
         const todayList = document.getElementById("today-classes-list");
 
         // today at a glance
-        if (dateStr === APP_STATE.todayDate && classes && classes.length) {
+        if (dateStr === APP_STATE.todayDate && classes) { // allow empty array
             const sorted = [...classes].sort((a, b) => {
                 const ta = (a.StartTime || a.time || "00:00");
                 const tb = (b.StartTime || b.time || "00:00");
                 return ta.localeCompare(tb);
             });
             
-            // Update main summary
-            if (todayMain) todayMain.textContent = `${classes.length} class${classes.length > 1 ? "es" : ""} today`;
-            if (todaySub) todaySub.textContent = "";
+            if (todayMain) {
+                if (classes.length > 0) {
+                    todayMain.textContent = `${classes.length} class${classes.length > 1 ? "es" : ""} today`;
+                    if (todaySub) todaySub.textContent = "";
+                } else {
+                    todayMain.textContent = "No classes today";
+                    if (todaySub) todaySub.textContent = "Enjoy your free time.";
+                }
+            }
             
-            // Render list of all classes
             if (todayList) {
                 todayList.innerHTML = "";
                 sorted.forEach(cls => {
@@ -1816,41 +1858,58 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
                     todayList.appendChild(item);
                 });
             }
-        } else if (dateStr === APP_STATE.todayDate) {
-            if (todayMain) todayMain.textContent = "No classes today";
-            if (todaySub) todaySub.textContent = "Enjoy your free time.";
-            if (todayList) todayList.innerHTML = "";
-        } else {
-            if (todayList) todayList.innerHTML = "";
         }
 
-        // weekly counts (approx)
-        const dates = Object.keys(APP_STATE.weeklyCounts);
-        const totalWeek = dates.reduce((sum, d) => sum + (APP_STATE.weeklyCounts[d] || 0), 0);
-        if (weekMain) weekMain.textContent = totalWeek ? `${totalWeek} total` : "--";
-
-        if (weeklyStrip) {
+        // Weekly Strip Rendering (Persistent History)
+        if (weeklyStrip && APP_STATE.todayDate) {
             weeklyStrip.innerHTML = "";
-            if (!APP_STATE.todayDate) return;
             const base = new Date(APP_STATE.todayDate);
-            const baseDay = base.getDay(); // 0 Sun .. 6 Sat
-            // show Monday-Sunday of current week
+            const baseDay = base.getDay();
             const start = new Date(base);
             const diffToMonday = (baseDay + 6) % 7;
             start.setDate(base.getDate() - diffToMonday);
+
+            let totalWeekKnown = 0;
+            let hasDataForTotal = false;
 
             for (let i = 0; i < 7; i++) {
                 const d = new Date(start);
                 d.setDate(start.getDate() + i);
                 const iso = d.toISOString().slice(0, 10);
-                const count = APP_STATE.weeklyCounts[iso] || 0;
+                
+                // Use cached count only - never trigger API fetch
+                const cachedCount = getWeeklyCount(iso);
+                
+                if (cachedCount !== undefined) {
+                    totalWeekKnown += cachedCount;
+                    hasDataForTotal = true;
+                }
+
                 const div = document.createElement("div");
                 div.className = "weekly-day";
-                if (count > 0) div.classList.add("has-classes");
+                if (cachedCount > 0) div.classList.add("has-classes");
                 if (iso === APP_STATE.todayDate) div.classList.add("today");
+                
                 const label = d.toLocaleDateString("en-GB", { weekday: "short" });
-                div.textContent = `${label}\n${count || "-"}`;
+                const displayCount = cachedCount !== undefined ? cachedCount : "-";
+                
+                div.textContent = `${label}\n${displayCount}`;
+                div.style.cursor = "pointer";
+                div.onclick = () => {
+                    const viewInput = document.getElementById("view-date");
+                    if (viewInput) {
+                        viewInput.value = iso;
+                        showMainSection("classes");
+                        // Load from cache first
+                        fetchClassesForDate(iso, false);
+                    }
+                };
+                
                 weeklyStrip.appendChild(div);
+            }
+            
+            if (weekMain) {
+                weekMain.textContent = hasDataForTotal ? `${totalWeekKnown} this week` : "--";
             }
         }
     }
@@ -1872,7 +1931,7 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
         return type === "meet" ? B : A;
     }
 
-    /* renderClassCards — with no-classes + empty-object filter + search + accents */
+    /* renderClassCards */
     function renderClassCards(classes, dateStr, searchQuery = "") {
         const container = document.getElementById("view-classes-output");
         const sendAllBtn = document.getElementById("send-all-reminders-btn");
@@ -1887,7 +1946,6 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
 
         APP_STATE.currentClasses = valid;
         APP_STATE.currentClassesDate = dateStr || null;
-        // Don't call updateClassesStats here to avoid interfering with overview cards
 
         if (!valid.length) {
             container.innerHTML = '<div class="info">No classes scheduled for this date.</div>';
@@ -1980,14 +2038,12 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
                 }
             });
 
-            /* Copy (uses toast, does NOT close cards) */
             card.querySelector(".btn-copy").addEventListener("click", () => {
                 const text = preview.textContent || "";
                 navigator.clipboard.writeText(text);
                 showToast("Message copied to clipboard", "success");
             });
 
-            /* WhatsApp */
             card.querySelector(".btn-wa").addEventListener("click", () => {
                 const url = "https://wa.me/?text=" + encodeURIComponent(preview.textContent || "");
                 window.open(url, "_blank");
@@ -2011,19 +2067,18 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
                     return;
                 }
 
-                // Check for slot conflict (excluding current class)
-    
-    try {
-        const existing = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: nd });
-        const classes = existing.classes || [];
-        const conflict = classes.some(c => (c.StartTime||c.time||'').trim() === nt.trim() && (c.ClassID || c.id) !== classId);
-        if (conflict) {
-            const warn = card.querySelector('.slot-warning-resched');
-            if(warn) { warn.style.display='block'; return; }
-        }
-    } catch(e){ console.warn('Slot check failed', e);} 
+                // Check for slot conflict - Use cache only (1 minute expiry)
+                try {
+                    // Fetch classes for target date (from cache if avail)
+                    const classes = await fetchClasses(nd, 60000);
+                    const conflict = classes.some(c => (c.StartTime||c.time||'').trim() === nt.trim() && (c.ClassID || c.id) !== classId);
+                    if (conflict) {
+                        const warn = card.querySelector('.slot-warning-resched');
+                        if(warn) { warn.style.display='block'; return; }
+                    }
+                } catch(e){ console.warn('Slot check failed', e);} 
 
-    showMessage("#view-classes-output", '<div class="loading">Rescheduling...</div>');
+                showMessage("#view-classes-output", '<div class="loading">Rescheduling...</div>');
 
                 try {
                     await fetchAPI(WEBHOOKS.RESCHED, {
@@ -2037,6 +2092,21 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
                     showMessage("#view-classes-output", '<div class="success">✅ Rescheduled.</div>');
                     showToast("Class rescheduled", "success");
                     recordUsedTime(nt);
+                    
+                    // Update caches - invalidate both old and new date
+                    clearCache("classes_" + date);
+                    clearCache("classes_" + nd);
+
+                    // Refresh logic
+                    setTimeout(() => {
+                        fetchTodayOverview(true);
+                        // Reload the NEW date so user sees the change
+                        if (document.getElementById("view-date")) {
+                            document.getElementById("view-date").value = nd;
+                        }
+                        fetchClassesForDate(nd, true);
+                    }, 1000);
+
                 } catch {
                     showMessage("#view-classes-output", '<div class="error">❌ Failed.</div>');
                     showToast("Reschedule failed", "error");
@@ -2045,28 +2115,28 @@ document.getElementById("schedule-class-btn").addEventListener("click", async ()
 
             container.appendChild(card);
 
-// Auto-hide warning
-const resDateInput = card.querySelector(".res-date");
-const resTimeInput = card.querySelector(".res-time");
-const slotWarning = card.querySelector(".slot-warning-resched");
-if(resDateInput && resTimeInput && slotWarning){
- const hideWarning=()=>slotWarning.style.display="none";
- resDateInput.addEventListener("change", hideWarning);
- resTimeInput.addEventListener("input", hideWarning);
-}
+            // Auto-hide warning
+            const resDateInput = card.querySelector(".res-date");
+            const resTimeInput = card.querySelector(".res-time");
+            const slotWarning = card.querySelector(".slot-warning-resched");
+            if(resDateInput && resTimeInput && slotWarning){
+             const hideWarning=()=>slotWarning.style.display="none";
+             resDateInput.addEventListener("change", hideWarning);
+             resTimeInput.addEventListener("input", hideWarning);
+            }
 
-// time auto detection
-if(resTimeInput){
- const existingError=resTimeInput.parentNode.querySelector(".small");
- if(existingError) existingError.remove();
- const errDiv=document.createElement("div");
- errDiv.className="small";errDiv.style.color="red";errDiv.style.marginTop="4px";errDiv.style.display="none";errDiv.innerText="Invalid time format";
- resTimeInput.parentNode.appendChild(errDiv);
- resTimeInput.addEventListener("blur",()=>{
-   const normalized=normalizeUserTime(resTimeInput.value);
-   if(normalized===null){errDiv.style.display="block";} else {errDiv.style.display="none";resTimeInput.value=normalized;}
- });
-}
+            // time auto detection
+            if(resTimeInput){
+             const existingError=resTimeInput.parentNode.querySelector(".small");
+             if(existingError) existingError.remove();
+             const errDiv=document.createElement("div");
+             errDiv.className="small";errDiv.style.color="red";errDiv.style.marginTop="4px";errDiv.style.display="none";errDiv.innerText="Invalid time format";
+             resTimeInput.parentNode.appendChild(errDiv);
+             resTimeInput.addEventListener("blur",()=>{
+               const normalized=normalizeUserTime(resTimeInput.value);
+               if(normalized===null){errDiv.style.display="block";} else {errDiv.style.display="none";resTimeInput.value=normalized;}
+             });
+            }
             renderedCount++;
         });
 
@@ -2079,8 +2149,38 @@ if(resTimeInput){
         }
     }
 
-    /* Load classes */
-    async function fetchClassesForDate(date) {
+    // Unified Classes Fetcher with Cache & Count Tracker
+    async function fetchClasses(date, maxAgeOrForce = 300000) {
+        // Handle both legacy boolean (forceRefresh) and new number (maxAge) arguments
+        let maxAge = 300000; // Default 5 mins
+        if (typeof maxAgeOrForce === 'boolean') {
+            maxAge = maxAgeOrForce ? 0 : 300000;
+        } else if (typeof maxAgeOrForce === 'number') {
+            maxAge = maxAgeOrForce;
+        }
+
+        const cacheKey = "classes_" + date;
+        // Pass explicit maxAge to cache checker
+        const cached = getCache(cacheKey, maxAge);
+        
+        if (cached) {
+            return cached;
+        }
+        
+        // API
+        console.log(`[ACM API] Fetching for ${date}...`);
+        const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: date });
+        const classes = d.classes || [];
+        
+        setCache(cacheKey, classes);
+        
+        // Update the lightweight weekly count cache
+        updateWeeklyCountCache(date, classes.length);
+        
+        return classes;
+    }
+
+    async function fetchClassesForDate(date, forceRefresh = false) {
         const out = document.getElementById("view-classes-output");
         if (!date) {
             out.innerHTML = '<div class="error">❌ Select a date.</div>';
@@ -2088,45 +2188,57 @@ if(resTimeInput){
         }
         out.innerHTML = '<div class="loading">Loading classes...</div>';
         try {
-            const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: date });
-            renderClassCards(d.classes || [], date);
+            const classes = await fetchClasses(date, forceRefresh);
+            renderClassCards(classes, date);
+            // Also update the stats if we happen to be viewing today/relevant week
+            if (date === APP_STATE.todayDate) updateClassesStats(date, classes);
         } catch {
             out.innerHTML = '<div class="error">❌ Error loading classes.</div>';
         }
     }
 
-    /* NEW: Separate function to update overview cards only */
-    async function fetchTodayOverview() {
+    async function fetchTodayOverview(forceRefresh = false) {
         if (!APP_STATE.todayDate) return;
         
+        // Use cache by default (5 min expiry), force refresh only when explicitly requested
+        const maxAge = forceRefresh ? 0 : 300000;
+        
         try {
-            const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: APP_STATE.todayDate });
-            updateClassesStats(APP_STATE.todayDate, d.classes || []);
+            const classes = await fetchClasses(APP_STATE.todayDate, maxAge);
+            updateClassesStats(APP_STATE.todayDate, classes);
         } catch (e) {
             console.error("Failed to load today overview:", e);
             updateClassesStats(APP_STATE.todayDate, []);
         }
     }
 
-    // Manual refresh buttons for Today at a glance and This week
+    // Manual refresh buttons
     const refreshTodayBtn = document.getElementById("refresh-today-btn");
     if (refreshTodayBtn) {
         refreshTodayBtn.addEventListener("click", () => {
-            fetchTodayOverview();
+            clearCache("classes_" + APP_STATE.todayDate);
+            fetchTodayOverview(true);
+            showToast("Refreshed today's overview");
         });
     }
+    
+    // Refresh Week Button (just refreshes view, doesn't burn credits unless clicked)
     const refreshWeekBtn = document.getElementById("refresh-week-btn");
     if (refreshWeekBtn) {
         refreshWeekBtn.addEventListener("click", () => {
-            fetchTodayOverview();
+            // Just re-render stats to check if cache updated
+            if (APP_STATE.currentClasses && APP_STATE.currentClassesDate) {
+                 updateClassesStats(APP_STATE.currentClassesDate, APP_STATE.currentClasses);
+            }
+            showToast("Refreshed overview display");
         });
     }
-
 
     document.getElementById("view-classes-btn").addEventListener("click", async () => {
         clearAllMessages();
         const date = document.getElementById("view-date").value;
-        fetchClassesForDate(date);
+        // Standard "Load" uses cache if available. 
+        fetchClassesForDate(date, false); 
     });
 
     /* Bulk reminders modal */
@@ -2257,14 +2369,16 @@ if(resTimeInput){
         if (APP_STATE.todayDate) {
             const viewInput = document.getElementById("view-date");
             if (viewInput) viewInput.value = APP_STATE.todayDate;
-            fetchClassesForDate(APP_STATE.todayDate);
+            // Use cache first - don't force refresh
+            fetchClassesForDate(APP_STATE.todayDate, false);
         }
     });
 
     /* init */
     window.addEventListener("load", () => {
-    document.getElementById("schedule-time")?.addEventListener("input", hideSlotWarning);
-    document.getElementById("schedule-date")?.addEventListener("change", hideSlotWarning);
+        document.getElementById("schedule-time")?.addEventListener("input", hideSlotWarning);
+        document.getElementById("schedule-date")?.addEventListener("change", hideSlotWarning);
+        
         // set today date
         APP_STATE.todayDate = getCurrentISTDateString();
         const viewInput = document.getElementById("view-date");
@@ -2279,70 +2393,66 @@ if(resTimeInput){
         loadSuggestedTimes();
         updateSuggestedTimeHint();
 
-        // NEW: Load today's overview data only (not the full view classes list)
-        fetchTodayOverview();
+        // Load today's overview (using cache if available, max 5 minutes old)
+        fetchTodayOverview(false); // false = don't force refresh
 
-        // NEW: Auto-refresh overview every 10 minutes
-        setInterval(fetchTodayOverview, 10 * 60 * 1000);
-
-        // NEW: motivation quotes rotation
+        // Motivation quotes
         showNextMotivation();
-        setInterval(showNextMotivation, 30000); // change quote every 30s
+        setInterval(showNextMotivation, 30000);
     });
 
-// === Time Normalizer with Error Indicator ===
-function normalizeUserTime(t) {
-    if (!t) return "";
-    t = t.trim().toUpperCase();
-    t = t.replace(/\s+/g,"");
+    /* Time Normalizer */
+    function normalizeUserTime(t) {
+        if (!t) return "";
+        t = t.trim().toUpperCase();
+        t = t.replace(/\s+/g,"");
 
-    // Match 24h: "16:00"
-    let m24 = t.match(/^(\d{1,2}):(\d{2})$/);
-    if (m24){
-        let hh=parseInt(m24[1],10), mm=m24[2];
-        if(hh>23||mm>59) return null;
-        let ap = hh>=12?"PM":"AM";
-        hh = (hh%12)||12;
-        return hh + ":" + mm + " " + ap;
+        // Match 24h: "16:00"
+        let m24 = t.match(/^(\d{1,2}):(\d{2})$/);
+        if (m24){
+            let hh=parseInt(m24[1],10), mm=m24[2];
+            if(hh>23||mm>59) return null;
+            let ap = hh>=12?"PM":"AM";
+            hh = (hh%12)||12;
+            return hh + ":" + mm + " " + ap;
+        }
+
+        // Match hAM, hPM, h:mmAM, h:mmPM
+        let m12 = t.match(/^(\d{1,2})(?::(\d{2}))?(AM|PM)$/);
+        if (m12){
+            let hh=parseInt(m12[1],10), mm=m12[2]?m12[2]:"00";
+            if(hh<1||hh>12||mm>59) return null;
+            return hh + ":" + mm + " " + m12[3];
+        }
+        return null;
     }
 
-    // Match hAM, hPM, h:mmAM, h:mmPM
-    let m12 = t.match(/^(\d{1,2})(?::(\d{2}))?(AM|PM)$/);
-    if (m12){
-        let hh=parseInt(m12[1],10), mm=m12[2]?m12[2]:"00";
-        if(hh<1||hh>12||mm>59) return null;
-        return hh + ":" + mm + " " + m12[3];
-    }
+    function attachNormalizer(selector){
+        document.querySelectorAll(selector).forEach(field=>{
+            let err = document.createElement("div");
+            err.className="small";
+            err.style.color="red";
+            err.style.marginTop="4px";
+            err.style.display="none";
+            err.innerText="Invalid time format";
+            field.insertAdjacentElement("afterend", err);
 
-    return null;
-}
-
-function attachNormalizer(selector){
-    document.querySelectorAll(selector).forEach(field=>{
-        let err = document.createElement("div");
-        err.className="small";
-        err.style.color="red";
-        err.style.marginTop="4px";
-        err.style.display="none";
-        err.innerText="Invalid time format";
-        field.insertAdjacentElement("afterend", err);
-
-        field.addEventListener("blur", ()=>{
-            const fixed = normalizeUserTime(field.value);
-            if(fixed===null){
-                err.style.display="block";
-            } else {
-                err.style.display="none";
-                field.value = fixed;
-            }
+            field.addEventListener("blur", ()=>{
+                const fixed = normalizeUserTime(field.value);
+                if(fixed===null){
+                    err.style.display="block";
+                } else {
+                    err.style.display="none";
+                    field.value = fixed;
+                }
+            });
         });
-    });
-}
+    }
 
-document.addEventListener("DOMContentLoaded", ()=>{
-    attachNormalizer("#schedule-time");
-    attachNormalizer(".res-time");
-});
+    document.addEventListener("DOMContentLoaded", ()=>{
+        attachNormalizer("#schedule-time");
+        attachNormalizer(".res-time");
+    });
 
 </script>
 </body>
