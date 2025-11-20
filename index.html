@@ -1028,7 +1028,12 @@
                         <label>Add Student</label>
                         <input id="student-name-input" type="text" placeholder="Enter student name" />
                     </div>
-                    <button id="add-student-btn" class="btn btn-primary btn-block">
+                    
+<div style="margin-top:6px; display:flex; gap:12px;">
+<label><input type="radio" name="studentType" value="PS" checked> PS</label>
+<label><input type="radio" name="studentType" value="CM"> CM</label>
+</div>
+<button id="add-student-btn"  class="btn btn-primary btn-block">
                         ➕ Add Student
                     </button>
 
@@ -1073,7 +1078,10 @@
             </div>
             <div class="overview-grid">
                 <div class="overview-tile students-tile">
-                    <div class="overview-title">Students</div>
+                    <div class="overview-title">
+                        Students
+                        <button type="button" class="overview-refresh-btn" id="refresh-students-overview-btn" title="Refresh students data">⟳</button>
+                    </div>
                     <div class="overview-main" id="stats-total-students">--</div>
                     <div class="overview-sub" id="stats-students-sub">Total active students</div>
                 </div>
@@ -1093,7 +1101,18 @@
                     <div class="overview-main" id="stats-week-main">--</div>
                     <div class="overview-sub"></div> <div class="weekly-strip" id="weekly-strip"></div>
                 </div>
-                <div class="overview-tile motivation-tile">
+                
+<div class="overview-tile">
+    <div class="overview-title">
+        CueMath Earnings
+        <button type="button" class="overview-refresh-btn" id="refresh-cm-btn" title="Refresh earnings">⟳</button>
+    </div>
+    <div class="overview-main" id="cm-total-classes">--</div>
+    <div class="overview-sub">₹<span id="cm-total-payout">0</span></div>
+    <div class="overview-sub" style="margin-top:4px; font-size:0.75rem; color:#6b7280;" id="cm-month-label"></div>
+</div>
+<div class="overview-tile motivation-tile">
+
                     <div class="overview-title">Motivation</div>
                     <div class="overview-main" id="motivation-main">
                         Today's corrections become tomorrow's clarity.
@@ -1195,7 +1214,7 @@
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    v3.4.1 — Updated: 18-Nov-2025 16:10
+    v3.5 — Updated: 20-Nov-2025 16:40
 </div>
     </footer>
 
@@ -1571,11 +1590,23 @@
 
     /* Student helpers */
     function updateStudentStats() {
+        console.log("Debug: Students data:", APP_STATE.students);
+        console.log("Debug: Students map:", APP_STATE.studentsMap);
+        
         const total = APP_STATE.allStudentsClean.length;
         const el = document.getElementById("stats-total-students");
         const sub = document.getElementById("stats-students-sub");
         if (el) el.textContent = total || "--";
-        if (sub) sub.textContent = total ? "Total active students" : "Add students to get started.";
+        
+        if (sub) {
+            let ps = 0, cm = 0;
+            (APP_STATE.students || []).forEach(x => {
+                let t = x.type || x.Type || "PS";
+                if (t === "CM") cm++;
+                else ps++;
+            });
+            sub.textContent = total ? `${ps} PS | ${cm} CM` : "Add students to get started.";
+        }
     }
 
     function renderStudentTable(filterText = "") {
@@ -1607,6 +1638,13 @@
             if (cached) {
                 console.log("[ACM Cache] Students loaded from cache.");
                 APP_STATE.students = cached;
+                // Rebuild Map from cache
+                APP_STATE.studentsMap = {};
+                (cached || []).forEach(x => {
+                    let n = x.name || x.StudentName || x.student || x;
+                    let t = x.type || x.Type || "PS";
+                    if (n) APP_STATE.studentsMap[n.trim()] = t;
+                });
                 return cached;
             }
         }
@@ -1615,6 +1653,12 @@
         const r = await fetchAPI(WEBHOOKS.STUDENTS, { action: "getAllStudents" });
         const s = r.students || r.data || [];
         APP_STATE.students = s;
+        APP_STATE.studentsMap = {};
+        (s || []).forEach(x => {
+            let n = x.name || x.StudentName || x.student || x;
+            let t = x.type || x.Type || "PS";
+            if (n) APP_STATE.studentsMap[n.trim()] = t;
+        });
         setCache("students", s);
         return s;
     }
@@ -1683,7 +1727,7 @@
 
         msg.innerHTML = '<div class="loading">Adding student...</div>';
         try {
-            await fetchAPI(WEBHOOKS.ADD, { StudentName: name });
+            const stype=document.querySelector("input[name='studentType']:checked").value; await fetchAPI(WEBHOOKS.ADD, { StudentName: name, Type: stype });
             msg.innerHTML = '<div class="success">✅ Student added.</div>';
             document.getElementById("student-name-input").value = "";
             // Force refresh to update cache
@@ -2190,7 +2234,10 @@
             const classes = await fetchClasses(date, forceRefresh);
             renderClassCards(classes, date);
             // Also update the stats if we happen to be viewing today/relevant week
-            if (date === APP_STATE.todayDate) updateClassesStats(date, classes);
+            if (date === APP_STATE.todayDate) {
+                updateClassesStats(date, classes);
+                await updateCMPayout(forceRefresh); // Ensure CM payout updates on load
+            }
         } catch {
             out.innerHTML = '<div class="error">❌ Error loading classes.</div>';
         }
@@ -2204,7 +2251,8 @@
         
         try {
             const classes = await fetchClasses(APP_STATE.todayDate, maxAge);
-            updateClassesStats(APP_STATE.todayDate, classes);
+            updateClassesStats(APP_STATE.todayDate, classes); 
+            await updateCMPayout(forceRefresh);
         } catch (e) {
             console.error("Failed to load today overview:", e);
             updateClassesStats(APP_STATE.todayDate, []);
@@ -2214,9 +2262,17 @@
     // Manual refresh buttons
     const refreshTodayBtn = document.getElementById("refresh-today-btn");
     if (refreshTodayBtn) {
-        refreshTodayBtn.addEventListener("click", () => {
+        refreshTodayBtn.addEventListener("click", async () => {
             clearCache("classes_" + APP_STATE.todayDate);
-            fetchTodayOverview(true);
+            clearCache("weekly_counts");
+            
+            // Clear weekly classes cache too
+            const today = new Date(APP_STATE.todayDate);
+            const base = new Date(today);
+            base.setDate(today.getDate() - (today.getDay() + 6) % 7);
+            clearCache("weekly_classes_" + formatDateToISO(base));
+            
+            await fetchTodayOverview(true);
             showToast("Refreshed today's overview");
         });
     }
@@ -2225,11 +2281,38 @@
     const refreshWeekBtn = document.getElementById("refresh-week-btn");
     if (refreshWeekBtn) {
         refreshWeekBtn.addEventListener("click", () => {
-            // Just re-render stats to check if cache updated
-            if (APP_STATE.currentClasses && APP_STATE.currentClassesDate) {
-                 updateClassesStats(APP_STATE.currentClassesDate, APP_STATE.currentClasses);
-            }
-            showToast("Refreshed overview display");
+            clearCache("weekly_counts");
+            fetchTodayOverview(true); // This will rebuild the weekly strip
+            showToast("Refreshed week overview");
+        });
+    }
+
+    // Refresh CM Button (Logic: Refresh currently viewed date's classes)
+    const refreshCMBtn = document.getElementById("refresh-cm-btn");
+    if (refreshCMBtn) {
+        refreshCMBtn.addEventListener("click", async () => {
+            console.log("🔄 Manual CM refresh clicked");
+        
+            // Clear monthly cache
+            const today = new Date(APP_STATE.todayDate);
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            clearCache("monthly_classes_" + formatDateToISO(firstDay));
+            
+            await updateCMPayout(true);
+            showToast(`Refreshed: ${document.getElementById("cm-total-classes").textContent}`, "success");
+        });
+    }
+    
+    // Manual refresh for Students Overview tile
+    const refreshStudentsOverviewBtn = document.getElementById("refresh-students-overview-btn");
+    if (refreshStudentsOverviewBtn) {
+        refreshStudentsOverviewBtn.addEventListener("click", async () => {
+            clearCache("students");
+            clearCache("weekly_counts");
+            await loadStudentsForDropdowns(true);
+            loadAllStudentsTable(true);
+            fetchTodayOverview(true);
+            showToast("Refreshed students data");
         });
     }
 
@@ -2374,7 +2457,7 @@
     });
 
     /* init */
-    window.addEventListener("load", () => {
+    window.addEventListener("load", async () => {
         document.getElementById("schedule-time")?.addEventListener("input", hideSlotWarning);
         document.getElementById("schedule-date")?.addEventListener("change", hideSlotWarning);
         
@@ -2387,17 +2470,37 @@
 
         showMainSection("students");
         initWorldClocks();
-        loadStudentsForDropdowns();
+        
+        // Wait for students to load before fetching today's overview
+        // This ensures the Student Map is ready for Payout calculations
+        await loadStudentsForDropdowns();
+        console.log("=== INITIAL LOAD DEBUG ===");
+        console.log("Students Map:", APP_STATE.studentsMap);
+        console.log("Samriddhi type:", APP_STATE.studentsMap["Samriddhi"]);
+        console.log("All students:", APP_STATE.allStudentsClean);
+        
         loadAllStudentsTable();
+        
         loadSuggestedTimes();
         updateSuggestedTimeHint();
 
         // Load today's overview (using cache if available, max 5 minutes old)
         fetchTodayOverview(false); // false = don't force refresh
 
+        // Initial load of earnings (will use cache if available)
+        await updateCMPayout(true); // true = force refresh on load
+
         // Motivation quotes
         showNextMotivation();
         setInterval(showNextMotivation, 30000);
+        
+        // Temporary: Clear old cache on load
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith("acm_cache_")) {
+                localStorage.removeItem(key);
+            }
+        });
+        console.log("Cleared old ACM cache");
     });
 
     /* Time Normalizer */
@@ -2452,6 +2555,139 @@
         attachNormalizer("#schedule-time");
         attachNormalizer(".res-time");
     });
+
+    async function fetchClassesForCurrentMonth(forceRefresh = false) {
+        // Get first and last day of current month
+        const today = new Date(APP_STATE.todayDate);
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        
+        // Generate all dates in the month
+        const monthDates = [];
+        for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+            monthDates.push(formatDateToISO(d));
+        }
+        
+        console.log(`[Month] Dates to fetch:`, monthDates);
+        
+        const cacheKey = "monthly_classes_" + formatDateToISO(firstDay);
+        const maxAge = forceRefresh ? 0 : 300000;
+        const cached = getCache(cacheKey, maxAge);
+        
+        if (cached) {
+            console.log("[Cache] Using cached month classes");
+            return cached;
+        }
+        
+        // Force refresh: clear all day caches
+        if (forceRefresh) {
+            monthDates.forEach(date => clearCache("classes_" + date));
+            console.log("Cleared day caches for force refresh");
+        }
+        
+        // Fetch classes for each day sequentially
+        const allClasses = [];
+        for (const date of monthDates) {
+            try {
+                const classes = await fetchClasses(date, forceRefresh ? 0 : 300000);
+                allClasses.push(...classes);
+                console.log(`  ${date}: ${classes.length} classes`);
+            } catch (e) {
+                console.warn(`Failed to fetch ${date}:`, e);
+            }
+        }
+        
+        console.log(`Total classes for month: ${allClasses.length}`);
+        setCache(cacheKey, allClasses);
+        return allClasses;
+    }
+
+    // Fetch and count CM classes across the entire month with robust matching
+    async function countCMClassesForMonth(forceRefresh = false) {
+        console.group("=== CM CLASS COUNTING (MONTHLY) DEBUG ===");
+        
+        // Ensure students map is loaded
+        if (!APP_STATE.studentsMap || Object.keys(APP_STATE.studentsMap).length === 0) {
+            console.warn("⚠️ Students map empty! Reloading...");
+            await loadStudentsForDropdowns(false);
+        }
+        
+        // Build list of CM student names (normalized)
+        const cmStudents = Object.entries(APP_STATE.studentsMap || {})
+            .filter(([name, type]) => type === "CM")
+            .map(([name]) => name.trim().toLowerCase());
+        
+        console.log("CM Students (normalized):", cmStudents);
+        
+        // Get ALL classes for the month
+        const monthClasses = await fetchClassesForCurrentMonth(forceRefresh);
+        console.log(`Total classes fetched for month: ${monthClasses.length}`);
+        
+        // Debug: Show all raw classes
+        console.log("Raw month classes:", monthClasses.map(c => ({
+            rawStudent: c.StudentName || c.student,
+            date: c.ClassDate || c.date,
+            time: c.StartTime || c.time
+        })));
+        
+        // Count classes for CM students (case-insensitive, trim whitespace)
+        let cnt = 0;
+        const countedClasses = [];
+        
+        monthClasses.forEach(c => {
+            const classStudent = (c.StudentName || c.student || "").trim().toLowerCase();
+            const isCM = cmStudents.some(cmName => cmName === classStudent);
+            
+            if (isCM) {
+                cnt++;
+                countedClasses.push({
+                    student: classStudent,
+                    date: c.ClassDate || c.date,
+                    time: c.StartTime || c.time
+                });
+            }
+        });
+        
+        console.log(`✅ Final count: ${cnt} CM classes`);
+        console.log("Counted classes:", countedClasses);
+        console.groupEnd();
+        
+        return { 
+            count: cnt, 
+            classes: countedClasses, 
+            cmStudents: cmStudents.map(name => name.charAt(0).toUpperCase() + name.slice(1))
+        };
+    }
+
+    // Update CM Earnings display
+    async function updateCMPayout(forceRefresh = false) {
+        console.log("🔄 Updating CM Payout (MONTHLY)...");
+        
+        const result = await countCMClassesForMonth(forceRefresh);
+        
+        // Update UI
+        document.getElementById("cm-total-classes").textContent = result.count + " classes";
+        document.getElementById("cm-total-payout").textContent = (result.count * 480).toLocaleString("en-IN");
+        
+        // Visual warning if mismatch
+        const payoutEl = document.getElementById("cm-total-payout");
+        if (result.count === 0 && result.cmStudents.length > 0) {
+            payoutEl.style.color = "#b91c1c";
+            payoutEl.title = `CM students found but no classes: ${result.cmStudents.join(', ')}`;
+        } else {
+            payoutEl.style.color = "";
+            payoutEl.title = "";
+        }
+        
+        console.log(`💰 Display: ${result.count} classes = ₹${result.count * 480}`);
+        
+        const monthLabel = document.getElementById("cm-month-label");
+        if (monthLabel) {
+            const today = new Date(APP_STATE.todayDate);
+            const monthName = today.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+            monthLabel.textContent = `Period: ${monthName}`;
+        }
+    }
 
 </script>
 </body>
