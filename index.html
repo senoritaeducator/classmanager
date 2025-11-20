@@ -1214,7 +1214,7 @@
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    v3.5 — Updated: 20-Nov-2025 16:40
+    v3.5.2 — Updated: 20-Nov-2025 17:10
 </div>
     </footer>
 
@@ -2292,11 +2292,12 @@
     if (refreshCMBtn) {
         refreshCMBtn.addEventListener("click", async () => {
             console.log("🔄 Manual CM refresh clicked");
-        
-            // Clear monthly cache
+            
+            // Clear all monthly-related caches
             const today = new Date(APP_STATE.todayDate);
             const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
             clearCache("monthly_classes_" + formatDateToISO(firstDay));
+            clearCache("cm_month_count_" + formatDateToISO(firstDay));
             
             await updateCMPayout(true);
             showToast(`Refreshed: ${document.getElementById("cm-total-classes").textContent}`, "success");
@@ -2488,7 +2489,7 @@
         fetchTodayOverview(false); // false = don't force refresh
 
         // Initial load of earnings (will use cache if available)
-        await updateCMPayout(true); // true = force refresh on load
+        await updateCMPayout(false); // false = use cache on load
 
         // Motivation quotes
         showNextMotivation();
@@ -2568,33 +2569,45 @@
             monthDates.push(formatDateToISO(d));
         }
         
-        console.log(`[Month] Dates to fetch:`, monthDates);
+        console.log(`[Month] Dates to check:`, monthDates.length, "days");
         
+        // 📍 CACHE KEY: monthly_classes_YYYY-MM-DD
         const cacheKey = "monthly_classes_" + formatDateToISO(firstDay);
-        const maxAge = forceRefresh ? 0 : 300000;
-        const cached = getCache(cacheKey, maxAge);
+        const maxAge = forceRefresh ? 0 : 86400000; // 24 hours instead of 5 minutes
         
+        // Try cache first
+        const cached = getCache(cacheKey, maxAge);
         if (cached) {
             console.log("[Cache] Using cached month classes");
             return cached;
         }
         
-        // Force refresh: clear all day caches
+        // 🎯 OPTIMIZATION: Only fetch days that have classes
+        const datesToFetch = monthDates.filter(date => {
+            const dayCount = getWeeklyCount(date);
+            // Fetch if: unknown count OR count > 0 OR is today/future
+            return dayCount === undefined || dayCount > 0 || date >= APP_STATE.todayDate;
+        });
+        
+        console.log(`[Month] Actually fetching:`, datesToFetch.length, "days");
+        
+        // Clear caches for these specific dates if forcing refresh
         if (forceRefresh) {
-            monthDates.forEach(date => clearCache("classes_" + date));
+            datesToFetch.forEach(date => clearCache("classes_" + date));
             console.log("Cleared day caches for force refresh");
         }
         
-        // Fetch classes for each day sequentially
+        // 🔥 PARALLEL FETCH: Up to 3 days at once
+        const CONCURRENT_LIMIT = 3;
         const allClasses = [];
-        for (const date of monthDates) {
-            try {
-                const classes = await fetchClasses(date, forceRefresh ? 0 : 300000);
-                allClasses.push(...classes);
-                console.log(`  ${date}: ${classes.length} classes`);
-            } catch (e) {
-                console.warn(`Failed to fetch ${date}:`, e);
-            }
+        
+        for (let i = 0; i < datesToFetch.length; i += CONCURRENT_LIMIT) {
+            const chunk = datesToFetch.slice(i, i + CONCURRENT_LIMIT);
+            const chunkPromises = chunk.map(date => 
+                fetchClasses(date, forceRefresh ? 0 : 300000)
+            );
+            const chunkResults = await Promise.all(chunkPromises);
+            allClasses.push(...chunkResults.flat());
         }
         
         console.log(`Total classes for month: ${allClasses.length}`);
@@ -2618,6 +2631,20 @@
             .map(([name]) => name.trim().toLowerCase());
         
         console.log("CM Students (normalized):", cmStudents);
+        
+        // Add this secondary cache to avoid recounting
+        const today = new Date(APP_STATE.todayDate);
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        const countCacheKey = "cm_month_count_" + formatDateToISO(firstDay);
+
+        if (!forceRefresh) {
+            const cachedCount = getCache(countCacheKey, 86400000);
+            if (cachedCount !== null) {
+                console.log("[Cache] Using cached CM count");
+                console.groupEnd(); // Close group before returning
+                return cachedCount;
+            }
+        }
         
         // Get ALL classes for the month
         const monthClasses = await fetchClassesForCurrentMonth(forceRefresh);
@@ -2652,11 +2679,16 @@
         console.log("Counted classes:", countedClasses);
         console.groupEnd();
         
-        return { 
+        const result = { 
             count: cnt, 
             classes: countedClasses, 
             cmStudents: cmStudents.map(name => name.charAt(0).toUpperCase() + name.slice(1))
         };
+
+        // Save count to cache for 24 hours
+        setCache(countCacheKey, result);
+
+        return result;
     }
 
     // Update CM Earnings display
