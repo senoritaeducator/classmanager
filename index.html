@@ -1214,7 +1214,7 @@
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    v3.5.2 — Updated: 20-Nov-2025 17:10
+    v3.5.2 — Updated: 20-Nov-2025 18:00
 </div>
     </footer>
 
@@ -1335,7 +1335,9 @@
         currentClassesDate: null,
         currentClasses: [],
         suggestedTimes: [],
-        weeklyCounts: {} // Runtime mirror
+        weeklyCounts: {},
+        isFetchingMonthly: false,  // ⭐ ADD THIS
+        monthlyClasses: null        // ⭐ ADD THIS
     };
 
     const STUDENT_COLORS = [
@@ -2291,17 +2293,20 @@
     const refreshCMBtn = document.getElementById("refresh-cm-btn");
     if (refreshCMBtn) {
         refreshCMBtn.addEventListener("click", async () => {
-            console.log("🔄 Manual CM refresh clicked");
-            
-            // Clear all monthly-related caches
-            const today = new Date(APP_STATE.todayDate);
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-            clearCache("monthly_classes_" + formatDateToISO(firstDay));
-            clearCache("cm_month_count_" + formatDateToISO(firstDay));
-            
-            await updateCMPayout(true);
-            showToast(`Refreshed: ${document.getElementById("cm-total-classes").textContent}`, "success");
-        });
+    console.log("🔄 Manual CM refresh clicked");
+    
+    // Clear monthly caches
+    const today = new Date(APP_STATE.todayDate);
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    clearCache("monthly_classes_" + formatDateToISO(firstDay));
+    clearCache("cm_month_count_" + formatDateToISO(firstDay));
+    
+    // Clear weekly counts too for consistency
+    clearCache("weekly_counts");
+    
+    await updateCMPayout(true); // Force fresh fetch
+    showToast(`Refreshed: ${document.getElementById("cm-total-classes").textContent}`, "success");
+});
     }
     
     // Manual refresh for Students Overview tile
@@ -2474,22 +2479,22 @@
         
         // Wait for students to load before fetching today's overview
         // This ensures the Student Map is ready for Payout calculations
-        await loadStudentsForDropdowns();
+        await loadStudentsForDropdowns(); // Fetches students ONCE
         console.log("=== INITIAL LOAD DEBUG ===");
         console.log("Students Map:", APP_STATE.studentsMap);
         console.log("Samriddhi type:", APP_STATE.studentsMap["Samriddhi"]);
         console.log("All students:", APP_STATE.allStudentsClean);
         
-        loadAllStudentsTable();
+        // loadAllStudentsTable(); // DELETED - duplicate
         
         loadSuggestedTimes();
         updateSuggestedTimeHint();
 
         // Load today's overview (using cache if available, max 5 minutes old)
-        fetchTodayOverview(false); // false = don't force refresh
+        await fetchTodayOverview(false); // Use cache
 
         // Initial load of earnings (will use cache if available)
-        await updateCMPayout(false); // false = use cache on load
+        await updateCMPayout(false); // Use cache, don't force!
 
         // Motivation quotes
         showNextMotivation();
@@ -2558,65 +2563,81 @@
     });
 
     async function fetchClassesForCurrentMonth(forceRefresh = false) {
-        // Get first and last day of current month
-        const today = new Date(APP_STATE.todayDate);
-        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        
-        // Generate all dates in the month
-        const monthDates = [];
-        for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
-            monthDates.push(formatDateToISO(d));
-        }
-        
-        console.log(`[Month] Dates to check:`, monthDates.length, "days");
-        
-        // 📍 CACHE KEY: monthly_classes_YYYY-MM-DD
-        const cacheKey = "monthly_classes_" + formatDateToISO(firstDay);
-        const maxAge = forceRefresh ? 0 : 86400000; // 24 hours instead of 5 minutes
-        
-        // Try cache first
-        const cached = getCache(cacheKey, maxAge);
-        if (cached) {
-            console.log("[Cache] Using cached month classes");
-            return cached;
-        }
-        
-        // 🎯 OPTIMIZATION: Only fetch days that have classes
-        const datesToFetch = monthDates.filter(date => {
-            const dayCount = getWeeklyCount(date);
-            // Fetch if: unknown count OR count > 0 OR is today/future
-            return dayCount === undefined || dayCount > 0 || date >= APP_STATE.todayDate;
-        });
-        
-        console.log(`[Month] Actually fetching:`, datesToFetch.length, "days");
-        
-        // Clear caches for these specific dates if forcing refresh
-        if (forceRefresh) {
-            datesToFetch.forEach(date => clearCache("classes_" + date));
-            console.log("Cleared day caches for force refresh");
-        }
-        
-        // 🔥 PARALLEL FETCH: Up to 3 days at once
-        const CONCURRENT_LIMIT = 3;
-        const allClasses = [];
-        
-        for (let i = 0; i < datesToFetch.length; i += CONCURRENT_LIMIT) {
-            const chunk = datesToFetch.slice(i, i + CONCURRENT_LIMIT);
-            const chunkPromises = chunk.map(date => 
-                fetchClasses(date, forceRefresh ? 0 : 300000)
-            );
-            const chunkResults = await Promise.all(chunkPromises);
-            allClasses.push(...chunkResults.flat());
-        }
-        
-        console.log(`Total classes for month: ${allClasses.length}`);
-        setCache(cacheKey, allClasses);
-        return allClasses;
+    // 🔒 Prevent duplicate concurrent fetches
+    if (APP_STATE.isFetchingMonthly && !forceRefresh) {
+        console.log("[ACM] Monthly fetch in progress, returning cached");
+        return APP_STATE.monthlyClasses || [];
     }
+    APP_STATE.isFetchingMonthly = true;
+
+    // Get month range
+    const today = new Date(APP_STATE.todayDate);
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    
+    // 📅 Generate all month dates
+    const monthDates = [];
+    for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+        monthDates.push(formatDateToISO(d));
+    }
+    
+    console.log(`[Month] Total days: ${monthDates.length}`);
+    
+    // 🎯 CACHE KEY: monthly_classes_YYYY-MM-01
+    const cacheKey = "monthly_classes_" + formatDateToISO(firstDay);
+    const maxAge = forceRefresh ? 0 : 86400000; // 24 hours (was 5 minutes!)
+    
+    // Try cache first
+    const cached = getCache(cacheKey, maxAge);
+    if (cached) {
+        APP_STATE.isFetchingMonthly = false;
+        APP_STATE.monthlyClasses = cached;
+        return cached;
+    }
+    
+    // 🎯 OPTIMIZATION: Only fetch days that might have classes
+    const datesToFetch = monthDates.filter(date => {
+        const dayCount = getWeeklyCount(date);
+        // Fetch if: unknown OR count > 0 OR is today/future OR within last 7 days
+        return dayCount === undefined || dayCount > 0 || date >= APP_STATE.todayDate || 
+               (new Date(APP_STATE.todayDate) - new Date(date)) <= 7 * 24 * 60 * 60 * 1000;
+    });
+    
+    console.log(`[Month] Actually fetching: ${datesToFetch.length} days`);
+    
+    // 🔥 PARALLEL FETCH: Up to 3 at a time
+    const CONCURRENT_LIMIT = 3;
+    const allClasses = [];
+    
+    for (let i = 0; i < datesToFetch.length; i += CONCURRENT_LIMIT) {
+        const chunk = datesToFetch.slice(i, i + CONCURRENT_LIMIT);
+        const chunkResults = await Promise.all(
+            chunk.map(date => fetchClasses(date, forceRefresh ? 0 : 300000))
+        );
+        allClasses.push(...chunkResults.flat());
+    }
+    
+    APP_STATE.monthlyClasses = allClasses;
+    APP_STATE.isFetchingMonthly = false;
+    
+    console.log(`Total classes fetched: ${allClasses.length}`);
+    setCache(cacheKey, allClasses);
+    return allClasses;
+}
 
     // Fetch and count CM classes across the entire month with robust matching
     async function countCMClassesForMonth(forceRefresh = false) {
+    // 📍 SECONDARY CACHE: Store just the count
+    const today = new Date(APP_STATE.todayDate);
+    const countCacheKey = "cm_month_count_" + formatDateToISO(new Date(today.getFullYear(), today.getMonth(), 1));
+    
+    if (!forceRefresh) {
+        const cachedCount = getCache(countCacheKey, 86400000); // Cache for 24h
+        if (cachedCount) {
+            console.log("[Cache] Using cached CM count");
+            return cachedCount;
+        }
+    }
         console.group("=== CM CLASS COUNTING (MONTHLY) DEBUG ===");
         
         // Ensure students map is loaded
@@ -2631,20 +2652,6 @@
             .map(([name]) => name.trim().toLowerCase());
         
         console.log("CM Students (normalized):", cmStudents);
-        
-        // Add this secondary cache to avoid recounting
-        const today = new Date(APP_STATE.todayDate);
-        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-        const countCacheKey = "cm_month_count_" + formatDateToISO(firstDay);
-
-        if (!forceRefresh) {
-            const cachedCount = getCache(countCacheKey, 86400000);
-            if (cachedCount !== null) {
-                console.log("[Cache] Using cached CM count");
-                console.groupEnd(); // Close group before returning
-                return cachedCount;
-            }
-        }
         
         // Get ALL classes for the month
         const monthClasses = await fetchClassesForCurrentMonth(forceRefresh);
@@ -2685,10 +2692,10 @@
             cmStudents: cmStudents.map(name => name.charAt(0).toUpperCase() + name.slice(1))
         };
 
-        // Save count to cache for 24 hours
-        setCache(countCacheKey, result);
+    // Save count to cache for 24 hours
+    setCache(countCacheKey, result);
 
-        return result;
+    return result;
     }
 
     // Update CM Earnings display
