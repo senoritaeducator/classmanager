@@ -161,6 +161,29 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
             border: 2px solid rgba(255, 255, 255, 0.9);
         }
+        
+        /* NEW: Portfolio Link Styling */
+        .teacher-portfolio-link {
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e5e7eb;
+            font-size: 0.8rem;
+            color: #4f46e5;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .teacher-portfolio-link:hover {
+            background: #eef2ff;
+            border-color: #4f46e5;
+            transform: translateY(-1px);
+        }
 
         @media (max-width: 768px) {
             .teacher-avatar {
@@ -981,6 +1004,7 @@
             <div class="teacher-label">WELCOME</div>
             <div class="teacher-name">Senorita Saha</div>
             <div class="teacher-id">Teacher ID: 181577</div>
+            <a href="https://senoritaeducator.github.io/professional-portfolio/ " target="_blank" rel="noopener noreferrer" class="teacher-portfolio-link">🌐 View Portfolio</a>
             <div class="teacher-clock" id="clock-india">🕒 India: --:-- --</div>
 
             <img
@@ -1214,7 +1238,7 @@
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    v3.6 — Updated: 20-Nov-2025 18:15
+    v3.7 — Updated: 20-Nov-2025 21:15
 </div>
     </footer>
 
@@ -1240,6 +1264,7 @@
             <div class="fab-item" id="fab-schedule-class">📅 Schedule Class</div>
             <div class="fab-item" id="fab-load-today">📆 Load Today</div>
             <div class="fab-item" id="fab-go-classes">🗂 Classes Tab</div>
+            <div class="fab-item" id="fab-ai-help">🤖 AI Help</div>
         </div>
     </div>
 </div>
@@ -2546,6 +2571,11 @@
             // Use cache first - don't force refresh
             fetchClassesForDate(APP_STATE.todayDate, false);
         }
+    });
+    
+    document.getElementById("fab-ai-help").addEventListener("click", () => {
+        window.open("https://opal.google/?flow=drive:/1Yg4yJWi1JKxwQEe0vTZx2XLMf-wSr2wJ&shared&mode=app", "_blank", "noopener,noreferrer");
+        fabMenu.classList.remove("show");
     });
 
     /* init */
