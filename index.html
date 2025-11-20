@@ -1214,7 +1214,7 @@
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    v3.5.2 — Updated: 20-Nov-2025 18:00
+    v3.6 — Updated: 20-Nov-2025 18:15
 </div>
     </footer>
 
@@ -1269,6 +1269,90 @@
        CACHING LOGIC (Reduce API Calls)
        ========================================= */
     const CACHE_PREFIX = "acm_cache_";
+    
+    /* =========================================
+       SESSION & EVENT-BASED CACHE MANAGEMENT
+       ========================================= */
+    const SESSION_DATE_KEY = "acm_session_date";
+    const LOADED_DATES_KEY = "acm_loaded_dates";
+
+    function initializeSession() {
+        const today = getCurrentISTDateString();
+        const storedDate = localStorage.getItem(SESSION_DATE_KEY);
+        
+        if (storedDate !== today) {
+            // New day - reset everything
+            invalidateAllClassesCache();
+            clearCache("students");
+            localStorage.setItem(SESSION_DATE_KEY, today);
+            console.log("🌅 New day detected. All caches reset.");
+        }
+    }
+
+    function getLoadedDates() {
+        try {
+            const today = getCurrentISTDateString();
+            const raw = localStorage.getItem(LOADED_DATES_KEY);
+            if (!raw) return new Set();
+            
+            const data = JSON.parse(raw);
+            // Return empty if data is from previous day
+            if (data.date !== today) {
+                localStorage.removeItem(LOADED_DATES_KEY);
+                return new Set();
+            }
+            return new Set(data.dates || []);
+        } catch {
+            return new Set();
+        }
+    }
+
+    function saveLoadedDates(datesSet) {
+        try {
+            const today = getCurrentISTDateString();
+            localStorage.setItem(LOADED_DATES_KEY, JSON.stringify({
+                date: today,
+                dates: Array.from(datesSet)
+            }));
+        } catch {}
+    }
+
+    function markDateAsLoaded(date) {
+        const loaded = getLoadedDates();
+        loaded.add(date);
+        saveLoadedDates(loaded);
+    }
+
+    function isDateLoadedToday(date) {
+        return getLoadedDates().has(date);
+    }
+
+    function invalidateDateCache(date) {
+        // Clear the cache for this specific date
+        clearCache("classes_" + date);
+        // Remove from loaded dates so it reloads fresh next time
+        const loaded = getLoadedDates();
+        loaded.delete(date);
+        saveLoadedDates(loaded);
+        console.log(`🗑️ Invalidated cache for ${date}`);
+    }
+
+    function invalidateAllClassesCache() {
+        // Clear ALL class caches
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith(CACHE_PREFIX + "classes_")) {
+                localStorage.removeItem(key);
+            }
+        });
+        clearCache("weekly_counts");
+        clearCache("monthly_classes_*");
+        
+        // Reset loaded dates
+        const loaded = getLoadedDates();
+        loaded.clear();
+        saveLoadedDates(loaded);
+        console.log("🗑️ Invalidated ALL classes caches");
+    }
 
     function getCache(key, maxAgeMs = 300000) {
         try {
@@ -1734,6 +1818,7 @@
             document.getElementById("student-name-input").value = "";
             // Force refresh to update cache
             clearCache("students"); 
+            invalidateAllClassesCache(); // 🗑️ Clear all class caches
             loadStudentsForDropdowns(true);
             loadAllStudentsTable(true);
         } catch {
@@ -1758,6 +1843,7 @@
             msg.innerHTML = '<div class="success">✅ Student deleted.</div>';
             // Force refresh to update cache
             clearCache("students"); 
+            invalidateAllClassesCache(); // 🗑️ Clear all class caches
             loadStudentsForDropdowns(true);
             loadAllStudentsTable(true);
         } catch {
@@ -1847,7 +1933,7 @@
             recordUsedTime(tm);
             
             // Update Caches - Invalidate specific dates
-            involvedDates.forEach(d => clearCache("classes_" + d));
+            involvedDates.forEach(d => invalidateDateCache(d)); // 🗑️ Clear specific dates
             
             // Refresh data if viewing relevant dates
             fetchTodayOverview(true); 
@@ -2139,8 +2225,8 @@
                     recordUsedTime(nt);
                     
                     // Update caches - invalidate both old and new date
-                    clearCache("classes_" + date);
-                    clearCache("classes_" + nd);
+                    invalidateDateCache(date);  // 🗑️ Clear old date
+                    invalidateDateCache(nd);    // 🗑️ Clear new date
 
                     // Refresh logic
                     setTimeout(() => {
@@ -2196,31 +2282,31 @@
 
     // Unified Classes Fetcher with Cache & Count Tracker
     async function fetchClasses(date, maxAgeOrForce = 300000) {
-        // Handle both legacy boolean (forceRefresh) and new number (maxAge) arguments
-        let maxAge = 300000; // Default 5 mins
-        if (typeof maxAgeOrForce === 'boolean') {
-            maxAge = maxAgeOrForce ? 0 : 300000;
-        } else if (typeof maxAgeOrForce === 'number') {
-            maxAge = maxAgeOrForce;
-        }
-
+        // Handle both legacy boolean and number arguments
+        const forceRefresh = typeof maxAgeOrForce === 'boolean' 
+            ? maxAgeOrForce 
+            : maxAgeOrForce === 0;
+        
         const cacheKey = "classes_" + date;
-        // Pass explicit maxAge to cache checker
-        const cached = getCache(cacheKey, maxAge);
         
-        if (cached) {
-            return cached;
+        // 🎯 NEW LOGIC: Check if date was loaded today
+        if (!forceRefresh && isDateLoadedToday(date)) {
+            const cached = getCache(cacheKey, -1); // Never expire by time
+            if (cached) {
+                console.log(`[ACM Cache] ${date} already loaded today (${cached.length} classes)`);
+                return cached;
+            }
         }
         
-        // API
-        console.log(`[ACM API] Fetching for ${date}...`);
+        // 🌐 API call needed: First load of the day OR manual refresh
+        console.log(`[ACM API] Fetching classes for ${date}...`);
         const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: date });
         const classes = d.classes || [];
         
+        // 💾 Save to cache and mark as loaded
         setCache(cacheKey, classes);
-        
-        // Update the lightweight weekly count cache
         updateWeeklyCountCache(date, classes.length);
+        markDateAsLoaded(date);
         
         return classes;
     }
@@ -2464,6 +2550,8 @@
 
     /* init */
     window.addEventListener("load", async () => {
+        initializeSession(); // 🌅 Check for new day and reset if needed
+        
         document.getElementById("schedule-time")?.addEventListener("input", hideSlotWarning);
         document.getElementById("schedule-date")?.addEventListener("change", hideSlotWarning);
         
@@ -2499,14 +2587,6 @@
         // Motivation quotes
         showNextMotivation();
         setInterval(showNextMotivation, 30000);
-        
-        // Temporary: Clear old cache on load
-        Object.keys(localStorage).forEach(key => {
-            if (key.startsWith("acm_cache_")) {
-                localStorage.removeItem(key);
-            }
-        });
-        console.log("Cleared old ACM cache");
     });
 
     /* Time Normalizer */
