@@ -149,7 +149,6 @@
             gap: 4px;
         }
 
-        /* NEW avatar styling */
         .teacher-avatar {
             position: absolute;
             right: 16px;
@@ -162,7 +161,6 @@
             border: 2px solid rgba(255, 255, 255, 0.9);
         }
         
-        /* NEW: Portfolio Link Styling */
         .teacher-portfolio-link {
             margin-top: 8px;
             display: inline-flex;
@@ -197,7 +195,7 @@
         /* Tabs */
         .global-search-wrap {
             margin: 6px 0 8px;
-            display: none; /* search hidden, logic still intact */
+            display: none;
         }
 
         .global-search-input {
@@ -221,6 +219,7 @@
             display: flex;
             gap: 8px;
             margin: 4px 0 12px;
+            overflow-x: auto;
         }
 
         .main-tab-btn {
@@ -238,6 +237,7 @@
             justify-content: center;
             gap: 8px;
             transition: all 0.18s ease;
+            white-space: nowrap;
         }
 
         .main-tab-btn span.tab-icon {
@@ -360,6 +360,9 @@
             letter-spacing: 0.06em;
             color: #9ca3af;
             margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .overview-main {
@@ -371,12 +374,6 @@
         .overview-sub {
             font-size: 0.78rem;
             color: #6b7280;
-        }
-
-        .overview-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
         }
 
         .overview-refresh-btn {
@@ -487,10 +484,9 @@
             border-bottom: none;
         }
 
-        /* NEW: Prevent animation overlap in motivation tile */
         .motivation-tile .overview-main,
         .motivation-tile .overview-sub {
-            padding-right: 40px; /* Make space for sparkle animation */
+            padding-right: 40px;
         }
 
         /* Form */
@@ -565,6 +561,12 @@
         .btn-primary:hover {
             filter: brightness(1.05);
             transform: translateY(-0.5px);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
         }
 
         .btn-outline {
@@ -979,6 +981,29 @@
                 max-width: 95vw;
             }
         }
+
+        /* BULK TAB SPECIFIC STYLING */
+        .bulk-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            background: #f9fafb;
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .bulk-row select, .bulk-row input {
+            margin-bottom: 0;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+        }
+
+        .progress-bar { height:10px; background:#e6e6e6; border-radius:6px; overflow:hidden; margin-top:8px; }
+        .progress-bar > i { display:block; height:100%; width:0%; background: linear-gradient(135deg, #4f46e5, #6366f1); transition:width 300ms linear; }
+        .small-muted { font-size:13px; color:#666; }
+
     </style>
 </head>
 
@@ -1031,6 +1056,10 @@
         <button class="main-tab-btn" data-section="classes">
             <span class="tab-icon">📚</span>
             <span>Manage Classes</span>
+        </button>
+        <button class="main-tab-btn" data-section="bulk">
+            <span class="tab-icon">⚡</span>
+            <span>Bulk Schedule</span>
         </button>
     </nav>
 
@@ -1232,13 +1261,58 @@
 
     </section>
 
+    <section id="section-bulk" class="section">
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <div class="section-title-row">
+                        <span class="section-title-icon">⚡</span>
+                        <div class="section-title">Bulk Schedule Classes</div>
+                    </div>
+                    <div class="section-caption">Schedule multiple students for a specific date with optional weekly repetition.</div>
+                </div>
+            </div>
+
+            <div class="card-row">
+                <div class="card-column">
+                    <label>Date</label>
+                    <input type="date" id="bulkDate" style="width:100%;"/>
+                </div>
+                <div class="card-column">
+                    <label>Repeat (weeks)</label>
+                    <input type="number" id="bulkRepeatWeeks" min="0" max="52" value="0" style="width:100%;"/>
+                </div>
+            </div>
+
+            <hr style="margin:12px 0; border:0; border-top:1px solid #e5e7eb;">
+
+            <div id="bulkRowsContainer"></div>
+
+            <div class="inline-actions" style="margin-top:12px; gap:8px;">
+                <button id="addBulkRowBtn" class="btn btn-soft">+ Add Row</button>
+                <button id="clearBulkRowsBtn" class="btn btn-outline">Clear</button>
+            </div>
+            <div class="small-muted" style="margin-top:8px;">Each row: Select a student & enter time (hh:mm AM/PM).</div>
+
+            <div style="margin-top:12px;">
+                <div class="progress-bar" id="bulkProgressWrap" style="display:none"><i id="bulkProgress"></i></div>
+                <div id="bulkStatus" class="small-muted" style="margin-top:8px"></div>
+            </div>
+
+            <div class="inline-actions" style="margin-top:16px; justify-content:flex-end;">
+                <button class="btn btn-outline" onclick="resetBulkScheduler()">Reset</button>
+                <button id="bulkScheduleBtn" class="btn btn-primary">Schedule All</button>
+            </div>
+        </div>
+    </section>
+
     <footer class="footer">
         <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
         <div class="footer-version">🕉️ॐ नमः शिवाय🕉️</div>
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    v3.7 — Updated: 20-Nov-2025 21:15
+    ACM v4.0 — Updated: 21-Nov-2025 03:00
 </div>
     </footer>
 
@@ -1255,6 +1329,19 @@
                 <div>Choose template for each student, then copy or open in WhatsApp.</div>
             </div>
         </div>
+    </div>
+
+    <div id="confirmModal" class="modal-backdrop">
+      <div class="modal" style="max-width:400px;">
+        <div class="modal-body" style="text-align:center; padding:20px;">
+            <div style="font-size:2rem; margin-bottom:10px;">🤔</div>
+            <p id="confirmText" style="font-weight:600; color:#111827; margin-bottom:20px;"></p>
+            <div style="display:flex; justify-content:center; gap:10px;">
+                <button id="confirmNo" class="btn btn-outline">Cancel</button>
+                <button id="confirmYes" class="btn btn-primary">Yes, Schedule</button>
+            </div>
+        </div>
+      </div>
     </div>
 
     <div class="fab-container">
@@ -1363,21 +1450,30 @@
     }
 
     function invalidateAllClassesCache() {
-        // Clear ALL class caches
-        Object.keys(localStorage).forEach(key => {
-            if (key.startsWith(CACHE_PREFIX + "classes_")) {
-                localStorage.removeItem(key);
-            }
-        });
-        clearCache("weekly_counts");
-        clearCache("monthly_classes_*");
-        
-        // Reset loaded dates
-        const loaded = getLoadedDates();
-        loaded.clear();
-        saveLoadedDates(loaded);
-        console.log("🗑️ Invalidated ALL classes caches");
-    }
+            // Clear ALL class caches (per-day)
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith(CACHE_PREFIX + "classes_")) {
+                    localStorage.removeItem(key);
+                }
+                // Clear monthly_classes_YYYY-MM-01 entries
+                if (key.startsWith(CACHE_PREFIX + "monthly_classes_")) {
+                    localStorage.removeItem(key);
+                }
+                // Clear cm count caches
+                if (key.startsWith(CACHE_PREFIX + "cm_month_count_")) {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            // Clear weekly counts and other helpers
+            clearCache("weekly_counts");
+
+            // Reset loaded dates
+            const loaded = getLoadedDates();
+            loaded.clear();
+            saveLoadedDates(loaded);
+            console.log("🗑️ Invalidated ALL classes caches");
+        }
 
     function getCache(key, maxAgeMs = 300000) {
         try {
@@ -1684,6 +1780,7 @@
     const mainTabButtons = document.querySelectorAll(".main-tab-btn");
     const sectionStudents = document.getElementById("section-students");
     const sectionClasses = document.getElementById("section-classes");
+    const sectionBulk = document.getElementById("section-bulk");
 
     function showMainSection(sec) {
         hideSlotWarning();
@@ -1693,6 +1790,15 @@
         );
         sectionStudents.classList.toggle("show", sec === "students");
         sectionClasses.classList.toggle("show", sec === "classes");
+        sectionBulk.classList.toggle("show", sec === "bulk");
+
+        // If switching to bulk and it's empty, initialize rows
+        if(sec === "bulk" && document.getElementById('bulkRowsContainer').innerHTML === "") {
+            createBulkRow(0);
+            createBulkRow(1);
+            createBulkRow(2);
+            document.getElementById('bulkDate').value = APP_STATE.todayDate;
+        }
     }
 
     mainTabButtons.forEach(btn =>
@@ -2578,6 +2684,229 @@
         fabMenu.classList.remove("show");
     });
 
+    // ---------- Bulk Schedule JS ----------
+(function(){
+
+  // Helper: create student dropdown option HTML from APP_STATE.students
+  function buildStudentOptionsHtml() {
+    const students = (APP_STATE && APP_STATE.students) || [];
+    return students.map(s => {
+      const name = (s.name || s.StudentName || s.student || '').trim();
+      return `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`;
+    }).join('');
+  }
+
+  // escape helper
+  function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // Add a row entry
+  function createBulkRow(index){
+    const container = document.getElementById('bulkRowsContainer');
+    const row = document.createElement('div');
+    row.className = 'bulk-row';
+    row.dataset.rowIndex = index;
+    
+    // THEME MATCH: Use text input for time instead of type="time"
+    row.innerHTML = `
+      <select class="bulk-student" style="flex:1;">${buildStudentOptionsHtml()}</select>
+      <input type="text" class="bulk-time" placeholder="hh:mm AM/PM" style="width:120px;" />
+      <button class="bulk-remove btn btn-outline" style="padding:6px 10px; color:#ff4d4f; border-color:#ffccc7;" title="Remove">✕</button>
+    `;
+    container.appendChild(row);
+    
+    // Remove handler
+    row.querySelector('.bulk-remove').addEventListener('click', ()=>{ 
+        row.remove(); 
+        updateBulkRowIndices(); 
+    });
+
+    // Attach Normalizer for Time Input
+    const timeInput = row.querySelector('.bulk-time');
+    if(timeInput) {
+        const errDiv=document.createElement("div");
+        errDiv.className="small";errDiv.style.color="red";errDiv.style.marginTop="2px";errDiv.style.fontSize="0.7rem";errDiv.style.display="none";errDiv.innerText="Invalid format";
+        timeInput.parentNode.insertBefore(errDiv, timeInput.nextSibling);
+        
+        timeInput.addEventListener("blur", ()=>{
+           const normalized=normalizeUserTime(timeInput.value);
+           if(normalized===null && timeInput.value !== ""){
+               errDiv.style.display="block";
+           } else {
+               errDiv.style.display="none";
+               if(normalized) timeInput.value=normalized;
+           }
+        });
+    }
+  }
+
+  function updateBulkRowIndices(){
+    const rows = document.querySelectorAll('#bulkRowsContainer .bulk-row');
+    rows.forEach((r,i)=> r.dataset.rowIndex = i);
+  }
+
+  window.createBulkRow = createBulkRow; // expose to global for reset
+
+  // Reset function
+  window.resetBulkScheduler = function(){
+     document.getElementById('bulkRowsContainer').innerHTML = '';
+     createBulkRow(0);
+     createBulkRow(1);
+     createBulkRow(2);
+     document.getElementById('bulkProgressWrap').style.display = 'none';
+     document.getElementById('bulkStatus').textContent = '';
+  };
+
+  // Custom Confirmation Modal Logic
+  function showConfirm(text, yesCallback, noCallback) {
+      const modal = document.getElementById("confirmModal");
+      const txt = document.getElementById("confirmText");
+      txt.textContent = text;
+      modal.classList.add("show");
+
+      // Remove old listeners to prevent stacking
+      const yesBtn = document.getElementById("confirmYes");
+      const noBtn = document.getElementById("confirmNo");
+      const newYes = yesBtn.cloneNode(true);
+      const newNo = noBtn.cloneNode(true);
+      yesBtn.parentNode.replaceChild(newYes, yesBtn);
+      noBtn.parentNode.replaceChild(newNo, noBtn);
+
+      newYes.onclick = () => {
+          modal.classList.remove("show");
+          yesCallback();
+      };
+      newNo.onclick = () => {
+          modal.classList.remove("show");
+          if(noCallback) noCallback();
+      };
+  }
+
+  // Schedule all (Initiator)
+  async function scheduleAllBulk(){
+    const dateEl = document.getElementById('bulkDate');
+    const repeatWeeks = parseInt(document.getElementById('bulkRepeatWeeks').value || 0,10);
+    const rows = Array.from(document.querySelectorAll('#bulkRowsContainer .bulk-row'));
+    
+    if(!dateEl.value) return showToast('Select a date', 'error');
+    if(rows.length === 0) return showToast('Add at least one row', 'error');
+
+    // Build tasks (student,time) and validate
+    const tasks = [];
+    for(const r of rows){
+      const student = r.querySelector('.bulk-student').value.trim();
+      const timeRaw = r.querySelector('.bulk-time').value;
+      
+      if(!student) continue; // skip empty rows
+      if(!timeRaw) return showToast('Enter time for ' + student, 'error');
+      
+      // Convert AM/PM to 24h for the webhook
+      const time24 = parseUserTimeTo24(timeRaw);
+      if(!time24) return showToast('Invalid time format for ' + student, 'error');
+      
+      tasks.push({ student, time: time24, duration: 60 }); // Hardcoded 60 mins
+    }
+    
+    if(tasks.length === 0) return showToast('No valid rows to schedule', 'error');
+
+    // Use Custom Confirm
+    showConfirm(
+        `Schedule ${tasks.length} student(s) starting ${dateEl.value} and repeating for ${repeatWeeks} week(s)?`,
+        () => scheduleAllBulkConfirmed(tasks, dateEl.value, repeatWeeks),
+        () => {}
+    );
+  }
+
+  // Actual Execution Logic
+  async function scheduleAllBulkConfirmed(tasks, startDate, repeatWeeks) {
+    const btn = document.getElementById('bulkScheduleBtn');
+    btn.disabled = true; btn.textContent = 'Scheduling...';
+
+    // For progress
+    const totalOccurrences = tasks.length * (repeatWeeks+1);
+    let completed = 0;
+    document.getElementById('bulkProgressWrap').style.display = 'block';
+
+    // iterate rows and repeats
+    for(const t of tasks){
+      for(let w=0; w<=repeatWeeks; w++){
+        const occDate = addDaysLocal(startDate, w * 7); // use existing helper which expects string ISO
+        
+        // Normalise times helper
+        function normalize24(x) { if (!x) return ""; return x.slice(0,5); }
+
+        // Conflict check: fetchClasses (false = use cache but don't force fresh unless invalid)
+        const existing = await fetchClasses(occDate, false).catch(()=>[]);
+        
+        const normalizedNew = normalize24(t.time);
+        
+        // Strict Conflict Check: Block if ANY class exists at this time (Teacher availability)
+        const conflict = existing.some(c => {
+            const ex = normalize24(c.StartTime || c.time || "");
+            return ex === normalizedNew; 
+        });
+
+        if(conflict){
+            showToast(`⚠️ Conflict: ${t.student} on ${occDate} at ${t.time}`, "error");
+            completed++; updateBulkProgress(completed, totalOccurrences); // Update progress to prevent hang
+            continue; // Skip this iteration
+        }
+
+        // Build payload
+        const payload = {
+          Action: "ScheduleClass",
+          StudentName: t.student,
+          ClassDate: occDate,
+          StartTime: t.time,
+          DurationMinutes: t.duration,
+          MessageType: "class",
+          TeacherID: (APP_STATE && APP_STATE.teacherId) || 181577,
+          RepeatWeeks: false
+        };
+
+        try {
+          // call existing API helper (fetchAPI) and wait minimal delay
+          await fetchAPI(WEBHOOKS.SCHEDULE, payload); 
+        } catch(e){
+           console.error('Schedule call failed', e);
+           showToast(`Failed for ${t.student} on ${occDate}`, 'error');
+        }
+        // After successful schedule: invalidate date cache
+        try { invalidateDateCache(occDate); } catch(e){}
+        completed++; updateBulkProgress(completed, totalOccurrences);
+        // Throttle to avoid rapid calls (200ms)
+        await new Promise(r=>setTimeout(r, 220));
+      }
+    }
+
+    // done
+    btn.disabled = false; btn.textContent = 'Schedule All';
+    document.getElementById('bulkStatus').textContent = `Completed ${completed} / ${totalOccurrences}`;
+    showToast(`Scheduled ${completed} / ${totalOccurrences}`, 'success');
+
+    // Refresh UI for involved dates: fetchTodayOverview / fetchClassesForDate as needed
+    try{ fetchTodayOverview(true); }catch(e){}
+    try{ updateCMPayout(true); }catch(e){}
+  }
+
+  function updateBulkProgress(done, total){
+    const pct = Math.round((done/total)*100);
+    const bar = document.getElementById('bulkProgress');
+    if(bar) bar.style.width = pct + '%';
+    document.getElementById('bulkStatus').textContent = `${done} of ${total} scheduled...`;
+  }
+
+  // wire UI events
+  document.addEventListener('DOMContentLoaded', function(){
+    const addBtn = document.getElementById('addBulkRowBtn');
+    if(addBtn) addBtn.addEventListener('click', ()=>{ createBulkRow(); });
+    const clearBtn = document.getElementById('clearBulkRowsBtn');
+    if(clearBtn) clearBtn.addEventListener('click', ()=>{ document.getElementById('bulkRowsContainer').innerHTML=''; });
+    const schBtn = document.getElementById('bulkScheduleBtn');
+    if(schBtn) schBtn.addEventListener('click', scheduleAllBulk);
+  });
+
+})(); // end IIFE
+
     /* init */
     window.addEventListener("load", async () => {
         initializeSession(); // 🌅 Check for new day and reset if needed
@@ -2624,6 +2953,15 @@
         if (!t) return "";
         t = t.trim().toUpperCase();
         t = t.replace(/\s+/g,"");
+
+        // NEW PATCH: Single/Double digit int handling (e.g. "7" -> "7:00 AM")
+        let plain = t.match(/^(\d{1,2})$/);
+        if(plain){
+            let hh = parseInt(plain[1], 10);
+            if(hh >=1 && hh <=12){
+                return hh + ":00 AM";
+            }
+        }
 
         // Match 24h: "16:00"
         let m24 = t.match(/^(\d{1,2}):(\d{2})$/);
