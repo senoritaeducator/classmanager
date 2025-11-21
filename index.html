@@ -1004,7 +1004,18 @@
         .progress-bar > i { display:block; height:100%; width:0%; background: linear-gradient(135deg, #4f46e5, #6366f1); transition:width 300ms linear; }
         .small-muted { font-size:13px; color:#666; }
 
-    </style>
+    
+    /* Cancel class styling */
+    .class-cancelled { 
+        opacity: 0.5;
+        filter: grayscale(1);
+    }
+
+    .hidden-cancelled {
+        display: none !important;
+    }
+
+</style>
 </head>
 
 <body>
@@ -1312,7 +1323,7 @@
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    ACM v4.0 — Updated: 21-Nov-2025 03:00
+    ACM v5.0 — Updated: 21-Nov-2025 21:00
 </div>
     </footer>
 
@@ -1364,7 +1375,8 @@
         STUDENTS: "https://hook.eu2.make.com/kemhxja7ouav3ibxeqay4ktpmshw6xsl",
         SCHEDULE: "https://hook.eu2.make.com/m0iyppobmi5ut4bmkkl86rpn6vmjgx1l",
         FETCH_CLASS: "https://hook.eu2.make.com/2y3wy4smt4q9ui0buu15bpm6rbp0eg5p",
-        RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70"
+        RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70",
+        CANCEL: "https://hook.eu2.make.com/29qhty3i1h47vvzjxyrifdtw71pvsvsx"
     };
 
     // Get current date in IST timezone (UTC+5:30)
@@ -2036,7 +2048,7 @@
         msg.innerHTML = '<div class="loading">Checking slot availability (cache)...</div>';
         try {
             // Use short cache expiry (1 min) for conflict checks to balance accuracy & credits
-            const classes = await fetchClasses(dt, 60000);
+            const classes = await fetchClasses(dt, 0);
             const conflict = classes.some(c => (c.StartTime||c.time||'').trim() === tm.trim());
             if (conflict) {
                 const warn = document.getElementById('slot-warning'); if(warn){ warn.style.display='block'; return; }
@@ -2234,6 +2246,10 @@
             const card = document.createElement("div");
             card.className = "class-card";
 
+        if ((c.Status || "").toLowerCase() === "cancelled") {
+            card.classList.add("class-cancelled", "hidden-cancelled");
+        }
+
             const accent = document.createElement("div");
             accent.className = "class-accent";
             accent.style.background = getStudentColor(student);
@@ -2253,6 +2269,11 @@
                 <div class="inline-actions">
                     <button class="btn btn-soft btn-generate">💬 Generate Message</button>
                     <button class="btn btn-outline btn-reschedule">🔁 Reschedule</button>
+                    <button class="btn btn-outline btn-cancel" 
+                            data-class-id="${classId}"
+                            data-event-id="${calId}">
+                        ❌ Cancel
+                    </button>
                 </div>
 
                 <div class="expand-block generate-area" style="display:none;">
@@ -2318,6 +2339,107 @@
                 resArea.style.display = show ? "block" : "none";
             });
 
+        // --------------------- CANCEL CLASS HANDLER ----------------------
+        card.querySelector(".btn-cancel").addEventListener("click", () => {
+            console.log("🗑️ Cancel button clicked"); // DEBUG
+
+            const modal = document.getElementById("cancelClassModal");
+            modal.classList.add("show");
+
+            const cid = card.querySelector(".btn-cancel").dataset.classId;
+            const eid = card.querySelector(".btn-cancel").dataset.eventId;
+            
+            console.log("ClassID:", cid, "EventID:", eid); // DEBUG
+
+            console.log("ClassID:", cid, "EventID:", eid); // DEBUG
+
+            document.getElementById("cancelYes").onclick = async () => {
+                modal.classList.remove("show");
+
+                if (!cid) {
+                    showToast("Missing Class ID - cannot cancel", "error");
+                    console.error("❌ ClassID is null/undefined");
+                    return;
+                }
+
+                if (!cid) {
+                    showToast("Missing Class ID - cannot cancel", "error");
+                    console.error("❌ ClassID is null/undefined");
+                    return;
+                }
+
+                try {
+                    console.log("📤 Sending cancellation request..."); // DEBUG
+                    await fetchAPI(WEBHOOKS.CANCEL, {
+                        ClassID: cid,
+                        CalendarEventID: eid || "" || ""
+                    });
+                    
+                    console.log("✅ Cancellation successful"); // DEBUG
+
+                    console.log("✅ Cancellation successful"); // DEBUG
+
+                    showToast("Class cancelled", "success");
+
+                    // Immediately remove the card from DOM for instant UX
+                    try {
+                        const btnEl = document.querySelector(`.btn-cancel[data-class-id="${cid}"][data-event-id="${eid}"]`);
+                        if (btnEl) {
+                            const card = btnEl.closest('.class-card');
+                            if (card) card.remove();
+                        }
+                    } catch(e){}
+
+                    // Invalidate local caches for the date and month so frontend stops showing deleted class
+                    (function onCancelSuccess() {
+                        // invalidate the day
+                        try {
+                            invalidateDateCache(dateStr); // existing helper - clears classes_<date>
+                        } catch(e) { console.warn('invalidateDateCache failed', e); }
+
+                        // Clear monthly caches (month start key)
+                        try {
+                            const today = new Date(dateStr);
+                            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                            const monthKey = "monthly_classes_" + formatDateToISO(firstDay);
+                            const monthCountKey = "cm_month_count_" + formatDateToISO(firstDay);
+                            clearCache(monthKey);
+                            clearCache(monthCountKey);
+                        } catch(e) { console.warn('monthly cache clear fail', e); }
+
+                        // Also clear weekly counts (so weekly strip refreshes)
+                        clearCache("weekly_counts");
+
+                        // Remove date from LOADED_DATES so fetchClasses will do a fresh API call next time
+                        try {
+                            const raw = localStorage.getItem(LOADED_DATES_KEY);
+                            if (raw) {
+                                const obj = JSON.parse(raw);
+                                if (obj && obj.date && obj.dates) {
+                                    const set = new Set(obj.dates || []);
+                                    set.delete(dateStr);
+                                    localStorage.setItem(LOADED_DATES_KEY, JSON.stringify({ date: obj.date, dates: Array.from(set) }));
+                                }
+                            }
+                        } catch(e){}
+
+                        // Refresh UI
+                        fetchClassesForDate(dateStr, true).catch(()=>{});
+                        fetchTodayOverview(true).catch(()=>{});
+                        updateCMPayout(true).catch(()=>{});
+                    })();
+
+                } catch (err) {
+                    console.error("❌ Cancellation failed:", err); // DEBUG
+                    showToast("Failed to cancel class", "error");
+                }
+            };
+
+            document.getElementById("cancelNo").onclick = () => {
+                modal.classList.remove("show");
+            };
+        });
+
             card.querySelector(".btn-res-submit").addEventListener("click", async () => {
                 const nd = card.querySelector(".res-date").value;
                 const userNewTime = card.querySelector(".res-time").value;
@@ -2332,7 +2454,7 @@
                 // Check for slot conflict - Use cache only (1 minute expiry)
                 try {
                     // Fetch classes for target date (from cache if avail)
-                    const classes = await fetchClasses(nd, 60000);
+                    const classes = await fetchClasses(nd, 0);
                     const conflict = classes.some(c => (c.StartTime||c.time||'').trim() === nt.trim() && (c.ClassID || c.id) !== classId);
                     if (conflict) {
                         const warn = card.querySelector('.slot-warning-resched');
@@ -2835,7 +2957,7 @@
         function normalize24(x) { if (!x) return ""; return x.slice(0,5); }
 
         // Conflict check: fetchClasses (false = use cache but don't force fresh unless invalid)
-        const existing = await fetchClasses(occDate, false).catch(()=>[]);
+        const existing = await fetchClasses(occDate, 0).catch(()=>[]);
         
         const normalizedNew = normalize24(t.time);
         
@@ -3177,5 +3299,21 @@
     }
 
 </script>
+
+<div id="cancelClassModal" class="modal-backdrop">
+  <div class="modal" style="max-width: 360px;">
+    <div class="modal-body" style="text-align:center; padding:20px;">
+      <div style="font-size:2rem; margin-bottom:10px;">🗑️</div>
+      <p id="cancelClassText" style="font-weight:600; margin-bottom:20px;">
+         Cancel this class? This action cannot be undone.
+      </p>
+      <div style="display:flex; justify-content:center; gap:12px;">
+          <button id="cancelNo" class="btn btn-outline">No</button>
+          <button id="cancelYes" class="btn btn-primary">Yes, Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
