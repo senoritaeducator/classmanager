@@ -1323,7 +1323,7 @@
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    ACM v5.1 — Updated: 21-Nov-2025 23:00
+    ACM v6.0 — Updated: 22-Nov-2025 00:00
 </div>
     </footer>
 
@@ -1538,7 +1538,134 @@ function webhookUrl(u){
     }
     
     // Specialized cache for weekly counts to avoid re-fetching full data for the strip
-    function updateWeeklyCountCache(date, count) {
+    
+    // ========== BULK MODE / SYNC QUEUE / SYNC CHECK ==========
+    let BULK_MODE = false;
+    const INVALIDATION_QUEUE_KEY = "invalidation_queue";
+    function getInvalidationQueue() {
+        try {
+            const raw = localStorage.getItem(INVALIDATION_QUEUE_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch { return []; }
+    }
+    function saveInvalidationQueue(q) {
+        try { localStorage.setItem(INVALIDATION_QUEUE_KEY, JSON.stringify(q)); } catch {}
+    }
+    function queueInvalidateDate(date) {
+        if (!date) return;
+        const q = getInvalidationQueue();
+        if (!q.includes(date)) { q.push(date); saveInvalidationQueue(q); }
+        console.log('[ACM] queued invalidation for', date);
+    }
+    function flushInvalidationQueue(forceFetch=false) {
+        const q = getInvalidationQueue();
+        if (q.length === 0) return;
+        console.log('[ACM] flushing invalidation queue', q);
+        // Invalidate cookies/local caches for those dates
+        for (const d of q) {
+            const key = "classes_" + d;
+            clearCache(key);
+            // mark date as not loaded today
+            const loaded = getLoadedDates();
+            if (loaded.has(d)) {
+                loaded.delete(d);
+                saveLoadedDates(loaded);
+            }
+        }
+        // clear queue
+        saveInvalidationQueue([]);
+        // optionally fetch once per date to warm cache
+        if (forceFetch) {
+            (async ()=>{
+                for (const d of q) {
+                    try {
+                        await fetchClasses(d, 0);
+                    } catch(e){ console.warn('Warm fetch failed', e); }
+                }
+            })();
+        }
+    }
+    function enableBulkMode() {
+        BULK_MODE = true;
+        console.log('[ACM] Bulk mode enabled');
+    }
+    async function disableBulkMode(flush=true) {
+        BULK_MODE = false;
+        console.log('[ACM] Bulk mode disabled. flush=',flush);
+        if (flush) flushInvalidationQueue(true);
+    }
+
+    // Sync check compares cache vs backend without overwriting cache
+    async function runSyncCheck(selectedDate=null) {
+        try {
+            const results = { students: false, classes: false, details: {} };
+            // Students
+            const cachedStudents = getCache("students") || [];
+            const respStudents = await fetchAPI(webhookUrl(WEBHOOKS.STUDENTS), { action: "getAllStudents" });
+            const freshStudents = respStudents.students || [];
+            results.details.students = { cached: cachedStudents.length, fresh: freshStudents.length };
+            results.students = (cachedStudents.length === freshStudents.length) &&
+                JSON.stringify(cachedStudents) === JSON.stringify(freshStudents);
+
+            // Classes for selected date (if provided)
+            if (selectedDate) {
+                const cachedClasses = getCache("classes_" + selectedDate) || [];
+                const respClasses = await fetchAPI(webhookUrl(WEBHOOKS.FETCH_CLASS), { selectedDate: selectedDate });
+                const freshClasses = respClasses.classes || [];
+                // Compare by minimal fields to avoid order differences
+                function normArr(arr){ return arr.map(x=>({id: x.ClassID, start: (x.StartTime||x.time||'') })).sort((a,b)=> (a.id||'').localeCompare(b.id||'')); }
+                const c1 = normArr(cachedClasses), c2 = normArr(freshClasses);
+                results.details.classes = { cached: c1.length, fresh: c2.length };
+                results.classes = JSON.stringify(c1) === JSON.stringify(c2);
+            } else {
+                results.classes = true; // no date asked
+            }
+
+            // Present result in modal / toast
+            if (results.students && results.classes) {
+                showToast("✅ Cache is in sync with backend", "success");
+            } else {
+                let msg = "⚠️ Sync mismatch detected.";
+                if (!results.students) msg += ` Students: cached ${results.details.students.cached} vs fresh ${results.details.students.fresh}.`;
+                if (!results.classes) msg += ` Classes: cached ${results.details.classes.cached} vs fresh ${results.details.classes.fresh}.`;
+                // Offer user to force refresh
+                if (confirm(msg + "\n\nForce refresh now?")) {
+                    // Force refresh parts that mismatch
+                    if (!results.students) { await getAllStudents(true); invalidateAllClassesCache(); }
+                    if (!results.classes && selectedDate) { await fetchClasses(selectedDate, 0); }
+                    showToast("Forced refresh completed", "success");
+                } else {
+                    showToast("Sync check detected mismatch. No action taken.", "warning");
+                }
+            }
+        } catch (e) {
+            console.error("Sync check failed", e);
+            showToast("Sync check failed. See console.", "error");
+        }
+    }
+
+    // Daily reset: clear loaded dates at midnight IST
+    function attachDailyReset() {
+        try {
+            const msToMidnight = (function(){
+                const now = new Date();
+                const tzOffset = 5.5 * 60; // IST
+                const ist = new Date(now.getTime() + (now.getTimezoneOffset()+tzOffset)*60000);
+                const next = new Date(ist.getFullYear(), ist.getMonth(), ist.getDate()+1, 0,0,5);
+                return next.getTime() - now.getTime();
+            })();
+            setTimeout(()=>{
+                invalidateAllClassesCache();
+                clearCache("students");
+                saveLoadedDates(new Set());
+                console.log('[ACM] Daily reset executed');
+                // reattach for next day
+                attachDailyReset();
+            }, msToMidnight + 1000);
+        } catch(e){ console.warn('Daily reset attach failed', e); }
+    }
+    // call attachDailyReset on load
+function updateWeeklyCountCache(date, count) {
         let counts = getCache("weekly_counts") || {};
         counts[date] = count;
         setCache("weekly_counts", counts);
@@ -2910,6 +3037,8 @@ function webhookUrl(u){
 
   // Schedule all (Initiator)
   async function scheduleAllBulk(){
+    enableBulkMode();
+
     const dateEl = document.getElementById('bulkDate');
     const repeatWeeks = parseInt(document.getElementById('bulkRepeatWeeks').value || 0,10);
     const rows = Array.from(document.querySelectorAll('#bulkRowsContainer .bulk-row'));
@@ -3013,6 +3142,8 @@ function webhookUrl(u){
     // Refresh UI for involved dates: fetchTodayOverview / fetchClassesForDate as needed
     try{ fetchTodayOverview(true); }catch(e){}
     try{ updateCMPayout(true); }catch(e){}
+    // Bulk done - flush invalidations and disable bulk mode
+    await disableBulkMode(true);
   }
 
   function updateBulkProgress(done, total){
@@ -3320,5 +3451,47 @@ function webhookUrl(u){
   </div>
 </div>
 
+
+<!-- ACM Sync Controls -->
+<div id="acm-sync-controls" style="position:fixed;right:12px;bottom:12px;z-index:9999;background:#fff;border:1px solid #eee;padding:8px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);font-size:13px;">
+  <div style="margin-bottom:6px;"><strong>ACM Sync</strong></div>
+  <div style="display:flex;gap:6px;align-items:center;">
+    <button id="acm-bulk-toggle" style="padding:6px 8px;">Bulk: OFF</button>
+    <button id="acm-sync-check" style="padding:6px 8px;">Sync Check</button>
+    <button id="acm-force-sync" style="padding:6px 8px;">Force Sync</button>
+  </div>
+  <div id="acm-sync-msg" style="margin-top:8px;font-size:12px;color:#666;"></div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const bt = document.getElementById('acm-bulk-toggle');
+  const sc = document.getElementById('acm-sync-check');
+  const fs = document.getElementById('acm-force-sync');
+  const msg = document.getElementById('acm-sync-msg');
+  function setBulkLabel(){ bt.textContent = (window.BULK_MODE ? 'Bulk: ON' : 'Bulk: OFF'); }
+  bt.addEventListener('click', ()=>{
+    if(window.BULK_MODE){ disableBulkMode(true); msg.textContent='Bulk mode disabled'; } 
+    else { enableBulkMode(); msg.textContent='Bulk mode enabled'; }
+    setBulkLabel();
+  });
+  sc.addEventListener('click', async ()=>{
+    msg.textContent='Running sync check...';
+    try{ await runSyncCheck(APP_STATE && APP_STATE.selectedDate ? APP_STATE.selectedDate : null); }catch(e){ console.error(e); }
+    msg.textContent='Sync check completed';
+  });
+  fs.addEventListener('click', async ()=>{
+    msg.textContent='Forcing full sync...';
+    try{
+      invalidateAllClassesCache();
+      clearCache('students');
+      await getAllStudents(true);
+      if(APP_STATE && APP_STATE.selectedDate) await fetchClasses(APP_STATE.selectedDate, 0);
+      msg.textContent='Force sync completed';
+    }catch(e){ console.error(e); msg.textContent='Force sync failed'; }
+  });
+  setBulkLabel();
+});
+</script>
+<!-- End ACM Sync Controls -->
 </body>
 </html>
