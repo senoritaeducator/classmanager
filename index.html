@@ -1004,18 +1004,7 @@
         .progress-bar > i { display:block; height:100%; width:0%; background: linear-gradient(135deg, #4f46e5, #6366f1); transition:width 300ms linear; }
         .small-muted { font-size:13px; color:#666; }
 
-    
-    /* Cancel class styling */
-    .class-cancelled { 
-        opacity: 0.5;
-        filter: grayscale(1);
-    }
-
-    .hidden-cancelled {
-        display: none !important;
-    }
-
-</style>
+    </style>
 </head>
 
 <body>
@@ -1323,7 +1312,7 @@
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    ACM v6.0 — Updated: 22-Nov-2025 00:00
+    ACM v4.0 — Updated: 21-Nov-2025 03:00
 </div>
     </footer>
 
@@ -1375,14 +1364,8 @@
         STUDENTS: "https://hook.eu2.make.com/kemhxja7ouav3ibxeqay4ktpmshw6xsl",
         SCHEDULE: "https://hook.eu2.make.com/m0iyppobmi5ut4bmkkl86rpn6vmjgx1l",
         FETCH_CLASS: "https://hook.eu2.make.com/2y3wy4smt4q9ui0buu15bpm6rbp0eg5p",
-        RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70",
-        CANCEL: "https://hook.eu2.make.com/29qhty3i1h47vvzjxyrifdtw71pvsvsx"
+        RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70"
     };
-const WEBHOOK_SECRET = "KR7eQ9pW4mZ2xH8uB1cV3rT7nJ6yF0dA5sL9gP2qW8tE4uM0bN3hK6vS1rX5cJ";
-function webhookUrl(u){
-    return u + (u.includes('?') ? '&' : '?') + "key=" + encodeURIComponent(WEBHOOK_SECRET);
-}
-
 
     // Get current date in IST timezone (UTC+5:30)
     function getCurrentISTDateString() {
@@ -1538,134 +1521,7 @@ function webhookUrl(u){
     }
     
     // Specialized cache for weekly counts to avoid re-fetching full data for the strip
-    
-    // ========== BULK MODE / SYNC QUEUE / SYNC CHECK ==========
-    let BULK_MODE = false;
-    const INVALIDATION_QUEUE_KEY = "invalidation_queue";
-    function getInvalidationQueue() {
-        try {
-            const raw = localStorage.getItem(INVALIDATION_QUEUE_KEY);
-            return raw ? JSON.parse(raw) : [];
-        } catch { return []; }
-    }
-    function saveInvalidationQueue(q) {
-        try { localStorage.setItem(INVALIDATION_QUEUE_KEY, JSON.stringify(q)); } catch {}
-    }
-    function queueInvalidateDate(date) {
-        if (!date) return;
-        const q = getInvalidationQueue();
-        if (!q.includes(date)) { q.push(date); saveInvalidationQueue(q); }
-        console.log('[ACM] queued invalidation for', date);
-    }
-    function flushInvalidationQueue(forceFetch=false) {
-        const q = getInvalidationQueue();
-        if (q.length === 0) return;
-        console.log('[ACM] flushing invalidation queue', q);
-        // Invalidate cookies/local caches for those dates
-        for (const d of q) {
-            const key = "classes_" + d;
-            clearCache(key);
-            // mark date as not loaded today
-            const loaded = getLoadedDates();
-            if (loaded.has(d)) {
-                loaded.delete(d);
-                saveLoadedDates(loaded);
-            }
-        }
-        // clear queue
-        saveInvalidationQueue([]);
-        // optionally fetch once per date to warm cache
-        if (forceFetch) {
-            (async ()=>{
-                for (const d of q) {
-                    try {
-                        await fetchClasses(d, 0);
-                    } catch(e){ console.warn('Warm fetch failed', e); }
-                }
-            })();
-        }
-    }
-    function enableBulkMode() {
-        BULK_MODE = true;
-        console.log('[ACM] Bulk mode enabled');
-    }
-    async function disableBulkMode(flush=true) {
-        BULK_MODE = false;
-        console.log('[ACM] Bulk mode disabled. flush=',flush);
-        if (flush) flushInvalidationQueue(true);
-    }
-
-    // Sync check compares cache vs backend without overwriting cache
-    async function runSyncCheck(selectedDate=null) {
-        try {
-            const results = { students: false, classes: false, details: {} };
-            // Students
-            const cachedStudents = getCache("students") || [];
-            const respStudents = await fetchAPI(webhookUrl(WEBHOOKS.STUDENTS), { action: "getAllStudents" });
-            const freshStudents = respStudents.students || [];
-            results.details.students = { cached: cachedStudents.length, fresh: freshStudents.length };
-            results.students = (cachedStudents.length === freshStudents.length) &&
-                JSON.stringify(cachedStudents) === JSON.stringify(freshStudents);
-
-            // Classes for selected date (if provided)
-            if (selectedDate) {
-                const cachedClasses = getCache("classes_" + selectedDate) || [];
-                const respClasses = await fetchAPI(webhookUrl(WEBHOOKS.FETCH_CLASS), { selectedDate: selectedDate });
-                const freshClasses = respClasses.classes || [];
-                // Compare by minimal fields to avoid order differences
-                function normArr(arr){ return arr.map(x=>({id: x.ClassID, start: (x.StartTime||x.time||'') })).sort((a,b)=> (a.id||'').localeCompare(b.id||'')); }
-                const c1 = normArr(cachedClasses), c2 = normArr(freshClasses);
-                results.details.classes = { cached: c1.length, fresh: c2.length };
-                results.classes = JSON.stringify(c1) === JSON.stringify(c2);
-            } else {
-                results.classes = true; // no date asked
-            }
-
-            // Present result in modal / toast
-            if (results.students && results.classes) {
-                showToast("✅ Cache is in sync with backend", "success");
-            } else {
-                let msg = "⚠️ Sync mismatch detected.";
-                if (!results.students) msg += ` Students: cached ${results.details.students.cached} vs fresh ${results.details.students.fresh}.`;
-                if (!results.classes) msg += ` Classes: cached ${results.details.classes.cached} vs fresh ${results.details.classes.fresh}.`;
-                // Offer user to force refresh
-                if (confirm(msg + "\n\nForce refresh now?")) {
-                    // Force refresh parts that mismatch
-                    if (!results.students) { await getAllStudents(true); invalidateAllClassesCache(); }
-                    if (!results.classes && selectedDate) { await fetchClasses(selectedDate, 0); }
-                    showToast("Forced refresh completed", "success");
-                } else {
-                    showToast("Sync check detected mismatch. No action taken.", "warning");
-                }
-            }
-        } catch (e) {
-            console.error("Sync check failed", e);
-            showToast("Sync check failed. See console.", "error");
-        }
-    }
-
-    // Daily reset: clear loaded dates at midnight IST
-    function attachDailyReset() {
-        try {
-            const msToMidnight = (function(){
-                const now = new Date();
-                const tzOffset = 5.5 * 60; // IST
-                const ist = new Date(now.getTime() + (now.getTimezoneOffset()+tzOffset)*60000);
-                const next = new Date(ist.getFullYear(), ist.getMonth(), ist.getDate()+1, 0,0,5);
-                return next.getTime() - now.getTime();
-            })();
-            setTimeout(()=>{
-                invalidateAllClassesCache();
-                clearCache("students");
-                saveLoadedDates(new Set());
-                console.log('[ACM] Daily reset executed');
-                // reattach for next day
-                attachDailyReset();
-            }, msToMidnight + 1000);
-        } catch(e){ console.warn('Daily reset attach failed', e); }
-    }
-    // call attachDailyReset on load
-function updateWeeklyCountCache(date, count) {
+    function updateWeeklyCountCache(date, count) {
         let counts = getCache("weekly_counts") || {};
         counts[date] = count;
         setCache("weekly_counts", counts);
@@ -2011,7 +1867,7 @@ function updateWeeklyCountCache(date, count) {
         }
         // Fetch from API
         console.log("[ACM API] Fetching students...");
-        const r = await fetchAPI(webhookUrl(WEBHOOKS.STUDENTS), { action: "getAllStudents" });
+        const r = await fetchAPI(WEBHOOKS.STUDENTS, { action: "getAllStudents" });
         const s = r.students || r.data || [];
         APP_STATE.students = s;
         APP_STATE.studentsMap = {};
@@ -2088,7 +1944,7 @@ function updateWeeklyCountCache(date, count) {
 
         msg.innerHTML = '<div class="loading">Adding student...</div>';
         try {
-            const stype=document.querySelector("input[name='studentType']:checked").value; await fetchAPI(webhookUrl(WEBHOOKS.ADD), { StudentName: name, Type: stype });
+            const stype=document.querySelector("input[name='studentType']:checked").value; await fetchAPI(WEBHOOKS.ADD, { StudentName: name, Type: stype });
             msg.innerHTML = '<div class="success">✅ Student added.</div>';
             document.getElementById("student-name-input").value = "";
             // Force refresh to update cache
@@ -2114,7 +1970,7 @@ function updateWeeklyCountCache(date, count) {
 
         msg.innerHTML = '<div class="loading">Deleting student...</div>';
         try {
-            await fetchAPI(webhookUrl(WEBHOOKS.DELETE), { StudentName: sel });
+            await fetchAPI(WEBHOOKS.DELETE, { StudentName: sel });
             msg.innerHTML = '<div class="success">✅ Student deleted.</div>';
             // Force refresh to update cache
             clearCache("students"); 
@@ -2180,7 +2036,7 @@ function updateWeeklyCountCache(date, count) {
         msg.innerHTML = '<div class="loading">Checking slot availability (cache)...</div>';
         try {
             // Use short cache expiry (1 min) for conflict checks to balance accuracy & credits
-            const classes = await fetchClasses(dt, 0);
+            const classes = await fetchClasses(dt, 60000);
             const conflict = classes.some(c => (c.StartTime||c.time||'').trim() === tm.trim());
             if (conflict) {
                 const warn = document.getElementById('slot-warning'); if(warn){ warn.style.display='block'; return; }
@@ -2195,7 +2051,7 @@ function updateWeeklyCountCache(date, count) {
             for (let i = 0; i <= repeat; i++) {
                 const occDate = addDaysLocal(dt, i * 7); // compute ISO date for occurrence
                 involvedDates.push(occDate);
-                await fetchAPI(webhookUrl(WEBHOOKS.SCHEDULE), {
+                await fetchAPI(WEBHOOKS.SCHEDULE, {
                     Action: "ScheduleClass",
                     StudentName: st,
                     ClassDate: occDate,
@@ -2378,10 +2234,6 @@ function updateWeeklyCountCache(date, count) {
             const card = document.createElement("div");
             card.className = "class-card";
 
-        if ((c.Status || "").toLowerCase() === "cancelled") {
-            card.classList.add("class-cancelled", "hidden-cancelled");
-        }
-
             const accent = document.createElement("div");
             accent.className = "class-accent";
             accent.style.background = getStudentColor(student);
@@ -2401,11 +2253,6 @@ function updateWeeklyCountCache(date, count) {
                 <div class="inline-actions">
                     <button class="btn btn-soft btn-generate">💬 Generate Message</button>
                     <button class="btn btn-outline btn-reschedule">🔁 Reschedule</button>
-                    <button class="btn btn-outline btn-cancel" 
-                            data-class-id="${classId}"
-                            data-event-id="${calId}">
-                        ❌ Cancel
-                    </button>
                 </div>
 
                 <div class="expand-block generate-area" style="display:none;">
@@ -2471,107 +2318,6 @@ function updateWeeklyCountCache(date, count) {
                 resArea.style.display = show ? "block" : "none";
             });
 
-        // --------------------- CANCEL CLASS HANDLER ----------------------
-        card.querySelector(".btn-cancel").addEventListener("click", () => {
-            console.log("🗑️ Cancel button clicked"); // DEBUG
-
-            const modal = document.getElementById("cancelClassModal");
-            modal.classList.add("show");
-
-            const cid = card.querySelector(".btn-cancel").dataset.classId;
-            const eid = card.querySelector(".btn-cancel").dataset.eventId;
-            
-            console.log("ClassID:", cid, "EventID:", eid); // DEBUG
-
-            console.log("ClassID:", cid, "EventID:", eid); // DEBUG
-
-            document.getElementById("cancelYes").onclick = async () => {
-                modal.classList.remove("show");
-
-                if (!cid) {
-                    showToast("Missing Class ID - cannot cancel", "error");
-                    console.error("❌ ClassID is null/undefined");
-                    return;
-                }
-
-                if (!cid) {
-                    showToast("Missing Class ID - cannot cancel", "error");
-                    console.error("❌ ClassID is null/undefined");
-                    return;
-                }
-
-                try {
-                    console.log("📤 Sending cancellation request..."); // DEBUG
-                    await fetchAPI(webhookUrl(WEBHOOKS.CANCEL), {
-                        ClassID: cid,
-                        CalendarEventID: eid || "" || ""
-                    });
-                    
-                    console.log("✅ Cancellation successful"); // DEBUG
-
-                    console.log("✅ Cancellation successful"); // DEBUG
-
-                    showToast("Class cancelled", "success");
-
-                    // Immediately remove the card from DOM for instant UX
-                    try {
-                        const btnEl = document.querySelector(`.btn-cancel[data-class-id="${cid}"][data-event-id="${eid}"]`);
-                        if (btnEl) {
-                            const card = btnEl.closest('.class-card');
-                            if (card) card.remove();
-                        }
-                    } catch(e){}
-
-                    // Invalidate local caches for the date and month so frontend stops showing deleted class
-                    (function onCancelSuccess() {
-                        // invalidate the day
-                        try {
-                            invalidateDateCache(dateStr); // existing helper - clears classes_<date>
-                        } catch(e) { console.warn('invalidateDateCache failed', e); }
-
-                        // Clear monthly caches (month start key)
-                        try {
-                            const today = new Date(dateStr);
-                            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-                            const monthKey = "monthly_classes_" + formatDateToISO(firstDay);
-                            const monthCountKey = "cm_month_count_" + formatDateToISO(firstDay);
-                            clearCache(monthKey);
-                            clearCache(monthCountKey);
-                        } catch(e) { console.warn('monthly cache clear fail', e); }
-
-                        // Also clear weekly counts (so weekly strip refreshes)
-                        clearCache("weekly_counts");
-
-                        // Remove date from LOADED_DATES so fetchClasses will do a fresh API call next time
-                        try {
-                            const raw = localStorage.getItem(LOADED_DATES_KEY);
-                            if (raw) {
-                                const obj = JSON.parse(raw);
-                                if (obj && obj.date && obj.dates) {
-                                    const set = new Set(obj.dates || []);
-                                    set.delete(dateStr);
-                                    localStorage.setItem(LOADED_DATES_KEY, JSON.stringify({ date: obj.date, dates: Array.from(set) }));
-                                }
-                            }
-                        } catch(e){}
-
-                        // Refresh UI
-                        fetchClassesForDate(dateStr, true).catch(()=>{});
-                        fetchTodayOverview(true).catch(()=>{});
-                        updateCMPayout(true).catch(()=>{});
-                    })();
-
-                } catch (err) {
-                    console.error("❌ Cancellation failed:", err); // DEBUG
-                    showToast("Failed to cancel class", "error");
-                }
-            };
-
-            document.getElementById("cancelNo").onclick = () => {
-                modal.classList.remove("show");
-            };
-        });
-
             card.querySelector(".btn-res-submit").addEventListener("click", async () => {
                 const nd = card.querySelector(".res-date").value;
                 const userNewTime = card.querySelector(".res-time").value;
@@ -2586,7 +2332,7 @@ function updateWeeklyCountCache(date, count) {
                 // Check for slot conflict - Use cache only (1 minute expiry)
                 try {
                     // Fetch classes for target date (from cache if avail)
-                    const classes = await fetchClasses(nd, 0);
+                    const classes = await fetchClasses(nd, 60000);
                     const conflict = classes.some(c => (c.StartTime||c.time||'').trim() === nt.trim() && (c.ClassID || c.id) !== classId);
                     if (conflict) {
                         const warn = card.querySelector('.slot-warning-resched');
@@ -2597,7 +2343,7 @@ function updateWeeklyCountCache(date, count) {
                 showMessage("#view-classes-output", '<div class="loading">Rescheduling...</div>');
 
                 try {
-                    await fetchAPI(webhookUrl(WEBHOOKS.RESCHED), {
+                    await fetchAPI(WEBHOOKS.RESCHED, {
                         StudentName: student,
                         OldDate: date,
                         NewDate: nd,
@@ -2685,7 +2431,7 @@ function updateWeeklyCountCache(date, count) {
         
         // 🌐 API call needed: First load of the day OR manual refresh
         console.log(`[ACM API] Fetching classes for ${date}...`);
-        const d = await fetchAPI(webhookUrl(WEBHOOKS.FETCH_CLASS), { selectedDate: date });
+        const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: date });
         const classes = d.classes || [];
         
         // 💾 Save to cache and mark as loaded
@@ -3037,8 +2783,6 @@ function updateWeeklyCountCache(date, count) {
 
   // Schedule all (Initiator)
   async function scheduleAllBulk(){
-    enableBulkMode();
-
     const dateEl = document.getElementById('bulkDate');
     const repeatWeeks = parseInt(document.getElementById('bulkRepeatWeeks').value || 0,10);
     const rows = Array.from(document.querySelectorAll('#bulkRowsContainer .bulk-row'));
@@ -3091,7 +2835,7 @@ function updateWeeklyCountCache(date, count) {
         function normalize24(x) { if (!x) return ""; return x.slice(0,5); }
 
         // Conflict check: fetchClasses (false = use cache but don't force fresh unless invalid)
-        const existing = await fetchClasses(occDate, 0).catch(()=>[]);
+        const existing = await fetchClasses(occDate, false).catch(()=>[]);
         
         const normalizedNew = normalize24(t.time);
         
@@ -3121,7 +2865,7 @@ function updateWeeklyCountCache(date, count) {
 
         try {
           // call existing API helper (fetchAPI) and wait minimal delay
-          await fetchAPI(webhookUrl(WEBHOOKS.SCHEDULE), payload); 
+          await fetchAPI(WEBHOOKS.SCHEDULE, payload); 
         } catch(e){
            console.error('Schedule call failed', e);
            showToast(`Failed for ${t.student} on ${occDate}`, 'error');
@@ -3142,8 +2886,6 @@ function updateWeeklyCountCache(date, count) {
     // Refresh UI for involved dates: fetchTodayOverview / fetchClassesForDate as needed
     try{ fetchTodayOverview(true); }catch(e){}
     try{ updateCMPayout(true); }catch(e){}
-    // Bulk done - flush invalidations and disable bulk mode
-    await disableBulkMode(true);
   }
 
   function updateBulkProgress(done, total){
@@ -3435,63 +3177,5 @@ function updateWeeklyCountCache(date, count) {
     }
 
 </script>
-
-<div id="cancelClassModal" class="modal-backdrop">
-  <div class="modal" style="max-width: 360px;">
-    <div class="modal-body" style="text-align:center; padding:20px;">
-      <div style="font-size:2rem; margin-bottom:10px;">🗑️</div>
-      <p id="cancelClassText" style="font-weight:600; margin-bottom:20px;">
-         Cancel this class? This action cannot be undone.
-      </p>
-      <div style="display:flex; justify-content:center; gap:12px;">
-          <button id="cancelNo" class="btn btn-outline">No</button>
-          <button id="cancelYes" class="btn btn-primary">Yes, Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ACM Sync Controls -->
-<div id="acm-sync-controls" style="position:fixed;right:12px;bottom:12px;z-index:9999;background:#fff;border:1px solid #eee;padding:8px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);font-size:13px;">
-  <div style="margin-bottom:6px;"><strong>ACM Sync</strong></div>
-  <div style="display:flex;gap:6px;align-items:center;">
-    <button id="acm-bulk-toggle" style="padding:6px 8px;">Bulk: OFF</button>
-    <button id="acm-sync-check" style="padding:6px 8px;">Sync Check</button>
-    <button id="acm-force-sync" style="padding:6px 8px;">Force Sync</button>
-  </div>
-  <div id="acm-sync-msg" style="margin-top:8px;font-size:12px;color:#666;"></div>
-</div>
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  const bt = document.getElementById('acm-bulk-toggle');
-  const sc = document.getElementById('acm-sync-check');
-  const fs = document.getElementById('acm-force-sync');
-  const msg = document.getElementById('acm-sync-msg');
-  function setBulkLabel(){ bt.textContent = (window.BULK_MODE ? 'Bulk: ON' : 'Bulk: OFF'); }
-  bt.addEventListener('click', ()=>{
-    if(window.BULK_MODE){ disableBulkMode(true); msg.textContent='Bulk mode disabled'; } 
-    else { enableBulkMode(); msg.textContent='Bulk mode enabled'; }
-    setBulkLabel();
-  });
-  sc.addEventListener('click', async ()=>{
-    msg.textContent='Running sync check...';
-    try{ await runSyncCheck(APP_STATE && APP_STATE.selectedDate ? APP_STATE.selectedDate : null); }catch(e){ console.error(e); }
-    msg.textContent='Sync check completed';
-  });
-  fs.addEventListener('click', async ()=>{
-    msg.textContent='Forcing full sync...';
-    try{
-      invalidateAllClassesCache();
-      clearCache('students');
-      await getAllStudents(true);
-      if(APP_STATE && APP_STATE.selectedDate) await fetchClasses(APP_STATE.selectedDate, 0);
-      msg.textContent='Force sync completed';
-    }catch(e){ console.error(e); msg.textContent='Force sync failed'; }
-  });
-  setBulkLabel();
-});
-</script>
-<!-- End ACM Sync Controls -->
 </body>
 </html>
