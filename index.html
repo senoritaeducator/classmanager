@@ -1323,7 +1323,7 @@
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    ACM v5.0 — Updated: 21-Nov-2025 21:00
+    ACM v5.1 — Updated: 21-Nov-2025 23:00
 </div>
     </footer>
 
@@ -1378,6 +1378,11 @@
         RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70",
         CANCEL: "https://hook.eu2.make.com/29qhty3i1h47vvzjxyrifdtw71pvsvsx"
     };
+const WEBHOOK_SECRET = "KR7eQ9pW4mZ2xH8uB1cV3rT7nJ6yF0dA5sL9gP2qW8tE4uM0bN3hK6vS1rX5cJ";
+function webhookUrl(u){
+    return u + (u.includes('?') ? '&' : '?') + "key=" + encodeURIComponent(WEBHOOK_SECRET);
+}
+
 
     // Get current date in IST timezone (UTC+5:30)
     function getCurrentISTDateString() {
@@ -1879,7 +1884,7 @@
         }
         // Fetch from API
         console.log("[ACM API] Fetching students...");
-        const r = await fetchAPI(WEBHOOKS.STUDENTS, { action: "getAllStudents" });
+        const r = await fetchAPI(webhookUrl(WEBHOOKS.STUDENTS), { action: "getAllStudents" });
         const s = r.students || r.data || [];
         APP_STATE.students = s;
         APP_STATE.studentsMap = {};
@@ -1956,7 +1961,7 @@
 
         msg.innerHTML = '<div class="loading">Adding student...</div>';
         try {
-            const stype=document.querySelector("input[name='studentType']:checked").value; await fetchAPI(WEBHOOKS.ADD, { StudentName: name, Type: stype });
+            const stype=document.querySelector("input[name='studentType']:checked").value; await fetchAPI(webhookUrl(WEBHOOKS.ADD), { StudentName: name, Type: stype });
             msg.innerHTML = '<div class="success">✅ Student added.</div>';
             document.getElementById("student-name-input").value = "";
             // Force refresh to update cache
@@ -1982,7 +1987,7 @@
 
         msg.innerHTML = '<div class="loading">Deleting student...</div>';
         try {
-            await fetchAPI(WEBHOOKS.DELETE, { StudentName: sel });
+            await fetchAPI(webhookUrl(WEBHOOKS.DELETE), { StudentName: sel });
             msg.innerHTML = '<div class="success">✅ Student deleted.</div>';
             // Force refresh to update cache
             clearCache("students"); 
@@ -2063,7 +2068,7 @@
             for (let i = 0; i <= repeat; i++) {
                 const occDate = addDaysLocal(dt, i * 7); // compute ISO date for occurrence
                 involvedDates.push(occDate);
-                await fetchAPI(WEBHOOKS.SCHEDULE, {
+                await fetchAPI(webhookUrl(WEBHOOKS.SCHEDULE), {
                     Action: "ScheduleClass",
                     StudentName: st,
                     ClassDate: occDate,
@@ -2370,7 +2375,7 @@
 
                 try {
                     console.log("📤 Sending cancellation request..."); // DEBUG
-                    await fetchAPI(WEBHOOKS.CANCEL, {
+                    await fetchAPI(webhookUrl(WEBHOOKS.CANCEL), {
                         ClassID: cid,
                         CalendarEventID: eid || "" || ""
                     });
@@ -2465,7 +2470,7 @@
                 showMessage("#view-classes-output", '<div class="loading">Rescheduling...</div>');
 
                 try {
-                    await fetchAPI(WEBHOOKS.RESCHED, {
+                    await fetchAPI(webhookUrl(WEBHOOKS.RESCHED), {
                         StudentName: student,
                         OldDate: date,
                         NewDate: nd,
@@ -2553,7 +2558,7 @@
         
         // 🌐 API call needed: First load of the day OR manual refresh
         console.log(`[ACM API] Fetching classes for ${date}...`);
-        const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: date });
+        const d = await fetchAPI(webhookUrl(WEBHOOKS.FETCH_CLASS), { selectedDate: date });
         const classes = d.classes || [];
         
         // 💾 Save to cache and mark as loaded
@@ -2987,7 +2992,7 @@
 
         try {
           // call existing API helper (fetchAPI) and wait minimal delay
-          await fetchAPI(WEBHOOKS.SCHEDULE, payload); 
+          await fetchAPI(webhookUrl(WEBHOOKS.SCHEDULE), payload); 
         } catch(e){
            console.error('Schedule call failed', e);
            showToast(`Failed for ${t.student} on ${occDate}`, 'error');
