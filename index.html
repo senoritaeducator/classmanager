@@ -1312,7 +1312,7 @@
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    ACM v4.0 — Updated: 21-Nov-2025 03:00
+    ACM v5 — Updated: 22-Nov-2025 01:30 (Bulk Upload Card Data Fix)
 </div>
     </footer>
 
@@ -2081,8 +2081,14 @@
 
     /* Stats for classes */
     function updateClassesStats(dateStr, classes) {
+        // 1. FILTER: Only keep classes that have a Student Name OR a Start Time
+        // This removes empty objects/ghost rows causing the "Unknown" issue
+        const validClasses = (classes || []).filter(c => 
+            c && (c.StudentName || c.student) && (c.StartTime || c.time)
+        );
+
         APP_STATE.currentClassesDate = dateStr;
-        APP_STATE.currentClasses = classes || [];
+        APP_STATE.currentClasses = validClasses;
 
         const todayMain = document.getElementById("stats-today-main");
         const todaySub = document.getElementById("stats-today-sub");
@@ -2091,16 +2097,16 @@
         const todayList = document.getElementById("today-classes-list");
 
         // today at a glance
-        if (dateStr === APP_STATE.todayDate && classes) { // allow empty array
-            const sorted = [...classes].sort((a, b) => {
+        if (dateStr === APP_STATE.todayDate) { 
+            const sorted = [...validClasses].sort((a, b) => {
                 const ta = (a.StartTime || a.time || "00:00");
                 const tb = (b.StartTime || b.time || "00:00");
                 return ta.localeCompare(tb);
             });
             
             if (todayMain) {
-                if (classes.length > 0) {
-                    todayMain.textContent = `${classes.length} class${classes.length > 1 ? "es" : ""} today`;
+                if (validClasses.length > 0) {
+                    todayMain.textContent = `${validClasses.length} class${validClasses.length > 1 ? "es" : ""} today`;
                     if (todaySub) todaySub.textContent = "";
                 } else {
                     todayMain.textContent = "No classes today";
@@ -2432,8 +2438,11 @@
         // 🌐 API call needed: First load of the day OR manual refresh
         console.log(`[ACM API] Fetching classes for ${date}...`);
         const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: date });
-        const classes = d.classes || [];
+        let classes = d.classes || [];
         
+        // 🧹 SANITIZATION: Filter out ghost rows immediately
+        classes = classes.filter(c => c && (c.StudentName || c.student) && (c.StartTime || c.time));
+
         // 💾 Save to cache and mark as loaded
         setCache(cacheKey, classes);
         updateWeeklyCountCache(date, classes.length);
