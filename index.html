@@ -1312,7 +1312,7 @@
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
 	<div id="acm-version-info"
      style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    ACM v6 — Updated: Smart Range Fetch & A-Z Opt
+    ACM v5 — Updated: 22-Nov-2025 01:30 (Bulk Upload Card Data Fix)
 </div>
     </footer>
 
@@ -2066,14 +2066,8 @@
             // Update Caches - Invalidate specific dates
             involvedDates.forEach(d => invalidateDateCache(d)); // 🗑️ Clear specific dates
             
-            // 🔥 NEW: Force Monthly Earnings to recalculate next time
-            invalidateMonthlyCache(); 
-
             // Refresh data if viewing relevant dates
             fetchTodayOverview(true); 
-
-            // Update Earnings Tile Immediately
-            updateCMPayout(true);
             const viewInput = document.getElementById("view-date");
             if (viewInput && viewInput.value && involvedDates.includes(viewInput.value)) {
                 fetchClassesForDate(viewInput.value, true);
@@ -2424,54 +2418,36 @@
     }
 
     // Unified Classes Fetcher with Cache & Count Tracker
-        // UPDATED: Fetch Classes with Range Support
-    async function fetchClasses(dateOrRange, maxAgeOrForce = 300000) {
-        // Handle legacy boolean and number arguments
-        const forceRefresh = typeof maxAgeOrForce === 'boolean'
-            ? maxAgeOrForce
+    async function fetchClasses(date, maxAgeOrForce = 300000) {
+        // Handle both legacy boolean and number arguments
+        const forceRefresh = typeof maxAgeOrForce === 'boolean' 
+            ? maxAgeOrForce 
             : maxAgeOrForce === 0;
-
-        // Determine payload and cache key
-        let payload = {};
-        let cacheKey = "";
-
-        if (typeof dateOrRange === 'object' && dateOrRange.start && dateOrRange.end) {
-            // Range Mode (New Optimization)
-            payload = { startDate: dateOrRange.start, endDate: dateOrRange.end };
-            cacheKey = `classes_range_${dateOrRange.start}_${dateOrRange.end}`;
-        } else {
-            // Single Date Mode (Legacy)
-            payload = { selectedDate: dateOrRange };
-            cacheKey = "classes_" + dateOrRange;
-        }
-
-        // Check Cache
-        if (!forceRefresh) {
-            const cached = getCache(cacheKey, maxAgeOrForce);
+        
+        const cacheKey = "classes_" + date;
+        
+        // 🎯 NEW LOGIC: Check if date was loaded today
+        if (!forceRefresh && isDateLoadedToday(date)) {
+            const cached = getCache(cacheKey, -1); // Never expire by time
             if (cached) {
-                console.log(`[ACM Cache] Hit: ${cacheKey}`);
+                console.log(`[ACM Cache] ${date} already loaded today (${cached.length} classes)`);
                 return cached;
             }
         }
-
-        // API Call
-        console.log(`[ACM API] Fetching classes...`, payload);
-        const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, payload);
+        
+        // 🌐 API call needed: First load of the day OR manual refresh
+        console.log(`[ACM API] Fetching classes for ${date}...`);
+        const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: date });
         let classes = d.classes || [];
-
-        // Sanitization
+        
+        // 🧹 SANITIZATION: Filter out ghost rows immediately
         classes = classes.filter(c => c && (c.StudentName || c.student) && (c.StartTime || c.time));
 
-        // Save to Cache
+        // 💾 Save to cache and mark as loaded
         setCache(cacheKey, classes);
-
-        // Update helper caches
-        if (!payload.startDate && typeof dateOrRange === 'string') {
-            // Only mark "single date" as loaded for the weekly strip
-            markDateAsLoaded(dateOrRange);
-            updateWeeklyCountCache(dateOrRange, classes.length);
-        }
-
+        updateWeeklyCountCache(date, classes.length);
+        markDateAsLoaded(date);
+        
         return classes;
     }
 
@@ -2981,23 +2957,7 @@
         setInterval(showNextMotivation, 30000);
     });
 
-    
-    function invalidateMonthlyCache() {
-        // Clears the cache for the current month so Earnings update immediately
-        if (!APP_STATE.todayDate) return;
-        const today = new Date(APP_STATE.todayDate);
-        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-        const cacheKey = "classes_range_" + formatDateToISO(firstDay) + "_" + formatDateToISO(lastDay);
-        const countKey = "cm_month_count_" + formatDateToISO(firstDay);
-
-        clearCache(cacheKey);
-        clearCache(countKey);
-
-        console.log("🧹 Monthly cache invalidated.");
-    }
-/* Time Normalizer */
+    /* Time Normalizer */
     function normalizeUserTime(t) {
         if (!t) return "";
         t = t.trim().toUpperCase();
@@ -3059,34 +3019,68 @@
         attachNormalizer(".res-time");
     });
 
-        // UPDATED: Optimized Monthly Fetch (1 Call instead of 30)
     async function fetchClassesForCurrentMonth(forceRefresh = false) {
-        // Prevent duplicate fetches
-        if (APP_STATE.isFetchingMonthly && !forceRefresh) {
-            return APP_STATE.monthlyClasses || [];
-        }
-        APP_STATE.isFetchingMonthly = true;
-
-        // Calculate Month Range
-        const today = new Date(APP_STATE.todayDate);
-        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-        const startStr = formatDateToISO(firstDay);
-        const endStr = formatDateToISO(lastDay);
-
-        try {
-            const allClasses = await fetchClasses({ start: startStr, end: endStr }, forceRefresh ? 0 : 86400000);
-
-            APP_STATE.monthlyClasses = allClasses;
-            APP_STATE.isFetchingMonthly = false;
-            return allClasses;
-        } catch (e) {
-            console.error("Monthly fetch failed", e);
-            APP_STATE.isFetchingMonthly = false;
-            return [];
-        }
+    // 🔒 Prevent duplicate concurrent fetches
+    if (APP_STATE.isFetchingMonthly && !forceRefresh) {
+        console.log("[ACM] Monthly fetch in progress, returning cached");
+        return APP_STATE.monthlyClasses || [];
     }
+    APP_STATE.isFetchingMonthly = true;
+
+    // Get month range
+    const today = new Date(APP_STATE.todayDate);
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    
+    // 📅 Generate all month dates
+    const monthDates = [];
+    for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+        monthDates.push(formatDateToISO(d));
+    }
+    
+    console.log(`[Month] Total days: ${monthDates.length}`);
+    
+    // 🎯 CACHE KEY: monthly_classes_YYYY-MM-01
+    const cacheKey = "monthly_classes_" + formatDateToISO(firstDay);
+    const maxAge = forceRefresh ? 0 : 86400000; // 24 hours (was 5 minutes!)
+    
+    // Try cache first
+    const cached = getCache(cacheKey, maxAge);
+    if (cached) {
+        APP_STATE.isFetchingMonthly = false;
+        APP_STATE.monthlyClasses = cached;
+        return cached;
+    }
+    
+    // 🎯 OPTIMIZATION: Only fetch days that might have classes
+    const datesToFetch = monthDates.filter(date => {
+        const dayCount = getWeeklyCount(date);
+        // Fetch if: unknown OR count > 0 OR is today/future OR within last 7 days
+        return dayCount === undefined || dayCount > 0 || date >= APP_STATE.todayDate || 
+               (new Date(APP_STATE.todayDate) - new Date(date)) <= 7 * 24 * 60 * 60 * 1000;
+    });
+    
+    console.log(`[Month] Actually fetching: ${datesToFetch.length} days`);
+    
+    // 🔥 PARALLEL FETCH: Up to 3 at a time
+    const CONCURRENT_LIMIT = 3;
+    const allClasses = [];
+    
+    for (let i = 0; i < datesToFetch.length; i += CONCURRENT_LIMIT) {
+        const chunk = datesToFetch.slice(i, i + CONCURRENT_LIMIT);
+        const chunkResults = await Promise.all(
+            chunk.map(date => fetchClasses(date, forceRefresh ? 0 : 300000))
+        );
+        allClasses.push(...chunkResults.flat());
+    }
+    
+    APP_STATE.monthlyClasses = allClasses;
+    APP_STATE.isFetchingMonthly = false;
+    
+    console.log(`Total classes fetched: ${allClasses.length}`);
+    setCache(cacheKey, allClasses);
+    return allClasses;
+}
 
     // Fetch and count CM classes across the entire month with robust matching
     async function countCMClassesForMonth(forceRefresh = false) {
