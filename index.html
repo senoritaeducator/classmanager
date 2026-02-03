@@ -69,13 +69,15 @@
         .students-tile { position: relative; }
         .students-tile::before { content: "👩‍🏫"; position: absolute; right: 10px; bottom: 8px; font-size: 1.6rem; opacity: 0.7; animation: gentlyBounce 3.2s ease-in-out infinite; }
         @keyframes gentlyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-        .motivation-tile { background: radial-gradient(circle at top left, #eef2ff, #e0f2fe 40%, #fce7f3 100%); position: relative; overflow: hidden; }
-        .motivation-tile::before { content: "✨"; position: absolute; right: 12px; bottom: 8px; font-size: 1.4rem; opacity: 0.5; animation: floatSparkle 4s ease-in-out infinite; }
-        @keyframes floatSparkle { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(-4px); opacity: 0.8; } }
+        
+        /* Financial Tile */
+        .financial-tile { background: radial-gradient(circle at top left, #dcfce7 0, #f0fdf4 40%, #ffffff 100%); border-color: #bbf7d0; position: relative; overflow: hidden; }
+        .financial-tile::before { content: "💰"; position: absolute; right: 12px; bottom: 8px; font-size: 1.6rem; opacity: 0.4; }
+        
         .today-classes-list { max-height: 120px; overflow-y: auto; margin-top: 8px; }
         .today-class-item { font-size: 0.84rem; padding: 4px 0; border-bottom: 1px dashed #e5e7eb; }
         .today-class-item:last-child { border-bottom: none; }
-        .motivation-tile .overview-main, .motivation-tile .overview-sub { padding-right: 40px; }
+        
         .form-group { margin-bottom: 10px; }
         label { display: block; font-size: 0.8rem; color: #4b5563; margin-bottom: 4px; font-weight: 500; }
         input, select, textarea { width: 100%; padding: 7px 9px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.9rem; outline: none; background: #f9fafb; transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; }
@@ -146,67 +148,26 @@
         .progress-bar > i { display:block; height:100%; width:0%; background: linear-gradient(135deg, #4f46e5, #6366f1); transition:width 300ms linear; }
         .small-muted { font-size:13px; color:#666; }
 
-        /* NEW: Student Columns Layout */
-        .student-columns {
-            display: flex;
-            gap: 12px;
-            margin-top: 10px;
-        }
-        .student-col {
-            flex: 1;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 10px;
-            min-width: 200px;
-            display: flex;
-            flex-direction: column;
-        }
-        .student-col-header {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #4b5563;
-            margin-bottom: 8px;
-            padding-bottom: 6px;
-            border-bottom: 2px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .student-col-count {
-            background: #e5e7eb;
-            color: #374151;
-            padding: 2px 6px;
-            border-radius: 99px;
-            font-size: 0.75rem;
-        }
-        .scrolly-list {
-            flex: 1;
-            overflow-y: auto;
-            max-height: 400px; /* Fixed height for scrolling */
-            padding-right: 4px;
-        }
+        .student-columns { display: flex; gap: 12px; margin-top: 10px; }
+        .student-col { flex: 1; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px; min-width: 200px; display: flex; flex-direction: column; }
+        .student-col-header { font-size: 0.85rem; font-weight: 700; color: #4b5563; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 2px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+        .student-col-count { background: #e5e7eb; color: #374151; padding: 2px 6px; border-radius: 99px; font-size: 0.75rem; }
+        .scrolly-list { flex: 1; overflow-y: auto; max-height: 400px; padding-right: 4px; }
         .scrolly-list::-webkit-scrollbar { width: 4px; }
         .scrolly-list::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-        .student-item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            padding: 6px 8px;
-            border-radius: 6px;
-            margin-bottom: 6px;
-            border: 1px solid #e5e7eb;
-            font-size: 0.85rem;
-        }
-        .student-item-row:hover {
-            border-color: #4f46e5;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        @media (max-width: 768px) {
-            .student-columns { flex-direction: column; }
-            .scrolly-list { max-height: 200px; }
-        }
+        .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #e5e7eb; font-size: 0.85rem; }
+        .student-item-row:hover { border-color: #4f46e5; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        @media (max-width: 768px) { .student-columns { flex-direction: column; } .scrolly-list { max-height: 200px; } }
+        
+        .status-select { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; border: 1px solid #d1d5db; background: #fff; outline: none; cursor: pointer; }
+        
+        /* Pending Review Modal List */
+        .pending-list-item { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #e5e7eb; }
+        .pending-list-item:last-child { border-bottom: none; }
+        .pending-info { font-size: 0.85rem; }
+        .pending-info strong { display: block; color: #111827; }
+        .pending-info span { color: #6b7280; font-size: 0.75rem; }
+        .pending-actions { display: flex; gap: 6px; }
     </style>
 </head>
 <body>
@@ -288,22 +249,13 @@
                     <button id="delete-student-btn" class="btn btn-outline btn-block">🗑 Delete Student</button>
                     <div id="manage-students-msg" class="status-block"></div>
                 </div>
-                <div class="card-column" style="flex: 2;"> <label>All Active Students</label>
+                <div class="card-column" style="flex: 2;"> 
+                    <label>All Active Students</label>
                     <div class="inline-actions" style="margin-top: 4px;"><button id="refresh-students-btn" class="btn btn-soft">🔄 Refresh</button></div>
-                    
                     <div id="all-students-content" class="student-columns">
-                        <div class="student-col">
-                            <div class="student-col-header">Trial <span id="count-trial" class="student-col-count">0</span></div>
-                            <div id="list-trial" class="scrolly-list"></div>
-                        </div>
-                        <div class="student-col">
-                            <div class="student-col-header">PS Students <span id="count-ps" class="student-col-count">0</span></div>
-                            <div id="list-ps" class="scrolly-list"></div>
-                        </div>
-                        <div class="student-col">
-                            <div class="student-col-header">CM Students <span id="count-cm" class="student-col-count">0</span></div>
-                            <div id="list-cm" class="scrolly-list"></div>
-                        </div>
+                        <div class="student-col"><div class="student-col-header">Trial <span id="count-trial" class="student-col-count">0</span></div><div id="list-trial" class="scrolly-list"></div></div>
+                        <div class="student-col"><div class="student-col-header">PS Students <span id="count-ps" class="student-col-count">0</span></div><div id="list-ps" class="scrolly-list"></div></div>
+                        <div class="student-col"><div class="student-col-header">CM Students <span id="count-cm" class="student-col-count">0</span></div><div id="list-cm" class="scrolly-list"></div></div>
                     </div>
                 </div>
             </div>
@@ -324,19 +276,24 @@
                     <div class="overview-main" id="stats-total-students">--</div>
                     <div class="overview-sub" id="stats-students-sub">Total active students</div>
                 </div>
+                
                 <div class="overview-tile">
                     <div class="overview-title">Today<button type="button" class="overview-refresh-btn" id="refresh-today-btn" title="Refresh">⟳</button></div>
                     <div class="overview-main" id="stats-today-main">No data</div>
                     <div class="today-classes-list" id="today-classes-list"></div>
                 </div>
+
+                <div class="overview-tile financial-tile">
+                    <div class="overview-title">Financials (CM)<button type="button" class="overview-refresh-btn" id="refresh-earnings-btn" title="Refresh Earnings">⟳</button></div>
+                    <div class="overview-main" id="stats-earnings-main" style="color:#10b981;">₹0</div>
+                    <div class="overview-sub" id="stats-earnings-sub">0 completed classes this month</div>
+                    <button id="btn-review-pending" class="btn btn-soft" style="margin-top:8px; width:100%; font-size:0.75rem;">📝 Review Pending</button>
+                </div>
+
                 <div class="overview-tile">
                     <div class="overview-title">Week<button type="button" class="overview-refresh-btn" id="refresh-week-btn" title="Refresh">⟳</button></div>
                     <div class="overview-main" id="stats-week-main">--</div>
                     <div class="weekly-strip" id="weekly-strip"></div>
-                </div>
-                <div class="overview-tile motivation-tile">
-                    <div class="overview-title">Motivation</div>
-                    <div class="overview-main" id="motivation-main">Consistency beats intensity.</div>
                 </div>
             </div>
         </div>
@@ -408,7 +365,7 @@
     <footer class="footer">
         <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
-        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v17 GAS — Updated: 2025-Phase3-Part2</div>
+        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v21 GAS — Updated: 2025-Phase3-Final-V2</div>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>
@@ -476,6 +433,21 @@
         </div>
     </div>
 
+    <div id="pendingReviewModal" class="modal-backdrop">
+        <div class="modal" style="max-width:500px;">
+            <div class="modal-header">
+                <div class="modal-title">Pending CM Reviews</div>
+                <button id="pendingReviewClose" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
+            </div>
+            <div class="modal-body" style="padding:0;">
+                <div id="pendingReviewList" style="max-height:400px; overflow-y:auto;"></div>
+            </div>
+            <div class="modal-footer" style="padding:12px;">
+                <div style="font-size:0.75rem; color:#6b7280; width:100%; text-align:center;">Select status to clear from list</div>
+            </div>
+        </div>
+    </div>
+
     <div class="fab-container">
         <button class="fab-main" id="fab-main" title="Quick actions">⚡</button>
         <div class="fab-menu" id="fab-menu">
@@ -488,7 +460,6 @@
 </div>
 
 <script>
-    // HARDCODED WEB APP URL
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcnNovhrSOIObYUJZg9fIPoG1IuojN9t5lnnATcX5rhsWagfixg/exec";
 
     function getCurrentISTDateString() {
@@ -506,7 +477,6 @@
 
     const STUDENT_COLORS = ["#6366f1","#ec4899","#10b981","#f97316","#0ea5e9","#a855f7","#f59e0b","#22c55e"];
     const studentColorMap = {};
-    const MOTIVATION_QUOTES = ["Small daily efforts create lifetime fluency.", "Consistency beats intensity.", "Your patience is their confidence."];
     let motivationIndex = -1;
 
     function getStudentColor(name) {
@@ -516,13 +486,6 @@
             studentColorMap[name] = STUDENT_COLORS[idx];
         }
         return studentColorMap[name];
-    }
-
-    function showNextMotivation() {
-        const main = document.getElementById("motivation-main");
-        if (!main) return;
-        motivationIndex = (motivationIndex + 1) % MOTIVATION_QUOTES.length;
-        main.textContent = MOTIVATION_QUOTES[motivationIndex];
     }
 
     function showToast(message, type = "success") {
@@ -544,12 +507,10 @@
         const noBtn = document.getElementById("confirmNo");
         txt.textContent = text;
         modal.classList.add("show");
-        
         const newYes = yesBtn.cloneNode(true);
         const newNo = noBtn.cloneNode(true);
         yesBtn.parentNode.replaceChild(newYes, yesBtn);
         noBtn.parentNode.replaceChild(newNo, noBtn);
-        
         newYes.onclick = () => { modal.classList.remove("show"); onYes(); };
         newNo.onclick = () => { modal.classList.remove("show"); };
     }
@@ -560,7 +521,6 @@
         const okBtn = document.getElementById("errorOk");
         txt.textContent = text;
         modal.classList.add("show");
-        
         const newOk = okBtn.cloneNode(true);
         okBtn.parentNode.replaceChild(newOk, okBtn);
         newOk.onclick = () => modal.classList.remove("show");
@@ -572,13 +532,11 @@
         const okBtn = document.getElementById("reportOk");
         txt.textContent = text;
         modal.classList.add("show");
-        
         const newOk = okBtn.cloneNode(true);
         okBtn.parentNode.replaceChild(newOk, okBtn);
         newOk.onclick = () => modal.classList.remove("show");
     }
 
-    /* API Handler */
     async function fetchAPI(url, payload) {
         try {
             const res = await fetch(GAS_API_URL, {
@@ -588,7 +546,6 @@
         } catch (e) { return { status: "error", message: e.toString() }; }
     }
 
-    /* Date & Time Helpers */
     function addDaysUTC(isoDateStr, daysToAdd) {
         const parts = isoDateStr.split('-');
         const utcMs = Date.UTC(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
@@ -597,7 +554,6 @@
     }
 
     function formatDateToISO(d) { return d.toISOString().split('T')[0]; }
-    
     function isoToDisplayDate(isoDate) {
         if (!isoDate) return '';
         const parts = isoDate.split('-');
@@ -645,7 +601,6 @@
         return classes.some(c => c.StartTime == time24 && c.ClassID != ignoreClassId);
     }
 
-    /* Clocks */
     function initWorldClocks() {
         setInterval(() => {
             document.getElementById("clock-india").textContent = "🕒 India: " + 
@@ -678,7 +633,6 @@
         timeInput.addEventListener("blur", convertToIST);
     }
 
-    /* Students */
     async function loadStudentsForDropdowns() {
         const r = await fetchAPI(null, { action: "getAllStudents" });
         APP_STATE.students = r.students || [];
@@ -692,10 +646,9 @@
         });
         updateStudentStats();
         renderStudentTable();
-        // Update Bulk Rows if empty
         const bulkSelects = document.querySelectorAll('.bulk-student');
         bulkSelects.forEach(sel => {
-            if(sel.options.length <= 1) { // Only "Loading" present
+            if(sel.options.length <= 1) {
                sel.innerHTML = APP_STATE.students.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
             }
         });
@@ -703,8 +656,6 @@
 
     function renderStudentTable(filterText = "") {
         const q = filterText.toLowerCase();
-        
-        // Buckets
         const buckets = { "Trial": [], "PS": [], "CM": [] };
         
         APP_STATE.students.forEach(s => {
@@ -715,44 +666,32 @@
             }
         });
 
-        // Render function for a column
         const fillCol = (id, list, type) => {
             const el = document.getElementById(id);
             const countEl = document.getElementById("count-" + type.toLowerCase());
             if(countEl) countEl.textContent = list.length;
-            
             if(list.length === 0) {
                 el.innerHTML = '<div style="font-size:0.8rem; color:#9ca3af; text-align:center; padding:10px;">None</div>';
                 return;
             }
-            
             let html = "";
             list.forEach(s => {
-                // Show EDIT button ONLY for Trial
                 const action = type === "Trial" 
                     ? `<button class="btn btn-soft" style="padding:2px 8px; font-size:0.7rem;" onclick="openEditStudent('${s.name}', '${s.type}')">✎ Edit</button>` 
                     : "";
-                
-                html += `<div class="student-item-row">
-                    <span>${s.name}</span>
-                    ${action}
-                </div>`;
+                html += `<div class="student-item-row"><span>${s.name}</span>${action}</div>`;
             });
             el.innerHTML = html;
         };
-
         fillCol("list-trial", buckets["Trial"], "Trial");
         fillCol("list-ps", buckets["PS"], "PS");
         fillCol("list-cm", buckets["CM"], "CM");
     }
 
-    /* Edit Student Logic */
     window.openEditStudent = function(name, type) {
         document.getElementById("editStudentNameDisplay").textContent = "Editing: " + name;
         document.getElementById("editStudentTypeSelect").value = type;
         document.getElementById("editStudentModal").classList.add("show");
-        
-        // Save Handler
         document.getElementById("editStudentSaveBtn").onclick = async () => {
             const newType = document.getElementById("editStudentTypeSelect").value;
             const btn = document.getElementById("editStudentSaveBtn");
@@ -761,7 +700,7 @@
             btn.textContent = "Save Changes";
             document.getElementById("editStudentModal").classList.remove("show");
             showToast("Student updated!", "success");
-            loadStudentsForDropdowns(); // Refresh list
+            loadStudentsForDropdowns();
         };
     };
     
@@ -796,11 +735,72 @@
             await fetchAPI(null, { action: "deleteStudent", StudentName: name });
             document.getElementById("manage-students-msg").innerHTML = '<div class="success">Deleted</div>';
             loadStudentsForDropdowns();
-            fetchTodayOverview(true); // Refresh classes view to show cancellations
+            fetchTodayOverview(true); 
         });
     });
 
-    /* Classes */
+    /* EARNINGS & PENDING REVIEWS */
+    async function loadEarnings() {
+        const res = await fetchAPI(null, { action: "getMonthlyEarnings" });
+        if(res.count !== undefined) {
+            document.getElementById("stats-earnings-main").textContent = "₹" + (res.earnings || 0).toLocaleString('en-IN');
+            document.getElementById("stats-earnings-sub").textContent = `${res.count} completed classes in ${res.month}`;
+        }
+    }
+    document.getElementById("refresh-earnings-btn").addEventListener("click", loadEarnings);
+
+    // Pending Reviews Modal Logic (UPDATED)
+    document.getElementById("btn-review-pending").addEventListener("click", async () => {
+        const listEl = document.getElementById("pendingReviewList");
+        listEl.innerHTML = '<div style="padding:20px;text-align:center;">Loading...</div>';
+        document.getElementById("pendingReviewModal").classList.add("show");
+        
+        const res = await fetchAPI(null, { action: "getPendingReviews" });
+        listEl.innerHTML = "";
+        
+        if(!res.pending || res.pending.length === 0) {
+            listEl.innerHTML = '<div style="padding:20px;text-align:center;color:#6b7280;">No pending reviews. Good job!</div>';
+            return;
+        }
+        
+        res.pending.forEach(p => {
+            const div = document.createElement("div");
+            div.className = "pending-list-item";
+            div.innerHTML = `
+                <div class="pending-info">
+                    <strong>${p.StudentName}</strong>
+                    <span>${isoToDisplayDate(p.ClassDate)} at ${time24To12(p.StartTime)}</span>
+                </div>
+                <div class="pending-actions">
+                    <select class="status-select" onchange="updatePendingStatus('${p.ClassID}', this.value, this)">
+                        <option value="" disabled selected>Action</option>
+                        <option value="Completed">✅ Completed</option>
+                        <option value="Cancelled">❌ Cancelled</option>
+                        <option value="Paused">⏸ Paused</option>
+                    </select>
+                </div>
+            `;
+            listEl.appendChild(div);
+        });
+    });
+
+    window.updatePendingStatus = async function(id, status, selectEl) {
+        const row = selectEl.closest(".pending-list-item");
+        row.style.opacity = "0.5";
+        selectEl.disabled = true;
+        await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status });
+        row.remove();
+        loadEarnings(); // Refresh calc
+        
+        // If list empty, show message
+        if(document.getElementById("pendingReviewList").children.length === 0) {
+             document.getElementById("pendingReviewList").innerHTML = '<div style="padding:20px;text-align:center;color:#6b7280;">All cleared!</div>';
+        }
+    };
+
+    document.getElementById("pendingReviewClose").onclick = () => document.getElementById("pendingReviewModal").classList.remove("show");
+
+    /* Normal Classes Fetch */
     async function fetchClasses(date) {
         if (!date) return [];
         const res = await fetchAPI(null, { action: "getClasses", selectedDate: date });
@@ -871,6 +871,7 @@
         container.innerHTML = "";
         classes.sort((a,b) => a.StartTime.localeCompare(b.StartTime));
         if (!classes.length) { container.innerHTML = '<div class="info">No classes found.</div>'; return; }
+        
         classes.forEach(c => {
             const card = document.createElement("div");
             card.className = "class-card";
@@ -878,6 +879,25 @@
             const dispTime = time24To12(c.StartTime);
             const studentName = c.StudentName;
             const msgTemplate = `Hi, this is a reminder that ${studentName} has an English class scheduled on ${dispDate} at ${dispTime}.\n\nPlease join using your PlanetSpark class link.\n\nRegards,\nSenorita Saha`;
+            
+            // Status Logic
+            const studentObj = APP_STATE.students.find(s => s.name === c.StudentName);
+            const isCM = studentObj && studentObj.type === "CM";
+            
+            let statusHtml = "";
+            if (isCM) {
+                const status = (c.Status || "Scheduled");
+                statusHtml = `<div>
+                    <select class="status-select" data-id="${c.ClassID}">
+                        <option value="Scheduled" ${status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+                        <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+                        <option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+                        <option value="Paused" ${status === 'Paused' ? 'selected' : ''}>⏸ Paused</option>
+                        <option value="Rescheduled" ${status === 'Rescheduled' ? 'selected' : ''}>🔁 Rescheduled</option>
+                    </select>
+                </div>`;
+            }
+
             card.innerHTML = `
                 <div class="class-accent" style="background:${getStudentColor(c.StudentName)}"></div>
                 <div class="class-card__row">
@@ -885,6 +905,7 @@
                         <div class="class-student">👤 ${c.StudentName}</div>
                         <div class="meta">📅 ${dispDate} • ⏰ ${dispTime}</div>
                     </div>
+                    ${statusHtml}
                 </div>
                 <div class="inline-actions">
                     <button class="btn btn-soft btn-generate">💬 Message</button>
@@ -899,6 +920,20 @@
                     <input type="text" class="res-time" value="${dispTime}" placeholder="hh:mm AM/PM">
                     <button class="btn btn-primary btn-res-submit" style="margin-top:6px;">Save</button>
                 </div>`;
+            
+            if (isCM) {
+                const sel = card.querySelector(".status-select");
+                sel.addEventListener("change", async () => {
+                    const newStatus = sel.value;
+                    sel.disabled = true; 
+                    await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: newStatus });
+                    sel.disabled = false;
+                    showToast(`Marked as ${newStatus}`);
+                    loadEarnings(); 
+                    loadWeeklyCounts(); 
+                });
+            }
+
             const resTimeInput = card.querySelector(".res-time");
             resTimeInput.addEventListener("blur", () => normalizeUserTime(resTimeInput));
             card.querySelector(".btn-generate").onclick = () => { const el = card.querySelector(".generate-area"); el.style.display = el.style.display==="none"?"block":"none"; };
@@ -975,6 +1010,7 @@
         initWorldClocks();
         await loadStudentsForDropdowns();
         await loadWeeklyCounts(); 
+        await loadEarnings(); // Initial load
         fetchTodayOverview();
         showNextMotivation();
     });
@@ -1062,6 +1098,7 @@
             else showReport(report); // Show detailed report
 
             await loadWeeklyCounts();
+            await loadEarnings();
             fetchTodayOverview(true);
         });
     });
