@@ -145,6 +145,68 @@
         .progress-bar { height:10px; background:#e6e6e6; border-radius:6px; overflow:hidden; margin-top:8px; }
         .progress-bar > i { display:block; height:100%; width:0%; background: linear-gradient(135deg, #4f46e5, #6366f1); transition:width 300ms linear; }
         .small-muted { font-size:13px; color:#666; }
+
+        /* NEW: Student Columns Layout */
+        .student-columns {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .student-col {
+            flex: 1;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 10px;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+        }
+        .student-col-header {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #4b5563;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .student-col-count {
+            background: #e5e7eb;
+            color: #374151;
+            padding: 2px 6px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+        }
+        .scrolly-list {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 400px; /* Fixed height for scrolling */
+            padding-right: 4px;
+        }
+        .scrolly-list::-webkit-scrollbar { width: 4px; }
+        .scrolly-list::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        .student-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            border: 1px solid #e5e7eb;
+            font-size: 0.85rem;
+        }
+        .student-item-row:hover {
+            border-color: #4f46e5;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        @media (max-width: 768px) {
+            .student-columns { flex-direction: column; }
+            .scrolly-list { max-height: 200px; }
+        }
     </style>
 </head>
 <body>
@@ -226,10 +288,23 @@
                     <button id="delete-student-btn" class="btn btn-outline btn-block">🗑 Delete Student</button>
                     <div id="manage-students-msg" class="status-block"></div>
                 </div>
-                <div class="card-column">
-                    <label>All Active Students</label>
+                <div class="card-column" style="flex: 2;"> <label>All Active Students</label>
                     <div class="inline-actions" style="margin-top: 4px;"><button id="refresh-students-btn" class="btn btn-soft">🔄 Refresh</button></div>
-                    <div id="all-students-content" class="table-wrap"></div>
+                    
+                    <div id="all-students-content" class="student-columns">
+                        <div class="student-col">
+                            <div class="student-col-header">Trial <span id="count-trial" class="student-col-count">0</span></div>
+                            <div id="list-trial" class="scrolly-list"></div>
+                        </div>
+                        <div class="student-col">
+                            <div class="student-col-header">PS Students <span id="count-ps" class="student-col-count">0</span></div>
+                            <div id="list-ps" class="scrolly-list"></div>
+                        </div>
+                        <div class="student-col">
+                            <div class="student-col-header">CM Students <span id="count-cm" class="student-col-count">0</span></div>
+                            <div id="list-cm" class="scrolly-list"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -333,7 +408,7 @@
     <footer class="footer">
         <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
-        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v15 GAS — Updated: 2025-Phase2-Final-Polish</div>
+        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v17 GAS — Updated: 2025-Phase3-Part2</div>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>
@@ -378,6 +453,29 @@
         </div>
       </div>
 
+    <div id="editStudentModal" class="modal-backdrop">
+        <div class="modal" style="max-width:400px;">
+            <div class="modal-header">
+                <div class="modal-title">Edit Student Type</div>
+                <button id="editStudentClose" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
+            </div>
+            <div class="modal-body" style="padding:16px;">
+                <div style="margin-bottom:12px; font-weight:600;" id="editStudentNameDisplay"></div>
+                <div class="form-group">
+                    <label>Select New Type:</label>
+                    <select id="editStudentTypeSelect">
+                        <option value="PS">PS</option>
+                        <option value="CM">CM</option>
+                        <option value="Trial">Trial</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="editStudentSaveBtn" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <div class="fab-container">
         <button class="fab-main" id="fab-main" title="Quick actions">⚡</button>
         <div class="fab-menu" id="fab-menu">
@@ -390,7 +488,7 @@
 </div>
 
 <script>
-    // PASTE YOUR GAS WEB APP URL HERE
+    // HARDCODED WEB APP URL
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcnNovhrSOIObYUJZg9fIPoG1IuojN9t5lnnATcX5rhsWagfixg/exec";
 
     function getCurrentISTDateString() {
@@ -438,6 +536,7 @@
         setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 200); }, 2200);
     }
 
+    /* Modals */
     function showConfirm(text, onYes) {
         const modal = document.getElementById("confirmModal");
         const txt = document.getElementById("confirmText");
@@ -479,8 +578,8 @@
         newOk.onclick = () => modal.classList.remove("show");
     }
 
+    /* API Handler */
     async function fetchAPI(url, payload) {
-        if(!GAS_API_URL || GAS_API_URL.includes("PASTE_YOUR")) { alert("Update GAS_API_URL!"); return {}; }
         try {
             const res = await fetch(GAS_API_URL, {
                 method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload || {})
@@ -489,6 +588,7 @@
         } catch (e) { return { status: "error", message: e.toString() }; }
     }
 
+    /* Date & Time Helpers */
     function addDaysUTC(isoDateStr, daysToAdd) {
         const parts = isoDateStr.split('-');
         const utcMs = Date.UTC(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
@@ -545,6 +645,7 @@
         return classes.some(c => c.StartTime == time24 && c.ClassID != ignoreClassId);
     }
 
+    /* Clocks */
     function initWorldClocks() {
         setInterval(() => {
             document.getElementById("clock-india").textContent = "🕒 India: " + 
@@ -577,6 +678,7 @@
         timeInput.addEventListener("blur", convertToIST);
     }
 
+    /* Students */
     async function loadStudentsForDropdowns() {
         const r = await fetchAPI(null, { action: "getAllStudents" });
         APP_STATE.students = r.students || [];
@@ -600,14 +702,70 @@
     }
 
     function renderStudentTable(filterText = "") {
-        const c = document.getElementById("all-students-content");
         const q = filterText.toLowerCase();
-        const data = APP_STATE.students.filter(s => s.name.toLowerCase().includes(q));
-        if (!data.length) { c.innerHTML = '<div class="info">No students found.</div>'; return; }
-        let h = '<table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody>';
-        data.forEach(s => h += `<tr><td>${s.name}</td><td>${s.type}</td></tr>`);
-        c.innerHTML = h + "</tbody></table>";
+        
+        // Buckets
+        const buckets = { "Trial": [], "PS": [], "CM": [] };
+        
+        APP_STATE.students.forEach(s => {
+            if(!q || s.name.toLowerCase().includes(q)) {
+                let t = s.type || "PS";
+                if(!buckets[t]) buckets[t] = [];
+                buckets[t].push(s);
+            }
+        });
+
+        // Render function for a column
+        const fillCol = (id, list, type) => {
+            const el = document.getElementById(id);
+            const countEl = document.getElementById("count-" + type.toLowerCase());
+            if(countEl) countEl.textContent = list.length;
+            
+            if(list.length === 0) {
+                el.innerHTML = '<div style="font-size:0.8rem; color:#9ca3af; text-align:center; padding:10px;">None</div>';
+                return;
+            }
+            
+            let html = "";
+            list.forEach(s => {
+                // Show EDIT button ONLY for Trial
+                const action = type === "Trial" 
+                    ? `<button class="btn btn-soft" style="padding:2px 8px; font-size:0.7rem;" onclick="openEditStudent('${s.name}', '${s.type}')">✎ Edit</button>` 
+                    : "";
+                
+                html += `<div class="student-item-row">
+                    <span>${s.name}</span>
+                    ${action}
+                </div>`;
+            });
+            el.innerHTML = html;
+        };
+
+        fillCol("list-trial", buckets["Trial"], "Trial");
+        fillCol("list-ps", buckets["PS"], "PS");
+        fillCol("list-cm", buckets["CM"], "CM");
     }
+
+    /* Edit Student Logic */
+    window.openEditStudent = function(name, type) {
+        document.getElementById("editStudentNameDisplay").textContent = "Editing: " + name;
+        document.getElementById("editStudentTypeSelect").value = type;
+        document.getElementById("editStudentModal").classList.add("show");
+        
+        // Save Handler
+        document.getElementById("editStudentSaveBtn").onclick = async () => {
+            const newType = document.getElementById("editStudentTypeSelect").value;
+            const btn = document.getElementById("editStudentSaveBtn");
+            btn.textContent = "Saving...";
+            await fetchAPI(null, { action: "updateStudentType", StudentName: name, NewType: newType });
+            btn.textContent = "Save Changes";
+            document.getElementById("editStudentModal").classList.remove("show");
+            showToast("Student updated!", "success");
+            loadStudentsForDropdowns(); // Refresh list
+        };
+    };
+    
+    document.getElementById("editStudentClose").onclick = () => document.getElementById("editStudentModal").classList.remove("show");
 
     function updateStudentStats() {
         document.getElementById("stats-total-students").textContent = APP_STATE.students.length || "--";
@@ -633,14 +791,16 @@
     document.getElementById("delete-student-btn").addEventListener("click", async () => {
         const name = document.getElementById("student-delete-select").value;
         if (!name) return showToast("Select student", "error");
-        showConfirm(`Are you sure you want to delete ${name}?`, async () => {
+        showConfirm(`Delete ${name} AND cancel all future classes?`, async () => {
             document.getElementById("manage-students-msg").innerHTML = '<div class="loading">Deleting...</div>';
             await fetchAPI(null, { action: "deleteStudent", StudentName: name });
             document.getElementById("manage-students-msg").innerHTML = '<div class="success">Deleted</div>';
             loadStudentsForDropdowns();
+            fetchTodayOverview(true); // Refresh classes view to show cancellations
         });
     });
 
+    /* Classes */
     async function fetchClasses(date) {
         if (!date) return [];
         const res = await fetchAPI(null, { action: "getClasses", selectedDate: date });
