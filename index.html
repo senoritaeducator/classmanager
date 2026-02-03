@@ -174,6 +174,14 @@
         .history-table { width: 100%; font-size: 0.85rem; border-collapse: collapse; }
         .history-table th { text-align: left; padding: 6px; border-bottom: 1px solid #e5e7eb; color: #6b7280; }
         .history-table td { padding: 6px; border-bottom: 1px solid #f3f4f6; }
+
+        /* New Side Panel for Slots */
+        .layout-with-sidebar { display:flex; gap:16px; align-items:flex-start; }
+        .main-panel { flex:3; }
+        .side-panel { flex:1; background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:12px; min-width:220px; }
+        @media (max-width: 768px) { .layout-with-sidebar { flex-direction:column; } .side-panel { width:100%; } }
+        .slot-title { font-weight:600; font-size:0.9rem; margin-bottom:8px; border-bottom:2px solid #e0e7ff; padding-bottom:4px; }
+        .free-slot-item { font-size:0.8rem; background:#ecfdf5; color:#047857; padding:4px 8px; border-radius:6px; margin-bottom:6px; border:1px solid #d1fae5; }
     </style>
 </head>
 <body>
@@ -337,12 +345,20 @@
                     <div class="section-title-row"><span class="section-title-icon">🗂️</span><div class="section-title">View & Manage Classes</div></div>
                     <div class="section-caption">Filter by date, generate messages, or reschedule classes.</div>
                 </div>
+                <button class="btn btn-outline" onclick="openCopyWeekModal()" style="font-size:0.8rem;">📋 Copy Week</button>
             </div>
             <div class="classes-controls">
                 <div class="form-group" style="margin-bottom: 0;"><label>Select Date</label><input type="date" id="view-date" /></div>
                 <button id="view-classes-btn" class="btn btn-soft">📅 Load Classes</button>
             </div>
-            <div id="view-classes-output" class="classes-list"></div>
+            
+            <div class="layout-with-sidebar" style="margin-top:10px;">
+                <div id="view-classes-output" class="classes-list main-panel"></div>
+                <div id="free-slots-panel" class="side-panel">
+                    <div class="slot-title">Free Slots (9:00 AM to 9:00 PM IST)</div>
+                    <div id="free-slots-list"></div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -374,7 +390,7 @@
     <footer class="footer">
         <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
-        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v25 GAS — Updated: 2025-Phase4-Final-Message</div>
+        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v29 GAS — Updated: 2025-Phase4-Final-Polish</div>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>
@@ -410,7 +426,7 @@
     <div id="reportModal" class="modal-backdrop">
         <div class="modal" style="max-width:400px;">
           <div class="modal-body" style="padding:20px;">
-              <div style="font-weight:700; font-size:1.1rem; color:#111827; margin-bottom:10px;">Report</div>
+              <div style="font-weight:700; font-size:1.1rem; color:#111827; margin-bottom:10px;">Bulk Schedule Report</div>
               <p id="reportText" style="color:#374151; font-size:0.9rem; line-height:1.5; white-space: pre-wrap; max-height:200px; overflow-y:auto;"></p>
               <div style="display:flex; justify-content:flex-end; margin-top:20px;">
                   <button id="reportOk" class="btn btn-primary">Close</button>
@@ -442,6 +458,36 @@
             </div>
             <div class="modal-footer">
                 <button id="shiftSaveBtn" class="btn btn-primary">Shift All</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="copyWeekModal" class="modal-backdrop">
+        <div class="modal" style="max-width:400px;">
+            <div class="modal-header">
+                <div class="modal-title">Copy Schedule</div>
+                <button id="copyWeekClose" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
+            </div>
+            <div class="modal-body" style="padding:16px;">
+                <div style="display:flex; gap:16px; margin-bottom:12px; border-bottom:1px solid #e5e7eb; padding-bottom:8px;">
+                    <label style="font-weight:normal; cursor:pointer;"><input type="radio" name="copyMode" value="week" checked> Copy Full Week</label>
+                    <label style="font-weight:normal; cursor:pointer;"><input type="radio" name="copyMode" value="day"> Copy Single Day</label>
+                </div>
+                
+                <div class="form-group">
+                    <label id="copySourceLabel">Source Week (Pick any date in that week):</label>
+                    <input type="date" id="copySourceDate">
+                </div>
+                <div class="form-group">
+                    <label id="copyTargetLabel">Target Week Start Date (Monday):</label>
+                    <input type="date" id="copyTargetDate">
+                </div>
+                <div style="font-size:0.8rem; color:#6b7280; margin-top:8px;">
+                    Copies all active classes. Existing classes in target range are NOT deleted.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="copyWeekBtn" class="btn btn-primary">Copy Schedule</button>
             </div>
         </div>
     </div>
@@ -776,40 +822,84 @@
         fillCol("list-cm", buckets["CM"], "CM");
     }
 
+    /* COPY WEEK LOGIC (UPDATED) */
+    window.openCopyWeekModal = function() {
+        const modal = document.getElementById("copyWeekModal");
+        document.getElementById("copySourceDate").value = APP_STATE.todayDate; 
+        document.getElementById("copyTargetDate").value = addDaysUTC(APP_STATE.todayDate, 7); 
+        
+        // Listen for mode change
+        const radios = document.getElementsByName('copyMode');
+        radios.forEach(r => r.addEventListener('change', (e) => {
+            const isDay = e.target.value === 'day';
+            document.getElementById("copySourceLabel").textContent = isDay ? "Source Date:" : "Source Week (Pick any date in that week):";
+            document.getElementById("copyTargetLabel").textContent = isDay ? "Target Date:" : "Target Week Start Date (Monday):";
+        }));
+
+        // Snap to Monday logic for Week Mode
+        const sourceDateInput = document.getElementById("copySourceDate");
+        sourceDateInput.addEventListener('change', () => {
+             const mode = document.querySelector('input[name="copyMode"]:checked').value;
+             if(mode === 'week') {
+                 const d = new Date(sourceDateInput.value);
+                 const day = d.getDay(); // 0 is Sunday
+                 const diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+                 const monday = new Date(d.setDate(diff));
+                 const isoMonday = monday.toISOString().split('T')[0];
+                 if(isoMonday !== sourceDateInput.value) {
+                     sourceDateInput.value = isoMonday;
+                     showToast("Snapped to Monday start date", "info");
+                 }
+             }
+        });
+
+        modal.classList.add("show");
+        
+        document.getElementById("copyWeekBtn").onclick = async () => {
+            const sDate = document.getElementById("copySourceDate").value;
+            const tDate = document.getElementById("copyTargetDate").value;
+            const mode = document.querySelector('input[name="copyMode"]:checked').value;
+            
+            if(!sDate || !tDate) return showToast("Select dates", "error");
+            
+            const btn = document.getElementById("copyWeekBtn");
+            btn.textContent = "Copying..."; btn.disabled = true;
+            
+            const res = await fetchAPI(null, { action: "copySchedule", sourceDate: sDate, targetDate: tDate, mode: mode });
+            modal.classList.remove("show");
+            showToast(`Copied ${res.count} classes!`, "success");
+            btn.textContent = "Copy Schedule"; btn.disabled = false;
+            fetchTodayOverview(true);
+        };
+    };
+    document.getElementById("copyWeekClose").onclick = () => document.getElementById("copyWeekModal").classList.remove("show");
+
     /* Shift Logic */
     window.openShiftModal = function(name) {
         document.getElementById("shiftStudentNameDisplay").textContent = "Shifting: " + name;
         document.getElementById("shiftStartDate").value = APP_STATE.todayDate;
         document.getElementById("shiftModal").classList.add("show");
-        
         document.getElementById("shiftSaveBtn").onclick = async () => {
             const oldT = parseUserTimeTo24(document.getElementById("shiftOldTime").value);
             const newT = parseUserTimeTo24(document.getElementById("shiftNewTime").value);
             const sDate = document.getElementById("shiftStartDate").value;
             if(!oldT || !newT || !sDate) return showToast("Invalid inputs", "error");
-            
             const btn = document.getElementById("shiftSaveBtn");
-            btn.textContent = "Processing...";
-            btn.disabled = true;
-            
+            btn.textContent = "Processing..."; btn.disabled = true;
             const res = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: name, OldTime: oldT, NewTime: newT, StartDate: sDate });
             document.getElementById("shiftModal").classList.remove("show");
             showToast(`Shifted ${res.count} future classes!`, "success");
-            btn.textContent = "Shift All";
-            btn.disabled = false;
+            btn.textContent = "Shift All"; btn.disabled = false;
             fetchTodayOverview(true);
         };
     };
-    
-    // Auto-Format Shift Inputs Explicitly
     const shiftOld = document.getElementById("shiftOldTime");
     const shiftNew = document.getElementById("shiftNewTime");
     if(shiftOld) shiftOld.addEventListener("blur", () => normalizeUserTime(shiftOld));
     if(shiftNew) shiftNew.addEventListener("blur", () => normalizeUserTime(shiftNew));
-    
     document.getElementById("shiftModalClose").onclick = () => document.getElementById("shiftModal").classList.remove("show");
 
-    /* HISTORY LOGIC */
+    /* History Logic */
     document.getElementById("btn-history").addEventListener("click", () => {
         document.getElementById("historyModal").classList.add("show");
         document.getElementById("historyResult").style.display = "none";
@@ -819,42 +909,23 @@
         document.getElementById("historyMonth").value = now.getMonth();
         document.getElementById("historyYear").value = now.getFullYear();
     });
-    
     document.getElementById("historyClose").onclick = () => document.getElementById("historyModal").classList.remove("show");
-    
     document.getElementById("historyGenBtn").onclick = async () => {
         const m = document.getElementById("historyMonth").value;
         const y = document.getElementById("historyYear").value;
         const btn = document.getElementById("historyGenBtn");
-        
-        btn.disabled = true;
-        btn.textContent = "Fetching...";
-        
+        btn.disabled = true; btn.textContent = "Fetching...";
         try {
             const res = await fetchAPI(null, { action: "getHistoryReport", month: m, year: y });
             document.getElementById("histTotalClasses").textContent = res.totalClasses;
             document.getElementById("histEarnings").textContent = "₹" + (res.earnings || 0).toLocaleString('en-IN');
-            
-            const tbody = document.getElementById("histTableBody");
-            tbody.innerHTML = "";
+            const tbody = document.getElementById("histTableBody"); tbody.innerHTML = "";
             const sorted = Object.entries(res.breakdown || {}).sort((a,b) => b[1] - a[1]);
-            
-            if(sorted.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No classes found.</td></tr>";
-            } else {
-                sorted.forEach(([name, count]) => {
-                    tbody.innerHTML += `<tr><td>${name}</td><td>${count}</td></tr>`;
-                });
-            }
+            if(sorted.length === 0) tbody.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No classes found.</td></tr>";
+            else sorted.forEach(([name, count]) => tbody.innerHTML += `<tr><td>${name}</td><td>${count}</td></tr>`);
             document.getElementById("historyResult").style.display = "block";
-        } catch(e) {
-            showToast("Failed to fetch report", "error");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Generate Report";
-        }
+        } catch(e) { showToast("Failed to fetch report", "error"); } finally { btn.disabled = false; btn.textContent = "Generate Report"; }
     };
-
 
     window.openEditStudent = function(name, type) {
         document.getElementById("editStudentNameDisplay").textContent = "Editing: " + name;
@@ -920,23 +991,17 @@
         const listEl = document.getElementById("pendingReviewList");
         listEl.innerHTML = '<div style="padding:20px;text-align:center;">Loading...</div>';
         document.getElementById("pendingReviewModal").classList.add("show");
-        
         const res = await fetchAPI(null, { action: "getPendingReviews" });
         listEl.innerHTML = "";
-        
         if(!res.pending || res.pending.length === 0) {
             listEl.innerHTML = '<div style="padding:20px;text-align:center;color:#6b7280;">No pending reviews. Good job!</div>';
             return;
         }
-        
         res.pending.forEach(p => {
             const div = document.createElement("div");
             div.className = "pending-list-item";
             div.innerHTML = `
-                <div class="pending-info">
-                    <strong>${p.StudentName}</strong>
-                    <span>${isoToDisplayDate(p.ClassDate)} at ${time24To12(p.StartTime)}</span>
-                </div>
+                <div class="pending-info"><strong>${p.StudentName}</strong><span>${isoToDisplayDate(p.ClassDate)} at ${time24To12(p.StartTime)}</span></div>
                 <div class="pending-actions">
                     <select class="status-select" onchange="updatePendingStatus('${p.ClassID}', this.value, this)">
                         <option value="" disabled selected>Action</option>
@@ -944,24 +1009,20 @@
                         <option value="Cancelled">❌ Cancelled</option>
                         <option value="Paused">⏸ Paused</option>
                     </select>
-                </div>
-            `;
+                </div>`;
             listEl.appendChild(div);
         });
     });
 
     window.updatePendingStatus = async function(id, status, selectEl) {
         const row = selectEl.closest(".pending-list-item");
-        row.style.opacity = "0.5";
-        selectEl.disabled = true;
+        row.style.opacity = "0.5"; selectEl.disabled = true;
         await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status });
-        row.remove();
-        loadEarnings(); 
+        row.remove(); loadEarnings(); 
         if(document.getElementById("pendingReviewList").children.length === 0) {
              document.getElementById("pendingReviewList").innerHTML = '<div style="padding:20px;text-align:center;color:#6b7280;">All cleared!</div>';
         }
     };
-
     document.getElementById("pendingReviewClose").onclick = () => document.getElementById("pendingReviewModal").classList.remove("show");
 
     /* Normal Classes Fetch */
@@ -1033,64 +1094,45 @@
     function renderClassCards(classes, dateStr) {
         const container = document.getElementById("view-classes-output");
         container.innerHTML = "";
+        
+        const slotContainer = document.getElementById("free-slots-list");
+        slotContainer.innerHTML = "";
+        let busySlots = []; 
+        
         classes.sort((a,b) => a.StartTime.localeCompare(b.StartTime));
-        if (!classes.length) { container.innerHTML = '<div class="info">No classes found.</div>'; return; }
+        if (!classes.length) { container.innerHTML = '<div class="info">No classes found.</div>'; }
         
         classes.forEach(c => {
+            const [h,m] = c.StartTime.split(':').map(Number);
+            const startMins = h*60 + m;
+            const endMins = startMins + 60; 
+            busySlots.push({start: startMins, end: endMins});
+            
             const card = document.createElement("div");
             card.className = "class-card";
             const dispDate = isoToDisplayDate(c.ClassDate);
             const dispTime = time24To12(c.StartTime);
             const studentName = c.StudentName;
             
-            // Status Logic
             const studentObj = APP_STATE.students.find(s => s.name === c.StudentName);
             const isCM = studentObj && studentObj.type === "CM";
 
-            let msgTemplate = `Hi, this is a reminder that ${studentName} has an English class scheduled on ${dispDate} at ${dispTime}.`;
-            
-            if (!isCM) {
-                 msgTemplate += `\n\nPlease join using your PlanetSpark class link.`;
-            }
-            
+            let msgTemplate = `Hi, this is a reminder that ${studentName} has an English class scheduled on ${dispDate} at ${dispTime} IST.`;
+            if (!isCM) { msgTemplate += `\n\nPlease join using your PlanetSpark class link.`; }
             msgTemplate += `\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
             
             let statusHtml = "";
             if (isCM) {
                 const status = (c.Status || "Scheduled");
-                statusHtml = `<div>
-                    <select class="status-select" data-id="${c.ClassID}">
-                        <option value="Scheduled" ${status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
-                        <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
-                        <option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option>
-                        <option value="Paused" ${status === 'Paused' ? 'selected' : ''}>⏸ Paused</option>
-                        <option value="Rescheduled" ${status === 'Rescheduled' ? 'selected' : ''}>🔁 Rescheduled</option>
-                    </select>
-                </div>`;
+                statusHtml = `<div><select class="status-select" data-id="${c.ClassID}"><option value="Scheduled" ${status === 'Scheduled' ? 'selected' : ''}>Scheduled</option><option value="Completed" ${status === 'Completed' ? 'selected' : ''}>✅ Completed</option><option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option><option value="Paused" ${status === 'Paused' ? 'selected' : ''}>⏸ Paused</option><option value="Rescheduled" ${status === 'Rescheduled' ? 'selected' : ''}>🔁 Rescheduled</option></select></div>`;
             }
 
             card.innerHTML = `
                 <div class="class-accent" style="background:${getStudentColor(c.StudentName)}"></div>
-                <div class="class-card__row">
-                    <div>
-                        <div class="class-student">👤 ${c.StudentName}</div>
-                        <div class="meta">📅 ${dispDate} • ⏰ ${dispTime}</div>
-                    </div>
-                    ${statusHtml}
-                </div>
-                <div class="inline-actions">
-                    <button class="btn btn-soft btn-generate">💬 Message</button>
-                    <button class="btn btn-outline btn-reschedule">🔁 Reschedule</button>
-                </div>
-                <div class="expand-block generate-area" style="display:none;">
-                    <div class="msg-preview">${msgTemplate}</div>
-                    <button class="btn btn-primary btn-copy" style="margin-top:6px;">📋 Copy</button>
-                </div>
-                <div class="expand-block resched-area" style="display:none;">
-                    <input type="date" class="res-date" value="${dateStr}">
-                    <input type="text" class="res-time" value="${dispTime}" placeholder="hh:mm AM/PM">
-                    <button class="btn btn-primary btn-res-submit" style="margin-top:6px;">Save</button>
-                </div>`;
+                <div class="class-card__row"><div><div class="class-student">👤 ${c.StudentName}</div><div class="meta">📅 ${dispDate} • ⏰ ${dispTime} IST</div></div>${statusHtml}</div>
+                <div class="inline-actions"><button class="btn btn-soft btn-generate">💬 Message</button><button class="btn btn-outline btn-reschedule">🔁 Reschedule</button></div>
+                <div class="expand-block generate-area" style="display:none;"><div class="msg-preview">${msgTemplate}</div><button class="btn btn-primary btn-copy" style="margin-top:6px;">📋 Copy</button></div>
+                <div class="expand-block resched-area" style="display:none;"><input type="date" class="res-date" value="${dateStr}"><input type="text" class="res-time" value="${dispTime}" placeholder="hh:mm AM/PM"><button class="btn btn-primary btn-res-submit" style="margin-top:6px;">Save</button></div>`;
             
             if (isCM) {
                 const sel = card.querySelector(".status-select");
@@ -1100,8 +1142,7 @@
                     await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: newStatus });
                     sel.disabled = false;
                     showToast(`Marked as ${newStatus}`);
-                    loadEarnings(); 
-                    loadWeeklyCounts(); 
+                    loadEarnings(); loadWeeklyCounts(); 
                 });
             }
 
@@ -1119,11 +1160,45 @@
                 card.innerHTML = '<div class="loading">Rescheduling...</div>';
                 await fetchAPI(null, { action: "rescheduleClass", StudentName: c.StudentName, OldDate: dateStr, NewDate: nd, NewTime: nt, CalendarEventID: c.CalendarEventID, ClassID: c.ClassID });
                 showToast("Rescheduled!");
-                fetchClassesForDate(dateStr); 
-                loadWeeklyCounts(); 
+                fetchClassesForDate(dateStr); loadWeeklyCounts(); 
             };
             container.appendChild(card);
         });
+
+        // 2. Compute Free Slots (9:00 -> 21:00 = 540 -> 1260 mins)
+        busySlots.sort((a,b) => a.start - b.start);
+        
+        let pointer = 540; 
+        const END_DAY = 1260; 
+        
+        let htmlSlots = "";
+        
+        busySlots.forEach(slot => {
+            if (slot.start > pointer) {
+                const gapStart = pointer;
+                const gapEnd = slot.start;
+                if ((gapEnd - gapStart) >= 30) {
+                     htmlSlots += `<div class="free-slot-item">✅ ${minToTime(gapStart)} - ${minToTime(gapEnd)}</div>`;
+                }
+            }
+            if (slot.end > pointer) pointer = slot.end;
+        });
+        
+        if (pointer < END_DAY) {
+            htmlSlots += `<div class="free-slot-item">✅ ${minToTime(pointer)} - ${minToTime(END_DAY)}</div>`;
+        }
+        
+        if(htmlSlots === "") htmlSlots = "<div style='color:#999;font-size:0.8rem'>No free slots today.</div>";
+        slotContainer.innerHTML = htmlSlots;
+    }
+    
+    function minToTime(m) {
+        let hh = Math.floor(m / 60);
+        let mm = m % 60;
+        let ampm = hh >= 12 ? "PM" : "AM";
+        if(hh > 12) hh -= 12;
+        if(hh === 0) hh = 12; 
+        return `${hh}:${String(mm).padStart(2,'0')} ${ampm}`;
     }
 
     document.getElementById("view-classes-btn").addEventListener("click", () => fetchClassesForDate(document.getElementById("view-date").value));
@@ -1182,6 +1257,10 @@
         await loadStudentsForDropdowns();
         await loadWeeklyCounts(); 
         await loadEarnings(); // Initial load
+        
+        // NEW: Load classes for today automatically so "Free Slots" are visible
+        await fetchClassesForDate(APP_STATE.todayDate, false);
+        
         fetchTodayOverview();
         showNextMotivation();
     });
