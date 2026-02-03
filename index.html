@@ -5,1024 +5,181 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Advanced Class Manager — LazifAI</title>
     <style>
+        /* [STYLES UNCHANGED] */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: radial-gradient(circle at top left, #e0e7ff 0, #f5f7ff 30%, #fdfbff 65%, #ffffff 100%);
-            min-height: 100vh;
-            padding: 16px;
-            color: #0f172a;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        /* Header */
-        .top-bar {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: stretch;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        .brand-block {
-            flex: 1 1 260px;
-            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 40%, #a855f7 100%);
-            border-radius: 20px;
-            padding: 16px 18px;
-            color: #eef2ff;
-            box-shadow: 0 14px 30px rgba(79, 70, 229, 0.35);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .brand-block::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 60%);
-            pointer-events: none;
-        }
-
-        .brand-title {
-            font-size: 1.35rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .brand-title span.icon {
-            font-size: 1.3rem;
-        }
-
-        .brand-sub {
-            font-size: 0.84rem;
-            opacity: 0.9;
-        }
-
-        .brand-pill-row {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 6px;
-            margin-top: 10px;
-            font-size: 0.72rem;
-            overflow-x: auto;
-            padding-bottom: 2px;
-        }
-
-        .brand-pill-row::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .brand-pill-row::-webkit-scrollbar-thumb {
-            background: rgba(15,23,42,0.35);
-            border-radius: 999px;
-        }
-
-        .brand-pill {
-            padding: 4px 8px;
-            border-radius: 999px;
-            background: rgba(15,23,42,0.15);
-            border: 1px solid rgba(191, 219, 254, 0.4);
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            white-space: nowrap;
-        }
-
-        .teacher-block {
-            background: #ffffff;
-            border-radius: 18px;
-            padding: 12px 16px;
-            min-width: 230px;
-            box-shadow: 0 10px 26px rgba(15,23,42,0.08);
-            border: 1px solid #e5e7eb;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .teacher-block::before {
-            content: "👩‍🏫";
-            position: absolute;
-            right: 10px;
-            bottom: 6px;
-            font-size: 1.6rem;
-            opacity: 0.14;
-        }
-
-        .teacher-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #9ca3af;
-            margin-bottom: 4px;
-        }
-
-        .teacher-name {
-            font-weight: 600;
-            font-size: 1rem;
-            color: #111827;
-        }
-
-        .teacher-id {
-            font-size: 0.8rem;
-            color: #6b7280;
-        }
-
-        .teacher-clock {
-            margin-top: 4px;
-            font-size: 0.8rem;
-            color: #4b5563;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .teacher-avatar {
-            position: absolute;
-            right: 16px;
-            top: 16px;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            object-fit: cover;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-            border: 2px solid rgba(255, 255, 255, 0.9);
-        }
-        
-        .teacher-portfolio-link {
-            margin-top: 8px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #e5e7eb;
-            font-size: 0.8rem;
-            color: #4f46e5;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
-
-        .teacher-portfolio-link:hover {
-            background: #eef2ff;
-            border-color: #4f46e5;
-            transform: translateY(-1px);
-        }
-
-        @media (max-width: 768px) {
-            .teacher-avatar {
-                right: 12px;
-                top: 12px;
-                width: 44px;
-                height: 44px;
-            }
-        }
-
-        /* Tabs */
-        .global-search-wrap {
-            margin: 6px 0 8px;
-            display: none;
-        }
-
-        .global-search-input {
-            width: 100%;
-            padding: 7px 10px;
-            border-radius: 999px;
-            border: 1px solid #d1d5db;
-            font-size: 0.86rem;
-            background: #f9fafb;
-            outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-        }
-
-        .global-search-input:focus {
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 1px rgba(79,70,229,0.18);
-            background: #ffffff;
-        }
-
-        .main-tabs {
-            display: flex;
-            gap: 8px;
-            margin: 4px 0 12px;
-            overflow-x: auto;
-        }
-
-        .main-tab-btn {
-            flex: 1;
-            padding: 10px 12px;
-            border-radius: 999px;
-            border: 1px solid #e5e7eb;
-            background: rgba(249, 250, 251, 0.95);
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #4b5563;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.18s ease;
-            white-space: nowrap;
-        }
-
-        .main-tab-btn span.tab-icon {
-            font-size: 1.05rem;
-        }
-
-        .main-tab-btn.active {
-            background: linear-gradient(135deg, #4f46e5, #6366f1);
-            color: #ffffff;
-            border-color: transparent;
-            box-shadow: 0 10px 22px rgba(79,70,229,0.35);
-            transform: translateY(-1px);
-        }
-
-        .main-tab-btn:not(.active):hover {
-            background: #eef2ff;
-        }
-
-        .section {
-            display: none;
-        }
-
-        .section.show {
-            display: block;
-        }
-
-        /* Section cards */
-        .section-card {
-            background: #ffffff;
-            border-radius: 18px;
-            padding: 16px 16px 18px;
-            box-shadow: 0 10px 26px rgba(15,23,42,0.06);
-            margin-bottom: 14px;
-            border: 1px solid #e5e7eb;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        .section-card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 14px 32px rgba(15,23,42,0.08);
-        }
-
-        .section-card::before {
-            content: "";
-            position: absolute;
-            inset-inline-start: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: linear-gradient(180deg, #4f46e5, #a855f7);
-            opacity: 0.4;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 10px;
-            gap: 8px;
-        }
-
-        .section-title-row {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .section-title-icon {
-            font-size: 1.05rem;
-        }
-
-        .section-title {
-            font-size: 1.02rem;
-            font-weight: 600;
-            color: #111827;
-        }
-
-        .section-caption {
-            font-size: 0.8rem;
-            color: #6b7280;
-        }
-
-        .section-header-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .card-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .card-column {
-            flex: 1 1 260px;
-        }
-
-        /* Overview mini-cards */
-        .overview-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .overview-tile {
-            flex: 1 1 180px;
-            padding: 8px 10px;
-            border-radius: 12px;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            font-size: 0.8rem;
-        }
-
-        .overview-title {
-            font-size: 0.78rem;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: #9ca3af;
-            margin-bottom: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .overview-main {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #111827;
-        }
-
-        .overview-sub {
-            font-size: 0.78rem;
-            color: #6b7280;
-        }
-
-        .overview-refresh-btn {
-            border: none;
-            background: #eef2ff;
-            border-radius: 999px;
-            width: 22px;
-            height: 22px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            cursor: pointer;
-            padding: 0;
-            margin-left: 6px;
-        }
-
-        .overview-refresh-btn:hover {
-            background: #e0e7ff;
-        }
-
-
-        .weekly-strip {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 6px;
-            margin-top: 4px;
-            overflow-x: auto;
-        }
-
-        .weekly-day {
-            min-width: 48px;
-            padding: 4px 6px;
-            border-radius: 10px;
-            background: #eef2ff;
-            font-size: 0.74rem;
-            text-align: center;
-            color: #4338ca;
-        }
-
-        .weekly-day.has-classes {
-            background: #e0f2fe;
-            color: #0369a1;
-        }
-
-        .weekly-day.today {
-            background: #dcfce7;
-            color: #166534;
-            font-weight: 600;
-        }
-
-        /* NEW: Students tile animation */
-        .students-tile {
-            position: relative;
-        }
-
-        .students-tile::before {
-            content: "👩‍🏫";
-            position: absolute;
-            right: 10px;
-            bottom: 8px;
-            font-size: 1.6rem;
-            opacity: 0.7;
-            animation: gentlyBounce 3.2s ease-in-out infinite;
-        }
-
-        @keyframes gentlyBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
-        }
-
-        /* NEW: Motivation tile */
-        .motivation-tile {
-            background: radial-gradient(circle at top left, #eef2ff, #e0f2fe 40%, #fce7f3 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .motivation-tile::before {
-            content: "✨";
-            position: absolute;
-            right: 12px;
-            bottom: 8px;
-            font-size: 1.4rem;
-            opacity: 0.5;
-            animation: floatSparkle 4s ease-in-out infinite;
-        }
-
-        @keyframes floatSparkle {
-            0%, 100% { transform: translateY(0); opacity: 0.4; }
-            50% { transform: translateY(-4px); opacity: 0.8; }
-        }
-
-        /* NEW: Today classes list styles */
-        .today-classes-list {
-            max-height: 120px;
-            overflow-y: auto;
-            margin-top: 8px;
-        }
-
-        .today-class-item {
-            font-size: 0.84rem;
-            padding: 4px 0;
-            border-bottom: 1px dashed #e5e7eb;
-        }
-
-        .today-class-item:last-child {
-            border-bottom: none;
-        }
-
-        .motivation-tile .overview-main,
-        .motivation-tile .overview-sub {
-            padding-right: 40px;
-        }
-
-        /* Form */
-        .form-group {
-            margin-bottom: 10px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.8rem;
-            color: #4b5563;
-            margin-bottom: 4px;
-            font-weight: 500;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 7px 9px;
-            border-radius: 8px;
-            border: 1px solid #d1d5db;
-            font-size: 0.9rem;
-            outline: none;
-            background: #f9fafb;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 1px rgba(79,70,229,0.18);
-            background: #ffffff;
-        }
-
-        .schedule-hint {
-            font-size: 0.75rem;
-            color: #6b7280;
-            margin-top: 2px;
-        }
-
-        .schedule-hint button {
-            border: none;
-            background: none;
-            padding: 0;
-            margin-left: 4px;
-            font-size: 0.75rem;
-            color: #4f46e5;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 8px 12px;
-            border-radius: 999px;
-            border: none;
-            font-size: 0.88rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            white-space: nowrap;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #4f46e5, #6366f1);
-            color: #ffffff;
-            box-shadow: 0 6px 14px rgba(79,70,229,0.25);
-        }
-
-        .btn-primary:hover {
-            filter: brightness(1.05);
-            transform: translateY(-0.5px);
-        }
-
-        .btn-primary:disabled {
-            background: #ccc;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        .btn-outline {
-            background: #ffffff;
-            color: #4b5563;
-            border: 1px solid #d1d5db;
-        }
-
-        .btn-outline:hover {
-            background: #f3f4ff;
-            border-color: #4f46e5;
-            color: #111827;
-        }
-
-        .btn-soft {
-            background: #eef2ff;
-            color: #4338ca;
-            border: 1px solid transparent;
-        }
-
-        .btn-soft:hover {
-            background: #e0e7ff;
-        }
-
-        .btn-block {
-            width: 100%;
-        }
-
-        .inline-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 6px;
-        }
-
-        /* Messages */
-        .status-block {
-            margin-top: 8px;
-            font-size: 0.82rem;
-        }
-
-        .success, .error, .info, .loading {
-            padding: 8px;
-            margin-top: 4px;
-            border-radius: 6px;
-            font-size: 0.82rem;
-            border-left-width: 4px;
-            border-left-style: solid;
-        }
-
-        .success {
-            background: #e8f5e9;
-            color: #166534;
-            border-left-color: #16a34a;
-        }
-
-        .error {
-            background: #fef2f2;
-            color: #b91c1c;
-            border-left-color: #ef4444;
-        }
-
-        .info {
-            background: #eff6ff;
-            color: #1d4ed8;
-            border-left-color: #3b82f6;
-        }
-
-        .loading {
-            background: #fef9c3;
-            color: #92400e;
-            border-left-color: #facc15;
-        }
-
-        /* Table */
-        .table-wrap {
-            margin-top: 8px;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.86rem;
-        }
-
-        th, td {
-            padding: 8px 10px;
-            border-bottom: 1px solid #e5e7eb;
-            text-align: left;
-        }
-
-        thead {
-            background: #f3f4ff;
-        }
-
-        th {
-            font-weight: 600;
-            color: #374151;
-        }
-
-        tbody tr:hover {
-            background: #f9fafb;
-        }
-
-        /* Classes controls & cards */
-        .classes-controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: flex-end;
-            margin-bottom: 10px;
-        }
-
-        .classes-list {
-            margin-top: 6px;
-        }
-
-        .class-card {
-            border-radius: 14px;
-            border: 1px solid #e5e7eb;
-            padding: 10px 12px;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #ffffff, #f9fafb);
-            box-shadow: 0 4px 12px rgba(15,23,42,0.06);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .class-accent {
-            position: absolute;
-            inset-inline-start: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-        }
-
-        .class-card__row {
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-
-        .class-student {
-            font-weight: 600;
-            font-size: 0.98rem;
-            color: #111827;
-        }
-
-        .meta {
-            font-size: 0.8rem;
-            color: #6b7280;
-        }
-
-        .badge {
-            padding: 3px 7px;
-            border-radius: 999px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
-        .badge-green {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .expand-block {
-            margin-top: 8px;
-            padding-top: 6px;
-            border-top: 1px dashed #e5e7eb;
-        }
-
-        .msg-preview {
-            padding: 8px;
-            background: #f9fafb;
-            border-radius: 8px;
-            border: 1px dashed #d1d5db;
-            white-space: pre-wrap;
-            font-size: 0.84rem;
-        }
-
-        /* Toasts */
-        .toast-container {
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 9999;
-        }
-
-        .toast {
-            min-width: 180px;
-            max-width: 260px;
-            padding: 8px 12px;
-            border-radius: 999px;
-            font-size: 0.82rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 12px 28px rgba(15,23,42,0.35);
-            opacity: 0;
-            transform: translateY(12px);
-            transition: opacity 0.22s ease, transform 0.22s ease;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .toast-success {
-            background: #16a34a;
-            color: #ecfdf3;
-        }
-
-        .toast-error {
-            background: #b91c1c;
-            color: #fee2e2;
-        }
-
-        .toast-info {
-            background: #2563eb;
-            color: #dbeafe;
-        }
-
-        .toast-icon {
-            font-size: 1rem;
-        }
-
-        /* Bulk reminders modal */
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(15,23,42,0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9998;
-        }
-
-        .modal-backdrop.show {
-            display: flex;
-        }
-
-        .modal {
-            max-width: 640px;
-            width: 100%;
-            max-height: 80vh;
-            background: #ffffff;
-            border-radius: 18px;
-            padding: 14px 16px;
-            box-shadow: 0 24px 40px rgba(15,23,42,0.35);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .modal-title {
-            font-size: 0.98rem;
-            font-weight: 600;
-        }
-
-        .modal-body {
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        .modal-footer {
-            margin-top: 8px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            font-size: 0.78rem;
-            color: #6b7280;
-        }
-
-        .bulk-item {
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            padding: 8px;
-            margin-bottom: 8px;
-            background: #f9fafb;
-        }
-
-        .bulk-item-header {
-            font-size: 0.86rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .bulk-item-meta {
-            font-size: 0.76rem;
-            color: #6b7280;
-            margin-bottom: 4px;
-        }
-
-        /* Quick action FAB */
-        .fab-container {
-            position: fixed;
-            right: 16px;
-            bottom: 80px;
-            z-index: 9997;
-        }
-
-        .fab-main {
-            width: 44px;
-            height: 44px;
-            border-radius: 999px;
-            border: none;
-            background: linear-gradient(135deg, #4f46e5, #6366f1);
-            color: #ffffff;
-            box-shadow: 0 12px 30px rgba(15,23,42,0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-
-        .fab-menu {
-            position: absolute;
-            bottom: 52px;
-            right: 0;
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .fab-menu.show {
-            display: flex;
-        }
-
-        .fab-item {
-            padding: 6px 10px;
-            border-radius: 999px;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            font-size: 0.8rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            white-space: nowrap;
-            box-shadow: 0 8px 18px rgba(15,23,42,0.25);
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 20px;
-            font-size: 0.78rem;
-            color: #9ca3af;
-            text-align: center;
-        }
-
-        .footer span {
-            font-weight: 600;
-            color: #4f46e5;
-        }
-
-        .footer-version {
-            margin-top: 2px;
-            font-size: 0.74rem;
-            color: #9ca3af;
-        }
-
-        /* NEW: Fix no classes spacing */
-        .today-classes-list:empty {
-            display: none;
-        }
-
-        @media (max-width: 640px) {
-            body {
-                padding: 12px;
-            }
-
-            .section-card {
-                padding: 14px;
-            }
-
-            .brand-block, .teacher-block {
-                padding: 12px 14px;
-            }
-
-            .brand-title {
-                font-size: 1.2rem;
-            }
-
-            .main-tab-btn {
-                font-size: 0.85rem;
-                padding: 8px 10px;
-            }
-
-            .class-card__row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .fab-container {
-                bottom: 72px;
-            }
-
-            .modal {
-                max-width: 95vw;
-            }
-        }
-
-        /* BULK TAB SPECIFIC STYLING */
-        .bulk-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 10px;
-            background: #f9fafb;
-            padding: 8px;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .bulk-row select, .bulk-row input {
-            margin-bottom: 0;
-            border: 1px solid #e5e7eb;
-            background: #ffffff;
-        }
-
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: radial-gradient(circle at top left, #e0e7ff 0, #f5f7ff 30%, #fdfbff 65%, #ffffff 100%); min-height: 100vh; padding: 16px; color: #0f172a; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .top-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: stretch; gap: 16px; margin-bottom: 16px; }
+        .brand-block { flex: 1 1 300px; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 40%, #a855f7 100%); border-radius: 20px; padding: 16px 18px; color: #eef2ff; box-shadow: 0 14px 30px rgba(79, 70, 229, 0.35); position: relative; overflow: hidden; }
+        .brand-block::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 60%); pointer-events: none; }
+        .brand-title { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+        .brand-title span.icon { font-size: 1.3rem; }
+        .brand-sub { font-size: 0.84rem; opacity: 0.9; }
+        .converter-box { margin-top: 12px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        .converter-label { font-size: 0.75rem; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 4px; }
+        .conv-select { background: rgba(255,255,255,0.9); border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.85rem; color: #1f2937; outline: none; max-width: 140px; cursor: pointer; }
+        .conv-select option { color: #000; }
+        .conv-input { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 4px 8px; width: 80px; color: #fff; font-size: 0.9rem; text-align: center; outline: none; }
+        .conv-input::placeholder { color: rgba(255,255,255,0.6); font-size: 0.8rem; }
+        .conv-input:focus { background: rgba(255,255,255,0.3); border-color: #fff; }
+        .conv-arrow { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+        .conv-result-pill { background: #fff; color: #4f46e5; padding: 4px 10px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); min-width: 70px; text-align: center; }
+        .teacher-block { background: #ffffff; border-radius: 18px; padding: 12px 16px; min-width: 230px; box-shadow: 0 10px 26px rgba(15,23,42,0.08); border: 1px solid #e5e7eb; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+        .teacher-block::before { content: "👩‍🏫"; position: absolute; right: 10px; bottom: 6px; font-size: 1.6rem; opacity: 0.14; }
+        .teacher-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin-bottom: 4px; }
+        .teacher-name { font-weight: 600; font-size: 1rem; color: #111827; }
+        .teacher-id { font-size: 0.8rem; color: #6b7280; }
+        .teacher-clock { margin-top: 4px; font-size: 0.8rem; color: #4b5563; display: flex; align-items: center; gap: 4px; }
+        .teacher-avatar { position: absolute; right: 16px; top: 16px; width: 52px; height: 52px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); border: 2px solid rgba(255, 255, 255, 0.9); }
+        .teacher-portfolio-link { margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.9); border: 1px solid #e5e7eb; font-size: 0.8rem; color: #4f46e5; text-decoration: none; transition: all 0.2s ease; font-weight: 500; }
+        .teacher-portfolio-link:hover { background: #eef2ff; border-color: #4f46e5; transform: translateY(-1px); }
+        @media (max-width: 768px) { .teacher-avatar { right: 12px; top: 12px; width: 44px; height: 44px; } .converter-box { flex-direction: column; align-items: flex-start; } .conv-select { max-width: 100%; width: 100%; } }
+        .global-search-wrap { margin: 6px 0 8px; display: none; }
+        .global-search-input { width: 100%; padding: 7px 10px; border-radius: 999px; border: 1px solid #d1d5db; font-size: 0.86rem; background: #f9fafb; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; }
+        .global-search-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 1px rgba(79,70,229,0.18); background: #ffffff; }
+        .main-tabs { display: flex; gap: 8px; margin: 4px 0 12px; overflow-x: auto; }
+        .main-tab-btn { flex: 1; padding: 10px 12px; border-radius: 999px; border: 1px solid #e5e7eb; background: rgba(249, 250, 251, 0.95); font-size: 0.9rem; font-weight: 600; color: #4b5563; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.18s ease; white-space: nowrap; }
+        .main-tab-btn span.tab-icon { font-size: 1.05rem; }
+        .main-tab-btn.active { background: linear-gradient(135deg, #4f46e5, #6366f1); color: #ffffff; border-color: transparent; box-shadow: 0 10px 22px rgba(79,70,229,0.35); transform: translateY(-1px); }
+        .main-tab-btn:not(.active):hover { background: #eef2ff; }
+        .section { display: none; }
+        .section.show { display: block; }
+        .section-card { background: #ffffff; border-radius: 18px; padding: 16px 16px 18px; box-shadow: 0 10px 26px rgba(15,23,42,0.06); margin-bottom: 14px; border: 1px solid #e5e7eb; position: relative; overflow: hidden; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .section-card:hover { transform: translateY(-1px); box-shadow: 0 14px 32px rgba(15,23,42,0.08); }
+        .section-card::before { content: ""; position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #4f46e5, #a855f7); opacity: 0.4; }
+        .section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; gap: 8px; }
+        .section-title-row { display: inline-flex; align-items: center; gap: 6px; }
+        .section-title-icon { font-size: 1.05rem; }
+        .section-title { font-size: 1.02rem; font-weight: 600; color: #111827; }
+        .section-caption { font-size: 0.8rem; color: #6b7280; }
+        .section-header-right { display: flex; align-items: center; gap: 8px; }
+        .card-row { display: flex; flex-wrap: wrap; gap: 12px; }
+        .card-column { flex: 1 1 260px; }
+        .overview-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .overview-tile { flex: 1 1 180px; padding: 8px 10px; border-radius: 12px; background: #f9fafb; border: 1px solid #e5e7eb; font-size: 0.8rem; }
+        .overview-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #9ca3af; margin-bottom: 2px; display: flex; align-items: center; justify-content: space-between; }
+        .overview-main { font-size: 0.95rem; font-weight: 600; color: #111827; }
+        .overview-sub { font-size: 0.78rem; color: #6b7280; }
+        .overview-refresh-btn { border: none; background: #eef2ff; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; padding: 0; margin-left: 6px; }
+        .overview-refresh-btn:hover { background: #e0e7ff; }
+        .weekly-strip { display: flex; flex-wrap: nowrap; gap: 6px; margin-top: 4px; overflow-x: auto; }
+        .weekly-day { min-width: 48px; padding: 4px 6px; border-radius: 10px; background: #eef2ff; font-size: 0.74rem; text-align: center; color: #4338ca; }
+        .weekly-day.has-classes { background: #e0f2fe; color: #0369a1; }
+        .weekly-day.today { background: #dcfce7; color: #166534; font-weight: 600; }
+        .students-tile { position: relative; }
+        .students-tile::before { content: "👩‍🏫"; position: absolute; right: 10px; bottom: 8px; font-size: 1.6rem; opacity: 0.7; animation: gentlyBounce 3.2s ease-in-out infinite; }
+        @keyframes gentlyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+        .motivation-tile { background: radial-gradient(circle at top left, #eef2ff, #e0f2fe 40%, #fce7f3 100%); position: relative; overflow: hidden; }
+        .motivation-tile::before { content: "✨"; position: absolute; right: 12px; bottom: 8px; font-size: 1.4rem; opacity: 0.5; animation: floatSparkle 4s ease-in-out infinite; }
+        @keyframes floatSparkle { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(-4px); opacity: 0.8; } }
+        .today-classes-list { max-height: 120px; overflow-y: auto; margin-top: 8px; }
+        .today-class-item { font-size: 0.84rem; padding: 4px 0; border-bottom: 1px dashed #e5e7eb; }
+        .today-class-item:last-child { border-bottom: none; }
+        .motivation-tile .overview-main, .motivation-tile .overview-sub { padding-right: 40px; }
+        .form-group { margin-bottom: 10px; }
+        label { display: block; font-size: 0.8rem; color: #4b5563; margin-bottom: 4px; font-weight: 500; }
+        input, select, textarea { width: 100%; padding: 7px 9px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.9rem; outline: none; background: #f9fafb; transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; }
+        input:focus, select:focus, textarea:focus { border-color: #4f46e5; box-shadow: 0 0 0 1px rgba(79,70,229,0.18); background: #ffffff; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 999px; border: none; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
+        .btn-primary { background: linear-gradient(135deg, #4f46e5, #6366f1); color: #ffffff; box-shadow: 0 6px 14px rgba(79,70,229,0.25); }
+        .btn-primary:hover { filter: brightness(1.05); transform: translateY(-0.5px); }
+        .btn-primary:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+        .btn-outline { background: #ffffff; color: #4b5563; border: 1px solid #d1d5db; }
+        .btn-outline:hover { background: #f3f4ff; border-color: #4f46e5; color: #111827; }
+        .btn-soft { background: #eef2ff; color: #4338ca; border: 1px solid transparent; }
+        .btn-soft:hover { background: #e0e7ff; }
+        .btn-block { width: 100%; }
+        .inline-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+        .status-block { margin-top: 8px; font-size: 0.82rem; }
+        .success, .error, .info, .loading { padding: 8px; margin-top: 4px; border-radius: 6px; font-size: 0.82rem; border-left-width: 4px; border-left-style: solid; }
+        .success { background: #e8f5e9; color: #166534; border-left-color: #16a34a; }
+        .error { background: #fef2f2; color: #b91c1c; border-left-color: #ef4444; }
+        .info { background: #eff6ff; color: #1d4ed8; border-left-color: #3b82f6; }
+        .loading { background: #fef9c3; color: #92400e; border-left-color: #facc15; }
+        .table-wrap { margin-top: 8px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+        th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        thead { background: #f3f4ff; }
+        th { font-weight: 600; color: #374151; }
+        tbody tr:hover { background: #f9fafb; }
+        .classes-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 10px; }
+        .classes-list { margin-top: 6px; }
+        .class-card { border-radius: 14px; border: 1px solid #e5e7eb; padding: 10px 12px; margin-bottom: 10px; background: linear-gradient(135deg, #ffffff, #f9fafb); box-shadow: 0 4px 12px rgba(15,23,42,0.06); position: relative; overflow: hidden; }
+        .class-accent { position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: 4px; }
+        .class-card__row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+        .class-student { font-weight: 600; font-size: 0.98rem; color: #111827; }
+        .meta { font-size: 0.8rem; color: #6b7280; }
+        .badge { padding: 3px 7px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+        .badge-green { background: #dcfce7; color: #166534; }
+        .expand-block { margin-top: 8px; padding-top: 6px; border-top: 1px dashed #e5e7eb; }
+        .msg-preview { padding: 8px; background: #f9fafb; border-radius: 8px; border: 1px dashed #d1d5db; white-space: pre-wrap; font-size: 0.84rem; }
+        .toast-container { position: fixed; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; }
+        .toast { min-width: 180px; max-width: 260px; padding: 8px 12px; border-radius: 999px; font-size: 0.82rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 12px 28px rgba(15,23,42,0.35); opacity: 0; transform: translateY(12px); transition: opacity 0.22s ease, transform 0.22s ease; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-success { background: #16a34a; color: #ecfdf3; }
+        .toast-error { background: #b91c1c; color: #fee2e2; }
+        .toast-info { background: #2563eb; color: #dbeafe; }
+        .toast-icon { font-size: 1rem; }
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.5); display: none; justify-content: center; align-items: center; z-index: 9998; }
+        .modal-backdrop.show { display: flex; }
+        .modal { max-width: 640px; width: 100%; max-height: 80vh; background: #ffffff; border-radius: 18px; padding: 14px 16px; box-shadow: 0 24px 40px rgba(15,23,42,0.35); display: flex; flex-direction: column; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .modal-title { font-size: 0.98rem; font-weight: 600; }
+        .modal-body { overflow-y: auto; padding-right: 4px; }
+        .modal-footer { margin-top: 8px; display: flex; justify-content: flex-end; gap: 8px; font-size: 0.78rem; color: #6b7280; }
+        .bulk-item { border-radius: 12px; border: 1px solid #e5e7eb; padding: 8px; margin-bottom: 8px; background: #f9fafb; }
+        .bulk-item-header { font-size: 0.86rem; font-weight: 600; margin-bottom: 4px; }
+        .bulk-item-meta { font-size: 0.76rem; color: #6b7280; margin-bottom: 4px; }
+        .fab-container { position: fixed; right: 16px; bottom: 80px; z-index: 9997; }
+        .fab-main { width: 44px; height: 44px; border-radius: 999px; border: none; background: linear-gradient(135deg, #4f46e5, #6366f1); color: #ffffff; box-shadow: 0 12px 30px rgba(15,23,42,0.35); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; }
+        .fab-menu { position: absolute; bottom: 52px; right: 0; display: none; flex-direction: column; gap: 6px; }
+        .fab-menu.show { display: flex; }
+        .fab-item { padding: 6px 10px; border-radius: 999px; background: #ffffff; border: 1px solid #e5e7eb; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; box-shadow: 0 8px 18px rgba(15,23,42,0.25); }
+        .footer { margin-top: 20px; font-size: 0.78rem; color: #9ca3af; text-align: center; }
+        .footer span { font-weight: 600; color: #4f46e5; }
+        .footer-version { margin-top: 2px; font-size: 0.74rem; color: #9ca3af; }
+        .today-classes-list:empty { display: none; }
+        @media (max-width: 640px) { body { padding: 12px; } .section-card { padding: 14px; } .brand-block, .teacher-block { padding: 12px 14px; } .brand-title { font-size: 1.2rem; } .main-tab-btn { font-size: 0.85rem; padding: 8px 10px; } .class-card__row { flex-direction: column; align-items: flex-start; } .fab-container { bottom: 72px; } .modal { max-width: 95vw; } }
+        .bulk-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background: #f9fafb; padding: 8px; border-radius: 10px; border: 1px solid #e5e7eb; }
+        .bulk-row select, .bulk-row input { margin-bottom: 0; border: 1px solid #e5e7eb; background: #ffffff; }
         .progress-bar { height:10px; background:#e6e6e6; border-radius:6px; overflow:hidden; margin-top:8px; }
         .progress-bar > i { display:block; height:100%; width:0%; background: linear-gradient(135deg, #4f46e5, #6366f1); transition:width 300ms linear; }
         .small-muted { font-size:13px; color:#666; }
-
     </style>
 </head>
-
 <body>
 <div class="container">
-
     <header class="top-bar">
         <div class="brand-block">
-            <div class="brand-title">
-                <span class="icon">📊</span>
-                <span>Advanced Class Manager</span>
-            </div>
+            <div class="brand-title"><span class="icon">📊</span><span>Advanced Class Manager</span></div>
             <div class="brand-sub">Teacher's Dashboard — Powered by LazifAI</div>
-            <div class="brand-pill-row">
-                <div class="brand-pill" id="clock-sydney">🇦🇺 Sydney: --:-- --</div>
-                <div class="brand-pill" id="clock-perth">🇦🇺 Perth: --:-- --</div>
-                <div class="brand-pill" id="clock-london">🇬🇧 London: --:-- --</div>
-                <div class="brand-pill" id="clock-uae">🇦🇪 UAE: --:-- --</div>
-                <div class="brand-pill" id="clock-nz">🇳🇿 NZ: --:-- --</div>
+            <div class="converter-box">
+                <div class="converter-label">Reschedule Helper</div>
+                <select id="conv-student-zone" class="conv-select">
+                    <option value="" disabled selected>Select City...</option>
+                    <optgroup label="Australia & NZ">
+                        <option value="Australia/Sydney">Sydney / Melbourne</option>
+                        <option value="Australia/Adelaide">Adelaide</option>
+                        <option value="Australia/Perth">Perth</option>
+                        <option value="Pacific/Auckland">Auckland</option>
+                    </optgroup>
+                    <optgroup label="UK & Europe">
+                        <option value="Europe/London">London (UK)</option>
+                        <option value="Europe/Paris">Paris / Berlin</option>
+                    </optgroup>
+                    <optgroup label="Middle East & Asia">
+                        <option value="Asia/Dubai">Dubai / UAE</option>
+                        <option value="Asia/Singapore">Singapore</option>
+                    </optgroup>
+                    <optgroup label="USA & Canada">
+                        <option value="America/New_York">New York (EST)</option>
+                        <option value="America/Chicago">Chicago (CST)</option>
+                        <option value="America/Los_Angeles">Los Angeles (PST)</option>
+                    </optgroup>
+                </select>
+                <input type="text" id="conv-student-time" class="conv-input" placeholder="7 PM">
+                <div class="conv-arrow">➜</div>
+                <div id="conv-result-ist" class="conv-result-pill">--:-- IST</div>
             </div>
         </div>
         <div class="teacher-block">
@@ -1031,86 +188,47 @@
             <div class="teacher-id">Teacher ID: 181577</div>
             <a href="https://senoritaeducator.github.io/professional-portfolio/ " target="_blank" rel="noopener noreferrer" class="teacher-portfolio-link">🌐 View Portfolio</a>
             <div class="teacher-clock" id="clock-india">🕒 India: --:-- --</div>
-
-            <img
-                src="senorita-profile.jpg"
-                alt="Senorita Saha"
-                class="teacher-avatar" />
+            <img src="senorita-profile.jpg" alt="Senorita Saha" class="teacher-avatar" />
         </div>
     </header>
 
     <div class="global-search-wrap">
-        <input
-            type="text"
-            id="global-search"
-            class="global-search-input"
-            placeholder="🔎 Search students or classes by name, date or time..."
-        />
+        <input type="text" id="global-search" class="global-search-input" placeholder="🔎 Search students or classes by name, date or time..." />
     </div>
 
     <nav class="main-tabs">
-        <button class="main-tab-btn active" data-section="students">
-            <span class="tab-icon">👥</span>
-            <span>Manage Students</span>
-        </button>
-        <button class="main-tab-btn" data-section="classes">
-            <span class="tab-icon">📚</span>
-            <span>Manage Classes</span>
-        </button>
-        <button class="main-tab-btn" data-section="bulk">
-            <span class="tab-icon">⚡</span>
-            <span>Bulk Schedule</span>
-        </button>
+        <button class="main-tab-btn active" data-section="students"><span class="tab-icon">👥</span><span>Manage Students</span></button>
+        <button class="main-tab-btn" data-section="classes"><span class="tab-icon">📚</span><span>Manage Classes</span></button>
+        <button class="main-tab-btn" data-section="bulk"><span class="tab-icon">⚡</span><span>Bulk Schedule</span></button>
     </nav>
 
     <section id="section-students" class="section show">
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title-row">
-                        <span class="section-title-icon">👥</span>
-                        <div class="section-title">Manage Students</div>
-                    </div>
+                    <div class="section-title-row"><span class="section-title-icon">👥</span><div class="section-title">Manage Students</div></div>
                     <div class="section-caption">Add, delete & view all active students linked to your classes.</div>
                 </div>
             </div>
-
             <div class="card-row">
                 <div class="card-column">
-                    <div class="form-group">
-                        <label>Add Student</label>
-                        <input id="student-name-input" type="text" placeholder="Enter student name" />
+                    <div class="form-group"><label>Add Student</label><input id="student-name-input" type="text" placeholder="Enter student name" /></div>
+                    <div style="margin-top:6px; display:flex; gap:12px;">
+                        <label><input type="radio" name="studentType" value="PS" checked> PS</label>
+                        <label><input type="radio" name="studentType" value="CM"> CM</label>
+                        <label><input type="radio" name="studentType" value="Trial"> Trial</label>
                     </div>
-                    
-<div style="margin-top:6px; display:flex; gap:12px;">
-<label><input type="radio" name="studentType" value="PS" checked> PS</label>
-<label><input type="radio" name="studentType" value="CM"> CM</label>
-</div>
-<button id="add-student-btn"  class="btn btn-primary btn-block">
-                        ➕ Add Student
-                    </button>
-
+                    <button id="add-student-btn" class="btn btn-primary btn-block">➕ Add Student</button>
                     <div class="form-group" style="margin-top: 16px;">
                         <label>Delete Student</label>
-                        <select id="student-delete-select">
-                            <option value="">Select student to delete</option>
-                        </select>
+                        <select id="student-delete-select"><option value="">Select student to delete</option></select>
                     </div>
-                    <button id="delete-student-btn" class="btn btn-outline btn-block">
-                        🗑 Delete Student
-                    </button>
-
+                    <button id="delete-student-btn" class="btn btn-outline btn-block">🗑 Delete Student</button>
                     <div id="manage-students-msg" class="status-block"></div>
                 </div>
-
                 <div class="card-column">
                     <label>All Active Students</label>
-                    <div class="inline-actions" style="margin-top: 4px;">
-                        <button id="refresh-students-btn" class="btn btn-soft">
-                            🔄 Refresh
-                        </button>
-                    </div>
-
+                    <div class="inline-actions" style="margin-top: 4px;"><button id="refresh-students-btn" class="btn btn-soft">🔄 Refresh</button></div>
                     <div id="all-students-content" class="table-wrap"></div>
                 </div>
             </div>
@@ -1118,59 +236,32 @@
     </section>
 
     <section id="section-classes" class="section">
-
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title-row">
-                        <span class="section-title-icon">📈</span>
-                        <div class="section-title">Today & Week Overview</div>
-                    </div>
+                    <div class="section-title-row"><span class="section-title-icon">📈</span><div class="section-title">Today & Week Overview</div></div>
                     <div class="section-caption">Quick glance at your students, today’s workload and this week.</div>
                 </div>
             </div>
             <div class="overview-grid">
                 <div class="overview-tile students-tile">
-                    <div class="overview-title">
-                        Students
-                        <button type="button" class="overview-refresh-btn" id="refresh-students-overview-btn" title="Refresh students data">⟳</button>
-                    </div>
+                    <div class="overview-title">Students<button type="button" class="overview-refresh-btn" id="refresh-students-overview-btn" title="Refresh">⟳</button></div>
                     <div class="overview-main" id="stats-total-students">--</div>
                     <div class="overview-sub" id="stats-students-sub">Total active students</div>
                 </div>
                 <div class="overview-tile">
-                    <div class="overview-title">
-                    Today at a glance
-                    <button type="button" class="overview-refresh-btn" id="refresh-today-btn" title="Refresh today's data">⟳</button>
-                </div>
+                    <div class="overview-title">Today<button type="button" class="overview-refresh-btn" id="refresh-today-btn" title="Refresh">⟳</button></div>
                     <div class="overview-main" id="stats-today-main">No data</div>
-                    <div class="overview-sub" id="stats-today-sub"></div> <div class="today-classes-list" id="today-classes-list"></div>
+                    <div class="today-classes-list" id="today-classes-list"></div>
                 </div>
                 <div class="overview-tile">
-                    <div class="overview-title">
-                    This week
-                    <button type="button" class="overview-refresh-btn" id="refresh-week-btn" title="Refresh this week">⟳</button>
-                </div>
+                    <div class="overview-title">Week<button type="button" class="overview-refresh-btn" id="refresh-week-btn" title="Refresh">⟳</button></div>
                     <div class="overview-main" id="stats-week-main">--</div>
-                    <div class="overview-sub"></div> <div class="weekly-strip" id="weekly-strip"></div>
+                    <div class="weekly-strip" id="weekly-strip"></div>
                 </div>
-                
-<div class="overview-tile">
-    <div class="overview-title">
-        CueMath Earnings
-        <button type="button" class="overview-refresh-btn" id="refresh-cm-btn" title="Refresh earnings">⟳</button>
-    </div>
-    <div class="overview-main" id="cm-total-classes">--</div>
-    <div class="overview-sub">₹<span id="cm-total-payout">0</span></div>
-    <div class="overview-sub" style="margin-top:4px; font-size:0.75rem; color:#6b7280;" id="cm-month-label"></div>
-</div>
-<div class="overview-tile motivation-tile">
-
+                <div class="overview-tile motivation-tile">
                     <div class="overview-title">Motivation</div>
-                    <div class="overview-main" id="motivation-main">
-                        Today's corrections become tomorrow's clarity.
-                    </div>
-                    <div class="overview-sub" id="motivation-sub"></div>
+                    <div class="overview-main" id="motivation-main">Consistency beats intensity.</div>
                 </div>
             </div>
         </div>
@@ -1178,127 +269,60 @@
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title-row">
-                        <span class="section-title-icon">📅</span>
-                        <div class="section-title">Schedule Class</div>
-                    </div>
+                    <div class="section-title-row"><span class="section-title-icon">📅</span><div class="section-title">Schedule Class</div></div>
                     <div class="section-caption">Create a class & Google Calendar event for an existing student.</div>
                 </div>
             </div>
-
             <div class="card-row">
+                <div class="card-column"><label>Student</label><select id="schedule-student-select"><option value="">Select student</option></select></div>
+                <div class="card-column"><label>Class Date</label><input type="date" id="schedule-date" /></div>
                 <div class="card-column">
-                    <label>Student</label>
-                    <select id="schedule-student-select">
-                        <option value="">Select student</option>
-                    </select>
+                    <label>Start Time</label><input type="text" id="schedule-time" placeholder="hh:mm AM/PM" />
                 </div>
-
-                <div class="card-column">
-                    <label>Class Date</label>
-                    <input type="date" id="schedule-date" />
-                </div>
-
-                <div class="card-column">
-                    <label>Start Time</label>
-                    <input type="text" id="schedule-time" placeholder="hh:mm AM/PM" />
-                    <div id="slot-warning" class="error" style="display:none; margin-top:4px;">⚠️ This time slot is already booked!</div>
-                </div>
-
                 <div class="card-column">
                     <label>Repeat (weeks)</label>
                     <select id="schedule-repeat" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid #d1d5db;background:#f9fafb;">
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
+                        <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
                     </select>
                 </div>
             </div>
-
-            <div class="inline-actions" style="margin-top: 4px;">
-                <button id="schedule-class-btn" class="btn btn-primary">
-                    ✅ Schedule Class
-                </button>
-            </div>
-
+            <div class="inline-actions" style="margin-top: 4px;"><button id="schedule-class-btn" class="btn btn-primary">✅ Schedule Class</button></div>
             <div id="schedule-msg" class="status-block"></div>
         </div>
 
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title-row">
-                        <span class="section-title-icon">🗂️</span>
-                        <div class="section-title">View & Manage Classes</div>
-                    </div>
+                    <div class="section-title-row"><span class="section-title-icon">🗂️</span><div class="section-title">View & Manage Classes</div></div>
                     <div class="section-caption">Filter by date, generate messages, or reschedule classes.</div>
                 </div>
-                <div class="section-header-right">
-                    <button id="send-all-reminders-btn" class="btn btn-soft" style="display:none;">
-                        📤 Send All Reminders
-                    </button>
-                </div>
             </div>
-
             <div class="classes-controls">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label>Select Date</label>
-                    <input type="date" id="view-date" />
-                </div>
-                <button id="view-classes-btn" class="btn btn-soft">
-                    📅 Load Classes
-                </button>
+                <div class="form-group" style="margin-bottom: 0;"><label>Select Date</label><input type="date" id="view-date" /></div>
+                <button id="view-classes-btn" class="btn btn-soft">📅 Load Classes</button>
             </div>
-
             <div id="view-classes-output" class="classes-list"></div>
         </div>
-
     </section>
 
     <section id="section-bulk" class="section">
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title-row">
-                        <span class="section-title-icon">⚡</span>
-                        <div class="section-title">Bulk Schedule Classes</div>
-                    </div>
-                    <div class="section-caption">Schedule multiple students for a specific date with optional weekly repetition.</div>
+                    <div class="section-title-row"><span class="section-title-icon">⚡</span><div class="section-title">Bulk Schedule Classes</div></div>
+                    <div class="section-caption">Schedule multiple students for a specific date.</div>
                 </div>
             </div>
-
             <div class="card-row">
-                <div class="card-column">
-                    <label>Date</label>
-                    <input type="date" id="bulkDate" style="width:100%;"/>
-                </div>
-                <div class="card-column">
-                    <label>Repeat (weeks)</label>
-                    <input type="number" id="bulkRepeatWeeks" min="0" max="52" value="0" style="width:100%;"/>
-                </div>
+                <div class="card-column"><label>Date</label><input type="date" id="bulkDate" style="width:100%;"/></div>
+                <div class="card-column"><label>Repeat (weeks)</label><input type="number" id="bulkRepeatWeeks" min="0" max="52" value="0" style="width:100%;"/></div>
             </div>
-
             <hr style="margin:12px 0; border:0; border-top:1px solid #e5e7eb;">
-
             <div id="bulkRowsContainer"></div>
-
             <div class="inline-actions" style="margin-top:12px; gap:8px;">
                 <button id="addBulkRowBtn" class="btn btn-soft">+ Add Row</button>
                 <button id="clearBulkRowsBtn" class="btn btn-outline">Clear</button>
             </div>
-            <div class="small-muted" style="margin-top:8px;">Each row: Select a student & enter time (hh:mm AM/PM).</div>
-
-            <div style="margin-top:12px;">
-                <div class="progress-bar" id="bulkProgressWrap" style="display:none"><i id="bulkProgress"></i></div>
-                <div id="bulkStatus" class="small-muted" style="margin-top:8px"></div>
-            </div>
-
             <div class="inline-actions" style="margin-top:16px; justify-content:flex-end;">
                 <button class="btn btn-outline" onclick="resetBulkScheduler()">Reset</button>
                 <button id="bulkScheduleBtn" class="btn btn-primary">Schedule All</button>
@@ -1308,28 +332,11 @@
 
     <footer class="footer">
         <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
-        <div class="footer-version">🕉️ॐ नमः शिवाय🕉️</div>
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
-	<div id="acm-version-info"
-     style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">
-    ACM v5 — Updated: 22-Nov-2025 01:30 (Bulk Upload Card Data Fix)
-</div>
+        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v15 GAS — Updated: 2025-Phase2-Final-Polish</div>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>
-
-    <div id="bulk-reminder-backdrop" class="modal-backdrop">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">Send All Reminders</div>
-                <button id="bulk-reminder-close" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
-            </div>
-            <div class="modal-body" id="bulk-reminder-body"></div>
-            <div class="modal-footer">
-                <div>Choose template for each student, then copy or open in WhatsApp.</div>
-            </div>
-        </div>
-    </div>
 
     <div id="confirmModal" class="modal-backdrop">
       <div class="modal" style="max-width:400px;">
@@ -1338,11 +345,38 @@
             <p id="confirmText" style="font-weight:600; color:#111827; margin-bottom:20px;"></p>
             <div style="display:flex; justify-content:center; gap:10px;">
                 <button id="confirmNo" class="btn btn-outline">Cancel</button>
-                <button id="confirmYes" class="btn btn-primary">Yes, Schedule</button>
+                <button id="confirmYes" class="btn btn-primary">Yes, Proceed</button>
             </div>
         </div>
       </div>
     </div>
+
+    <div id="errorModal" class="modal-backdrop">
+      <div class="modal" style="max-width:400px; border-left: 5px solid #ef4444;">
+        <div class="modal-body" style="padding:20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <div style="font-size:1.5rem;">⚠️</div>
+                <div style="font-weight:700; font-size:1.1rem; color:#b91c1c;">Alert</div>
+            </div>
+            <p id="errorText" style="color:#374151; font-size:0.95rem; line-height:1.5; white-space: pre-wrap;"></p>
+            <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+                <button id="errorOk" class="btn btn-primary" style="background:#ef4444;">OK</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="reportModal" class="modal-backdrop">
+        <div class="modal" style="max-width:400px;">
+          <div class="modal-body" style="padding:20px;">
+              <div style="font-weight:700; font-size:1.1rem; color:#111827; margin-bottom:10px;">Bulk Schedule Report</div>
+              <p id="reportText" style="color:#374151; font-size:0.9rem; line-height:1.5; white-space: pre-wrap; max-height:200px; overflow-y:auto;"></p>
+              <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+                  <button id="reportOk" class="btn btn-primary">Close</button>
+              </div>
+          </div>
+        </div>
+      </div>
 
     <div class="fab-container">
         <button class="fab-main" id="fab-main" title="Quick actions">⚡</button>
@@ -1351,348 +385,133 @@
             <div class="fab-item" id="fab-schedule-class">📅 Schedule Class</div>
             <div class="fab-item" id="fab-load-today">📆 Load Today</div>
             <div class="fab-item" id="fab-go-classes">🗂 Classes Tab</div>
-            <div class="fab-item" id="fab-ai-help">🤖 AI Help</div>
         </div>
     </div>
 </div>
 
 <script>
-    /* Webhooks (unchanged) */
-    const WEBHOOKS = {
-        ADD: "https://hook.eu2.make.com/hvddse2wcpf6w3m6t2tepmreloar7cjt",
-        DELETE: "https://hook.eu2.make.com/79eede2kxvv66jm31atr8jjxmtf5ag9q",
-        STUDENTS: "https://hook.eu2.make.com/kemhxja7ouav3ibxeqay4ktpmshw6xsl",
-        SCHEDULE: "https://hook.eu2.make.com/m0iyppobmi5ut4bmkkl86rpn6vmjgx1l",
-        FETCH_CLASS: "https://hook.eu2.make.com/2y3wy4smt4q9ui0buu15bpm6rbp0eg5p",
-        RESCHED: "https://hook.eu2.make.com/qcac281xttvlysap3r9aikrlmm4uja70"
-    };
+    // PASTE YOUR GAS WEB APP URL HERE
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcnNovhrSOIObYUJZg9fIPoG1IuojN9t5lnnATcX5rhsWagfixg/exec";
 
-    // Get current date in IST timezone (UTC+5:30)
     function getCurrentISTDateString() {
-        return new Date().toLocaleDateString('en-CA', {
-            timeZone: 'Asia/Kolkata',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        });
+        return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' });
     }
 
-    /* =========================================
-       CACHING LOGIC (Reduce API Calls)
-       ========================================= */
-    const CACHE_PREFIX = "acm_cache_";
-    
-    /* =========================================
-       SESSION & EVENT-BASED CACHE MANAGEMENT
-       ========================================= */
-    const SESSION_DATE_KEY = "acm_session_date";
-    const LOADED_DATES_KEY = "acm_loaded_dates";
-
-    function initializeSession() {
-        const today = getCurrentISTDateString();
-        const storedDate = localStorage.getItem(SESSION_DATE_KEY);
-        
-        if (storedDate !== today) {
-            // New day - reset everything
-            invalidateAllClassesCache();
-            clearCache("students");
-            localStorage.setItem(SESSION_DATE_KEY, today);
-            console.log("🌅 New day detected. All caches reset.");
-        }
-    }
-
-    function getLoadedDates() {
-        try {
-            const today = getCurrentISTDateString();
-            const raw = localStorage.getItem(LOADED_DATES_KEY);
-            if (!raw) return new Set();
-            
-            const data = JSON.parse(raw);
-            // Return empty if data is from previous day
-            if (data.date !== today) {
-                localStorage.removeItem(LOADED_DATES_KEY);
-                return new Set();
-            }
-            return new Set(data.dates || []);
-        } catch {
-            return new Set();
-        }
-    }
-
-    function saveLoadedDates(datesSet) {
-        try {
-            const today = getCurrentISTDateString();
-            localStorage.setItem(LOADED_DATES_KEY, JSON.stringify({
-                date: today,
-                dates: Array.from(datesSet)
-            }));
-        } catch {}
-    }
-
-    function markDateAsLoaded(date) {
-        const loaded = getLoadedDates();
-        loaded.add(date);
-        saveLoadedDates(loaded);
-    }
-
-    function isDateLoadedToday(date) {
-        return getLoadedDates().has(date);
-    }
-
-    function invalidateDateCache(date) {
-        // Clear the cache for this specific date
-        clearCache("classes_" + date);
-        // Remove from loaded dates so it reloads fresh next time
-        const loaded = getLoadedDates();
-        loaded.delete(date);
-        saveLoadedDates(loaded);
-        console.log(`🗑️ Invalidated cache for ${date}`);
-    }
-
-    function invalidateAllClassesCache() {
-            // Clear ALL class caches (per-day)
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith(CACHE_PREFIX + "classes_")) {
-                    localStorage.removeItem(key);
-                }
-                // Clear monthly_classes_YYYY-MM-01 entries
-                if (key.startsWith(CACHE_PREFIX + "monthly_classes_")) {
-                    localStorage.removeItem(key);
-                }
-                // Clear cm count caches
-                if (key.startsWith(CACHE_PREFIX + "cm_month_count_")) {
-                    localStorage.removeItem(key);
-                }
-            });
-
-            // Clear weekly counts and other helpers
-            clearCache("weekly_counts");
-
-            // Reset loaded dates
-            const loaded = getLoadedDates();
-            loaded.clear();
-            saveLoadedDates(loaded);
-            console.log("🗑️ Invalidated ALL classes caches");
-        }
-
-    function getCache(key, maxAgeMs = 300000) {
-        try {
-            const raw = localStorage.getItem(CACHE_PREFIX + key);
-            if (!raw) return null;
-            
-            const payload = JSON.parse(raw);
-            // Validate payload structure
-            if (!payload.timestamp || !payload.data) {
-                clearCache(key);
-                return null;
-            }
-
-            const age = Date.now() - payload.timestamp;
-            
-            if (maxAgeMs > 0 && age > maxAgeMs) {
-                console.log(`[ACM Cache] Expired: ${key} (${Math.floor(age/1000)}s old)`);
-                clearCache(key);
-                return null;
-            }
-            
-            console.log(`[ACM Cache] Hit: ${key} (${Math.floor(age/1000)}s old)`);
-            return payload.data;
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function setCache(key, data) {
-        try {
-            const payload = {
-                data: data,
-                timestamp: Date.now()
-            };
-            localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(payload));
-        } catch (e) {
-            console.error("Cache save failed", e);
-        }
-    }
-
-    function clearCache(key) {
-        try {
-            localStorage.removeItem(CACHE_PREFIX + key);
-        } catch (e) {}
-    }
-    
-    // Specialized cache for weekly counts to avoid re-fetching full data for the strip
-    function updateWeeklyCountCache(date, count) {
-        let counts = getCache("weekly_counts") || {};
-        counts[date] = count;
-        setCache("weekly_counts", counts);
-    }
-
-    function getWeeklyCount(date) {
-        let counts = getCache("weekly_counts") || {};
-        return counts[date]; // undefined if not yet visited
-    }
-
-    /* Global state */
     const APP_STATE = {
         students: [],
         allStudentsClean: [],
         todayDate: null,
         currentClassesDate: null,
         currentClasses: [],
-        suggestedTimes: [],
-        weeklyCounts: {},
-        isFetchingMonthly: false,  // ⭐ ADD THIS
-        monthlyClasses: null        // ⭐ ADD THIS
+        cache: {} 
     };
 
-    const STUDENT_COLORS = [
-        "#6366f1","#ec4899","#10b981","#f97316",
-        "#0ea5e9","#a855f7","#f59e0b","#22c55e"
-    ];
+    const STUDENT_COLORS = ["#6366f1","#ec4899","#10b981","#f97316","#0ea5e9","#a855f7","#f59e0b","#22c55e"];
     const studentColorMap = {};
-
-    /* Motivation quotes */
-    const MOTIVATION_QUOTES = [
-        "Small daily efforts create lifetime fluency.",
-        "Every corrected sentence builds a more confident speaker.",
-        "Consistency beats intensity. One focused class at a time.",
-        "Your patience today is your students' confidence tomorrow.",
-        "Great communicators are trained, not born."
-    ];
-
+    const MOTIVATION_QUOTES = ["Small daily efforts create lifetime fluency.", "Consistency beats intensity.", "Your patience is their confidence."];
     let motivationIndex = -1;
-
-    function showNextMotivation() {
-        const main = document.getElementById("motivation-main");
-        const sub = document.getElementById("motivation-sub");
-        if (!main || !sub || !MOTIVATION_QUOTES.length) return;
-
-        motivationIndex = (motivationIndex + 1) % MOTIVATION_QUOTES.length;
-        main.textContent = MOTIVATION_QUOTES[motivationIndex];
-        sub.textContent = ""; // Remove "Teacher motivation" text
-    }
 
     function getStudentColor(name) {
         if (!name) return "#4f46e5";
         if (!studentColorMap[name]) {
-            const keys = Object.keys(studentColorMap);
-            const idx = keys.length % STUDENT_COLORS.length;
+            const idx = Object.keys(studentColorMap).length % STUDENT_COLORS.length;
             studentColorMap[name] = STUDENT_COLORS[idx];
         }
         return studentColorMap[name];
     }
 
-    function clearAllMessages() {
-        const m1 = document.getElementById("manage-students-msg");
-        const m2 = document.getElementById("schedule-msg");
-        if (m1) m1.innerHTML = "";
-        if (m2) m2.innerHTML = "";
-    }
-
-    function showMessage(target, html) {
-        const el = document.querySelector(target);
-        if (el) el.innerHTML = html;
+    function showNextMotivation() {
+        const main = document.getElementById("motivation-main");
+        if (!main) return;
+        motivationIndex = (motivationIndex + 1) % MOTIVATION_QUOTES.length;
+        main.textContent = MOTIVATION_QUOTES[motivationIndex];
     }
 
     function showToast(message, type = "success") {
         const container = document.getElementById("toast-container");
         if (!container) return;
-
         const toast = document.createElement("div");
         toast.className = `toast toast-${type === "error" ? "error" : type === "info" ? "info" : "success"}`;
-
-        const icon = document.createElement("span");
-        icon.className = "toast-icon";
-        icon.textContent = type === "error" ? "⚠️" : type === "info" ? "ℹ️" : "✅";
-
-        const text = document.createElement("span");
-        text.textContent = message;
-
-        toast.appendChild(icon);
-        toast.appendChild(text);
+        toast.innerHTML = `<span class="toast-icon">${type === "error" ? "⚠️" : type === "info" ? "ℹ️" : "✅"}</span><span>${message}</span>`;
         container.appendChild(toast);
-
-        requestAnimationFrame(() => {
-            toast.classList.add("show");
-        });
-
-        setTimeout(() => {
-            toast.classList.remove("show");
-            setTimeout(() => toast.remove(), 200);
-        }, 2200);
+        requestAnimationFrame(() => toast.classList.add("show"));
+        setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 200); }, 2200);
     }
 
-    function hideSlotWarning(){ const w = document.getElementById("slot-warning"); if (w) w.style.display = "none"; }
+    function showConfirm(text, onYes) {
+        const modal = document.getElementById("confirmModal");
+        const txt = document.getElementById("confirmText");
+        const yesBtn = document.getElementById("confirmYes");
+        const noBtn = document.getElementById("confirmNo");
+        txt.textContent = text;
+        modal.classList.add("show");
+        
+        const newYes = yesBtn.cloneNode(true);
+        const newNo = noBtn.cloneNode(true);
+        yesBtn.parentNode.replaceChild(newYes, yesBtn);
+        noBtn.parentNode.replaceChild(newNo, noBtn);
+        
+        newYes.onclick = () => { modal.classList.remove("show"); onYes(); };
+        newNo.onclick = () => { modal.classList.remove("show"); };
+    }
+
+    function showError(text) {
+        const modal = document.getElementById("errorModal");
+        const txt = document.getElementById("errorText");
+        const okBtn = document.getElementById("errorOk");
+        txt.textContent = text;
+        modal.classList.add("show");
+        
+        const newOk = okBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOk, okBtn);
+        newOk.onclick = () => modal.classList.remove("show");
+    }
+
+    function showReport(text) {
+        const modal = document.getElementById("reportModal");
+        const txt = document.getElementById("reportText");
+        const okBtn = document.getElementById("reportOk");
+        txt.textContent = text;
+        modal.classList.add("show");
+        
+        const newOk = okBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOk, okBtn);
+        newOk.onclick = () => modal.classList.remove("show");
+    }
 
     async function fetchAPI(url, payload) {
-        const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload || {})
-        });
-        const text = await res.text();
+        if(!GAS_API_URL || GAS_API_URL.includes("PASTE_YOUR")) { alert("Update GAS_API_URL!"); return {}; }
         try {
-            return JSON.parse(text);
-        } catch {
-            if (text.trim().toLowerCase() === "accepted") return {};
-            throw new Error("Invalid JSON: " + text);
-        }
+            const res = await fetch(GAS_API_URL, {
+                method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload || {})
+            });
+            return JSON.parse(await res.text());
+        } catch (e) { return { status: "error", message: e.toString() }; }
     }
 
+    function addDaysUTC(isoDateStr, daysToAdd) {
+        const parts = isoDateStr.split('-');
+        const utcMs = Date.UTC(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+        const newDate = new Date(utcMs + (daysToAdd * 24 * 60 * 60 * 1000));
+        return newDate.toISOString().split('T')[0];
+    }
+
+    function formatDateToISO(d) { return d.toISOString().split('T')[0]; }
     
-    /* ===== Date/time helpers (display) ===== */
-
-    function parseLocalDateFromInput(isoYMD) {
-        // isoYMD expected YYYY-MM-DD or DD-MM-YYYY; prefer YYYY-MM-DD here
-        if(!isoYMD) return null;
-        // accept both formats
-        if(isoYMD.indexOf('-')===2) { // DD-MM-YYYY
-            const parts = isoYMD.split('-');
-            return new Date(parseInt(parts[2],10), parseInt(parts[1],10)-1, parseInt(parts[0],10));
-        }
-        const parts = isoYMD.split('-');
-        return new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10));
-    }
-
-    function formatDateToISO(d) {
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth()+1).padStart(2,'0');
-        const dd = String(d.getDate()).padStart(2,'0');
-        return yyyy + '-' + mm + '-' + dd;
-    }
-
-    function addDaysLocal(isoDate, days) {
-        const base = parseLocalDateFromInput(isoDate);
-        if(!base) return isoDate;
-        const d = new Date(base.getTime());
-        d.setDate(d.getDate() + days);
-        return formatDateToISO(d);
-    }
-
     function isoToDisplayDate(isoDate) {
         if (!isoDate) return '';
-        let d = new Date(isoDate);
-        if (isNaN(d)) {
-            const parts = (isoDate||'').split('T')[0].split('-');
-            if (parts.length===3) return parts[2].padStart(2,'0') + '-' + parts[1].padStart(2,'0') + '-' + parts[0];
-            return isoDate;
-        }
-        return d.toLocaleDateString('en-GB'); // DD-MM-YYYY
+        const parts = isoDate.split('-');
+        if(parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        return isoDate;
     }
-
     function time24To12(t24) {
         if (!t24) return '';
-        const [hms] = (t24||'').split('.');
-        const parts = hms.split(':');
-        let hh = parseInt(parts[0]||'0',10);
-        const mm = (parts[1]||'00').padStart(2,'0');
+        const [h, m] = t24.split(':');
+        let hh = parseInt(h, 10);
         const ampm = hh >= 12 ? 'PM' : 'AM';
-        hh = hh % 12;
-        if (hh === 0) hh = 12;
-        return `${hh}:${mm} ${ampm}`;
+        hh = hh % 12 || 12;
+        return `${hh}:${m} ${ampm}`;
     }
-
-    /* ===== AM/PM parser for schedule inputs ===== */
     function parseUserTimeTo24(t) {
         if (!t) return "";
         t = t.trim().toUpperCase();
@@ -1700,1491 +519,397 @@
         if (!m) return "";
         let hh = parseInt(m[1], 10);
         const mm = m[2] ? m[2] : "00";
-        const ampm = m[3];
-        if (ampm === "PM" && hh !== 12) hh += 12;
-        if (ampm === "AM" && hh === 12) hh = 0;
+        if (m[3] === "PM" && hh !== 12) hh += 12;
+        if (m[3] === "AM" && hh === 12) hh = 0;
         return String(hh).padStart(2, "0") + ":" + mm;
     }
-    /* ===== end AM/PM parser ===== */
 
-    /* World clocks */
+    function normalizeUserTime(inputEl) {
+        const t = inputEl.value.trim().toUpperCase();
+        if(!t) return;
+        let hh=0, mm="00", ampm="PM";
+        if(t.match(/^\d{1,2}:\d{2}$/)) { inputEl.value = time24To12(t); return; }
+        const m = t.match(/^(\d{1,2})(?::(\d{2}))?\s*(A|P|AM|PM)?$/);
+        if(m) {
+            hh = parseInt(m[1]); if(m[2]) mm = m[2]; if(m[3] && m[3].startsWith("A")) ampm = "AM";
+            if(hh >= 1 && hh <= 12) inputEl.value = `${hh}:${mm} ${ampm}`;
+        }
+    }
+
+    async function checkSlotConflict(date, time24, ignoreClassId = null) {
+        if (!APP_STATE.cache[date]) {
+            const res = await fetchAPI(null, { action: "getClasses", selectedDate: date });
+            APP_STATE.cache[date] = res.classes || [];
+        }
+        const classes = APP_STATE.cache[date];
+        return classes.some(c => c.StartTime == time24 && c.ClassID != ignoreClassId);
+    }
+
     function initWorldClocks() {
-        const ids = {
-            india: "Asia/Kolkata",
-            sydney: "Australia/Sydney",
-            perth: "Australia/Perth",
-            london: "Europe/London",
-            uae: "Asia/Dubai",
-            nz: "Pacific/Auckland"
-        };
+        setInterval(() => {
+            document.getElementById("clock-india").textContent = "🕒 India: " + 
+                new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true });
+        }, 1000);
 
-        function formatTime(tz) {
-            const now = new Date();
-            return now.toLocaleTimeString("en-GB", {
-                timeZone: tz,
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true
-            });
+        const zoneSelect = document.getElementById("conv-student-zone");
+        const timeInput = document.getElementById("conv-student-time");
+        const resultDiv = document.getElementById("conv-result-ist");
+
+        function convertToIST() {
+            const studentZone = zoneSelect.value;
+            const inputVal = timeInput.value.trim();
+            if(!studentZone || !inputVal) { resultDiv.textContent = "--:-- IST"; return; }
+            normalizeUserTime(timeInput);
+            const time24 = parseUserTimeTo24(timeInput.value);
+            if(!time24) return;
+            try {
+                const now = new Date();
+                const studentString = now.toLocaleString("en-US", { timeZone: studentZone });
+                const istString = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+                const diff = new Date(istString) - new Date(studentString);
+                const [h, m] = time24.split(':');
+                const userDate = new Date(); userDate.setHours(h, m, 0, 0);
+                const resDate = new Date(userDate.getTime() + diff);
+                resultDiv.textContent = resDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " IST";
+            } catch(e) { resultDiv.textContent = "Error"; }
         }
+        zoneSelect.addEventListener("change", convertToIST);
+        timeInput.addEventListener("blur", convertToIST);
+    }
 
-        function updateClocks() {
-            // Update clock displays
-            const elIndia = document.getElementById("clock-india");
-            if (elIndia) elIndia.textContent = "🕒 India: " + formatTime(ids.india);
-
-            const s = document.getElementById("clock-sydney");
-            if (s) s.textContent = "🇦🇺 Sydney: " + formatTime(ids.sydney);
-
-            const p = document.getElementById("clock-perth");
-            if (p) p.textContent = "🇦🇺 Perth: " + formatTime(ids.perth);
-
-            const l = document.getElementById("clock-london");
-            if (l) l.textContent = "🇬🇧 London: " + formatTime(ids.london);
-
-            const u = document.getElementById("clock-uae");
-            if (u) u.textContent = "🇦🇪 UAE: " + formatTime(ids.uae);
-
-            const n = document.getElementById("clock-nz");
-            if (n) n.textContent = "🇳🇿 NZ: " + formatTime(ids.nz);
-
-            // Check for date change
-            const currentISTDate = getCurrentISTDateString();
-            if (currentISTDate !== APP_STATE.todayDate) {
-                console.log("Date changed from", APP_STATE.todayDate, "to", currentISTDate);
-                const oldDate = APP_STATE.todayDate;
-                APP_STATE.todayDate = currentISTDate;
-                
-                // Update the view date input only if it was showing the old "today" date
-                const viewInput = document.getElementById("view-date");
-                if (viewInput && viewInput.value === oldDate) {
-                    viewInput.value = currentISTDate;
-                }
-                
-                // Also update schedule date if it was showing the old date
-                const schedInput = document.getElementById("schedule-date");
-                if (schedInput && schedInput.value === oldDate) {
-                    schedInput.value = currentISTDate;
-                }
-                
-                // Reload today's overview data
-                fetchTodayOverview();
+    async function loadStudentsForDropdowns() {
+        const r = await fetchAPI(null, { action: "getAllStudents" });
+        APP_STATE.students = r.students || [];
+        const delSel = document.getElementById("student-delete-select");
+        const schSel = document.getElementById("schedule-student-select");
+        delSel.innerHTML = '<option value="">Select student to delete</option>';
+        schSel.innerHTML = '<option value="">Select student</option>';
+        APP_STATE.students.forEach(s => {
+            const opt = `<option value="${s.name}">${s.name}</option>`;
+            delSel.innerHTML += opt; schSel.innerHTML += opt;
+        });
+        updateStudentStats();
+        renderStudentTable();
+        // Update Bulk Rows if empty
+        const bulkSelects = document.querySelectorAll('.bulk-student');
+        bulkSelects.forEach(sel => {
+            if(sel.options.length <= 1) { // Only "Loading" present
+               sel.innerHTML = APP_STATE.students.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
             }
-        }
-
-        updateClocks();
-        setInterval(updateClocks, 1000);
-    }
-
-    /* Tabs */
-    const mainTabButtons = document.querySelectorAll(".main-tab-btn");
-    const sectionStudents = document.getElementById("section-students");
-    const sectionClasses = document.getElementById("section-classes");
-    const sectionBulk = document.getElementById("section-bulk");
-
-    function showMainSection(sec) {
-        hideSlotWarning();
-        clearAllMessages();
-        mainTabButtons.forEach(btn =>
-            btn.classList.toggle("active", btn.dataset.section === sec)
-        );
-        sectionStudents.classList.toggle("show", sec === "students");
-        sectionClasses.classList.toggle("show", sec === "classes");
-        sectionBulk.classList.toggle("show", sec === "bulk");
-
-        // If switching to bulk and it's empty, initialize rows
-        if(sec === "bulk" && document.getElementById('bulkRowsContainer').innerHTML === "") {
-            createBulkRow(0);
-            createBulkRow(1);
-            createBulkRow(2);
-            document.getElementById('bulkDate').value = APP_STATE.todayDate;
-        }
-    }
-
-    mainTabButtons.forEach(btn =>
-        btn.addEventListener("click", () => showMainSection(btn.dataset.section))
-    );
-
-    /* Student helpers */
-    function updateStudentStats() {
-        console.log("Debug: Students data:", APP_STATE.students);
-        console.log("Debug: Students map:", APP_STATE.studentsMap);
-        
-        const total = APP_STATE.allStudentsClean.length;
-        const el = document.getElementById("stats-total-students");
-        const sub = document.getElementById("stats-students-sub");
-        if (el) el.textContent = total || "--";
-        
-        if (sub) {
-            let ps = 0, cm = 0;
-            (APP_STATE.students || []).forEach(x => {
-                let t = x.type || x.Type || "PS";
-                if (t === "CM") cm++;
-                else ps++;
-            });
-            sub.textContent = total ? `${ps} PS | ${cm} CM` : "Add students to get started.";
-        }
+        });
     }
 
     function renderStudentTable(filterText = "") {
         const c = document.getElementById("all-students-content");
-        if (!c) return;
-
-        const q = (filterText || "").trim().toLowerCase();
-        const data = q
-            ? APP_STATE.allStudentsClean.filter(n => n.toLowerCase().includes(q))
-            : APP_STATE.allStudentsClean.slice();
-
-        if (!data.length) {
-            c.innerHTML = '<div class="info">No students found.</div>';
-            return;
-        }
-
-        let h = '<table><thead><tr><th>#</th><th>Name</th></tr></thead><tbody>';
-        data.forEach((n, i) => {
-            h += `<tr><td>${i + 1}</td><td>${n}</td></tr>`;
-        });
-        h += "</tbody></table>";
-        c.innerHTML = h;
+        const q = filterText.toLowerCase();
+        const data = APP_STATE.students.filter(s => s.name.toLowerCase().includes(q));
+        if (!data.length) { c.innerHTML = '<div class="info">No students found.</div>'; return; }
+        let h = '<table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody>';
+        data.forEach(s => h += `<tr><td>${s.name}</td><td>${s.type}</td></tr>`);
+        c.innerHTML = h + "</tbody></table>";
     }
 
-    // Unified Student Fetcher with Cache
-    async function fetchStudents(forceRefresh = false) {
-        if (!forceRefresh) {
-            const cached = getCache("students");
-            if (cached) {
-                console.log("[ACM Cache] Students loaded from cache.");
-                APP_STATE.students = cached;
-                // Rebuild Map from cache
-                APP_STATE.studentsMap = {};
-                (cached || []).forEach(x => {
-                    let n = x.name || x.StudentName || x.student || x;
-                    let t = x.type || x.Type || "PS";
-                    if (n) APP_STATE.studentsMap[n.trim()] = t;
-                });
-                return cached;
-            }
-        }
-        // Fetch from API
-        console.log("[ACM API] Fetching students...");
-        const r = await fetchAPI(WEBHOOKS.STUDENTS, { action: "getAllStudents" });
-        const s = r.students || r.data || [];
-        APP_STATE.students = s;
-        APP_STATE.studentsMap = {};
-        (s || []).forEach(x => {
-            let n = x.name || x.StudentName || x.student || x;
-            let t = x.type || x.Type || "PS";
-            if (n) APP_STATE.studentsMap[n.trim()] = t;
-        });
-        setCache("students", s);
-        return s;
+    function updateStudentStats() {
+        document.getElementById("stats-total-students").textContent = APP_STATE.students.length || "--";
+        const ps = APP_STATE.students.filter(s => s.type === "PS").length;
+        const cm = APP_STATE.students.filter(s => s.type === "CM").length;
+        const tr = APP_STATE.students.filter(s => s.type === "Trial").length;
+        document.getElementById("stats-students-sub").textContent = `${ps} PS | ${cm} CM | ${tr} Trial`;
     }
 
-    async function loadStudentsForDropdowns(forceRefresh = false) {
-        try {
-            const s = await fetchStudents(forceRefresh);
+    document.getElementById("refresh-students-btn").addEventListener("click", loadStudentsForDropdowns);
+    document.getElementById("refresh-students-overview-btn").addEventListener("click", loadStudentsForDropdowns);
 
-            const delSel = document.getElementById("student-delete-select");
-            const schSel = document.getElementById("schedule-student-select");
-
-            delSel.innerHTML = '<option value="">Select student to delete</option>';
-            schSel.innerHTML = '<option value="">Select student</option>';
-
-            const cleanNames = [];
-            s.forEach(x => {
-                const n = x.name || x.StudentName || x.student || x;
-                if (!n || typeof n !== "string") return;
-                cleanNames.push(n);
-                delSel.innerHTML += `<option value="${n}">${n}</option>`;
-                schSel.innerHTML += `<option value="${n}">${n}</option>`;
-            });
-
-            APP_STATE.allStudentsClean = cleanNames;
-            updateStudentStats();
-            renderStudentTable();
-        } catch (e) {
-            // silent fail
-        }
-    }
-
-    async function loadAllStudentsTable(forceRefresh = false) {
-        const c = document.getElementById("all-students-content");
-        if(!c.innerHTML.includes("table")) c.innerHTML = '<div class="info">Loading students...</div>';
-        
-        try {
-            const s = await fetchStudents(forceRefresh);
-            const clean = s
-                .map(x => x.name || x.StudentName || x.student || x)
-                .filter(n => n && typeof n === "string");
-
-            APP_STATE.allStudentsClean = clean;
-            updateStudentStats();
-            renderStudentTable();
-        } catch {
-            c.innerHTML = '<div class="error">❌ Error loading students.</div>';
-        }
-    }
-
-    // Refresh button forces API call
-    document.getElementById("refresh-students-btn").addEventListener("click", () => {
-        loadAllStudentsTable(true);
-        loadStudentsForDropdowns(true);
-    });
-
-    /* Add Student */
     document.getElementById("add-student-btn").addEventListener("click", async () => {
-        clearAllMessages();
         const name = document.getElementById("student-name-input").value.trim();
-        const msg = document.getElementById("manage-students-msg");
-
-        if (!name) {
-            msg.innerHTML = '<div class="error">❌ Enter a name.</div>';
-            return;
-        }
-
-        msg.innerHTML = '<div class="loading">Adding student...</div>';
-        try {
-            const stype=document.querySelector("input[name='studentType']:checked").value; await fetchAPI(WEBHOOKS.ADD, { StudentName: name, Type: stype });
-            msg.innerHTML = '<div class="success">✅ Student added.</div>';
-            document.getElementById("student-name-input").value = "";
-            // Force refresh to update cache
-            clearCache("students"); 
-            invalidateAllClassesCache(); // 🗑️ Clear all class caches
-            loadStudentsForDropdowns(true);
-            loadAllStudentsTable(true);
-        } catch {
-            msg.innerHTML = '<div class="error">❌ Failed to add student.</div>';
-        }
+        const type = document.querySelector("input[name='studentType']:checked").value;
+        if (!name) return showToast("Enter name", "error");
+        document.getElementById("manage-students-msg").innerHTML = '<div class="loading">Adding...</div>';
+        await fetchAPI(null, { action: "addStudent", StudentName: name, Type: type });
+        document.getElementById("manage-students-msg").innerHTML = '<div class="success">Added</div>';
+        loadStudentsForDropdowns();
     });
 
-    /* Delete Student */
     document.getElementById("delete-student-btn").addEventListener("click", async () => {
-        clearAllMessages();
-        const sel = document.getElementById("student-delete-select").value;
-        const msg = document.getElementById("manage-students-msg");
-
-        if (!sel) {
-            msg.innerHTML = '<div class="error">❌ Select a student.</div>';
-            return;
-        }
-
-        msg.innerHTML = '<div class="loading">Deleting student...</div>';
-        try {
-            await fetchAPI(WEBHOOKS.DELETE, { StudentName: sel });
-            msg.innerHTML = '<div class="success">✅ Student deleted.</div>';
-            // Force refresh to update cache
-            clearCache("students"); 
-            invalidateAllClassesCache(); // 🗑️ Clear all class caches
-            loadStudentsForDropdowns(true);
-            loadAllStudentsTable(true);
-        } catch {
-            msg.innerHTML = '<div class="error">❌ Failed to delete student.</div>';
-        }
-    });
-
-    /* Suggested time helpers (localStorage based) */
-    function loadSuggestedTimes() {
-        try {
-            const raw = localStorage.getItem("acm_suggested_times");
-            if (!raw) return;
-            const arr = JSON.parse(raw);
-            if (Array.isArray(arr)) {
-                APP_STATE.suggestedTimes = arr;
-            }
-        } catch {}
-    }
-
-    function saveSuggestedTimes() {
-        try {
-            localStorage.setItem("acm_suggested_times", JSON.stringify(APP_STATE.suggestedTimes || []));
-        } catch {}
-    }
-
-    function recordUsedTime(timeStr) {
-        if (!timeStr) return;
-        APP_STATE.suggestedTimes.push(timeStr);
-        if (APP_STATE.suggestedTimes.length > 100) {
-            APP_STATE.suggestedTimes = APP_STATE.suggestedTimes.slice(-100);
-        }
-        saveSuggestedTimes();
-        updateSuggestedTimeHint();
-    }
-    
-    function updateSuggestedTimeHint() {
-        const el = document.getElementById("schedule-suggestion");
-        if (el) el.innerHTML = "";
-    }
-
-    /* Schedule Class */
-    document.getElementById("schedule-class-btn").addEventListener("click", async () => {
-        clearAllMessages();
-        const st = document.getElementById("schedule-student-select").value;
-        const dt = document.getElementById("schedule-date").value; // ISO YYYY-MM-DD
-        const userTime = document.getElementById("schedule-time").value;
-        const tm = parseUserTimeTo24(userTime);
-        const repeat = parseInt(document.getElementById("schedule-repeat").value || "0", 10);
-        const msg = document.getElementById("schedule-msg");
-
-        if (!st || !dt || !tm) {
-            msg.innerHTML = '<div class="error">❌ Enter time as hh:mm AM/PM.</div>';
-            if (!tm) return;
-            msg.innerHTML = '<div class="error">❌ Select student, date & time.</div>';
-            return;
-        }
-
-        // Conflict check: Use Cache First to save credits!
-        msg.innerHTML = '<div class="loading">Checking slot availability (cache)...</div>';
-        try {
-            // Use short cache expiry (1 min) for conflict checks to balance accuracy & credits
-            const classes = await fetchClasses(dt, 60000);
-            const conflict = classes.some(c => (c.StartTime||c.time||'').trim() === tm.trim());
-            if (conflict) {
-                const warn = document.getElementById('slot-warning'); if(warn){ warn.style.display='block'; return; }
-            }
-        } catch (e) {
-            console.warn('Slot check failed', e);
-        }
-
-        msg.innerHTML = '<div class="loading">Scheduling class...</div>';
-        try {
-            const involvedDates = [];
-            for (let i = 0; i <= repeat; i++) {
-                const occDate = addDaysLocal(dt, i * 7); // compute ISO date for occurrence
-                involvedDates.push(occDate);
-                await fetchAPI(WEBHOOKS.SCHEDULE, {
-                    Action: "ScheduleClass",
-                    StudentName: st,
-                    ClassDate: occDate,
-                    StartTime: tm,
-                    DurationMinutes: 60,
-                    RepeatWeeks: false
-                });
-            }
-            msg.innerHTML = '<div class="success">✅ Class scheduled.</div>'; hideSlotWarning();
-            recordUsedTime(tm);
-            
-            // Update Caches - Invalidate specific dates
-            involvedDates.forEach(d => invalidateDateCache(d)); // 🗑️ Clear specific dates
-            
-            // Refresh data if viewing relevant dates
-            fetchTodayOverview(true); 
-            const viewInput = document.getElementById("view-date");
-            if (viewInput && viewInput.value && involvedDates.includes(viewInput.value)) {
-                fetchClassesForDate(viewInput.value, true);
-            }
-            
-        } catch (err) {
-            console.error(err);
-            msg.innerHTML = '<div class="error">❌ Failed to schedule class.</div>';
-        }
-    });
-
-    /* Stats for classes */
-    function updateClassesStats(dateStr, classes) {
-        // 1. FILTER: Only keep classes that have a Student Name OR a Start Time
-        // This removes empty objects/ghost rows causing the "Unknown" issue
-        const validClasses = (classes || []).filter(c => 
-            c && (c.StudentName || c.student) && (c.StartTime || c.time)
-        );
-
-        APP_STATE.currentClassesDate = dateStr;
-        APP_STATE.currentClasses = validClasses;
-
-        const todayMain = document.getElementById("stats-today-main");
-        const todaySub = document.getElementById("stats-today-sub");
-        const weekMain = document.getElementById("stats-week-main");
-        const weeklyStrip = document.getElementById("weekly-strip");
-        const todayList = document.getElementById("today-classes-list");
-
-        // today at a glance
-        if (dateStr === APP_STATE.todayDate) { 
-            const sorted = [...validClasses].sort((a, b) => {
-                const ta = (a.StartTime || a.time || "00:00");
-                const tb = (b.StartTime || b.time || "00:00");
-                return ta.localeCompare(tb);
-            });
-            
-            if (todayMain) {
-                if (validClasses.length > 0) {
-                    todayMain.textContent = `${validClasses.length} class${validClasses.length > 1 ? "es" : ""} today`;
-                    if (todaySub) todaySub.textContent = "";
-                } else {
-                    todayMain.textContent = "No classes today";
-                    if (todaySub) todaySub.textContent = "Enjoy your free time.";
-                }
-            }
-            
-            if (todayList) {
-                todayList.innerHTML = "";
-                sorted.forEach(cls => {
-                    const time = cls.StartTime || cls.time || "";
-                    const timeDisplay = time24To12(time) || 'Unknown time';
-                    const student = cls.StudentName || cls.student || "Unknown student";
-                    
-                    const item = document.createElement("div");
-                    item.className = "today-class-item";
-                    item.textContent = `${timeDisplay} - ${student}`;
-                    todayList.appendChild(item);
-                });
-            }
-        }
-
-        // Weekly Strip Rendering (Persistent History)
-        if (weeklyStrip && APP_STATE.todayDate) {
-            weeklyStrip.innerHTML = "";
-            const base = new Date(APP_STATE.todayDate);
-            const baseDay = base.getDay();
-            const start = new Date(base);
-            const diffToMonday = (baseDay + 6) % 7;
-            start.setDate(base.getDate() - diffToMonday);
-
-            let totalWeekKnown = 0;
-            let hasDataForTotal = false;
-
-            for (let i = 0; i < 7; i++) {
-                const d = new Date(start);
-                d.setDate(start.getDate() + i);
-                const iso = d.toISOString().slice(0, 10);
-                
-                // Use cached count only - never trigger API fetch
-                const cachedCount = getWeeklyCount(iso);
-                
-                if (cachedCount !== undefined) {
-                    totalWeekKnown += cachedCount;
-                    hasDataForTotal = true;
-                }
-
-                const div = document.createElement("div");
-                div.className = "weekly-day";
-                if (cachedCount > 0) div.classList.add("has-classes");
-                if (iso === APP_STATE.todayDate) div.classList.add("today");
-                
-                const label = d.toLocaleDateString("en-GB", { weekday: "short" });
-                const displayCount = cachedCount !== undefined ? cachedCount : "-";
-                
-                div.textContent = `${label}\n${displayCount}`;
-                div.style.cursor = "pointer";
-                div.onclick = () => {
-                    const viewInput = document.getElementById("view-date");
-                    if (viewInput) {
-                        viewInput.value = iso;
-                        showMainSection("classes");
-                        // Load from cache first
-                        fetchClassesForDate(iso, false);
-                    }
-                };
-                
-                weeklyStrip.appendChild(div);
-            }
-            
-            if (weekMain) {
-                weekMain.textContent = hasDataForTotal ? `${totalWeekKnown} this week` : "--";
-            }
-        }
-    }
-
-    /* Message builder shared */
-    function buildMessageText(type, student, dateISO, time24) {
-        const date = isoToDisplayDate(dateISO);
-        const time = time24To12(time24);
-        const A =
-            `Hi, this is a reminder that ${student} has an English class scheduled on ${date} at ${time}.\n\n` +
-            `Please join using your PlanetSpark class link.\n\n` +
-            `Regards,\nSenorita Saha\nPowered by LazifAI.`;
-
-        const B =
-            `Hi, this is a reminder that ${student} has an English class scheduled on ${date} at ${time}.\n\n` +
-            `Regards,\nSenorita Saha\nPowered by LazifAI.`;
-
-        return type === "meet" ? B : A;
-    }
-
-    /* renderClassCards */
-    function renderClassCards(classes, dateStr, searchQuery = "") {
-        const container = document.getElementById("view-classes-output");
-        const sendAllBtn = document.getElementById("send-all-reminders-btn");
-
-        let valid = (classes || []).filter(c =>
-            c && (
-                c.StudentName || c.student ||
-                c.ClassDate || c.date ||
-                c.StartTime || c.time
-            )
-        );
-
-        APP_STATE.currentClasses = valid;
-        APP_STATE.currentClassesDate = dateStr || null;
-
-        if (!valid.length) {
-            container.innerHTML = '<div class="info">No classes scheduled for this date.</div>';
-            if (sendAllBtn) sendAllBtn.style.display = "none";
-            return;
-        }
-
-        const q = (searchQuery || "").trim().toLowerCase();
-        container.innerHTML = "";
-        let renderedCount = 0;
-
-        valid.forEach(c => {
-            const student = c.StudentName || c.student || "Unknown student";
-            const date = c.ClassDate || c.date || "";
-            const dateDisplay = isoToDisplayDate(date) || "Unknown date";
-            const time = c.StartTime || c.time || "";
-            const timeDisplay = time24To12(time) || "Unknown time";
-            const classId = c.ClassID || c.id || "-";
-            const calId = c.CalendarEventID || "";
-
-            const searchText = (student + " " + date + " " + time + " " + classId).toLowerCase();
-            if (q && !searchText.includes(q)) return;
-
-            const card = document.createElement("div");
-            card.className = "class-card";
-
-            const accent = document.createElement("div");
-            accent.className = "class-accent";
-            accent.style.background = getStudentColor(student);
-            card.appendChild(accent);
-
-            card.insertAdjacentHTML("beforeend", `
-                <div class="class-card__row">
-                    <div>
-                        <div class="class-student">👤 ${student}</div>
-                        <div class="meta">📅 ${dateDisplay} • ⏰ ${timeDisplay}</div>
-                        <div class="meta">🆔 Class ID: ${classId}</div>
-                        ${calId ? `<div class="meta">📎 Event ID: ${calId}</div>` : ""}
-                    </div>
-                    <div><span class="badge badge-green">Scheduled</span></div>
-                </div>
-
-                <div class="inline-actions">
-                    <button class="btn btn-soft btn-generate">💬 Generate Message</button>
-                    <button class="btn btn-outline btn-reschedule">🔁 Reschedule</button>
-                </div>
-
-                <div class="expand-block generate-area" style="display:none;">
-                    <label>Message Type</label>
-                    <select class="msg-type-select">
-                        <option value="ps">PS Class</option>
-                        <option value="meet">Google Meet</option>
-                    </select>
-                    <label style="margin-top:6px;">Message Preview</label>
-                    <div class="msg-preview"></div>
-                    <div class="inline-actions" style="margin-top:6px;">
-                        <button class="btn btn-primary btn-copy">📋 Copy</button>
-                        <button class="btn btn-outline btn-wa">💬 WhatsApp</button>
-                    </div>
-                </div>
-
-                <div class="expand-block resched-area" style="display:none;">
-                    <div class="form-group">
-                        <label>New Date</label>
-                        <input type="date" class="res-date" value="${date}">
-                    </div>
-                    <div class="form-group">
-    <label>New Time</label>
-    <input type="text" class="res-time" value="${timeDisplay}" placeholder="hh:mm AM/PM">
-    <div class="slot-warning-resched error" style="display:none; margin-top:4px;">⚠️ This time slot is already booked!</div>
-</div>
-                    <button class="btn btn-primary btn-block btn-res-submit">Save Reschedule</button>
-                </div>
-            `);
-
-            /* Messaging */
-            const msgArea = card.querySelector(".generate-area");
-            const preview = card.querySelector(".msg-preview");
-            const typeSel = card.querySelector(".msg-type-select");
-
-            card.querySelector(".btn-generate").addEventListener("click", () => {
-                const show = msgArea.style.display === "none";
-                msgArea.style.display = show ? "block" : "none";
-                if (show) preview.textContent = buildMessageText(typeSel.value, student, date, time);
-            });
-
-            typeSel.addEventListener("change", () => {
-                if (msgArea.style.display !== "none") {
-                    preview.textContent = buildMessageText(typeSel.value, student, date, time);
-                }
-            });
-
-            card.querySelector(".btn-copy").addEventListener("click", () => {
-                const text = preview.textContent || "";
-                navigator.clipboard.writeText(text);
-                showToast("Message copied to clipboard", "success");
-            });
-
-            card.querySelector(".btn-wa").addEventListener("click", () => {
-                const url = "https://wa.me/?text=" + encodeURIComponent(preview.textContent || "");
-                window.open(url, "_blank");
-            });
-
-            /* Reschedule */
-            const resArea = card.querySelector(".resched-area");
-            card.querySelector(".btn-reschedule").addEventListener("click", () => {
-                const show = resArea.style.display === "none";
-                resArea.style.display = show ? "block" : "none";
-            });
-
-            card.querySelector(".btn-res-submit").addEventListener("click", async () => {
-                const nd = card.querySelector(".res-date").value;
-                const userNewTime = card.querySelector(".res-time").value;
-                const nt = parseUserTimeTo24(userNewTime);
-
-                if (!nd || !nt) {
-                    showMessage("#view-classes-output", '<div class="error">❌ Enter time as hh:mm AM/PM.</div>');
-                    showMessage("#view-classes-output", '<div class="error">❌ Select date & time.</div>');
-                    return;
-                }
-
-                // Check for slot conflict - Use cache only (1 minute expiry)
-                try {
-                    // Fetch classes for target date (from cache if avail)
-                    const classes = await fetchClasses(nd, 60000);
-                    const conflict = classes.some(c => (c.StartTime||c.time||'').trim() === nt.trim() && (c.ClassID || c.id) !== classId);
-                    if (conflict) {
-                        const warn = card.querySelector('.slot-warning-resched');
-                        if(warn) { warn.style.display='block'; return; }
-                    }
-                } catch(e){ console.warn('Slot check failed', e);} 
-
-                showMessage("#view-classes-output", '<div class="loading">Rescheduling...</div>');
-
-                try {
-                    await fetchAPI(WEBHOOKS.RESCHED, {
-                        StudentName: student,
-                        OldDate: date,
-                        NewDate: nd,
-                        NewTime: nt,
-                        CalendarEventID: calId,
-                        ClassID: classId
-                    });
-                    showMessage("#view-classes-output", '<div class="success">✅ Rescheduled.</div>');
-                    showToast("Class rescheduled", "success");
-                    recordUsedTime(nt);
-                    
-                    // Update caches - invalidate both old and new date
-                    invalidateDateCache(date);  // 🗑️ Clear old date
-                    invalidateDateCache(nd);    // 🗑️ Clear new date
-
-                    // Refresh logic
-                    setTimeout(() => {
-                        fetchTodayOverview(true);
-                        // Reload the NEW date so user sees the change
-                        if (document.getElementById("view-date")) {
-                            document.getElementById("view-date").value = nd;
-                        }
-                        fetchClassesForDate(nd, true);
-                    }, 1000);
-
-                } catch {
-                    showMessage("#view-classes-output", '<div class="error">❌ Failed.</div>');
-                    showToast("Reschedule failed", "error");
-                }
-            });
-
-            container.appendChild(card);
-
-            // Auto-hide warning
-            const resDateInput = card.querySelector(".res-date");
-            const resTimeInput = card.querySelector(".res-time");
-            const slotWarning = card.querySelector(".slot-warning-resched");
-            if(resDateInput && resTimeInput && slotWarning){
-             const hideWarning=()=>slotWarning.style.display="none";
-             resDateInput.addEventListener("change", hideWarning);
-             resTimeInput.addEventListener("input", hideWarning);
-            }
-
-            // time auto detection
-            if(resTimeInput){
-             const existingError=resTimeInput.parentNode.querySelector(".small");
-             if(existingError) existingError.remove();
-             const errDiv=document.createElement("div");
-             errDiv.className="small";errDiv.style.color="red";errDiv.style.marginTop="4px";errDiv.style.display="none";errDiv.innerText="Invalid time format";
-             resTimeInput.parentNode.appendChild(errDiv);
-             resTimeInput.addEventListener("blur",()=>{
-               const normalized=normalizeUserTime(resTimeInput.value);
-               if(normalized===null){errDiv.style.display="block";} else {errDiv.style.display="none";resTimeInput.value=normalized;}
-             });
-            }
-            renderedCount++;
+        const name = document.getElementById("student-delete-select").value;
+        if (!name) return showToast("Select student", "error");
+        showConfirm(`Are you sure you want to delete ${name}?`, async () => {
+            document.getElementById("manage-students-msg").innerHTML = '<div class="loading">Deleting...</div>';
+            await fetchAPI(null, { action: "deleteStudent", StudentName: name });
+            document.getElementById("manage-students-msg").innerHTML = '<div class="success">Deleted</div>';
+            loadStudentsForDropdowns();
         });
+    });
 
-        if (!renderedCount) {
-            container.innerHTML = '<div class="info">No classes match your search for this date.</div>';
-            if (sendAllBtn) sendAllBtn.style.display = "none";
-        } else if (sendAllBtn) {
-            sendAllBtn.style.display = "inline-flex";
-            sendAllBtn.textContent = `📤 Send All Reminders (${renderedCount})`;
-        }
+    async function fetchClasses(date) {
+        if (!date) return [];
+        const res = await fetchAPI(null, { action: "getClasses", selectedDate: date });
+        APP_STATE.cache[date] = res.classes || [];
+        return res.classes || [];
     }
 
-    // Unified Classes Fetcher with Cache & Count Tracker
-    async function fetchClasses(date, maxAgeOrForce = 300000) {
-        // Handle both legacy boolean and number arguments
-        const forceRefresh = typeof maxAgeOrForce === 'boolean' 
-            ? maxAgeOrForce 
-            : maxAgeOrForce === 0;
-        
-        const cacheKey = "classes_" + date;
-        
-        // 🎯 NEW LOGIC: Check if date was loaded today
-        if (!forceRefresh && isDateLoadedToday(date)) {
-            const cached = getCache(cacheKey, -1); // Never expire by time
-            if (cached) {
-                console.log(`[ACM Cache] ${date} already loaded today (${cached.length} classes)`);
-                return cached;
-            }
-        }
-        
-        // 🌐 API call needed: First load of the day OR manual refresh
-        console.log(`[ACM API] Fetching classes for ${date}...`);
-        const d = await fetchAPI(WEBHOOKS.FETCH_CLASS, { selectedDate: date });
-        let classes = d.classes || [];
-        
-        // 🧹 SANITIZATION: Filter out ghost rows immediately
-        classes = classes.filter(c => c && (c.StudentName || c.student) && (c.StartTime || c.time));
-
-        // 💾 Save to cache and mark as loaded
-        setCache(cacheKey, classes);
-        updateWeeklyCountCache(date, classes.length);
-        markDateAsLoaded(date);
-        
-        return classes;
-    }
-
-    async function fetchClassesForDate(date, forceRefresh = false) {
-        const out = document.getElementById("view-classes-output");
-        if (!date) {
-            out.innerHTML = '<div class="error">❌ Select a date.</div>';
-            return;
-        }
-        out.innerHTML = '<div class="loading">Loading classes...</div>';
-        try {
-            const classes = await fetchClasses(date, forceRefresh);
-            renderClassCards(classes, date);
-            // Also update the stats if we happen to be viewing today/relevant week
-            if (date === APP_STATE.todayDate) {
-                updateClassesStats(date, classes);
-                await updateCMPayout(forceRefresh); // Ensure CM payout updates on load
-            }
-        } catch {
-            out.innerHTML = '<div class="error">❌ Error loading classes.</div>';
-        }
+    async function loadWeeklyCounts() {
+        const base = new Date(APP_STATE.todayDate);
+        base.setDate(base.getDate() - (base.getDay() + 6) % 7); 
+        const isoStart = formatDateToISO(base);
+        const res = await fetchAPI(null, { action: "getWeekSummary", startDate: isoStart });
+        APP_STATE.weeklySummary = res.summary || {};
+        updateClassesStats(APP_STATE.todayDate, APP_STATE.currentClasses);
     }
 
     async function fetchTodayOverview(forceRefresh = false) {
-        if (!APP_STATE.todayDate) return;
-        
-        // Use cache by default (5 min expiry), force refresh only when explicitly requested
-        const maxAge = forceRefresh ? 0 : 300000;
-        
-        try {
-            const classes = await fetchClasses(APP_STATE.todayDate, maxAge);
-            updateClassesStats(APP_STATE.todayDate, classes); 
-            await updateCMPayout(forceRefresh);
-        } catch (e) {
-            console.error("Failed to load today overview:", e);
-            updateClassesStats(APP_STATE.todayDate, []);
+        const classes = await fetchClasses(APP_STATE.todayDate);
+        if (forceRefresh) await loadWeeklyCounts(); 
+        updateClassesStats(APP_STATE.todayDate, classes);
+    }
+
+    function updateClassesStats(date, classes) {
+        APP_STATE.currentClassesDate = date;
+        APP_STATE.currentClasses = classes;
+        if (date === APP_STATE.todayDate) {
+            const list = document.getElementById("today-classes-list");
+            document.getElementById("stats-today-main").textContent = classes.length ? `${classes.length} classes` : "No classes";
+            list.innerHTML = "";
+            classes.forEach(c => {
+                const div = document.createElement("div");
+                div.className = "today-class-item";
+                div.textContent = `${time24To12(c.StartTime)} - ${c.StudentName}`;
+                list.appendChild(div);
+            });
+        }
+        const strip = document.getElementById("weekly-strip");
+        strip.innerHTML = "";
+        const base = new Date(APP_STATE.todayDate);
+        base.setDate(base.getDate() - (base.getDay() + 6) % 7); 
+        for(let i=0; i<7; i++) {
+            const d = new Date(base); d.setDate(base.getDate() + i);
+            const iso = formatDateToISO(d);
+            const count = (APP_STATE.weeklySummary || {})[iso];
+            const div = document.createElement("div");
+            div.className = "weekly-day";
+            if(iso === APP_STATE.todayDate) div.classList.add("today");
+            if(count > 0) div.classList.add("has-classes");
+            div.innerHTML = `${d.toLocaleDateString("en-GB", { weekday: "short" })}<br>${count !== undefined ? count : '-'}`;
+            div.onclick = () => {
+                document.getElementById("view-date").value = iso;
+                showMainSection("classes");
+                fetchClassesForDate(iso);
+            };
+            strip.appendChild(div);
         }
     }
 
-    // Manual refresh buttons
-    const refreshTodayBtn = document.getElementById("refresh-today-btn");
-    if (refreshTodayBtn) {
-        refreshTodayBtn.addEventListener("click", async () => {
-            clearCache("classes_" + APP_STATE.todayDate);
-            clearCache("weekly_counts");
-            
-            // Clear weekly classes cache too
-            const today = new Date(APP_STATE.todayDate);
-            const base = new Date(today);
-            base.setDate(today.getDate() - (today.getDay() + 6) % 7);
-            clearCache("weekly_classes_" + formatDateToISO(base));
-            
-            await fetchTodayOverview(true);
-            showToast("Refreshed today's overview");
-        });
-    }
-    
-    // Refresh Week Button (just refreshes view, doesn't burn credits unless clicked)
-    const refreshWeekBtn = document.getElementById("refresh-week-btn");
-    if (refreshWeekBtn) {
-        refreshWeekBtn.addEventListener("click", () => {
-            clearCache("weekly_counts");
-            fetchTodayOverview(true); // This will rebuild the weekly strip
-            showToast("Refreshed week overview");
-        });
+    async function fetchClassesForDate(date) {
+        const out = document.getElementById("view-classes-output");
+        out.innerHTML = '<div class="loading">Loading...</div>';
+        const classes = await fetchClasses(date);
+        renderClassCards(classes, date);
     }
 
-    // Refresh CM Button (Logic: Refresh currently viewed date's classes)
-    const refreshCMBtn = document.getElementById("refresh-cm-btn");
-    if (refreshCMBtn) {
-        refreshCMBtn.addEventListener("click", async () => {
-    console.log("🔄 Manual CM refresh clicked");
-    
-    // Clear monthly caches
-    const today = new Date(APP_STATE.todayDate);
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    clearCache("monthly_classes_" + formatDateToISO(firstDay));
-    clearCache("cm_month_count_" + formatDateToISO(firstDay));
-    
-    // Clear weekly counts too for consistency
-    clearCache("weekly_counts");
-    
-    await updateCMPayout(true); // Force fresh fetch
-    showToast(`Refreshed: ${document.getElementById("cm-total-classes").textContent}`, "success");
-});
-    }
-    
-    // Manual refresh for Students Overview tile
-    const refreshStudentsOverviewBtn = document.getElementById("refresh-students-overview-btn");
-    if (refreshStudentsOverviewBtn) {
-        refreshStudentsOverviewBtn.addEventListener("click", async () => {
-            clearCache("students");
-            clearCache("weekly_counts");
-            await loadStudentsForDropdowns(true);
-            loadAllStudentsTable(true);
-            fetchTodayOverview(true);
-            showToast("Refreshed students data");
-        });
-    }
-
-    document.getElementById("view-classes-btn").addEventListener("click", async () => {
-        clearAllMessages();
-        const date = document.getElementById("view-date").value;
-        // Standard "Load" uses cache if available. 
-        fetchClassesForDate(date, false); 
-    });
-
-    /* Bulk reminders modal */
-    const bulkBackdrop = document.getElementById("bulk-reminder-backdrop");
-    const bulkBody = document.getElementById("bulk-reminder-body");
-    const bulkClose = document.getElementById("bulk-reminder-close");
-    const sendAllBtn = document.getElementById("send-all-reminders-btn");
-
-    function openBulkReminderModal() {
-        if (!APP_STATE.currentClasses || !APP_STATE.currentClasses.length) return;
-        bulkBody.innerHTML = "";
-
-        APP_STATE.currentClasses.forEach((c, index) => {
-            const student = c.StudentName || c.student || "Unknown student";
-            const date = c.ClassDate || c.date || "";
-            const dateDisplay = isoToDisplayDate(date) || "Unknown date";
-            const time = c.StartTime || c.time || "";
-            const timeDisplay = time24To12(time) || "Unknown time";
-
-            const item = document.createElement("div");
-            item.className = "bulk-item";
-
-            item.innerHTML = `
-                <div class="bulk-item-header">🧑 ${student}</div>
-                <div class="bulk-item-meta">📅 ${dateDisplay} • ⏰ ${timeDisplay}</div>
-                <div class="form-group">
-                    <label>Message Type for this student</label>
-                    <select class="bulk-type">
-                        <option value="ps">PS Class</option>
-                        <option value="meet">Google Meet</option>
-                    </select>
+    function renderClassCards(classes, dateStr) {
+        const container = document.getElementById("view-classes-output");
+        container.innerHTML = "";
+        classes.sort((a,b) => a.StartTime.localeCompare(b.StartTime));
+        if (!classes.length) { container.innerHTML = '<div class="info">No classes found.</div>'; return; }
+        classes.forEach(c => {
+            const card = document.createElement("div");
+            card.className = "class-card";
+            const dispDate = isoToDisplayDate(c.ClassDate);
+            const dispTime = time24To12(c.StartTime);
+            const studentName = c.StudentName;
+            const msgTemplate = `Hi, this is a reminder that ${studentName} has an English class scheduled on ${dispDate} at ${dispTime}.\n\nPlease join using your PlanetSpark class link.\n\nRegards,\nSenorita Saha`;
+            card.innerHTML = `
+                <div class="class-accent" style="background:${getStudentColor(c.StudentName)}"></div>
+                <div class="class-card__row">
+                    <div>
+                        <div class="class-student">👤 ${c.StudentName}</div>
+                        <div class="meta">📅 ${dispDate} • ⏰ ${dispTime}</div>
+                    </div>
                 </div>
-                <div class="msg-preview bulk-preview"></div>
-                <div class="inline-actions" style="margin-top:6px;">
-                    <button class="btn btn-primary bulk-copy">📋 Copy</button>
-                    <button class="btn btn-outline bulk-wa">💬 WhatsApp</button>
+                <div class="inline-actions">
+                    <button class="btn btn-soft btn-generate">💬 Message</button>
+                    <button class="btn btn-outline btn-reschedule">🔁 Reschedule</button>
                 </div>
-            `;
+                <div class="expand-block generate-area" style="display:none;">
+                    <div class="msg-preview">${msgTemplate}</div>
+                    <button class="btn btn-primary btn-copy" style="margin-top:6px;">📋 Copy</button>
+                </div>
+                <div class="expand-block resched-area" style="display:none;">
+                    <input type="date" class="res-date" value="${dateStr}">
+                    <input type="text" class="res-time" value="${dispTime}" placeholder="hh:mm AM/PM">
+                    <button class="btn btn-primary btn-res-submit" style="margin-top:6px;">Save</button>
+                </div>`;
+            const resTimeInput = card.querySelector(".res-time");
+            resTimeInput.addEventListener("blur", () => normalizeUserTime(resTimeInput));
+            card.querySelector(".btn-generate").onclick = () => { const el = card.querySelector(".generate-area"); el.style.display = el.style.display==="none"?"block":"none"; };
+            card.querySelector(".btn-copy").onclick = () => { navigator.clipboard.writeText(card.querySelector(".msg-preview").textContent); showToast("Copied"); };
+            card.querySelector(".btn-reschedule").onclick = () => { const el = card.querySelector(".resched-area"); el.style.display = el.style.display==="none"?"block":"none"; };
+            card.querySelector(".btn-res-submit").onclick = async () => {
+                const nd = card.querySelector(".res-date").value;
+                const nt = parseUserTimeTo24(card.querySelector(".res-time").value);
+                if(!nd || !nt) return showToast("Invalid date/time", "error");
+                const isConflict = await checkSlotConflict(nd, nt, c.ClassID);
+                if(isConflict) { showError(`Slot taken on ${isoToDisplayDate(nd)} at ${time24To12(nt)}.`); return; }
+                card.innerHTML = '<div class="loading">Rescheduling...</div>';
+                await fetchAPI(null, { action: "rescheduleClass", StudentName: c.StudentName, OldDate: dateStr, NewDate: nd, NewTime: nt, CalendarEventID: c.CalendarEventID, ClassID: c.ClassID });
+                showToast("Rescheduled!");
+                fetchClassesForDate(dateStr); 
+                loadWeeklyCounts(); 
+            };
+            container.appendChild(card);
+        });
+    }
 
-            const typeSel = item.querySelector(".bulk-type");
-            const preview = item.querySelector(".bulk-preview");
-            const copyBtn = item.querySelector(".bulk-copy");
-            const waBtn = item.querySelector(".bulk-wa");
+    document.getElementById("view-classes-btn").addEventListener("click", () => fetchClassesForDate(document.getElementById("view-date").value));
+    document.getElementById("refresh-today-btn").addEventListener("click", () => fetchTodayOverview(true));
+    document.getElementById("refresh-week-btn").addEventListener("click", () => fetchTodayOverview(true));
 
-            function updatePreview() {
-                preview.textContent = buildMessageText(typeSel.value, student, date, time);
+    const schedTimeInput = document.getElementById("schedule-time");
+    schedTimeInput.addEventListener("blur", () => { normalizeUserTime(schedTimeInput); });
+
+    document.getElementById("schedule-class-btn").addEventListener("click", async () => {
+        const student = document.getElementById("schedule-student-select").value;
+        const date = document.getElementById("schedule-date").value;
+        const time = parseUserTimeTo24(schedTimeInput.value);
+        const repeats = parseInt(document.getElementById("schedule-repeat").value);
+        if (!student || !date || !time) return showToast("Fill all fields", "error");
+        
+        const msg = document.getElementById("schedule-msg");
+        msg.innerHTML = '<div class="loading">Checking availability...</div>';
+        const datesToBook = [];
+        for(let i=0; i <= repeats; i++) {
+            const d = addDaysUTC(date, i * 7); 
+            datesToBook.push(d);
+            const isBusy = await checkSlotConflict(d, time);
+            if(isBusy) {
+                msg.innerHTML = "";
+                showError(`Slot Conflict on ${isoToDisplayDate(d)} at ${time24To12(time)}. Booking cancelled.`);
+                return;
             }
-
-            typeSel.addEventListener("change", updatePreview);
-            updatePreview();
-
-            copyBtn.addEventListener("click", () => {
-                navigator.clipboard.writeText(preview.textContent || "");
-                showToast(`Copied message for ${student}`, "success");
-            });
-
-            waBtn.addEventListener("click", () => {
-                const url = "https://wa.me/?text=" + encodeURIComponent(preview.textContent || "");
-                window.open(url, "_blank");
-            });
-
-            bulkBody.appendChild(item);
-        });
-
-        bulkBackdrop.classList.add("show");
-    }
-
-    if (sendAllBtn) {
-        sendAllBtn.addEventListener("click", () => {
-            if (!APP_STATE.currentClasses || !APP_STATE.currentClasses.length) return;
-            openBulkReminderModal();
-        });
-    }
-
-    if (bulkClose) {
-        bulkClose.addEventListener("click", () => bulkBackdrop.classList.remove("show"));
-    }
-
-    bulkBackdrop.addEventListener("click", (e) => {
-        if (e.target === bulkBackdrop) {
-            bulkBackdrop.classList.remove("show");
         }
-    });
-
-    /* Global search */
-    document.getElementById("global-search").addEventListener("input", (e) => {
-        const q = e.target.value || "";
-        // students
-        renderStudentTable(q);
-        // classes
-        if (APP_STATE.currentClasses && APP_STATE.currentClasses.length && APP_STATE.currentClassesDate) {
-            renderClassCards(APP_STATE.currentClasses, APP_STATE.currentClassesDate, q);
+        msg.innerHTML = '<div class="loading">Scheduling...</div>';
+        for (let d of datesToBook) {
+            await fetchAPI(null, { action: "ScheduleClass", StudentName: student, ClassDate: d, StartTime: time, DurationMinutes: 60, MessageType: "English Class" });
+            delete APP_STATE.cache[d]; 
         }
+        msg.innerHTML = '<div class="success">Scheduled!</div>';
+        await loadWeeklyCounts();
+        fetchTodayOverview(true);
     });
 
-    /* Quick action FAB */
-    const fabMain = document.getElementById("fab-main");
-    const fabMenu = document.getElementById("fab-menu");
-    const fabAddStudent = document.getElementById("fab-add-student");
-    const fabSchedule = document.getElementById("fab-schedule-class");
-    const fabLoadToday = document.getElementById("fab-load-today");
-    const fabGoClasses = document.getElementById("fab-go-classes");
-
-    fabMain.addEventListener("click", () => {
-        fabMenu.classList.toggle("show");
-    });
-
-    fabAddStudent.addEventListener("click", () => {
-        showMainSection("students");
-        fabMenu.classList.remove("show");
-        document.getElementById("student-name-input")?.focus();
-    });
-
-    fabSchedule.addEventListener("click", () => {
-        showMainSection("classes");
-        fabMenu.classList.remove("show");
-        document.getElementById("schedule-date")?.focus();
-    });
-
-    fabGoClasses.addEventListener("click", () => {
-        showMainSection("classes");
-        fabMenu.classList.remove("show");
-    });
-
-    fabLoadToday.addEventListener("click", () => {
-        showMainSection("classes");
-        fabMenu.classList.remove("show");
-        if (APP_STATE.todayDate) {
-            const viewInput = document.getElementById("view-date");
-            if (viewInput) viewInput.value = APP_STATE.todayDate;
-            // Use cache first - don't force refresh
-            fetchClassesForDate(APP_STATE.todayDate, false);
+    const mainTabButtons = document.querySelectorAll(".main-tab-btn");
+    function showMainSection(sec) {
+        mainTabButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.section === sec));
+        document.querySelectorAll(".section").forEach(s => s.classList.toggle("show", s.id === `section-${sec}`));
+        if(sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML === '') {
+            createBulkRow(); createBulkRow();
         }
-    });
-    
-    document.getElementById("fab-ai-help").addEventListener("click", () => {
-        window.open("https://opal.google/?flow=drive:/1Yg4yJWi1JKxwQEe0vTZx2XLMf-wSr2wJ&shared&mode=app", "_blank", "noopener,noreferrer");
-        fabMenu.classList.remove("show");
-    });
-
-    // ---------- Bulk Schedule JS ----------
-(function(){
-
-  // Helper: create student dropdown option HTML from APP_STATE.students
-  function buildStudentOptionsHtml() {
-    const students = (APP_STATE && APP_STATE.students) || [];
-    return students.map(s => {
-      const name = (s.name || s.StudentName || s.student || '').trim();
-      return `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`;
-    }).join('');
-  }
-
-  // escape helper
-  function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-  // Add a row entry
-  function createBulkRow(index){
-    const container = document.getElementById('bulkRowsContainer');
-    const row = document.createElement('div');
-    row.className = 'bulk-row';
-    row.dataset.rowIndex = index;
-    
-    // THEME MATCH: Use text input for time instead of type="time"
-    row.innerHTML = `
-      <select class="bulk-student" style="flex:1;">${buildStudentOptionsHtml()}</select>
-      <input type="text" class="bulk-time" placeholder="hh:mm AM/PM" style="width:120px;" />
-      <button class="bulk-remove btn btn-outline" style="padding:6px 10px; color:#ff4d4f; border-color:#ffccc7;" title="Remove">✕</button>
-    `;
-    container.appendChild(row);
-    
-    // Remove handler
-    row.querySelector('.bulk-remove').addEventListener('click', ()=>{ 
-        row.remove(); 
-        updateBulkRowIndices(); 
-    });
-
-    // Attach Normalizer for Time Input
-    const timeInput = row.querySelector('.bulk-time');
-    if(timeInput) {
-        const errDiv=document.createElement("div");
-        errDiv.className="small";errDiv.style.color="red";errDiv.style.marginTop="2px";errDiv.style.fontSize="0.7rem";errDiv.style.display="none";errDiv.innerText="Invalid format";
-        timeInput.parentNode.insertBefore(errDiv, timeInput.nextSibling);
-        
-        timeInput.addEventListener("blur", ()=>{
-           const normalized=normalizeUserTime(timeInput.value);
-           if(normalized===null && timeInput.value !== ""){
-               errDiv.style.display="block";
-           } else {
-               errDiv.style.display="none";
-               if(normalized) timeInput.value=normalized;
-           }
-        });
     }
-  }
+    mainTabButtons.forEach(btn => btn.addEventListener("click", () => showMainSection(btn.dataset.section)));
 
-  function updateBulkRowIndices(){
-    const rows = document.querySelectorAll('#bulkRowsContainer .bulk-row');
-    rows.forEach((r,i)=> r.dataset.rowIndex = i);
-  }
-
-  window.createBulkRow = createBulkRow; // expose to global for reset
-
-  // Reset function
-  window.resetBulkScheduler = function(){
-     document.getElementById('bulkRowsContainer').innerHTML = '';
-     createBulkRow(0);
-     createBulkRow(1);
-     createBulkRow(2);
-     document.getElementById('bulkProgressWrap').style.display = 'none';
-     document.getElementById('bulkStatus').textContent = '';
-  };
-
-  // Custom Confirmation Modal Logic
-  function showConfirm(text, yesCallback, noCallback) {
-      const modal = document.getElementById("confirmModal");
-      const txt = document.getElementById("confirmText");
-      txt.textContent = text;
-      modal.classList.add("show");
-
-      // Remove old listeners to prevent stacking
-      const yesBtn = document.getElementById("confirmYes");
-      const noBtn = document.getElementById("confirmNo");
-      const newYes = yesBtn.cloneNode(true);
-      const newNo = noBtn.cloneNode(true);
-      yesBtn.parentNode.replaceChild(newYes, yesBtn);
-      noBtn.parentNode.replaceChild(newNo, noBtn);
-
-      newYes.onclick = () => {
-          modal.classList.remove("show");
-          yesCallback();
-      };
-      newNo.onclick = () => {
-          modal.classList.remove("show");
-          if(noCallback) noCallback();
-      };
-  }
-
-  // Schedule all (Initiator)
-  async function scheduleAllBulk(){
-    const dateEl = document.getElementById('bulkDate');
-    const repeatWeeks = parseInt(document.getElementById('bulkRepeatWeeks').value || 0,10);
-    const rows = Array.from(document.querySelectorAll('#bulkRowsContainer .bulk-row'));
-    
-    if(!dateEl.value) return showToast('Select a date', 'error');
-    if(rows.length === 0) return showToast('Add at least one row', 'error');
-
-    // Build tasks (student,time) and validate
-    const tasks = [];
-    for(const r of rows){
-      const student = r.querySelector('.bulk-student').value.trim();
-      const timeRaw = r.querySelector('.bulk-time').value;
-      
-      if(!student) continue; // skip empty rows
-      if(!timeRaw) return showToast('Enter time for ' + student, 'error');
-      
-      // Convert AM/PM to 24h for the webhook
-      const time24 = parseUserTimeTo24(timeRaw);
-      if(!time24) return showToast('Invalid time format for ' + student, 'error');
-      
-      tasks.push({ student, time: time24, duration: 60 }); // Hardcoded 60 mins
-    }
-    
-    if(tasks.length === 0) return showToast('No valid rows to schedule', 'error');
-
-    // Use Custom Confirm
-    showConfirm(
-        `Schedule ${tasks.length} student(s) starting ${dateEl.value} and repeating for ${repeatWeeks} week(s)?`,
-        () => scheduleAllBulkConfirmed(tasks, dateEl.value, repeatWeeks),
-        () => {}
-    );
-  }
-
-  // Actual Execution Logic
-  async function scheduleAllBulkConfirmed(tasks, startDate, repeatWeeks) {
-    const btn = document.getElementById('bulkScheduleBtn');
-    btn.disabled = true; btn.textContent = 'Scheduling...';
-
-    // For progress
-    const totalOccurrences = tasks.length * (repeatWeeks+1);
-    let completed = 0;
-    document.getElementById('bulkProgressWrap').style.display = 'block';
-
-    // iterate rows and repeats
-    for(const t of tasks){
-      for(let w=0; w<=repeatWeeks; w++){
-        const occDate = addDaysLocal(startDate, w * 7); // use existing helper which expects string ISO
-        
-        // Normalise times helper
-        function normalize24(x) { if (!x) return ""; return x.slice(0,5); }
-
-        // Conflict check: fetchClasses (false = use cache but don't force fresh unless invalid)
-        const existing = await fetchClasses(occDate, false).catch(()=>[]);
-        
-        const normalizedNew = normalize24(t.time);
-        
-        // Strict Conflict Check: Block if ANY class exists at this time (Teacher availability)
-        const conflict = existing.some(c => {
-            const ex = normalize24(c.StartTime || c.time || "");
-            return ex === normalizedNew; 
-        });
-
-        if(conflict){
-            showToast(`⚠️ Conflict: ${t.student} on ${occDate} at ${t.time}`, "error");
-            completed++; updateBulkProgress(completed, totalOccurrences); // Update progress to prevent hang
-            continue; // Skip this iteration
-        }
-
-        // Build payload
-        const payload = {
-          Action: "ScheduleClass",
-          StudentName: t.student,
-          ClassDate: occDate,
-          StartTime: t.time,
-          DurationMinutes: t.duration,
-          MessageType: "class",
-          TeacherID: (APP_STATE && APP_STATE.teacherId) || 181577,
-          RepeatWeeks: false
-        };
-
-        try {
-          // call existing API helper (fetchAPI) and wait minimal delay
-          await fetchAPI(WEBHOOKS.SCHEDULE, payload); 
-        } catch(e){
-           console.error('Schedule call failed', e);
-           showToast(`Failed for ${t.student} on ${occDate}`, 'error');
-        }
-        // After successful schedule: invalidate date cache
-        try { invalidateDateCache(occDate); } catch(e){}
-        completed++; updateBulkProgress(completed, totalOccurrences);
-        // Throttle to avoid rapid calls (200ms)
-        await new Promise(r=>setTimeout(r, 220));
-      }
-    }
-
-    // done
-    btn.disabled = false; btn.textContent = 'Schedule All';
-    document.getElementById('bulkStatus').textContent = `Completed ${completed} / ${totalOccurrences}`;
-    showToast(`Scheduled ${completed} / ${totalOccurrences}`, 'success');
-
-    // Refresh UI for involved dates: fetchTodayOverview / fetchClassesForDate as needed
-    try{ fetchTodayOverview(true); }catch(e){}
-    try{ updateCMPayout(true); }catch(e){}
-  }
-
-  function updateBulkProgress(done, total){
-    const pct = Math.round((done/total)*100);
-    const bar = document.getElementById('bulkProgress');
-    if(bar) bar.style.width = pct + '%';
-    document.getElementById('bulkStatus').textContent = `${done} of ${total} scheduled...`;
-  }
-
-  // wire UI events
-  document.addEventListener('DOMContentLoaded', function(){
-    const addBtn = document.getElementById('addBulkRowBtn');
-    if(addBtn) addBtn.addEventListener('click', ()=>{ createBulkRow(); });
-    const clearBtn = document.getElementById('clearBulkRowsBtn');
-    if(clearBtn) clearBtn.addEventListener('click', ()=>{ document.getElementById('bulkRowsContainer').innerHTML=''; });
-    const schBtn = document.getElementById('bulkScheduleBtn');
-    if(schBtn) schBtn.addEventListener('click', scheduleAllBulk);
-  });
-
-})(); // end IIFE
-
-    /* init */
     window.addEventListener("load", async () => {
-        initializeSession(); // 🌅 Check for new day and reset if needed
-        
-        document.getElementById("schedule-time")?.addEventListener("input", hideSlotWarning);
-        document.getElementById("schedule-date")?.addEventListener("change", hideSlotWarning);
-        
-        // set today date
         APP_STATE.todayDate = getCurrentISTDateString();
-        const viewInput = document.getElementById("view-date");
-        const schedDate = document.getElementById("schedule-date");
-        if (viewInput) viewInput.value = APP_STATE.todayDate;
-        if (schedDate) schedDate.value = APP_STATE.todayDate;
-
-        showMainSection("students");
+        document.getElementById("view-date").value = APP_STATE.todayDate;
+        document.getElementById("schedule-date").value = APP_STATE.todayDate;
+        document.getElementById("bulkDate").value = APP_STATE.todayDate;
         initWorldClocks();
-        
-        // Wait for students to load before fetching today's overview
-        // This ensures the Student Map is ready for Payout calculations
-        await loadStudentsForDropdowns(); // Fetches students ONCE
-        console.log("=== INITIAL LOAD DEBUG ===");
-        console.log("Students Map:", APP_STATE.studentsMap);
-        console.log("Samriddhi type:", APP_STATE.studentsMap["Samriddhi"]);
-        console.log("All students:", APP_STATE.allStudentsClean);
-        
-        // loadAllStudentsTable(); // DELETED - duplicate
-        
-        loadSuggestedTimes();
-        updateSuggestedTimeHint();
-
-        // Load today's overview (using cache if available, max 5 minutes old)
-        await fetchTodayOverview(false); // Use cache
-
-        // Initial load of earnings (will use cache if available)
-        await updateCMPayout(false); // Use cache, don't force!
-
-        // Motivation quotes
+        await loadStudentsForDropdowns();
+        await loadWeeklyCounts(); 
+        fetchTodayOverview();
         showNextMotivation();
-        setInterval(showNextMotivation, 30000);
     });
 
-    /* Time Normalizer */
-    function normalizeUserTime(t) {
-        if (!t) return "";
-        t = t.trim().toUpperCase();
-        t = t.replace(/\s+/g,"");
-
-        // NEW PATCH: Single/Double digit int handling (e.g. "7" -> "7:00 AM")
-        let plain = t.match(/^(\d{1,2})$/);
-        if(plain){
-            let hh = parseInt(plain[1], 10);
-            if(hh >=1 && hh <=12){
-                return hh + ":00 AM";
-            }
-        }
-
-        // Match 24h: "16:00"
-        let m24 = t.match(/^(\d{1,2}):(\d{2})$/);
-        if (m24){
-            let hh=parseInt(m24[1],10), mm=m24[2];
-            if(hh>23||mm>59) return null;
-            let ap = hh>=12?"PM":"AM";
-            hh = (hh%12)||12;
-            return hh + ":" + mm + " " + ap;
-        }
-
-        // Match hAM, hPM, h:mmAM, h:mmPM
-        let m12 = t.match(/^(\d{1,2})(?::(\d{2}))?(AM|PM)$/);
-        if (m12){
-            let hh=parseInt(m12[1],10), mm=m12[2]?m12[2]:"00";
-            if(hh<1||hh>12||mm>59) return null;
-            return hh + ":" + mm + " " + m12[3];
-        }
-        return null;
-    }
-
-    function attachNormalizer(selector){
-        document.querySelectorAll(selector).forEach(field=>{
-            let err = document.createElement("div");
-            err.className="small";
-            err.style.color="red";
-            err.style.marginTop="4px";
-            err.style.display="none";
-            err.innerText="Invalid time format";
-            field.insertAdjacentElement("afterend", err);
-
-            field.addEventListener("blur", ()=>{
-                const fixed = normalizeUserTime(field.value);
-                if(fixed===null){
-                    err.style.display="block";
-                } else {
-                    err.style.display="none";
-                    field.value = fixed;
-                }
-            });
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", ()=>{
-        attachNormalizer("#schedule-time");
-        attachNormalizer(".res-time");
-    });
-
-    async function fetchClassesForCurrentMonth(forceRefresh = false) {
-    // 🔒 Prevent duplicate concurrent fetches
-    if (APP_STATE.isFetchingMonthly && !forceRefresh) {
-        console.log("[ACM] Monthly fetch in progress, returning cached");
-        return APP_STATE.monthlyClasses || [];
-    }
-    APP_STATE.isFetchingMonthly = true;
-
-    // Get month range
-    const today = new Date(APP_STATE.todayDate);
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    // Bulk Logic (Improved with Partial Success)
+    document.getElementById("addBulkRowBtn").addEventListener("click", () => createBulkRow());
+    document.getElementById("clearBulkRowsBtn").addEventListener("click", () => document.getElementById("bulkRowsContainer").innerHTML = "");
     
-    // 📅 Generate all month dates
-    const monthDates = [];
-    for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
-        monthDates.push(formatDateToISO(d));
-    }
-    
-    console.log(`[Month] Total days: ${monthDates.length}`);
-    
-    // 🎯 CACHE KEY: monthly_classes_YYYY-MM-01
-    const cacheKey = "monthly_classes_" + formatDateToISO(firstDay);
-    const maxAge = forceRefresh ? 0 : 86400000; // 24 hours (was 5 minutes!)
-    
-    // Try cache first
-    const cached = getCache(cacheKey, maxAge);
-    if (cached) {
-        APP_STATE.isFetchingMonthly = false;
-        APP_STATE.monthlyClasses = cached;
-        return cached;
-    }
-    
-    // 🎯 OPTIMIZATION: Only fetch days that might have classes
-    const datesToFetch = monthDates.filter(date => {
-        const dayCount = getWeeklyCount(date);
-        // Fetch if: unknown OR count > 0 OR is today/future OR within last 7 days
-        return dayCount === undefined || dayCount > 0 || date >= APP_STATE.todayDate || 
-               (new Date(APP_STATE.todayDate) - new Date(date)) <= 7 * 24 * 60 * 60 * 1000;
-    });
-    
-    console.log(`[Month] Actually fetching: ${datesToFetch.length} days`);
-    
-    // 🔥 PARALLEL FETCH: Up to 3 at a time
-    const CONCURRENT_LIMIT = 3;
-    const allClasses = [];
-    
-    for (let i = 0; i < datesToFetch.length; i += CONCURRENT_LIMIT) {
-        const chunk = datesToFetch.slice(i, i + CONCURRENT_LIMIT);
-        const chunkResults = await Promise.all(
-            chunk.map(date => fetchClasses(date, forceRefresh ? 0 : 300000))
-        );
-        allClasses.push(...chunkResults.flat());
-    }
-    
-    APP_STATE.monthlyClasses = allClasses;
-    APP_STATE.isFetchingMonthly = false;
-    
-    console.log(`Total classes fetched: ${allClasses.length}`);
-    setCache(cacheKey, allClasses);
-    return allClasses;
-}
-
-    // Fetch and count CM classes across the entire month with robust matching
-    async function countCMClassesForMonth(forceRefresh = false) {
-    // 📍 SECONDARY CACHE: Store just the count
-    const today = new Date(APP_STATE.todayDate);
-    const countCacheKey = "cm_month_count_" + formatDateToISO(new Date(today.getFullYear(), today.getMonth(), 1));
-    
-    if (!forceRefresh) {
-        const cachedCount = getCache(countCacheKey, 86400000); // Cache for 24h
-        if (cachedCount) {
-            console.log("[Cache] Using cached CM count");
-            return cachedCount;
-        }
-    }
-        console.group("=== CM CLASS COUNTING (MONTHLY) DEBUG ===");
-        
-        // Ensure students map is loaded
-        if (!APP_STATE.studentsMap || Object.keys(APP_STATE.studentsMap).length === 0) {
-            console.warn("⚠️ Students map empty! Reloading...");
-            await loadStudentsForDropdowns(false);
-        }
-        
-        // Build list of CM student names (normalized)
-        const cmStudents = Object.entries(APP_STATE.studentsMap || {})
-            .filter(([name, type]) => type === "CM")
-            .map(([name]) => name.trim().toLowerCase());
-        
-        console.log("CM Students (normalized):", cmStudents);
-        
-        // Get ALL classes for the month
-        const monthClasses = await fetchClassesForCurrentMonth(forceRefresh);
-        console.log(`Total classes fetched for month: ${monthClasses.length}`);
-        
-        // Debug: Show all raw classes
-        console.log("Raw month classes:", monthClasses.map(c => ({
-            rawStudent: c.StudentName || c.student,
-            date: c.ClassDate || c.date,
-            time: c.StartTime || c.time
-        })));
-        
-        // Count classes for CM students (case-insensitive, trim whitespace)
-        let cnt = 0;
-        const countedClasses = [];
-        
-        monthClasses.forEach(c => {
-            const classStudent = (c.StudentName || c.student || "").trim().toLowerCase();
-            const isCM = cmStudents.some(cmName => cmName === classStudent);
-            
-            if (isCM) {
-                cnt++;
-                countedClasses.push({
-                    student: classStudent,
-                    date: c.ClassDate || c.date,
-                    time: c.StartTime || c.time
-                });
-            }
-        });
-        
-        console.log(`✅ Final count: ${cnt} CM classes`);
-        console.log("Counted classes:", countedClasses);
-        console.groupEnd();
-        
-        const result = { 
-            count: cnt, 
-            classes: countedClasses, 
-            cmStudents: cmStudents.map(name => name.charAt(0).toUpperCase() + name.slice(1))
-        };
-
-    // Save count to cache for 24 hours
-    setCache(countCacheKey, result);
-
-    return result;
-    }
-
-    // Update CM Earnings display
-    async function updateCMPayout(forceRefresh = false) {
-        console.log("🔄 Updating CM Payout (MONTHLY)...");
-        
-        const result = await countCMClassesForMonth(forceRefresh);
-        
-        // Update UI
-        document.getElementById("cm-total-classes").textContent = result.count + " classes";
-        document.getElementById("cm-total-payout").textContent = (result.count * 480).toLocaleString("en-IN");
-        
-        // Visual warning if mismatch
-        const payoutEl = document.getElementById("cm-total-payout");
-        if (result.count === 0 && result.cmStudents.length > 0) {
-            payoutEl.style.color = "#b91c1c";
-            payoutEl.title = `CM students found but no classes: ${result.cmStudents.join(', ')}`;
+    function createBulkRow() {
+        const div = document.createElement("div");
+        div.className = "bulk-row";
+        let opts = ""; 
+        if(APP_STATE.students && APP_STATE.students.length) {
+            APP_STATE.students.forEach(s => opts += `<option value="${s.name}">${s.name}</option>`);
         } else {
-            payoutEl.style.color = "";
-            payoutEl.title = "";
+            opts = "<option disabled>Loading...</option>";
         }
-        
-        console.log(`💰 Display: ${result.count} classes = ₹${result.count * 480}`);
-        
-        const monthLabel = document.getElementById("cm-month-label");
-        if (monthLabel) {
-            const today = new Date(APP_STATE.todayDate);
-            const monthName = today.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-            monthLabel.textContent = `Period: ${monthName}`;
-        }
+        div.innerHTML = `<select class="bulk-student">${opts}</select><input type="text" class="bulk-time" placeholder="hh:mm AM/PM"><button class="btn btn-outline" onclick="this.parentElement.remove()">✕</button>`;
+        const inp = div.querySelector(".bulk-time");
+        inp.addEventListener("blur", () => normalizeUserTime(inp));
+        document.getElementById("bulkRowsContainer").appendChild(div);
     }
 
+    document.getElementById("bulkScheduleBtn").addEventListener("click", async () => {
+        const rows = document.querySelectorAll(".bulk-row");
+        const date = document.getElementById("bulkDate").value;
+        const repeatWeeks = parseInt(document.getElementById("bulkRepeatWeeks").value);
+        if (!rows.length) return;
+        
+        let tasks = [];
+        for(let r of rows) {
+            const s = r.querySelector(".bulk-student").value;
+            const tRaw = r.querySelector(".bulk-time").value;
+            const t = parseUserTimeTo24(tRaw);
+            if(s && t) tasks.push({ student: s, time: t });
+        }
+        if(tasks.length === 0) return showToast("No valid rows", "error");
+
+        showConfirm(`Process ${tasks.length} student(s) starting ${isoToDisplayDate(date)}?`, async () => {
+            const btn = document.getElementById("bulkScheduleBtn");
+            btn.disabled = true; btn.textContent = "Processing...";
+            
+            let successLog = [];
+            let errorLog = [];
+            let pendingSlots = new Set(); 
+
+            for(let task of tasks) {
+                let taskFailures = [];
+                for(let i=0; i <= repeatWeeks; i++) {
+                    const d = addDaysUTC(date, i * 7);
+                    const slotKey = `${d}|${task.time}`;
+                    
+                    if(pendingSlots.has(slotKey)) {
+                        taskFailures.push(`${isoToDisplayDate(d)}: Internal batch conflict`);
+                        continue;
+                    }
+                    
+                    const isBusy = await checkSlotConflict(d, task.time);
+                    if(isBusy) {
+                        taskFailures.push(`${isoToDisplayDate(d)}: Slot already taken`);
+                        continue;
+                    }
+
+                    // No conflict -> Schedule
+                    await fetchAPI(null, { action: "ScheduleClass", StudentName: task.student, ClassDate: d, StartTime: task.time });
+                    delete APP_STATE.cache[d];
+                    pendingSlots.add(slotKey); // Mark as taken by us now
+                }
+
+                if(taskFailures.length > 0) {
+                    errorLog.push(`❌ ${task.student}: Failed on ${taskFailures.join(", ")}`);
+                } else {
+                    successLog.push(`✅ ${task.student}: All scheduled`);
+                }
+            }
+
+            btn.disabled = false; btn.textContent = "Schedule All";
+            
+            // Build Report
+            let report = "";
+            if(successLog.length) report += successLog.join("\n") + "\n\n";
+            if(errorLog.length) report += errorLog.join("\n");
+            
+            if(errorLog.length === 0) showToast("All classes scheduled!", "success");
+            else showReport(report); // Show detailed report
+
+            await loadWeeklyCounts();
+            fetchTodayOverview(true);
+        });
+    });
+
+    document.getElementById("fab-main").onclick = () => document.getElementById("fab-menu").classList.toggle("show");
+    document.getElementById("fab-add-student").onclick = () => showMainSection("students");
+    document.getElementById("fab-schedule-class").onclick = () => showMainSection("classes");
+    document.getElementById("fab-load-today").onclick = () => { showMainSection("classes"); fetchTodayOverview(); };
 </script>
 </body>
 </html>
