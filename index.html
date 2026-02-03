@@ -180,7 +180,8 @@
         .main-panel { flex:3; }
         .side-panel { flex:1; background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:12px; min-width:220px; }
         @media (max-width: 768px) { .layout-with-sidebar { flex-direction:column; } .side-panel { width:100%; } }
-        .slot-title { font-weight:600; font-size:0.9rem; margin-bottom:8px; border-bottom:2px solid #e0e7ff; padding-bottom:4px; }
+        .slot-title { font-weight:700; font-size:0.9rem; color:#111827; margin-bottom:8px; border-bottom:2px solid #e0e7ff; padding-bottom:4px; }
+        .slot-subtitle { font-size:0.75rem; color:#6b7280; margin-bottom:8px; display:block; }
         .free-slot-item { font-size:0.8rem; background:#ecfdf5; color:#047857; padding:4px 8px; border-radius:6px; margin-bottom:6px; border:1px solid #d1fae5; }
     </style>
 </head>
@@ -214,7 +215,7 @@
                         <option value="America/Los_Angeles">Los Angeles (PST)</option>
                     </optgroup>
                 </select>
-                <input type="text" id="conv-student-time" class="conv-input" placeholder="7 PM">
+                <input type="text" id="conv-student-time" class="conv-input" placeholder="hh:mm AM/PM">
                 <div class="conv-arrow">➜</div>
                 <div id="conv-result-ist" class="conv-result-pill">--:-- IST</div>
             </div>
@@ -355,8 +356,9 @@
             <div class="layout-with-sidebar" style="margin-top:10px;">
                 <div id="view-classes-output" class="classes-list main-panel"></div>
                 <div id="free-slots-panel" class="side-panel">
-                    <div class="slot-title">Free Slots (9:00 AM to 9:00 PM IST)</div>
-                    <div id="free-slots-list"></div>
+                    <div class="slot-title">Free Slots Today</div>
+                    <span class="slot-subtitle">Working Hours: 09:00 AM - 09:00 PM</span>
+                    <div id="free-slots-list" style="margin-top:8px;"></div>
                 </div>
             </div>
         </div>
@@ -390,7 +392,7 @@
     <footer class="footer">
         <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
-        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v29 GAS — Updated: 2025-Phase4-Final-Polish</div>
+        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v30 GAS — Updated: 2025-Phase5-Final-NoShow</div>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>
@@ -1006,6 +1008,7 @@
                     <select class="status-select" onchange="updatePendingStatus('${p.ClassID}', this.value, this)">
                         <option value="" disabled selected>Action</option>
                         <option value="Completed">✅ Completed</option>
+                        <option value="Student No Show">⚠️ Student No Show</option>
                         <option value="Cancelled">❌ Cancelled</option>
                         <option value="Paused">⏸ Paused</option>
                     </select>
@@ -1124,7 +1127,14 @@
             let statusHtml = "";
             if (isCM) {
                 const status = (c.Status || "Scheduled");
-                statusHtml = `<div><select class="status-select" data-id="${c.ClassID}"><option value="Scheduled" ${status === 'Scheduled' ? 'selected' : ''}>Scheduled</option><option value="Completed" ${status === 'Completed' ? 'selected' : ''}>✅ Completed</option><option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option><option value="Paused" ${status === 'Paused' ? 'selected' : ''}>⏸ Paused</option><option value="Rescheduled" ${status === 'Rescheduled' ? 'selected' : ''}>🔁 Rescheduled</option></select></div>`;
+                statusHtml = `<div><select class="status-select" data-id="${c.ClassID}">
+                    <option value="Scheduled" ${status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+                    <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+                    <option value="Student No Show" ${status === 'Student No Show' ? 'selected' : ''}>⚠️ Student No Show</option>
+                    <option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+                    <option value="Paused" ${status === 'Paused' ? 'selected' : ''}>⏸ Paused</option>
+                    <option value="Rescheduled" ${status === 'Rescheduled' ? 'selected' : ''}>🔁 Rescheduled</option>
+                </select></div>`;
             }
 
             card.innerHTML = `
