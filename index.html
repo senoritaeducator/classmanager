@@ -365,7 +365,7 @@
     <footer class="footer">
         <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
-        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v21 GAS — Updated: 2025-Phase3-Final-V2</div>
+        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v23 GAS — Updated: 2025-Phase3-Final-V4</div>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>
@@ -384,7 +384,7 @@
     </div>
 
     <div id="errorModal" class="modal-backdrop">
-      <div class="modal" style="max-width:400px; border-left: 5px solid #ef4444;">
+      <div class="modal" style="max-width:400px;">
         <div class="modal-body" style="padding:20px;">
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                 <div style="font-size:1.5rem;">⚠️</div>
@@ -409,6 +409,33 @@
           </div>
         </div>
       </div>
+
+    <div id="shiftModal" class="modal-backdrop">
+        <div class="modal" style="max-width:400px;">
+            <div class="modal-header">
+                <div class="modal-title">Bulk Shift Timings</div>
+                <button id="shiftModalClose" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
+            </div>
+            <div class="modal-body" style="padding:16px;">
+                <div style="margin-bottom:12px; font-weight:600;" id="shiftStudentNameDisplay"></div>
+                <div class="form-group">
+                    <label>Find all future classes at:</label>
+                    <input type="text" id="shiftOldTime" class="shift-time-input" placeholder="hh:mm AM/PM">
+                </div>
+                <div class="form-group">
+                    <label>Shift them to:</label>
+                    <input type="text" id="shiftNewTime" class="shift-time-input" placeholder="hh:mm AM/PM">
+                </div>
+                <div class="form-group">
+                    <label>Starting from:</label>
+                    <input type="date" id="shiftStartDate">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="shiftSaveBtn" class="btn btn-primary">Shift All</button>
+            </div>
+        </div>
+    </div>
 
     <div id="editStudentModal" class="modal-backdrop">
         <div class="modal" style="max-width:400px;">
@@ -676,10 +703,11 @@
             }
             let html = "";
             list.forEach(s => {
-                const action = type === "Trial" 
-                    ? `<button class="btn btn-soft" style="padding:2px 8px; font-size:0.7rem;" onclick="openEditStudent('${s.name}', '${s.type}')">✎ Edit</button>` 
-                    : "";
-                html += `<div class="student-item-row"><span>${s.name}</span>${action}</div>`;
+                let btns = `<button class="btn btn-outline" style="padding:2px 6px; font-size:0.7rem;" onclick="openShiftModal('${s.name}')">🔁 Shift</button>`;
+                if (type === "Trial") {
+                    btns += `<button class="btn btn-soft" style="padding:2px 6px; font-size:0.7rem; margin-left:4px;" onclick="openEditStudent('${s.name}', '${s.type}')">✎ Edit</button>`;
+                }
+                html += `<div class="student-item-row"><span>${s.name}</span><div>${btns}</div></div>`;
             });
             el.innerHTML = html;
         };
@@ -687,6 +715,44 @@
         fillCol("list-ps", buckets["PS"], "PS");
         fillCol("list-cm", buckets["CM"], "CM");
     }
+
+    /* Shift Logic */
+    window.openShiftModal = function(name) {
+        document.getElementById("shiftStudentNameDisplay").textContent = "Shifting: " + name;
+        document.getElementById("shiftStartDate").value = APP_STATE.todayDate;
+        document.getElementById("shiftModal").classList.add("show");
+        
+        document.getElementById("shiftSaveBtn").onclick = async () => {
+            const oldT = parseUserTimeTo24(document.getElementById("shiftOldTime").value);
+            const newT = parseUserTimeTo24(document.getElementById("shiftNewTime").value);
+            const sDate = document.getElementById("shiftStartDate").value;
+            if(!oldT || !newT || !sDate) return showToast("Invalid inputs", "error");
+            
+            const btn = document.getElementById("shiftSaveBtn");
+            btn.textContent = "Processing...";
+            btn.disabled = true;
+            
+            const res = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: name, OldTime: oldT, NewTime: newT, StartDate: sDate });
+            document.getElementById("shiftModal").classList.remove("show");
+            showToast(`Shifted ${res.count} future classes!`, "success");
+            btn.textContent = "Shift All";
+            btn.disabled = false;
+            fetchTodayOverview(true);
+        };
+    };
+    
+    // Auto-Format Shift Inputs Explicitly
+    document.getElementById("shiftModal").addEventListener('shown', () => { 
+       // Logic to ensure binding if modal dynamic, but elements are static
+    });
+    // Bind once on load
+    const shiftOld = document.getElementById("shiftOldTime");
+    const shiftNew = document.getElementById("shiftNewTime");
+    if(shiftOld) shiftOld.addEventListener("blur", () => normalizeUserTime(shiftOld));
+    if(shiftNew) shiftNew.addEventListener("blur", () => normalizeUserTime(shiftNew));
+    
+    document.getElementById("shiftModalClose").onclick = () => document.getElementById("shiftModal").classList.remove("show");
+
 
     window.openEditStudent = function(name, type) {
         document.getElementById("editStudentNameDisplay").textContent = "Editing: " + name;
@@ -703,7 +769,6 @@
             loadStudentsForDropdowns();
         };
     };
-    
     document.getElementById("editStudentClose").onclick = () => document.getElementById("editStudentModal").classList.remove("show");
 
     function updateStudentStats() {
@@ -749,7 +814,6 @@
     }
     document.getElementById("refresh-earnings-btn").addEventListener("click", loadEarnings);
 
-    // Pending Reviews Modal Logic (UPDATED)
     document.getElementById("btn-review-pending").addEventListener("click", async () => {
         const listEl = document.getElementById("pendingReviewList");
         listEl.innerHTML = '<div style="padding:20px;text-align:center;">Loading...</div>';
@@ -790,9 +854,7 @@
         selectEl.disabled = true;
         await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status });
         row.remove();
-        loadEarnings(); // Refresh calc
-        
-        // If list empty, show message
+        loadEarnings(); 
         if(document.getElementById("pendingReviewList").children.length === 0) {
              document.getElementById("pendingReviewList").innerHTML = '<div style="padding:20px;text-align:center;color:#6b7280;">All cleared!</div>';
         }
@@ -878,7 +940,7 @@
             const dispDate = isoToDisplayDate(c.ClassDate);
             const dispTime = time24To12(c.StartTime);
             const studentName = c.StudentName;
-            const msgTemplate = `Hi, this is a reminder that ${studentName} has an English class scheduled on ${dispDate} at ${dispTime}.\n\nPlease join using your PlanetSpark class link.\n\nRegards,\nSenorita Saha`;
+            const msgTemplate = `Hi, this is a reminder that ${studentName} has an English class scheduled on ${dispDate} at ${dispTime}.\n\nPlease join using your PlanetSpark class link.\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
             
             // Status Logic
             const studentObj = APP_STATE.students.find(s => s.name === c.StudentName);
