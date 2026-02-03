@@ -168,6 +168,12 @@
         .pending-info strong { display: block; color: #111827; }
         .pending-info span { color: #6b7280; font-size: 0.75rem; }
         .pending-actions { display: flex; gap: 6px; }
+        
+        /* History Modal Table */
+        .history-summary { display: flex; justify-content: space-between; background: #f3f4f6; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-weight: 600; }
+        .history-table { width: 100%; font-size: 0.85rem; border-collapse: collapse; }
+        .history-table th { text-align: left; padding: 6px; border-bottom: 1px solid #e5e7eb; color: #6b7280; }
+        .history-table td { padding: 6px; border-bottom: 1px solid #f3f4f6; }
     </style>
 </head>
 <body>
@@ -287,7 +293,10 @@
                     <div class="overview-title">Financials (CM)<button type="button" class="overview-refresh-btn" id="refresh-earnings-btn" title="Refresh Earnings">⟳</button></div>
                     <div class="overview-main" id="stats-earnings-main" style="color:#10b981;">₹0</div>
                     <div class="overview-sub" id="stats-earnings-sub">0 completed classes this month</div>
-                    <button id="btn-review-pending" class="btn btn-soft" style="margin-top:8px; width:100%; font-size:0.75rem;">📝 Review Pending</button>
+                    <div style="display:flex; gap:4px; margin-top:8px;">
+                        <button id="btn-review-pending" class="btn btn-soft" style="flex:1; font-size:0.75rem;">📝 Review</button>
+                        <button id="btn-history" class="btn btn-outline" style="flex:1; font-size:0.75rem;">📜 History</button>
+                    </div>
                 </div>
 
                 <div class="overview-tile">
@@ -365,7 +374,7 @@
     <footer class="footer">
         <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
-        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v23 GAS — Updated: 2025-Phase3-Final-V4</div>
+        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v25 GAS — Updated: 2025-Phase4-Final-Message</div>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>
@@ -401,7 +410,7 @@
     <div id="reportModal" class="modal-backdrop">
         <div class="modal" style="max-width:400px;">
           <div class="modal-body" style="padding:20px;">
-              <div style="font-weight:700; font-size:1.1rem; color:#111827; margin-bottom:10px;">Bulk Schedule Report</div>
+              <div style="font-weight:700; font-size:1.1rem; color:#111827; margin-bottom:10px;">Report</div>
               <p id="reportText" style="color:#374151; font-size:0.9rem; line-height:1.5; white-space: pre-wrap; max-height:200px; overflow-y:auto;"></p>
               <div style="display:flex; justify-content:flex-end; margin-top:20px;">
                   <button id="reportOk" class="btn btn-primary">Close</button>
@@ -471,6 +480,57 @@
             </div>
             <div class="modal-footer" style="padding:12px;">
                 <div style="font-size:0.75rem; color:#6b7280; width:100%; text-align:center;">Select status to clear from list</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal-backdrop">
+        <div class="modal" style="max-width:400px;">
+            <div class="modal-header">
+                <div class="modal-title">History & Reports</div>
+                <button id="historyClose" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
+            </div>
+            <div class="modal-body" style="padding:16px;">
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <select id="historyMonth" style="flex:1;">
+                        <option value="0">January</option>
+                        <option value="1">February</option>
+                        <option value="2">March</option>
+                        <option value="3">April</option>
+                        <option value="4">May</option>
+                        <option value="5">June</option>
+                        <option value="6">July</option>
+                        <option value="7">August</option>
+                        <option value="8">September</option>
+                        <option value="9">October</option>
+                        <option value="10">November</option>
+                        <option value="11">December</option>
+                    </select>
+                    <select id="historyYear" style="width:80px;">
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                    </select>
+                </div>
+                <button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button>
+                
+                <div id="historyResult" style="display:none; margin-top:15px;">
+                    <div class="history-summary">
+                        <div>
+                            <div style="font-size:0.75rem; color:#6b7280;">Total Classes</div>
+                            <div id="histTotalClasses" style="font-size:1.1rem; color:#1f2937;">0</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:0.75rem; color:#6b7280;">CM Earnings</div>
+                            <div id="histEarnings" style="font-size:1.1rem; color:#10b981;">₹0</div>
+                        </div>
+                    </div>
+                    <div style="max-height:200px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:8px;">
+                        <table class="history-table">
+                            <thead><tr><th>Student</th><th>Classes</th></tr></thead>
+                            <tbody id="histTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -742,16 +802,58 @@
     };
     
     // Auto-Format Shift Inputs Explicitly
-    document.getElementById("shiftModal").addEventListener('shown', () => { 
-       // Logic to ensure binding if modal dynamic, but elements are static
-    });
-    // Bind once on load
     const shiftOld = document.getElementById("shiftOldTime");
     const shiftNew = document.getElementById("shiftNewTime");
     if(shiftOld) shiftOld.addEventListener("blur", () => normalizeUserTime(shiftOld));
     if(shiftNew) shiftNew.addEventListener("blur", () => normalizeUserTime(shiftNew));
     
     document.getElementById("shiftModalClose").onclick = () => document.getElementById("shiftModal").classList.remove("show");
+
+    /* HISTORY LOGIC */
+    document.getElementById("btn-history").addEventListener("click", () => {
+        document.getElementById("historyModal").classList.add("show");
+        document.getElementById("historyResult").style.display = "none";
+        document.getElementById("historyGenBtn").disabled = false;
+        document.getElementById("historyGenBtn").textContent = "Generate Report";
+        const now = new Date();
+        document.getElementById("historyMonth").value = now.getMonth();
+        document.getElementById("historyYear").value = now.getFullYear();
+    });
+    
+    document.getElementById("historyClose").onclick = () => document.getElementById("historyModal").classList.remove("show");
+    
+    document.getElementById("historyGenBtn").onclick = async () => {
+        const m = document.getElementById("historyMonth").value;
+        const y = document.getElementById("historyYear").value;
+        const btn = document.getElementById("historyGenBtn");
+        
+        btn.disabled = true;
+        btn.textContent = "Fetching...";
+        
+        try {
+            const res = await fetchAPI(null, { action: "getHistoryReport", month: m, year: y });
+            document.getElementById("histTotalClasses").textContent = res.totalClasses;
+            document.getElementById("histEarnings").textContent = "₹" + (res.earnings || 0).toLocaleString('en-IN');
+            
+            const tbody = document.getElementById("histTableBody");
+            tbody.innerHTML = "";
+            const sorted = Object.entries(res.breakdown || {}).sort((a,b) => b[1] - a[1]);
+            
+            if(sorted.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No classes found.</td></tr>";
+            } else {
+                sorted.forEach(([name, count]) => {
+                    tbody.innerHTML += `<tr><td>${name}</td><td>${count}</td></tr>`;
+                });
+            }
+            document.getElementById("historyResult").style.display = "block";
+        } catch(e) {
+            showToast("Failed to fetch report", "error");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Generate Report";
+        }
+    };
 
 
     window.openEditStudent = function(name, type) {
@@ -940,11 +1042,18 @@
             const dispDate = isoToDisplayDate(c.ClassDate);
             const dispTime = time24To12(c.StartTime);
             const studentName = c.StudentName;
-            const msgTemplate = `Hi, this is a reminder that ${studentName} has an English class scheduled on ${dispDate} at ${dispTime}.\n\nPlease join using your PlanetSpark class link.\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
             
             // Status Logic
             const studentObj = APP_STATE.students.find(s => s.name === c.StudentName);
             const isCM = studentObj && studentObj.type === "CM";
+
+            let msgTemplate = `Hi, this is a reminder that ${studentName} has an English class scheduled on ${dispDate} at ${dispTime}.`;
+            
+            if (!isCM) {
+                 msgTemplate += `\n\nPlease join using your PlanetSpark class link.`;
+            }
+            
+            msgTemplate += `\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
             
             let statusHtml = "";
             if (isCM) {
