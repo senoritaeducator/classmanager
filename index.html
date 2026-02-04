@@ -371,7 +371,7 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.5; margin-top:4px;">v34 PRO</div>
+        <div id="acm-version-info" style="opacity:0.5; margin-top:4px;">v35 PRO</div>
     </footer>
 
     <div class="fab-container">
@@ -502,7 +502,9 @@
     /* --- LOGIC --- */
     async function loadStudents() {
         const r = await fetchAPI(null, { action: "getAllStudents" });
-        APP_STATE.students = r.students || [];
+        // SORTING LOGIC ADDED HERE:
+        APP_STATE.students = (r.students || []).sort((a, b) => a.name.localeCompare(b.name));
+        
         const delSel = document.getElementById("student-delete-select");
         const schSel = document.getElementById("schedule-student-select");
         delSel.innerHTML = '<option value="">Select student...</option>';
