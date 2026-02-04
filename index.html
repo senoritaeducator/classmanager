@@ -215,7 +215,7 @@
                         <option value="America/Los_Angeles">Los Angeles (PST)</option>
                     </optgroup>
                 </select>
-                <input type="text" id="conv-student-time" class="conv-input" placeholder="hh:mm AM/PM">
+                <input type="text" id="conv-student-time" class="conv-input" placeholder="7 PM">
                 <div class="conv-arrow">➜</div>
                 <div id="conv-result-ist" class="conv-result-pill">--:-- IST</div>
             </div>
@@ -392,7 +392,7 @@
     <footer class="footer">
         <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
         <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
-        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v30 GAS — Updated: 2025-Phase5-Final-NoShow</div>
+        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v31 GAS — Updated: 2025-Phase5-Final-Universal</div>
     </footer>
 
     <div id="toast-container" class="toast-container"></div>
@@ -1008,7 +1008,6 @@
                     <select class="status-select" onchange="updatePendingStatus('${p.ClassID}', this.value, this)">
                         <option value="" disabled selected>Action</option>
                         <option value="Completed">✅ Completed</option>
-                        <option value="Student No Show">⚠️ Student No Show</option>
                         <option value="Cancelled">❌ Cancelled</option>
                         <option value="Paused">⏸ Paused</option>
                     </select>
@@ -1124,18 +1123,14 @@
             if (!isCM) { msgTemplate += `\n\nPlease join using your PlanetSpark class link.`; }
             msgTemplate += `\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
             
-            let statusHtml = "";
-            if (isCM) {
-                const status = (c.Status || "Scheduled");
-                statusHtml = `<div><select class="status-select" data-id="${c.ClassID}">
-                    <option value="Scheduled" ${status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
-                    <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
-                    <option value="Student No Show" ${status === 'Student No Show' ? 'selected' : ''}>⚠️ Student No Show</option>
-                    <option value="Cancelled" ${status === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option>
-                    <option value="Paused" ${status === 'Paused' ? 'selected' : ''}>⏸ Paused</option>
-                    <option value="Rescheduled" ${status === 'Rescheduled' ? 'selected' : ''}>🔁 Rescheduled</option>
-                </select></div>`;
-            }
+            let statusHtml = `<div><select class="status-select" data-id="${c.ClassID}">
+                <option value="Scheduled" ${c.Status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+                <option value="Completed" ${c.Status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+                <option value="Student No Show" ${c.Status === 'Student No Show' ? 'selected' : ''}>⚠️ Student No Show</option>
+                <option value="Cancelled" ${c.Status === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+                <option value="Paused" ${c.Status === 'Paused' ? 'selected' : ''}>⏸ Paused</option>
+                <option value="Rescheduled" ${c.Status === 'Rescheduled' ? 'selected' : ''}>🔁 Rescheduled</option>
+            </select></div>`;
 
             card.innerHTML = `
                 <div class="class-accent" style="background:${getStudentColor(c.StudentName)}"></div>
@@ -1144,17 +1139,15 @@
                 <div class="expand-block generate-area" style="display:none;"><div class="msg-preview">${msgTemplate}</div><button class="btn btn-primary btn-copy" style="margin-top:6px;">📋 Copy</button></div>
                 <div class="expand-block resched-area" style="display:none;"><input type="date" class="res-date" value="${dateStr}"><input type="text" class="res-time" value="${dispTime}" placeholder="hh:mm AM/PM"><button class="btn btn-primary btn-res-submit" style="margin-top:6px;">Save</button></div>`;
             
-            if (isCM) {
-                const sel = card.querySelector(".status-select");
-                sel.addEventListener("change", async () => {
-                    const newStatus = sel.value;
-                    sel.disabled = true; 
-                    await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: newStatus });
-                    sel.disabled = false;
-                    showToast(`Marked as ${newStatus}`);
-                    loadEarnings(); loadWeeklyCounts(); 
-                });
-            }
+            const sel = card.querySelector(".status-select");
+            sel.addEventListener("change", async () => {
+                const newStatus = sel.value;
+                sel.disabled = true; 
+                await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: newStatus });
+                sel.disabled = false;
+                showToast(`Marked as ${newStatus}`);
+                loadEarnings(); loadWeeklyCounts(); 
+            });
 
             const resTimeInput = card.querySelector(".res-time");
             resTimeInput.addEventListener("blur", () => normalizeUserTime(resTimeInput));
