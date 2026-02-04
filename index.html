@@ -3,197 +3,173 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Advanced Class Manager — LazifAI</title>
+    <title>ACM | Professional Dashboard</title>
     <style>
-        /* [STYLES UNCHANGED] */
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --radius: 8px;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: radial-gradient(circle at top left, #e0e7ff 0, #f5f7ff 30%, #fdfbff 65%, #ffffff 100%); min-height: 100vh; padding: 16px; color: #0f172a; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-body); color: var(--text-main); min-height: 100vh; padding: 20px; font-size: 14px; line-height: 1.5; }
         .container { max-width: 1100px; margin: 0 auto; }
-        .top-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: stretch; gap: 16px; margin-bottom: 16px; }
-        .brand-block { flex: 1 1 300px; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 40%, #a855f7 100%); border-radius: 20px; padding: 16px 18px; color: #eef2ff; box-shadow: 0 14px 30px rgba(79, 70, 229, 0.35); position: relative; overflow: hidden; }
-        .brand-block::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 60%); pointer-events: none; }
-        .brand-title { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-        .brand-title span.icon { font-size: 1.3rem; }
-        .brand-sub { font-size: 0.84rem; opacity: 0.9; }
-        .converter-box { margin-top: 12px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.1); }
-        .converter-label { font-size: 0.75rem; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 4px; }
-        .conv-select { background: rgba(255,255,255,0.9); border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.85rem; color: #1f2937; outline: none; max-width: 140px; cursor: pointer; }
-        .conv-select option { color: #000; }
-        .conv-input { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 4px 8px; width: 80px; color: #fff; font-size: 0.9rem; text-align: center; outline: none; }
-        .conv-input::placeholder { color: rgba(255,255,255,0.6); font-size: 0.8rem; }
-        .conv-input:focus { background: rgba(255,255,255,0.3); border-color: #fff; }
-        .conv-arrow { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
-        .conv-result-pill { background: #fff; color: #4f46e5; padding: 4px 10px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); min-width: 70px; text-align: center; }
-        .teacher-block { background: #ffffff; border-radius: 18px; padding: 12px 16px; min-width: 230px; box-shadow: 0 10px 26px rgba(15,23,42,0.08); border: 1px solid #e5e7eb; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
-        .teacher-block::before { content: "👩‍🏫"; position: absolute; right: 10px; bottom: 6px; font-size: 1.6rem; opacity: 0.14; }
-        .teacher-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin-bottom: 4px; }
-        .teacher-name { font-weight: 600; font-size: 1rem; color: #111827; }
-        .teacher-id { font-size: 0.8rem; color: #6b7280; }
-        .teacher-clock { margin-top: 4px; font-size: 0.8rem; color: #4b5563; display: flex; align-items: center; gap: 4px; }
-        .teacher-avatar { position: absolute; right: 16px; top: 16px; width: 52px; height: 52px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); border: 2px solid rgba(255, 255, 255, 0.9); }
-        .teacher-portfolio-link { margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.9); border: 1px solid #e5e7eb; font-size: 0.8rem; color: #4f46e5; text-decoration: none; transition: all 0.2s ease; font-weight: 500; }
-        .teacher-portfolio-link:hover { background: #eef2ff; border-color: #4f46e5; transform: translateY(-1px); }
-        @media (max-width: 768px) { .teacher-avatar { right: 12px; top: 12px; width: 44px; height: 44px; } .converter-box { flex-direction: column; align-items: flex-start; } .conv-select { max-width: 100%; width: 100%; } }
-        .global-search-wrap { margin: 6px 0 8px; display: none; }
-        .global-search-input { width: 100%; padding: 7px 10px; border-radius: 999px; border: 1px solid #d1d5db; font-size: 0.86rem; background: #f9fafb; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; }
-        .global-search-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 1px rgba(79,70,229,0.18); background: #ffffff; }
-        .main-tabs { display: flex; gap: 8px; margin: 4px 0 12px; overflow-x: auto; }
-        .main-tab-btn { flex: 1; padding: 10px 12px; border-radius: 999px; border: 1px solid #e5e7eb; background: rgba(249, 250, 251, 0.95); font-size: 0.9rem; font-weight: 600; color: #4b5563; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.18s ease; white-space: nowrap; }
-        .main-tab-btn span.tab-icon { font-size: 1.05rem; }
-        .main-tab-btn.active { background: linear-gradient(135deg, #4f46e5, #6366f1); color: #ffffff; border-color: transparent; box-shadow: 0 10px 22px rgba(79,70,229,0.35); transform: translateY(-1px); }
-        .main-tab-btn:not(.active):hover { background: #eef2ff; }
+
+        /* --- HEADER --- */
+        .top-bar { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+        
+        .brand-block { flex: 1 1 300px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); display:flex; flex-direction:column; justify-content:center; border-left: 4px solid var(--primary); }
+        .brand-title { font-size: 1.25rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+        .brand-sub { font-size: 0.85rem; color: var(--text-sub); margin-top: 2px; }
+
+        .teacher-block { flex: 0 0 auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 16px; min-width: 280px; }
+        .teacher-info { flex: 1; }
+        .teacher-name { font-weight: 700; font-size: 1rem; }
+        .teacher-id { font-size: 0.8rem; color: var(--text-sub); }
+        .teacher-clock { font-size: 0.75rem; color: var(--text-sub); margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .teacher-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
+        
+        .converter-box { margin-top: 12px; background: #f8fafc; padding: 8px; border-radius: 4px; border: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+        .converter-label { font-size: 0.7rem; font-weight: 600; color: var(--text-sub); text-transform: uppercase; }
+        .conv-select, .conv-input { background: #fff; border: 1px solid var(--border); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; outline: none; }
+        .conv-result-pill { font-weight: 600; color: var(--primary); font-size: 0.85rem; margin-left: auto; }
+
+        /* --- TABS --- */
+        .main-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .main-tab-btn { background: transparent; border: none; padding: 8px 16px; font-size: 0.95rem; color: var(--text-sub); font-weight: 500; cursor: pointer; border-radius: var(--radius); transition: all 0.2s; }
+        .main-tab-btn.active { background: var(--primary); color: #fff; box-shadow: var(--shadow); }
+        .main-tab-btn:hover:not(.active) { background: #e2e8f0; color: var(--text-main); }
+
+        /* --- CARDS & LAYOUT --- */
         .section { display: none; }
         .section.show { display: block; }
-        .section-card { background: #ffffff; border-radius: 18px; padding: 16px 16px 18px; box-shadow: 0 10px 26px rgba(15,23,42,0.06); margin-bottom: 14px; border: 1px solid #e5e7eb; position: relative; overflow: hidden; transition: transform 0.15s ease, box-shadow 0.15s ease; }
-        .section-card:hover { transform: translateY(-1px); box-shadow: 0 14px 32px rgba(15,23,42,0.08); }
-        .section-card::before { content: ""; position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #4f46e5, #a855f7); opacity: 0.4; }
-        .section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; gap: 8px; }
-        .section-title-row { display: inline-flex; align-items: center; gap: 6px; }
-        .section-title-icon { font-size: 1.05rem; }
-        .section-title { font-size: 1.02rem; font-weight: 600; color: #111827; }
-        .section-caption { font-size: 0.8rem; color: #6b7280; }
-        .section-header-right { display: flex; align-items: center; gap: 8px; }
-        .card-row { display: flex; flex-wrap: wrap; gap: 12px; }
-        .card-column { flex: 1 1 260px; }
-        .overview-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-        .overview-tile { flex: 1 1 180px; padding: 8px 10px; border-radius: 12px; background: #f9fafb; border: 1px solid #e5e7eb; font-size: 0.8rem; }
-        .overview-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #9ca3af; margin-bottom: 2px; display: flex; align-items: center; justify-content: space-between; }
-        .overview-main { font-size: 0.95rem; font-weight: 600; color: #111827; }
-        .overview-sub { font-size: 0.78rem; color: #6b7280; }
-        .overview-refresh-btn { border: none; background: #eef2ff; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; padding: 0; margin-left: 6px; }
-        .overview-refresh-btn:hover { background: #e0e7ff; }
-        .weekly-strip { display: flex; flex-wrap: nowrap; gap: 6px; margin-top: 4px; overflow-x: auto; }
-        .weekly-day { min-width: 48px; padding: 4px 6px; border-radius: 10px; background: #eef2ff; font-size: 0.74rem; text-align: center; color: #4338ca; }
-        .weekly-day.has-classes { background: #e0f2fe; color: #0369a1; }
-        .weekly-day.today { background: #dcfce7; color: #166534; font-weight: 600; }
-        .students-tile { position: relative; }
-        .students-tile::before { content: "👩‍🏫"; position: absolute; right: 10px; bottom: 8px; font-size: 1.6rem; opacity: 0.7; animation: gentlyBounce 3.2s ease-in-out infinite; }
-        @keyframes gentlyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
         
-        /* Financial Tile */
-        .financial-tile { background: radial-gradient(circle at top left, #dcfce7 0, #f0fdf4 40%, #ffffff 100%); border-color: #bbf7d0; position: relative; overflow: hidden; }
-        .financial-tile::before { content: "💰"; position: absolute; right: 12px; bottom: 8px; font-size: 1.6rem; opacity: 0.4; }
+        .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
         
-        .today-classes-list { max-height: 120px; overflow-y: auto; margin-top: 8px; }
-        .today-class-item { font-size: 0.84rem; padding: 4px 0; border-bottom: 1px dashed #e5e7eb; }
-        .today-class-item:last-child { border-bottom: none; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+        .section-caption { font-size: 0.85rem; color: var(--text-sub); margin-left: 8px; font-weight: 400; }
+
+        .card-row { display: flex; flex-wrap: wrap; gap: 20px; }
+        .card-column { flex: 1 1 300px; }
+
+        /* --- OVERVIEW TILES --- */
+        .overview-grid { display: flex; flex-wrap: wrap; gap: 16px; }
+        .overview-tile { flex: 1 1 200px; background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; position: relative; }
+        .overview-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-sub); font-weight: 600; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .overview-main { font-size: 1.5rem; font-weight: 700; color: var(--text-main); line-height: 1.2; }
+        .overview-sub { font-size: 0.8rem; color: var(--text-sub); margin-top: 4px; }
+        .overview-refresh-btn { background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--text-sub); }
+        .overview-refresh-btn:hover { color: var(--primary); }
+
+        /* --- FINANCIAL TILE (Specific) --- */
+        .financial-tile { background: #f0fdf4; border-color: #bbf7d0; }
+        .financial-tile .overview-main { color: #15803d; }
         
-        .form-group { margin-bottom: 10px; }
-        label { display: block; font-size: 0.8rem; color: #4b5563; margin-bottom: 4px; font-weight: 500; }
-        input, select, textarea { width: 100%; padding: 7px 9px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.9rem; outline: none; background: #f9fafb; transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; }
-        input:focus, select:focus, textarea:focus { border-color: #4f46e5; box-shadow: 0 0 0 1px rgba(79,70,229,0.18); background: #ffffff; }
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 999px; border: none; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
-        .btn-primary { background: linear-gradient(135deg, #4f46e5, #6366f1); color: #ffffff; box-shadow: 0 6px 14px rgba(79,70,229,0.25); }
-        .btn-primary:hover { filter: brightness(1.05); transform: translateY(-0.5px); }
-        .btn-primary:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
-        .btn-outline { background: #ffffff; color: #4b5563; border: 1px solid #d1d5db; }
-        .btn-outline:hover { background: #f3f4ff; border-color: #4f46e5; color: #111827; }
-        .btn-soft { background: #eef2ff; color: #4338ca; border: 1px solid transparent; }
-        .btn-soft:hover { background: #e0e7ff; }
+        /* --- WEEKLY STRIP --- */
+        .weekly-strip { display: flex; gap: 4px; margin-top: 8px; overflow-x: auto; }
+        .weekly-day { flex: 1; min-width: 40px; text-align: center; padding: 6px 2px; border-radius: 4px; background: #fff; border: 1px solid var(--border); font-size: 0.75rem; cursor: pointer; transition: all 0.1s; }
+        .weekly-day:hover { border-color: var(--primary); }
+        .weekly-day.has-classes { background: #eff6ff; color: var(--primary); font-weight: 600; border-color: #bfdbfe; }
+        .weekly-day.today { background: #2563eb; color: white; border-color: #2563eb; }
+
+        /* --- FORMS --- */
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 6px; color: var(--text-main); }
+        input[type="text"], input[type="date"], input[type="number"], select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; background: #fff; transition: border-color 0.15s; outline: none; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1); }
+
+        /* --- BUTTONS --- */
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; gap: 6px; }
         .btn-block { width: 100%; }
-        .inline-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-        .status-block { margin-top: 8px; font-size: 0.82rem; }
-        .success, .error, .info, .loading { padding: 8px; margin-top: 4px; border-radius: 6px; font-size: 0.82rem; border-left-width: 4px; border-left-style: solid; }
-        .success { background: #e8f5e9; color: #166534; border-left-color: #16a34a; }
-        .error { background: #fef2f2; color: #b91c1c; border-left-color: #ef4444; }
-        .info { background: #eff6ff; color: #1d4ed8; border-left-color: #3b82f6; }
-        .loading { background: #fef9c3; color: #92400e; border-left-color: #facc15; }
-        .table-wrap { margin-top: 8px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
-        th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
-        thead { background: #f3f4ff; }
-        th { font-weight: 600; color: #374151; }
-        tbody tr:hover { background: #f9fafb; }
-        .classes-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 10px; }
-        .classes-list { margin-top: 6px; }
-        .class-card { border-radius: 14px; border: 1px solid #e5e7eb; padding: 10px 12px; margin-bottom: 10px; background: linear-gradient(135deg, #ffffff, #f9fafb); box-shadow: 0 4px 12px rgba(15,23,42,0.06); position: relative; overflow: hidden; }
-        .class-accent { position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: 4px; }
-        .class-card__row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
-        .class-student { font-weight: 600; font-size: 0.98rem; color: #111827; }
-        .meta { font-size: 0.8rem; color: #6b7280; }
-        .badge { padding: 3px 7px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
-        .badge-green { background: #dcfce7; color: #166534; }
-        .expand-block { margin-top: 8px; padding-top: 6px; border-top: 1px dashed #e5e7eb; }
-        .msg-preview { padding: 8px; background: #f9fafb; border-radius: 8px; border: 1px dashed #d1d5db; white-space: pre-wrap; font-size: 0.84rem; }
-        .toast-container { position: fixed; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; }
-        .toast { min-width: 180px; max-width: 260px; padding: 8px 12px; border-radius: 999px; font-size: 0.82rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 12px 28px rgba(15,23,42,0.35); opacity: 0; transform: translateY(12px); transition: opacity 0.22s ease, transform 0.22s ease; }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast-success { background: #16a34a; color: #ecfdf3; }
-        .toast-error { background: #b91c1c; color: #fee2e2; }
-        .toast-info { background: #2563eb; color: #dbeafe; }
-        .toast-icon { font-size: 1rem; }
-        .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.5); display: none; justify-content: center; align-items: center; z-index: 9998; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+        
+        .btn-outline { background: white; border-color: var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
+        
+        .btn-soft { background: #eff6ff; color: var(--primary); }
+        .btn-soft:hover { background: #dbeafe; }
+
+        .inline-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+        /* --- LISTS & TABLES --- */
+        .student-columns { display: flex; gap: 20px; }
+        .student-col { flex: 1; border: 1px solid var(--border); border-radius: var(--radius); background: #f9fafb; display: flex; flex-direction: column; max-height: 400px; }
+        .student-col-header { padding: 10px; border-bottom: 1px solid var(--border); background: #f1f5f9; font-weight: 600; font-size: 0.85rem; display: flex; justify-content: space-between; border-radius: 7px 7px 0 0; }
+        .scrolly-list { overflow-y: auto; padding: 8px; flex: 1; }
+        .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid var(--border); margin-bottom: 6px; font-size: 0.85rem; }
+        .student-item-row:hover { border-color: #cbd5e1; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+        .today-classes-list { margin-top: 8px; max-height: 120px; overflow-y: auto; }
+        .today-class-item { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        
+        /* --- CLASS CARDS --- */
+        .class-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; border-left: 4px solid var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .class-card__row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .class-student { font-weight: 700; color: var(--text-main); font-size: 1rem; }
+        .meta { color: var(--text-sub); font-size: 0.85rem; }
+        .expand-block { margin-top: 10px; padding: 10px; background: #f8fafc; border-radius: 6px; border: 1px solid var(--border); font-size: 0.85rem; }
+        
+        /* --- SIDEBAR LAYOUT --- */
+        .layout-with-sidebar { display: flex; gap: 20px; align-items: flex-start; }
+        .main-panel { flex: 3; }
+        .side-panel { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; min-width: 240px; box-shadow: var(--shadow); }
+        .slot-title { font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; }
+        .slot-subtitle { font-size: 0.75rem; color: var(--text-sub); display: block; margin-bottom: 8px; }
+        .free-slot-item { background: #f0fdf4; color: #166534; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-bottom: 6px; border: 1px solid #dcfce7; text-align: center; }
+
+        @media (max-width: 768px) {
+            .student-columns, .layout-with-sidebar { flex-direction: column; }
+            .side-panel { width: 100%; }
+            .brand-block, .teacher-block { width: 100%; }
+        }
+
+        /* --- BULK --- */
+        .bulk-row { display: flex; gap: 10px; align-items: center; background: #fff; padding: 8px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px; }
+
+        /* --- MODALS & TOAST --- */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 999; backdrop-filter: blur(2px); }
         .modal-backdrop.show { display: flex; }
-        .modal { max-width: 640px; width: 100%; max-height: 80vh; background: #ffffff; border-radius: 18px; padding: 14px 16px; box-shadow: 0 24px 40px rgba(15,23,42,0.35); display: flex; flex-direction: column; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .modal-title { font-size: 0.98rem; font-weight: 600; }
-        .modal-body { overflow-y: auto; padding-right: 4px; }
-        .modal-footer { margin-top: 8px; display: flex; justify-content: flex-end; gap: 8px; font-size: 0.78rem; color: #6b7280; }
-        .bulk-item { border-radius: 12px; border: 1px solid #e5e7eb; padding: 8px; margin-bottom: 8px; background: #f9fafb; }
-        .bulk-item-header { font-size: 0.86rem; font-weight: 600; margin-bottom: 4px; }
-        .bulk-item-meta { font-size: 0.76rem; color: #6b7280; margin-bottom: 4px; }
-        .fab-container { position: fixed; right: 16px; bottom: 80px; z-index: 9997; }
-        .fab-main { width: 44px; height: 44px; border-radius: 999px; border: none; background: linear-gradient(135deg, #4f46e5, #6366f1); color: #ffffff; box-shadow: 0 12px 30px rgba(15,23,42,0.35); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; }
-        .fab-menu { position: absolute; bottom: 52px; right: 0; display: none; flex-direction: column; gap: 6px; }
+        .modal { background: #fff; width: 100%; max-width: 450px; border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .modal-title { font-weight: 700; font-size: 1.1rem; }
+        
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
+        .toast { background: #1e293b; color: #fff; padding: 10px 16px; border-radius: 6px; font-size: 0.9rem; opacity: 0; transform: translateY(10px); transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-error { background: #ef4444; }
+
+        /* --- FAB --- */
+        .fab-container { position: fixed; bottom: 30px; right: 30px; z-index: 900; }
+        .fab-main { width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        .fab-main:hover { transform: scale(1.05); }
+        .fab-menu { position: absolute; bottom: 70px; right: 0; display: none; flex-direction: column; gap: 10px; align-items: flex-end; }
         .fab-menu.show { display: flex; }
-        .fab-item { padding: 6px 10px; border-radius: 999px; background: #ffffff; border: 1px solid #e5e7eb; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; box-shadow: 0 8px 18px rgba(15,23,42,0.25); }
-        .footer { margin-top: 20px; font-size: 0.78rem; color: #9ca3af; text-align: center; }
-        .footer span { font-weight: 600; color: #4f46e5; }
-        .footer-version { margin-top: 2px; font-size: 0.74rem; color: #9ca3af; }
-        .today-classes-list:empty { display: none; }
-        @media (max-width: 640px) { body { padding: 12px; } .section-card { padding: 14px; } .brand-block, .teacher-block { padding: 12px 14px; } .brand-title { font-size: 1.2rem; } .main-tab-btn { font-size: 0.85rem; padding: 8px 10px; } .class-card__row { flex-direction: column; align-items: flex-start; } .fab-container { bottom: 72px; } .modal { max-width: 95vw; } }
-        .bulk-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background: #f9fafb; padding: 8px; border-radius: 10px; border: 1px solid #e5e7eb; }
-        .bulk-row select, .bulk-row input { margin-bottom: 0; border: 1px solid #e5e7eb; background: #ffffff; }
-        .progress-bar { height:10px; background:#e6e6e6; border-radius:6px; overflow:hidden; margin-top:8px; }
-        .progress-bar > i { display:block; height:100%; width:0%; background: linear-gradient(135deg, #4f46e5, #6366f1); transition:width 300ms linear; }
-        .small-muted { font-size:13px; color:#666; }
+        .fab-item { background: white; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 0.85rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background 0.1s; }
+        .fab-item:hover { background: #f8fafc; color: var(--primary); }
 
-        .student-columns { display: flex; gap: 12px; margin-top: 10px; }
-        .student-col { flex: 1; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px; min-width: 200px; display: flex; flex-direction: column; }
-        .student-col-header { font-size: 0.85rem; font-weight: 700; color: #4b5563; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 2px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
-        .student-col-count { background: #e5e7eb; color: #374151; padding: 2px 6px; border-radius: 99px; font-size: 0.75rem; }
-        .scrolly-list { flex: 1; overflow-y: auto; max-height: 400px; padding-right: 4px; }
-        .scrolly-list::-webkit-scrollbar { width: 4px; }
-        .scrolly-list::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-        .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #e5e7eb; font-size: 0.85rem; }
-        .student-item-row:hover { border-color: #4f46e5; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        @media (max-width: 768px) { .student-columns { flex-direction: column; } .scrolly-list { max-height: 200px; } }
-        
-        .status-select { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; border: 1px solid #d1d5db; background: #fff; outline: none; cursor: pointer; }
-        
-        /* Pending Review Modal List */
-        .pending-list-item { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #e5e7eb; }
-        .pending-list-item:last-child { border-bottom: none; }
-        .pending-info { font-size: 0.85rem; }
-        .pending-info strong { display: block; color: #111827; }
-        .pending-info span { color: #6b7280; font-size: 0.75rem; }
-        .pending-actions { display: flex; gap: 6px; }
-        
-        /* History Modal Table */
-        .history-summary { display: flex; justify-content: space-between; background: #f3f4f6; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-weight: 600; }
-        .history-table { width: 100%; font-size: 0.85rem; border-collapse: collapse; }
-        .history-table th { text-align: left; padding: 6px; border-bottom: 1px solid #e5e7eb; color: #6b7280; }
-        .history-table td { padding: 6px; border-bottom: 1px solid #f3f4f6; }
-
-        /* New Side Panel for Slots */
-        .layout-with-sidebar { display:flex; gap:16px; align-items:flex-start; }
-        .main-panel { flex:3; }
-        .side-panel { flex:1; background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:12px; min-width:220px; }
-        @media (max-width: 768px) { .layout-with-sidebar { flex-direction:column; } .side-panel { width:100%; } }
-        .slot-title { font-weight:700; font-size:0.9rem; color:#111827; margin-bottom:8px; border-bottom:2px solid #e0e7ff; padding-bottom:4px; }
-        .slot-subtitle { font-size:0.75rem; color:#6b7280; margin-bottom:8px; display:block; }
-        .free-slot-item { font-size:0.8rem; background:#ecfdf5; color:#047857; padding:4px 8px; border-radius:6px; margin-bottom:6px; border:1px solid #d1fae5; }
+        .footer { text-align: center; margin-top: 40px; color: var(--text-sub); font-size: 0.75rem; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <header class="top-bar">
         <div class="brand-block">
-            <div class="brand-title"><span class="icon">📊</span><span>Advanced Class Manager</span></div>
-            <div class="brand-sub">Teacher's Dashboard — Powered by LazifAI</div>
+            <div class="brand-title"><span style="font-size:1.5rem;">📊</span> Advanced Class Manager</div>
+            <div class="brand-sub">Professional Scheduling & Financial Suite</div>
+            
             <div class="converter-box">
                 <div class="converter-label">Reschedule Helper</div>
-                <select id="conv-student-zone" class="conv-select">
+                <select id="conv-student-zone" class="conv-select" style="width: 120px;">
                     <option value="" disabled selected>Select City...</option>
                     <optgroup label="Australia & NZ">
                         <option value="Australia/Sydney">Sydney / Melbourne</option>
@@ -215,62 +191,83 @@
                         <option value="America/Los_Angeles">Los Angeles (PST)</option>
                     </optgroup>
                 </select>
-                <input type="text" id="conv-student-time" class="conv-input" placeholder="7 PM">
-                <div class="conv-arrow">➜</div>
+                <input type="text" id="conv-student-time" class="conv-input" placeholder="hh:mm AM/PM">
+                <div style="color:#cbd5e1">➜</div>
                 <div id="conv-result-ist" class="conv-result-pill">--:-- IST</div>
             </div>
         </div>
+
         <div class="teacher-block">
-            <div class="teacher-label">WELCOME</div>
-            <div class="teacher-name">Senorita Saha</div>
-            <div class="teacher-id">Teacher ID: 181577</div>
-            <a href="https://senoritaeducator.github.io/professional-portfolio/ " target="_blank" rel="noopener noreferrer" class="teacher-portfolio-link">🌐 View Portfolio</a>
-            <div class="teacher-clock" id="clock-india">🕒 India: --:-- --</div>
-            <img src="senorita-profile.jpg" alt="Senorita Saha" class="teacher-avatar" />
+            <div class="teacher-info">
+                <div style="font-size:0.7rem; color:var(--primary); font-weight:700; text-transform:uppercase; margin-bottom:4px;">Instructor</div>
+                <div class="teacher-name">Senorita Saha</div>
+                <div class="teacher-id">ID: 181577</div>
+                <div class="teacher-clock" id="clock-india">🕒 India: --:-- --</div>
+                <a href="https://senoritaeducator.github.io/professional-portfolio/" target="_blank" class="btn btn-outline" style="margin-top:8px; padding:4px 8px; font-size:0.75rem;">View Portfolio</a>
+            </div>
+            <img src="senorita-profile.jpg" class="teacher-avatar" alt="Profile">
         </div>
     </header>
 
-    <div class="global-search-wrap">
-        <input type="text" id="global-search" class="global-search-input" placeholder="🔎 Search students or classes by name, date or time..." />
+    <div style="margin-bottom: 15px;">
+        <input type="text" id="global-search" class="global-search-input" placeholder="🔎 Search students, dates, or details..." />
     </div>
 
     <nav class="main-tabs">
-        <button class="main-tab-btn active" data-section="students"><span class="tab-icon">👥</span><span>Manage Students</span></button>
-        <button class="main-tab-btn" data-section="classes"><span class="tab-icon">📚</span><span>Manage Classes</span></button>
-        <button class="main-tab-btn" data-section="bulk"><span class="tab-icon">⚡</span><span>Bulk Schedule</span></button>
+        <button class="main-tab-btn active" data-section="students">Manage Students</button>
+        <button class="main-tab-btn" data-section="classes">Manage Classes</button>
+        <button class="main-tab-btn" data-section="bulk">Bulk Schedule</button>
     </nav>
 
     <section id="section-students" class="section show">
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title-row"><span class="section-title-icon">👥</span><div class="section-title">Manage Students</div></div>
-                    <div class="section-caption">Add, delete & view all active students linked to your classes.</div>
+                    <span class="section-title">Student Directory</span>
+                    <span class="section-caption">Manage active students and enrollment types.</span>
                 </div>
+                <button id="refresh-students-btn" class="btn btn-outline btn-sm">Refresh List</button>
             </div>
+            
             <div class="card-row">
-                <div class="card-column">
-                    <div class="form-group"><label>Add Student</label><input id="student-name-input" type="text" placeholder="Enter student name" /></div>
-                    <div style="margin-top:6px; display:flex; gap:12px;">
-                        <label><input type="radio" name="studentType" value="PS" checked> PS</label>
-                        <label><input type="radio" name="studentType" value="CM"> CM</label>
-                        <label><input type="radio" name="studentType" value="Trial"> Trial</label>
+                <div class="card-column" style="flex: 1;">
+                    <div style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid var(--border);">
+                        <h4 style="margin-bottom:12px; font-size:0.9rem;">Add New Student</h4>
+                        <div class="form-group">
+                            <input id="student-name-input" type="text" placeholder="Full Name" />
+                        </div>
+                        <div style="margin-bottom:12px; display:flex; gap:15px;">
+                            <label style="font-weight:400;"><input type="radio" name="studentType" value="PS" checked> PS</label>
+                            <label style="font-weight:400;"><input type="radio" name="studentType" value="CM"> CM</label>
+                            <label style="font-weight:400;"><input type="radio" name="studentType" value="Trial"> Trial</label>
+                        </div>
+                        <button id="add-student-btn" class="btn btn-primary btn-block">Add Student</button>
+                        <div id="manage-students-msg" class="status-block"></div>
                     </div>
-                    <button id="add-student-btn" class="btn btn-primary btn-block">➕ Add Student</button>
-                    <div class="form-group" style="margin-top: 16px;">
-                        <label>Delete Student</label>
-                        <select id="student-delete-select"><option value="">Select student to delete</option></select>
+
+                    <div style="margin-top:20px;">
+                        <h4 style="margin-bottom:8px; font-size:0.9rem; color:#ef4444;">Danger Zone</h4>
+                        <div class="form-group">
+                            <select id="student-delete-select"><option value="">Select student to delete...</option></select>
+                        </div>
+                        <button id="delete-student-btn" class="btn btn-outline btn-block" style="color:#ef4444; border-color:#fecaca;">Delete Student</button>
                     </div>
-                    <button id="delete-student-btn" class="btn btn-outline btn-block">🗑 Delete Student</button>
-                    <div id="manage-students-msg" class="status-block"></div>
                 </div>
-                <div class="card-column" style="flex: 2;"> 
-                    <label>All Active Students</label>
-                    <div class="inline-actions" style="margin-top: 4px;"><button id="refresh-students-btn" class="btn btn-soft">🔄 Refresh</button></div>
+
+                <div class="card-column" style="flex: 2;">
                     <div id="all-students-content" class="student-columns">
-                        <div class="student-col"><div class="student-col-header">Trial <span id="count-trial" class="student-col-count">0</span></div><div id="list-trial" class="scrolly-list"></div></div>
-                        <div class="student-col"><div class="student-col-header">PS Students <span id="count-ps" class="student-col-count">0</span></div><div id="list-ps" class="scrolly-list"></div></div>
-                        <div class="student-col"><div class="student-col-header">CM Students <span id="count-cm" class="student-col-count">0</span></div><div id="list-cm" class="scrolly-list"></div></div>
+                        <div class="student-col">
+                            <div class="student-col-header">Trial <span id="count-trial" class="student-col-count">0</span></div>
+                            <div id="list-trial" class="scrolly-list"></div>
+                        </div>
+                        <div class="student-col">
+                            <div class="student-col-header">PS <span id="count-ps" class="student-col-count">0</span></div>
+                            <div id="list-ps" class="scrolly-list"></div>
+                        </div>
+                        <div class="student-col">
+                            <div class="student-col-header">CM <span id="count-cm" class="student-col-count">0</span></div>
+                            <div id="list-cm" class="scrolly-list"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -280,37 +277,30 @@
     <section id="section-classes" class="section">
         <div class="section-card">
             <div class="section-header">
-                <div>
-                    <div class="section-title-row"><span class="section-title-icon">📈</span><div class="section-title">Today & Week Overview</div></div>
-                    <div class="section-caption">Quick glance at your students, today’s workload and this week.</div>
-                </div>
+                <div><span class="section-title">Dashboard Overview</span></div>
             </div>
             <div class="overview-grid">
-                <div class="overview-tile students-tile">
-                    <div class="overview-title">Students<button type="button" class="overview-refresh-btn" id="refresh-students-overview-btn" title="Refresh">⟳</button></div>
-                    <div class="overview-main" id="stats-total-students">--</div>
-                    <div class="overview-sub" id="stats-students-sub">Total active students</div>
-                </div>
-                
                 <div class="overview-tile">
-                    <div class="overview-title">Today<button type="button" class="overview-refresh-btn" id="refresh-today-btn" title="Refresh">⟳</button></div>
-                    <div class="overview-main" id="stats-today-main">No data</div>
+                    <div class="overview-title">Students <button id="refresh-students-overview-btn" class="overview-refresh-btn">⟳</button></div>
+                    <div class="overview-main" id="stats-total-students">--</div>
+                    <div class="overview-sub" id="stats-students-sub">Active Enrollments</div>
+                </div>
+                <div class="overview-tile">
+                    <div class="overview-title">Today's Load <button id="refresh-today-btn" class="overview-refresh-btn">⟳</button></div>
+                    <div class="overview-main" id="stats-today-main">--</div>
                     <div class="today-classes-list" id="today-classes-list"></div>
                 </div>
-
                 <div class="overview-tile financial-tile">
-                    <div class="overview-title">Financials (CM)<button type="button" class="overview-refresh-btn" id="refresh-earnings-btn" title="Refresh Earnings">⟳</button></div>
-                    <div class="overview-main" id="stats-earnings-main" style="color:#10b981;">₹0</div>
-                    <div class="overview-sub" id="stats-earnings-sub">0 completed classes this month</div>
-                    <div style="display:flex; gap:4px; margin-top:8px;">
-                        <button id="btn-review-pending" class="btn btn-soft" style="flex:1; font-size:0.75rem;">📝 Review</button>
-                        <button id="btn-history" class="btn btn-outline" style="flex:1; font-size:0.75rem;">📜 History</button>
+                    <div class="overview-title" style="color:#15803d;">Financials (CM) <button id="refresh-earnings-btn" class="overview-refresh-btn">⟳</button></div>
+                    <div class="overview-main" id="stats-earnings-main">₹0</div>
+                    <div class="overview-sub" id="stats-earnings-sub">Current Month Payout</div>
+                    <div style="display:flex; gap:6px; margin-top:10px;">
+                        <button id="btn-review-pending" class="btn btn-outline" style="flex:1; padding:4px; font-size:0.75rem; background:#fff;">Review</button>
+                        <button id="btn-history" class="btn btn-outline" style="flex:1; padding:4px; font-size:0.75rem; background:#fff;">History</button>
                     </div>
                 </div>
-
                 <div class="overview-tile">
-                    <div class="overview-title">Week<button type="button" class="overview-refresh-btn" id="refresh-week-btn" title="Refresh">⟳</button></div>
-                    <div class="overview-main" id="stats-week-main">--</div>
+                    <div class="overview-title">Weekly Trend <button id="refresh-week-btn" class="overview-refresh-btn">⟳</button></div>
                     <div class="weekly-strip" id="weekly-strip"></div>
                 </div>
             </div>
@@ -318,47 +308,43 @@
 
         <div class="section-card">
             <div class="section-header">
-                <div>
-                    <div class="section-title-row"><span class="section-title-icon">📅</span><div class="section-title">Schedule Class</div></div>
-                    <div class="section-caption">Create a class & Google Calendar event for an existing student.</div>
-                </div>
+                <div><span class="section-title">Schedule New Class</span></div>
             </div>
             <div class="card-row">
-                <div class="card-column"><label>Student</label><select id="schedule-student-select"><option value="">Select student</option></select></div>
-                <div class="card-column"><label>Class Date</label><input type="date" id="schedule-date" /></div>
+                <div class="card-column"><label>Student</label><select id="schedule-student-select"><option value="">Select...</option></select></div>
+                <div class="card-column"><label>Date</label><input type="date" id="schedule-date" /></div>
+                <div class="card-column"><label>Start Time</label><input type="text" id="schedule-time" placeholder="hh:mm AM/PM" /></div>
                 <div class="card-column">
-                    <label>Start Time</label><input type="text" id="schedule-time" placeholder="hh:mm AM/PM" />
-                </div>
-                <div class="card-column">
-                    <label>Repeat (weeks)</label>
-                    <select id="schedule-repeat" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid #d1d5db;background:#f9fafb;">
-                        <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                    <label>Repeat (Weeks)</label>
+                    <select id="schedule-repeat">
+                        <option value="0">One-time</option><option value="1">1 Week</option><option value="2">2 Weeks</option><option value="4">4 Weeks</option>
                     </select>
                 </div>
             </div>
-            <div class="inline-actions" style="margin-top: 4px;"><button id="schedule-class-btn" class="btn btn-primary">✅ Schedule Class</button></div>
-            <div id="schedule-msg" class="status-block"></div>
+            <div style="margin-top:16px;">
+                <button id="schedule-class-btn" class="btn btn-primary">Schedule Class</button>
+                <div id="schedule-msg" class="status-block"></div>
+            </div>
         </div>
 
         <div class="section-card">
             <div class="section-header">
-                <div>
-                    <div class="section-title-row"><span class="section-title-icon">🗂️</span><div class="section-title">View & Manage Classes</div></div>
-                    <div class="section-caption">Filter by date, generate messages, or reschedule classes.</div>
-                </div>
-                <button class="btn btn-outline" onclick="openCopyWeekModal()" style="font-size:0.8rem;">📋 Copy Week</button>
-            </div>
-            <div class="classes-controls">
-                <div class="form-group" style="margin-bottom: 0;"><label>Select Date</label><input type="date" id="view-date" /></div>
-                <button id="view-classes-btn" class="btn btn-soft">📅 Load Classes</button>
+                <div><span class="section-title">Daily Operations</span></div>
+                <button class="btn btn-outline" onclick="openCopyWeekModal()">📋 Copy Week</button>
             </div>
             
-            <div class="layout-with-sidebar" style="margin-top:10px;">
+            <div class="classes-controls">
+                <div class="form-group" style="margin-bottom:0;"><label>Select Date</label><input type="date" id="view-date" /></div>
+                <button id="view-classes-btn" class="btn btn-soft">Load Schedule</button>
+            </div>
+
+            <div class="layout-with-sidebar" style="margin-top:20px;">
                 <div id="view-classes-output" class="classes-list main-panel"></div>
+                
                 <div id="free-slots-panel" class="side-panel">
-                    <div class="slot-title">Free Slots Today</div>
-                    <span class="slot-subtitle">Working Hours: 09:00 AM - 09:00 PM</span>
-                    <div id="free-slots-list" style="margin-top:8px;"></div>
+                    <div class="slot-title">Working Hours:<br>09:00 AM - 09:00 PM</div>
+                    <span class="slot-subtitle" style="font-weight:600; color:var(--primary);">Free Slots Today:</span>
+                    <div id="free-slots-list"></div>
                 </div>
             </div>
         </div>
@@ -367,231 +353,52 @@
     <section id="section-bulk" class="section">
         <div class="section-card">
             <div class="section-header">
-                <div>
-                    <div class="section-title-row"><span class="section-title-icon">⚡</span><div class="section-title">Bulk Schedule Classes</div></div>
-                    <div class="section-caption">Schedule multiple students for a specific date.</div>
-                </div>
+                <div><span class="section-title">Bulk Scheduling</span><span class="section-caption">Schedule multiple students for one specific date.</span></div>
             </div>
             <div class="card-row">
-                <div class="card-column"><label>Date</label><input type="date" id="bulkDate" style="width:100%;"/></div>
-                <div class="card-column"><label>Repeat (weeks)</label><input type="number" id="bulkRepeatWeeks" min="0" max="52" value="0" style="width:100%;"/></div>
+                <div class="card-column"><label>Target Date</label><input type="date" id="bulkDate" /></div>
+                <div class="card-column"><label>Repeat (Weeks)</label><input type="number" id="bulkRepeatWeeks" value="0" min="0" /></div>
             </div>
-            <hr style="margin:12px 0; border:0; border-top:1px solid #e5e7eb;">
+            <hr style="margin:20px 0; border:0; border-top:1px solid var(--border);">
             <div id="bulkRowsContainer"></div>
-            <div class="inline-actions" style="margin-top:12px; gap:8px;">
+            <div class="inline-actions">
                 <button id="addBulkRowBtn" class="btn btn-soft">+ Add Row</button>
-                <button id="clearBulkRowsBtn" class="btn btn-outline">Clear</button>
+                <button id="clearBulkRowsBtn" class="btn btn-outline">Clear All</button>
             </div>
-            <div class="inline-actions" style="margin-top:16px; justify-content:flex-end;">
+            <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
                 <button class="btn btn-outline" onclick="resetBulkScheduler()">Reset</button>
-                <button id="bulkScheduleBtn" class="btn btn-primary">Schedule All</button>
+                <button id="bulkScheduleBtn" class="btn btn-primary">Run Bulk Schedule</button>
             </div>
         </div>
     </section>
 
     <footer class="footer">
-        <div>Powered by <span>LazifAI</span> — Advanced Class Manager</div>
-        <div class="footer-version">Senorita Saha — English Language & Public Speaking Educator</div>
-        <div id="acm-version-info" style="text-align:right; margin: 0 12px 6px 0; font-size: 11px; opacity: 0.6;">ACM v31 GAS — Updated: 2025-Phase5-Final-Universal</div>
+        <div>Advanced Class Manager &copy; 2025</div>
+        <div style="margin-top:4px;">Licensed to Senorita Saha</div>
+        <div id="acm-version-info" style="opacity:0.5; margin-top:4px;">v32 PRO</div>
     </footer>
 
-    <div id="toast-container" class="toast-container"></div>
-
-    <div id="confirmModal" class="modal-backdrop">
-      <div class="modal" style="max-width:400px;">
-        <div class="modal-body" style="text-align:center; padding:20px;">
-            <div style="font-size:2rem; margin-bottom:10px;">🤔</div>
-            <p id="confirmText" style="font-weight:600; color:#111827; margin-bottom:20px;"></p>
-            <div style="display:flex; justify-content:center; gap:10px;">
-                <button id="confirmNo" class="btn btn-outline">Cancel</button>
-                <button id="confirmYes" class="btn btn-primary">Yes, Proceed</button>
-            </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="errorModal" class="modal-backdrop">
-      <div class="modal" style="max-width:400px;">
-        <div class="modal-body" style="padding:20px;">
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-                <div style="font-size:1.5rem;">⚠️</div>
-                <div style="font-weight:700; font-size:1.1rem; color:#b91c1c;">Alert</div>
-            </div>
-            <p id="errorText" style="color:#374151; font-size:0.95rem; line-height:1.5; white-space: pre-wrap;"></p>
-            <div style="display:flex; justify-content:flex-end; margin-top:20px;">
-                <button id="errorOk" class="btn btn-primary" style="background:#ef4444;">OK</button>
-            </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="reportModal" class="modal-backdrop">
-        <div class="modal" style="max-width:400px;">
-          <div class="modal-body" style="padding:20px;">
-              <div style="font-weight:700; font-size:1.1rem; color:#111827; margin-bottom:10px;">Bulk Schedule Report</div>
-              <p id="reportText" style="color:#374151; font-size:0.9rem; line-height:1.5; white-space: pre-wrap; max-height:200px; overflow-y:auto;"></p>
-              <div style="display:flex; justify-content:flex-end; margin-top:20px;">
-                  <button id="reportOk" class="btn btn-primary">Close</button>
-              </div>
-          </div>
-        </div>
-      </div>
-
-    <div id="shiftModal" class="modal-backdrop">
-        <div class="modal" style="max-width:400px;">
-            <div class="modal-header">
-                <div class="modal-title">Bulk Shift Timings</div>
-                <button id="shiftModalClose" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
-            </div>
-            <div class="modal-body" style="padding:16px;">
-                <div style="margin-bottom:12px; font-weight:600;" id="shiftStudentNameDisplay"></div>
-                <div class="form-group">
-                    <label>Find all future classes at:</label>
-                    <input type="text" id="shiftOldTime" class="shift-time-input" placeholder="hh:mm AM/PM">
-                </div>
-                <div class="form-group">
-                    <label>Shift them to:</label>
-                    <input type="text" id="shiftNewTime" class="shift-time-input" placeholder="hh:mm AM/PM">
-                </div>
-                <div class="form-group">
-                    <label>Starting from:</label>
-                    <input type="date" id="shiftStartDate">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="shiftSaveBtn" class="btn btn-primary">Shift All</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="copyWeekModal" class="modal-backdrop">
-        <div class="modal" style="max-width:400px;">
-            <div class="modal-header">
-                <div class="modal-title">Copy Schedule</div>
-                <button id="copyWeekClose" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
-            </div>
-            <div class="modal-body" style="padding:16px;">
-                <div style="display:flex; gap:16px; margin-bottom:12px; border-bottom:1px solid #e5e7eb; padding-bottom:8px;">
-                    <label style="font-weight:normal; cursor:pointer;"><input type="radio" name="copyMode" value="week" checked> Copy Full Week</label>
-                    <label style="font-weight:normal; cursor:pointer;"><input type="radio" name="copyMode" value="day"> Copy Single Day</label>
-                </div>
-                
-                <div class="form-group">
-                    <label id="copySourceLabel">Source Week (Pick any date in that week):</label>
-                    <input type="date" id="copySourceDate">
-                </div>
-                <div class="form-group">
-                    <label id="copyTargetLabel">Target Week Start Date (Monday):</label>
-                    <input type="date" id="copyTargetDate">
-                </div>
-                <div style="font-size:0.8rem; color:#6b7280; margin-top:8px;">
-                    Copies all active classes. Existing classes in target range are NOT deleted.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="copyWeekBtn" class="btn btn-primary">Copy Schedule</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="editStudentModal" class="modal-backdrop">
-        <div class="modal" style="max-width:400px;">
-            <div class="modal-header">
-                <div class="modal-title">Edit Student Type</div>
-                <button id="editStudentClose" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
-            </div>
-            <div class="modal-body" style="padding:16px;">
-                <div style="margin-bottom:12px; font-weight:600;" id="editStudentNameDisplay"></div>
-                <div class="form-group">
-                    <label>Select New Type:</label>
-                    <select id="editStudentTypeSelect">
-                        <option value="PS">PS</option>
-                        <option value="CM">CM</option>
-                        <option value="Trial">Trial</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="editStudentSaveBtn" class="btn btn-primary">Save Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="pendingReviewModal" class="modal-backdrop">
-        <div class="modal" style="max-width:500px;">
-            <div class="modal-header">
-                <div class="modal-title">Pending CM Reviews</div>
-                <button id="pendingReviewClose" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
-            </div>
-            <div class="modal-body" style="padding:0;">
-                <div id="pendingReviewList" style="max-height:400px; overflow-y:auto;"></div>
-            </div>
-            <div class="modal-footer" style="padding:12px;">
-                <div style="font-size:0.75rem; color:#6b7280; width:100%; text-align:center;">Select status to clear from list</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="historyModal" class="modal-backdrop">
-        <div class="modal" style="max-width:400px;">
-            <div class="modal-header">
-                <div class="modal-title">History & Reports</div>
-                <button id="historyClose" class="btn btn-outline" style="padding:4px 8px;font-size:0.78rem;">✕</button>
-            </div>
-            <div class="modal-body" style="padding:16px;">
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <select id="historyMonth" style="flex:1;">
-                        <option value="0">January</option>
-                        <option value="1">February</option>
-                        <option value="2">March</option>
-                        <option value="3">April</option>
-                        <option value="4">May</option>
-                        <option value="5">June</option>
-                        <option value="6">July</option>
-                        <option value="7">August</option>
-                        <option value="8">September</option>
-                        <option value="9">October</option>
-                        <option value="10">November</option>
-                        <option value="11">December</option>
-                    </select>
-                    <select id="historyYear" style="width:80px;">
-                        <option value="2025">2025</option>
-                        <option value="2026" selected>2026</option>
-                    </select>
-                </div>
-                <button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button>
-                
-                <div id="historyResult" style="display:none; margin-top:15px;">
-                    <div class="history-summary">
-                        <div>
-                            <div style="font-size:0.75rem; color:#6b7280;">Total Classes</div>
-                            <div id="histTotalClasses" style="font-size:1.1rem; color:#1f2937;">0</div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:0.75rem; color:#6b7280;">CM Earnings</div>
-                            <div id="histEarnings" style="font-size:1.1rem; color:#10b981;">₹0</div>
-                        </div>
-                    </div>
-                    <div style="max-height:200px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:8px;">
-                        <table class="history-table">
-                            <thead><tr><th>Student</th><th>Classes</th></tr></thead>
-                            <tbody id="histTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="fab-container">
-        <button class="fab-main" id="fab-main" title="Quick actions">⚡</button>
         <div class="fab-menu" id="fab-menu">
-            <div class="fab-item" id="fab-add-student">➕ Add Student</div>
-            <div class="fab-item" id="fab-schedule-class">📅 Schedule Class</div>
-            <div class="fab-item" id="fab-load-today">📆 Load Today</div>
-            <div class="fab-item" id="fab-go-classes">🗂 Classes Tab</div>
+            <div class="fab-item" onclick="showMainSection('students'); document.getElementById('student-name-input').focus();">➕ Add Student</div>
+            <div class="fab-item" onclick="showMainSection('students'); document.getElementById('student-delete-select').focus();">🗑 Delete Student</div>
+            <div class="fab-item" onclick="showMainSection('classes'); window.scrollTo(0, document.getElementById('schedule-class-btn').offsetTop - 200);">📅 Schedule Class</div>
+            <div class="fab-item" onclick="showMainSection('classes'); document.getElementById('view-classes-output').scrollIntoView({behavior:'smooth'});">🔁 Reschedule Class</div>
+            <div class="fab-item" onclick="openCopyWeekModal()">📋 Copy Week</div>
         </div>
+        <button class="fab-main" id="fab-main" title="Quick Actions">⚡</button>
     </div>
+
+    <div id="confirmModal" class="modal-backdrop"><div class="modal"><div style="text-align:center;"><div style="font-size:2rem;margin-bottom:10px;">🤔</div><p id="confirmText" style="font-weight:600;margin-bottom:20px;"></p><div style="display:flex;justify-content:center;gap:10px;"><button id="confirmNo" class="btn btn-outline">Cancel</button><button id="confirmYes" class="btn btn-primary">Proceed</button></div></div></div></div>
+    <div id="errorModal" class="modal-backdrop"><div class="modal" style="border-left:5px solid #ef4444;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="font-size:1.5rem;">⚠️</div><div style="font-weight:700;">Alert</div></div><p id="errorText" style="color:var(--text-sub);margin-bottom:20px;"></p><div style="text-align:right;"><button id="errorOk" class="btn btn-primary">OK</button></div></div></div>
+    <div id="reportModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Report</div></div><div class="modal-body"><p id="reportText" style="white-space:pre-wrap;font-size:0.9rem;"></p></div><div class="modal-footer"><button id="reportOk" class="btn btn-primary">Close</button></div></div></div>
+    <div id="editStudentModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Edit Student</div><button id="editStudentClose" class="btn btn-outline" style="padding:4px 8px;">✕</button></div><div class="modal-body"><div id="editStudentNameDisplay" style="font-weight:600;margin-bottom:10px;"></div><label>Type</label><select id="editStudentTypeSelect"><option value="PS">PS</option><option value="CM">CM</option><option value="Trial">Trial</option></select></div><div class="modal-footer"><button id="editStudentSaveBtn" class="btn btn-primary">Save</button></div></div></div>
+    <div id="shiftModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Bulk Shift</div><button id="shiftModalClose" class="btn btn-outline" style="padding:4px 8px;">✕</button></div><div class="modal-body"><div id="shiftStudentNameDisplay" style="font-weight:600;margin-bottom:10px;"></div><label>Find Time</label><input type="text" id="shiftOldTime" class="shift-time-input" placeholder="hh:mm AM/PM"><label style="margin-top:10px;">Shift To</label><input type="text" id="shiftNewTime" class="shift-time-input"><label style="margin-top:10px;">Start Date</label><input type="date" id="shiftStartDate"></div><div class="modal-footer"><button id="shiftSaveBtn" class="btn btn-primary">Shift All</button></div></div></div>
+    <div id="copyWeekModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Copy Schedule</div><button id="copyWeekClose" class="btn btn-outline" style="padding:4px 8px;">✕</button></div><div class="modal-body"><div style="display:flex;gap:15px;margin-bottom:15px;"><label><input type="radio" name="copyMode" value="week" checked> Week</label><label><input type="radio" name="copyMode" value="day"> Day</label></div><label id="copySourceLabel">Source Start Date</label><input type="date" id="copySourceDate" style="margin-bottom:10px;"><label id="copyTargetLabel">Target Start Date</label><input type="date" id="copyTargetDate"></div><div class="modal-footer"><button id="copyWeekBtn" class="btn btn-primary">Copy</button></div></div></div>
+    <div id="pendingReviewModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Pending Reviews</div><button id="pendingReviewClose" class="btn btn-outline" style="padding:4px 8px;">✕</button></div><div class="modal-body" style="max-height:60vh;overflow-y:auto;" id="pendingReviewList"></div><div class="modal-footer" style="font-size:0.75rem;">Action clears item</div></div></div>
+    <div id="historyModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">History</div><button id="historyClose" class="btn btn-outline" style="padding:4px 8px;">✕</button></div><div class="modal-body"><div style="display:flex;gap:10px;margin-bottom:10px;"><select id="historyMonth"><option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option><option value="3">Apr</option><option value="4">May</option><option value="5">Jun</option><option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option><option value="9">Oct</option><option value="10">Nov</option><option value="11">Dec</option></select><select id="historyYear"><option value="2025">2025</option><option value="2026" selected>2026</option></select></div><button id="historyGenBtn" class="btn btn-primary btn-block">Generate</button><div id="historyResult" style="display:none;margin-top:15px;border:1px solid var(--border);padding:10px;border-radius:6px;"><div class="history-summary"><div>Total: <span id="histTotalClasses">0</span></div><div>Earnings: <span id="histEarnings">0</span></div></div><table class="history-table"><tbody id="histTableBody"></tbody></table></div></div></div></div>
+
+    <div id="toast-container" class="toast-container"></div>
 </div>
 
 <script>
@@ -601,21 +408,12 @@
         return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' });
     }
 
-    const APP_STATE = {
-        students: [],
-        allStudentsClean: [],
-        todayDate: null,
-        currentClassesDate: null,
-        currentClasses: [],
-        cache: {} 
-    };
-
-    const STUDENT_COLORS = ["#6366f1","#ec4899","#10b981","#f97316","#0ea5e9","#a855f7","#f59e0b","#22c55e"];
+    const APP_STATE = { students: [], todayDate: null, currentClassesDate: null, currentClasses: [], cache: {} };
+    const STUDENT_COLORS = ["#2563eb","#db2777","#059669","#d97706","#7c3aed","#0284c7"];
     const studentColorMap = {};
-    let motivationIndex = -1;
 
     function getStudentColor(name) {
-        if (!name) return "#4f46e5";
+        if (!name) return "#2563eb";
         if (!studentColorMap[name]) {
             const idx = Object.keys(studentColorMap).length % STUDENT_COLORS.length;
             studentColorMap[name] = STUDENT_COLORS[idx];
@@ -625,741 +423,464 @@
 
     function showToast(message, type = "success") {
         const container = document.getElementById("toast-container");
-        if (!container) return;
         const toast = document.createElement("div");
-        toast.className = `toast toast-${type === "error" ? "error" : type === "info" ? "info" : "success"}`;
-        toast.innerHTML = `<span class="toast-icon">${type === "error" ? "⚠️" : type === "info" ? "ℹ️" : "✅"}</span><span>${message}</span>`;
+        toast.className = `toast ${type === 'error' ? 'toast-error' : ''}`;
+        toast.innerHTML = `<span>${type==='error'?'⚠️':'✅'}</span><span>${message}</span>`;
         container.appendChild(toast);
         requestAnimationFrame(() => toast.classList.add("show"));
-        setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 200); }, 2200);
+        setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 300); }, 3000);
     }
 
-    /* Modals */
+    /* --- HELPERS --- */
     function showConfirm(text, onYes) {
-        const modal = document.getElementById("confirmModal");
-        const txt = document.getElementById("confirmText");
+        document.getElementById("confirmText").textContent = text;
+        document.getElementById("confirmModal").classList.add("show");
         const yesBtn = document.getElementById("confirmYes");
-        const noBtn = document.getElementById("confirmNo");
-        txt.textContent = text;
-        modal.classList.add("show");
         const newYes = yesBtn.cloneNode(true);
-        const newNo = noBtn.cloneNode(true);
         yesBtn.parentNode.replaceChild(newYes, yesBtn);
-        noBtn.parentNode.replaceChild(newNo, noBtn);
-        newYes.onclick = () => { modal.classList.remove("show"); onYes(); };
-        newNo.onclick = () => { modal.classList.remove("show"); };
+        newYes.onclick = () => { document.getElementById("confirmModal").classList.remove("show"); onYes(); };
     }
+    document.getElementById("confirmNo").onclick = () => document.getElementById("confirmModal").classList.remove("show");
 
     function showError(text) {
-        const modal = document.getElementById("errorModal");
-        const txt = document.getElementById("errorText");
-        const okBtn = document.getElementById("errorOk");
-        txt.textContent = text;
-        modal.classList.add("show");
-        const newOk = okBtn.cloneNode(true);
-        okBtn.parentNode.replaceChild(newOk, okBtn);
-        newOk.onclick = () => modal.classList.remove("show");
+        document.getElementById("errorText").textContent = text;
+        document.getElementById("errorModal").classList.add("show");
     }
+    document.getElementById("errorOk").onclick = () => document.getElementById("errorModal").classList.remove("show");
 
     function showReport(text) {
-        const modal = document.getElementById("reportModal");
-        const txt = document.getElementById("reportText");
-        const okBtn = document.getElementById("reportOk");
-        txt.textContent = text;
-        modal.classList.add("show");
-        const newOk = okBtn.cloneNode(true);
-        okBtn.parentNode.replaceChild(newOk, okBtn);
-        newOk.onclick = () => modal.classList.remove("show");
+        document.getElementById("reportText").textContent = text;
+        document.getElementById("reportModal").classList.add("show");
     }
+    document.getElementById("reportOk").onclick = () => document.getElementById("reportModal").classList.remove("show");
 
     async function fetchAPI(url, payload) {
         try {
-            const res = await fetch(GAS_API_URL, {
-                method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload || {})
-            });
+            const res = await fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload || {}) });
             return JSON.parse(await res.text());
         } catch (e) { return { status: "error", message: e.toString() }; }
     }
 
-    function addDaysUTC(isoDateStr, daysToAdd) {
-        const parts = isoDateStr.split('-');
+    /* --- DATE / TIME --- */
+    function addDaysUTC(iso, days) {
+        const parts = iso.split('-');
         const utcMs = Date.UTC(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
-        const newDate = new Date(utcMs + (daysToAdd * 24 * 60 * 60 * 1000));
-        return newDate.toISOString().split('T')[0];
+        return new Date(utcMs + (days * 86400000)).toISOString().split('T')[0];
     }
-
-    function formatDateToISO(d) { return d.toISOString().split('T')[0]; }
-    function isoToDisplayDate(isoDate) {
-        if (!isoDate) return '';
-        const parts = isoDate.split('-');
-        if(parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-        return isoDate;
-    }
-    function time24To12(t24) {
-        if (!t24) return '';
-        const [h, m] = t24.split(':');
-        let hh = parseInt(h, 10);
-        const ampm = hh >= 12 ? 'PM' : 'AM';
-        hh = hh % 12 || 12;
-        return `${hh}:${m} ${ampm}`;
-    }
+    function isoToDisplayDate(iso) { if(!iso) return ''; const p=iso.split('-'); return p.length===3 ? `${p[2]}/${p[1]}/${p[0]}` : iso; }
+    function time24To12(t24) { if(!t24) return ''; const [h,m] = t24.split(':'); let hh=parseInt(h); const ap=hh>=12?'PM':'AM'; hh=hh%12||12; return `${hh}:${m} ${ap}`; }
     function parseUserTimeTo24(t) {
-        if (!t) return "";
-        t = t.trim().toUpperCase();
-        const m = t.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/);
-        if (!m) return "";
-        let hh = parseInt(m[1], 10);
-        const mm = m[2] ? m[2] : "00";
-        if (m[3] === "PM" && hh !== 12) hh += 12;
-        if (m[3] === "AM" && hh === 12) hh = 0;
-        return String(hh).padStart(2, "0") + ":" + mm;
+        if(!t) return ""; t=t.trim().toUpperCase(); const m=t.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/);
+        if(!m) return ""; let hh=parseInt(m[1]); const mm=m[2]||"00";
+        if(m[3]==="PM" && hh!==12) hh+=12; if(m[3]==="AM" && hh===12) hh=0;
+        return String(hh).padStart(2,"0")+":"+mm;
     }
-
-    function normalizeUserTime(inputEl) {
-        const t = inputEl.value.trim().toUpperCase();
-        if(!t) return;
-        let hh=0, mm="00", ampm="PM";
-        if(t.match(/^\d{1,2}:\d{2}$/)) { inputEl.value = time24To12(t); return; }
+    function normalizeUserTime(input) {
+        const t = input.value.trim().toUpperCase(); if(!t) return;
+        if(t.match(/^\d{1,2}:\d{2}$/)) { input.value = time24To12(t); return; }
         const m = t.match(/^(\d{1,2})(?::(\d{2}))?\s*(A|P|AM|PM)?$/);
-        if(m) {
-            hh = parseInt(m[1]); if(m[2]) mm = m[2]; if(m[3] && m[3].startsWith("A")) ampm = "AM";
-            if(hh >= 1 && hh <= 12) inputEl.value = `${hh}:${mm} ${ampm}`;
-        }
+        if(m) { let hh=parseInt(m[1]); let mm=m[2]||"00"; let ap="PM"; if(m[3] && m[3].startsWith("A")) ap="AM"; if(hh>=1 && hh<=12) input.value = `${hh}:${mm} ${ap}`; }
     }
 
-    async function checkSlotConflict(date, time24, ignoreClassId = null) {
-        if (!APP_STATE.cache[date]) {
-            const res = await fetchAPI(null, { action: "getClasses", selectedDate: date });
-            APP_STATE.cache[date] = res.classes || [];
-        }
-        const classes = APP_STATE.cache[date];
-        return classes.some(c => c.StartTime == time24 && c.ClassID != ignoreClassId);
-    }
-
-    function initWorldClocks() {
+    /* --- CLOCKS --- */
+    function initClocks() {
         setInterval(() => {
-            document.getElementById("clock-india").textContent = "🕒 India: " + 
-                new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true });
+            document.getElementById("clock-india").textContent = "🕒 India: " + new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true });
         }, 1000);
-
-        const zoneSelect = document.getElementById("conv-student-zone");
-        const timeInput = document.getElementById("conv-student-time");
-        const resultDiv = document.getElementById("conv-result-ist");
-
-        function convertToIST() {
-            const studentZone = zoneSelect.value;
-            const inputVal = timeInput.value.trim();
-            if(!studentZone || !inputVal) { resultDiv.textContent = "--:-- IST"; return; }
-            normalizeUserTime(timeInput);
-            const time24 = parseUserTimeTo24(timeInput.value);
-            if(!time24) return;
-            try {
-                const now = new Date();
-                const studentString = now.toLocaleString("en-US", { timeZone: studentZone });
-                const istString = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-                const diff = new Date(istString) - new Date(studentString);
-                const [h, m] = time24.split(':');
-                const userDate = new Date(); userDate.setHours(h, m, 0, 0);
-                const resDate = new Date(userDate.getTime() + diff);
-                resultDiv.textContent = resDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " IST";
-            } catch(e) { resultDiv.textContent = "Error"; }
-        }
-        zoneSelect.addEventListener("change", convertToIST);
-        timeInput.addEventListener("blur", convertToIST);
+        const zone = document.getElementById("conv-student-zone");
+        const timeIn = document.getElementById("conv-student-time");
+        const resDiv = document.getElementById("conv-result-ist");
+        const calc = () => {
+            if(!zone.value || !timeIn.value) { resDiv.textContent = "--:-- IST"; return; }
+            normalizeUserTime(timeIn); const t24 = parseUserTimeTo24(timeIn.value); if(!t24) return;
+            const now = new Date();
+            const sTime = now.toLocaleString("en-US", { timeZone: zone.value });
+            const iTime = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+            const diff = new Date(iTime) - new Date(sTime);
+            const [h, m] = t24.split(':'); const d = new Date(); d.setHours(h, m, 0, 0);
+            resDiv.textContent = new Date(d.getTime() + diff).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " IST";
+        };
+        zone.onchange = calc; timeIn.onblur = calc;
     }
 
-    async function loadStudentsForDropdowns() {
+    /* --- LOGIC --- */
+    async function loadStudents() {
         const r = await fetchAPI(null, { action: "getAllStudents" });
         APP_STATE.students = r.students || [];
         const delSel = document.getElementById("student-delete-select");
         const schSel = document.getElementById("schedule-student-select");
-        delSel.innerHTML = '<option value="">Select student to delete</option>';
-        schSel.innerHTML = '<option value="">Select student</option>';
+        delSel.innerHTML = '<option value="">Select student...</option>';
+        schSel.innerHTML = '<option value="">Select student...</option>';
         APP_STATE.students.forEach(s => {
             const opt = `<option value="${s.name}">${s.name}</option>`;
             delSel.innerHTML += opt; schSel.innerHTML += opt;
         });
-        updateStudentStats();
-        renderStudentTable();
-        const bulkSelects = document.querySelectorAll('.bulk-student');
-        bulkSelects.forEach(sel => {
-            if(sel.options.length <= 1) {
-               sel.innerHTML = APP_STATE.students.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-            }
-        });
-    }
-
-    function renderStudentTable(filterText = "") {
-        const q = filterText.toLowerCase();
-        const buckets = { "Trial": [], "PS": [], "CM": [] };
         
-        APP_STATE.students.forEach(s => {
-            if(!q || s.name.toLowerCase().includes(q)) {
-                let t = s.type || "PS";
-                if(!buckets[t]) buckets[t] = [];
-                buckets[t].push(s);
-            }
-        });
-
-        const fillCol = (id, list, type) => {
-            const el = document.getElementById(id);
-            const countEl = document.getElementById("count-" + type.toLowerCase());
-            if(countEl) countEl.textContent = list.length;
-            if(list.length === 0) {
-                el.innerHTML = '<div style="font-size:0.8rem; color:#9ca3af; text-align:center; padding:10px;">None</div>';
-                return;
-            }
-            let html = "";
-            list.forEach(s => {
-                let btns = `<button class="btn btn-outline" style="padding:2px 6px; font-size:0.7rem;" onclick="openShiftModal('${s.name}')">🔁 Shift</button>`;
-                if (type === "Trial") {
-                    btns += `<button class="btn btn-soft" style="padding:2px 6px; font-size:0.7rem; margin-left:4px;" onclick="openEditStudent('${s.name}', '${s.type}')">✎ Edit</button>`;
-                }
-                html += `<div class="student-item-row"><span>${s.name}</span><div>${btns}</div></div>`;
-            });
-            el.innerHTML = html;
-        };
-        fillCol("list-trial", buckets["Trial"], "Trial");
-        fillCol("list-ps", buckets["PS"], "PS");
-        fillCol("list-cm", buckets["CM"], "CM");
-    }
-
-    /* COPY WEEK LOGIC (UPDATED) */
-    window.openCopyWeekModal = function() {
-        const modal = document.getElementById("copyWeekModal");
-        document.getElementById("copySourceDate").value = APP_STATE.todayDate; 
-        document.getElementById("copyTargetDate").value = addDaysUTC(APP_STATE.todayDate, 7); 
-        
-        // Listen for mode change
-        const radios = document.getElementsByName('copyMode');
-        radios.forEach(r => r.addEventListener('change', (e) => {
-            const isDay = e.target.value === 'day';
-            document.getElementById("copySourceLabel").textContent = isDay ? "Source Date:" : "Source Week (Pick any date in that week):";
-            document.getElementById("copyTargetLabel").textContent = isDay ? "Target Date:" : "Target Week Start Date (Monday):";
-        }));
-
-        // Snap to Monday logic for Week Mode
-        const sourceDateInput = document.getElementById("copySourceDate");
-        sourceDateInput.addEventListener('change', () => {
-             const mode = document.querySelector('input[name="copyMode"]:checked').value;
-             if(mode === 'week') {
-                 const d = new Date(sourceDateInput.value);
-                 const day = d.getDay(); // 0 is Sunday
-                 const diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
-                 const monday = new Date(d.setDate(diff));
-                 const isoMonday = monday.toISOString().split('T')[0];
-                 if(isoMonday !== sourceDateInput.value) {
-                     sourceDateInput.value = isoMonday;
-                     showToast("Snapped to Monday start date", "info");
-                 }
-             }
-        });
-
-        modal.classList.add("show");
-        
-        document.getElementById("copyWeekBtn").onclick = async () => {
-            const sDate = document.getElementById("copySourceDate").value;
-            const tDate = document.getElementById("copyTargetDate").value;
-            const mode = document.querySelector('input[name="copyMode"]:checked').value;
-            
-            if(!sDate || !tDate) return showToast("Select dates", "error");
-            
-            const btn = document.getElementById("copyWeekBtn");
-            btn.textContent = "Copying..."; btn.disabled = true;
-            
-            const res = await fetchAPI(null, { action: "copySchedule", sourceDate: sDate, targetDate: tDate, mode: mode });
-            modal.classList.remove("show");
-            showToast(`Copied ${res.count} classes!`, "success");
-            btn.textContent = "Copy Schedule"; btn.disabled = false;
-            fetchTodayOverview(true);
-        };
-    };
-    document.getElementById("copyWeekClose").onclick = () => document.getElementById("copyWeekModal").classList.remove("show");
-
-    /* Shift Logic */
-    window.openShiftModal = function(name) {
-        document.getElementById("shiftStudentNameDisplay").textContent = "Shifting: " + name;
-        document.getElementById("shiftStartDate").value = APP_STATE.todayDate;
-        document.getElementById("shiftModal").classList.add("show");
-        document.getElementById("shiftSaveBtn").onclick = async () => {
-            const oldT = parseUserTimeTo24(document.getElementById("shiftOldTime").value);
-            const newT = parseUserTimeTo24(document.getElementById("shiftNewTime").value);
-            const sDate = document.getElementById("shiftStartDate").value;
-            if(!oldT || !newT || !sDate) return showToast("Invalid inputs", "error");
-            const btn = document.getElementById("shiftSaveBtn");
-            btn.textContent = "Processing..."; btn.disabled = true;
-            const res = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: name, OldTime: oldT, NewTime: newT, StartDate: sDate });
-            document.getElementById("shiftModal").classList.remove("show");
-            showToast(`Shifted ${res.count} future classes!`, "success");
-            btn.textContent = "Shift All"; btn.disabled = false;
-            fetchTodayOverview(true);
-        };
-    };
-    const shiftOld = document.getElementById("shiftOldTime");
-    const shiftNew = document.getElementById("shiftNewTime");
-    if(shiftOld) shiftOld.addEventListener("blur", () => normalizeUserTime(shiftOld));
-    if(shiftNew) shiftNew.addEventListener("blur", () => normalizeUserTime(shiftNew));
-    document.getElementById("shiftModalClose").onclick = () => document.getElementById("shiftModal").classList.remove("show");
-
-    /* History Logic */
-    document.getElementById("btn-history").addEventListener("click", () => {
-        document.getElementById("historyModal").classList.add("show");
-        document.getElementById("historyResult").style.display = "none";
-        document.getElementById("historyGenBtn").disabled = false;
-        document.getElementById("historyGenBtn").textContent = "Generate Report";
-        const now = new Date();
-        document.getElementById("historyMonth").value = now.getMonth();
-        document.getElementById("historyYear").value = now.getFullYear();
-    });
-    document.getElementById("historyClose").onclick = () => document.getElementById("historyModal").classList.remove("show");
-    document.getElementById("historyGenBtn").onclick = async () => {
-        const m = document.getElementById("historyMonth").value;
-        const y = document.getElementById("historyYear").value;
-        const btn = document.getElementById("historyGenBtn");
-        btn.disabled = true; btn.textContent = "Fetching...";
-        try {
-            const res = await fetchAPI(null, { action: "getHistoryReport", month: m, year: y });
-            document.getElementById("histTotalClasses").textContent = res.totalClasses;
-            document.getElementById("histEarnings").textContent = "₹" + (res.earnings || 0).toLocaleString('en-IN');
-            const tbody = document.getElementById("histTableBody"); tbody.innerHTML = "";
-            const sorted = Object.entries(res.breakdown || {}).sort((a,b) => b[1] - a[1]);
-            if(sorted.length === 0) tbody.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No classes found.</td></tr>";
-            else sorted.forEach(([name, count]) => tbody.innerHTML += `<tr><td>${name}</td><td>${count}</td></tr>`);
-            document.getElementById("historyResult").style.display = "block";
-        } catch(e) { showToast("Failed to fetch report", "error"); } finally { btn.disabled = false; btn.textContent = "Generate Report"; }
-    };
-
-    window.openEditStudent = function(name, type) {
-        document.getElementById("editStudentNameDisplay").textContent = "Editing: " + name;
-        document.getElementById("editStudentTypeSelect").value = type;
-        document.getElementById("editStudentModal").classList.add("show");
-        document.getElementById("editStudentSaveBtn").onclick = async () => {
-            const newType = document.getElementById("editStudentTypeSelect").value;
-            const btn = document.getElementById("editStudentSaveBtn");
-            btn.textContent = "Saving...";
-            await fetchAPI(null, { action: "updateStudentType", StudentName: name, NewType: newType });
-            btn.textContent = "Save Changes";
-            document.getElementById("editStudentModal").classList.remove("show");
-            showToast("Student updated!", "success");
-            loadStudentsForDropdowns();
-        };
-    };
-    document.getElementById("editStudentClose").onclick = () => document.getElementById("editStudentModal").classList.remove("show");
-
-    function updateStudentStats() {
-        document.getElementById("stats-total-students").textContent = APP_STATE.students.length || "--";
+        document.getElementById("stats-total-students").textContent = APP_STATE.students.length;
         const ps = APP_STATE.students.filter(s => s.type === "PS").length;
         const cm = APP_STATE.students.filter(s => s.type === "CM").length;
         const tr = APP_STATE.students.filter(s => s.type === "Trial").length;
         document.getElementById("stats-students-sub").textContent = `${ps} PS | ${cm} CM | ${tr} Trial`;
+
+        renderStudents();
     }
 
-    document.getElementById("refresh-students-btn").addEventListener("click", loadStudentsForDropdowns);
-    document.getElementById("refresh-students-overview-btn").addEventListener("click", loadStudentsForDropdowns);
+    function renderStudents(filter="") {
+        const q = filter.toLowerCase();
+        const buckets = { "Trial": [], "PS": [], "CM": [] };
+        APP_STATE.students.forEach(s => {
+            if(!q || s.name.toLowerCase().includes(q)) buckets[s.type || "PS"].push(s);
+        });
+        const fill = (id, list, type) => {
+            const el = document.getElementById(id);
+            document.getElementById("count-"+type.toLowerCase()).textContent = list.length;
+            if(!list.length) { el.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:10px;">None</div>'; return; }
+            let h = "";
+            list.forEach(s => {
+                let btns = `<button class="btn btn-outline" style="padding:2px 6px; font-size:0.7rem;" onclick="openShiftModal('${s.name}')">🔁</button>`;
+                if(type === "Trial") btns += `<button class="btn btn-soft" style="padding:2px 6px; font-size:0.7rem; margin-left:4px;" onclick="openEdit('${s.name}','${s.type}')">✎</button>`;
+                h += `<div class="student-item-row"><span>${s.name}</span><div>${btns}</div></div>`;
+            });
+            el.innerHTML = h;
+        };
+        fill("list-trial", buckets["Trial"], "Trial");
+        fill("list-ps", buckets["PS"], "PS");
+        fill("list-cm", buckets["CM"], "CM");
+    }
 
-    document.getElementById("add-student-btn").addEventListener("click", async () => {
+    window.openEdit = (name, type) => {
+        document.getElementById("editStudentNameDisplay").textContent = name;
+        document.getElementById("editStudentTypeSelect").value = type;
+        document.getElementById("editStudentModal").classList.add("show");
+        document.getElementById("editStudentSaveBtn").onclick = async () => {
+            const nt = document.getElementById("editStudentTypeSelect").value;
+            const btn = document.getElementById("editStudentSaveBtn");
+            btn.textContent = "Saving...";
+            await fetchAPI(null, { action: "updateStudentType", StudentName: name, NewType: nt });
+            btn.textContent = "Save";
+            document.getElementById("editStudentModal").classList.remove("show");
+            showToast("Updated"); loadStudents();
+        };
+    };
+    document.getElementById("editStudentClose").onclick = () => document.getElementById("editStudentModal").classList.remove("show");
+
+    document.getElementById("add-student-btn").onclick = async () => {
         const name = document.getElementById("student-name-input").value.trim();
         const type = document.querySelector("input[name='studentType']:checked").value;
-        if (!name) return showToast("Enter name", "error");
+        if(!name) return showToast("Enter name", "error");
         document.getElementById("manage-students-msg").innerHTML = '<div class="loading">Adding...</div>';
         await fetchAPI(null, { action: "addStudent", StudentName: name, Type: type });
         document.getElementById("manage-students-msg").innerHTML = '<div class="success">Added</div>';
-        loadStudentsForDropdowns();
-    });
+        loadStudents();
+    };
 
-    document.getElementById("delete-student-btn").addEventListener("click", async () => {
+    document.getElementById("delete-student-btn").onclick = () => {
         const name = document.getElementById("student-delete-select").value;
-        if (!name) return showToast("Select student", "error");
-        showConfirm(`Delete ${name} AND cancel all future classes?`, async () => {
+        if(!name) return showToast("Select student", "error");
+        showConfirm(`Delete ${name}? This cancels future classes.`, async () => {
             document.getElementById("manage-students-msg").innerHTML = '<div class="loading">Deleting...</div>';
             await fetchAPI(null, { action: "deleteStudent", StudentName: name });
             document.getElementById("manage-students-msg").innerHTML = '<div class="success">Deleted</div>';
-            loadStudentsForDropdowns();
-            fetchTodayOverview(true); 
+            loadStudents(); fetchToday();
         });
-    });
-
-    /* EARNINGS & PENDING REVIEWS */
-    async function loadEarnings() {
-        const res = await fetchAPI(null, { action: "getMonthlyEarnings" });
-        if(res.count !== undefined) {
-            document.getElementById("stats-earnings-main").textContent = "₹" + (res.earnings || 0).toLocaleString('en-IN');
-            document.getElementById("stats-earnings-sub").textContent = `${res.count} completed classes in ${res.month}`;
-        }
-    }
-    document.getElementById("refresh-earnings-btn").addEventListener("click", loadEarnings);
-
-    document.getElementById("btn-review-pending").addEventListener("click", async () => {
-        const listEl = document.getElementById("pendingReviewList");
-        listEl.innerHTML = '<div style="padding:20px;text-align:center;">Loading...</div>';
-        document.getElementById("pendingReviewModal").classList.add("show");
-        const res = await fetchAPI(null, { action: "getPendingReviews" });
-        listEl.innerHTML = "";
-        if(!res.pending || res.pending.length === 0) {
-            listEl.innerHTML = '<div style="padding:20px;text-align:center;color:#6b7280;">No pending reviews. Good job!</div>';
-            return;
-        }
-        res.pending.forEach(p => {
-            const div = document.createElement("div");
-            div.className = "pending-list-item";
-            div.innerHTML = `
-                <div class="pending-info"><strong>${p.StudentName}</strong><span>${isoToDisplayDate(p.ClassDate)} at ${time24To12(p.StartTime)}</span></div>
-                <div class="pending-actions">
-                    <select class="status-select" onchange="updatePendingStatus('${p.ClassID}', this.value, this)">
-                        <option value="" disabled selected>Action</option>
-                        <option value="Completed">✅ Completed</option>
-                        <option value="Cancelled">❌ Cancelled</option>
-                        <option value="Paused">⏸ Paused</option>
-                    </select>
-                </div>`;
-            listEl.appendChild(div);
-        });
-    });
-
-    window.updatePendingStatus = async function(id, status, selectEl) {
-        const row = selectEl.closest(".pending-list-item");
-        row.style.opacity = "0.5"; selectEl.disabled = true;
-        await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status });
-        row.remove(); loadEarnings(); 
-        if(document.getElementById("pendingReviewList").children.length === 0) {
-             document.getElementById("pendingReviewList").innerHTML = '<div style="padding:20px;text-align:center;color:#6b7280;">All cleared!</div>';
-        }
     };
-    document.getElementById("pendingReviewClose").onclick = () => document.getElementById("pendingReviewModal").classList.remove("show");
 
-    /* Normal Classes Fetch */
-    async function fetchClasses(date) {
-        if (!date) return [];
-        const res = await fetchAPI(null, { action: "getClasses", selectedDate: date });
-        APP_STATE.cache[date] = res.classes || [];
-        return res.classes || [];
+    /* --- CLASSES --- */
+    async function fetchToday(force=false) {
+        const cls = await fetchAPI(null, { action: "getClasses", selectedDate: APP_STATE.todayDate });
+        APP_STATE.cache[APP_STATE.todayDate] = cls.classes || [];
+        if(force) loadWeekly();
+        updateStats(APP_STATE.todayDate, cls.classes || []);
     }
 
-    async function loadWeeklyCounts() {
-        const base = new Date(APP_STATE.todayDate);
-        base.setDate(base.getDate() - (base.getDay() + 6) % 7); 
-        const isoStart = formatDateToISO(base);
-        const res = await fetchAPI(null, { action: "getWeekSummary", startDate: isoStart });
-        APP_STATE.weeklySummary = res.summary || {};
-        updateClassesStats(APP_STATE.todayDate, APP_STATE.currentClasses);
+    async function loadWeekly() {
+        const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7);
+        const iso = d.toISOString().split('T')[0];
+        const r = await fetchAPI(null, { action: "getWeekSummary", startDate: iso });
+        APP_STATE.weeklySummary = r.summary || {};
+        updateStats(APP_STATE.todayDate, APP_STATE.currentClasses);
     }
 
-    async function fetchTodayOverview(forceRefresh = false) {
-        const classes = await fetchClasses(APP_STATE.todayDate);
-        if (forceRefresh) await loadWeeklyCounts(); 
-        updateClassesStats(APP_STATE.todayDate, classes);
-    }
-
-    function updateClassesStats(date, classes) {
-        APP_STATE.currentClassesDate = date;
+    function updateStats(date, classes) {
         APP_STATE.currentClasses = classes;
-        if (date === APP_STATE.todayDate) {
-            const list = document.getElementById("today-classes-list");
+        if(date === APP_STATE.todayDate) {
             document.getElementById("stats-today-main").textContent = classes.length ? `${classes.length} classes` : "No classes";
-            list.innerHTML = "";
-            classes.forEach(c => {
-                const div = document.createElement("div");
-                div.className = "today-class-item";
-                div.textContent = `${time24To12(c.StartTime)} - ${c.StudentName}`;
-                list.appendChild(div);
-            });
+            const l = document.getElementById("today-classes-list"); l.innerHTML = "";
+            classes.forEach(c => l.innerHTML += `<div class="today-class-item">${time24To12(c.StartTime)} - ${c.StudentName}</div>`);
         }
-        const strip = document.getElementById("weekly-strip");
-        strip.innerHTML = "";
-        const base = new Date(APP_STATE.todayDate);
-        base.setDate(base.getDate() - (base.getDay() + 6) % 7); 
+        const s = document.getElementById("weekly-strip"); s.innerHTML = "";
+        const base = new Date(APP_STATE.todayDate); base.setDate(base.getDate() - (base.getDay()+6)%7);
         for(let i=0; i<7; i++) {
-            const d = new Date(base); d.setDate(base.getDate() + i);
-            const iso = formatDateToISO(d);
-            const count = (APP_STATE.weeklySummary || {})[iso];
-            const div = document.createElement("div");
-            div.className = "weekly-day";
+            const d = new Date(base); d.setDate(base.getDate()+i); const iso = d.toISOString().split('T')[0];
+            const c = (APP_STATE.weeklySummary||{})[iso];
+            const div = document.createElement("div"); div.className = "weekly-day";
             if(iso === APP_STATE.todayDate) div.classList.add("today");
-            if(count > 0) div.classList.add("has-classes");
-            div.innerHTML = `${d.toLocaleDateString("en-GB", { weekday: "short" })}<br>${count !== undefined ? count : '-'}`;
-            div.onclick = () => {
-                document.getElementById("view-date").value = iso;
-                showMainSection("classes");
-                fetchClassesForDate(iso);
-            };
-            strip.appendChild(div);
+            if(c > 0) div.classList.add("has-classes");
+            div.innerHTML = `${d.toLocaleDateString("en-GB",{weekday:"short"})}<br>${c||'-'}`;
+            div.onclick = () => { document.getElementById("view-date").value = iso; showMainSection('classes'); renderClassesForDate(iso); };
+            s.appendChild(div);
         }
     }
 
-    async function fetchClassesForDate(date) {
+    async function renderClassesForDate(dateStr) {
         const out = document.getElementById("view-classes-output");
         out.innerHTML = '<div class="loading">Loading...</div>';
-        const classes = await fetchClasses(date);
-        renderClassCards(classes, date);
-    }
+        const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr });
+        const classes = res.classes || [];
+        
+        // Free slots
+        const busy = [];
+        classes.forEach(c => {
+            const [h,m] = c.StartTime.split(':');
+            const s = parseInt(h)*60 + parseInt(m);
+            busy.push({ s: s, e: s+60 });
+        });
+        busy.sort((a,b) => a.s - b.s);
+        let ptr = 540; const end = 1260; let html = "";
+        busy.forEach(b => {
+            if(b.s > ptr) { if(b.s - ptr >= 30) html += `<div class="free-slot-item">${minToTime(ptr)} - ${minToTime(b.s)}</div>`; }
+            if(b.e > ptr) ptr = b.e;
+        });
+        if(ptr < end) html += `<div class="free-slot-item">${minToTime(ptr)} - ${minToTime(end)}</div>`;
+        document.getElementById("free-slots-list").innerHTML = html || "<div style='color:#94a3b8;font-size:0.8rem;text-align:center;'>No free slots</div>";
 
-    function renderClassCards(classes, dateStr) {
-        const container = document.getElementById("view-classes-output");
-        container.innerHTML = "";
-        
-        const slotContainer = document.getElementById("free-slots-list");
-        slotContainer.innerHTML = "";
-        let busySlots = []; 
-        
-        classes.sort((a,b) => a.StartTime.localeCompare(b.StartTime));
-        if (!classes.length) { container.innerHTML = '<div class="info">No classes found.</div>'; }
+        out.innerHTML = "";
+        if(!classes.length) { out.innerHTML = '<div class="info">No classes scheduled.</div>'; return; }
         
         classes.forEach(c => {
-            const [h,m] = c.StartTime.split(':').map(Number);
-            const startMins = h*60 + m;
-            const endMins = startMins + 60; 
-            busySlots.push({start: startMins, end: endMins});
-            
-            const card = document.createElement("div");
-            card.className = "class-card";
-            const dispDate = isoToDisplayDate(c.ClassDate);
-            const dispTime = time24To12(c.StartTime);
-            const studentName = c.StudentName;
-            
-            const studentObj = APP_STATE.students.find(s => s.name === c.StudentName);
-            const isCM = studentObj && studentObj.type === "CM";
+            const card = document.createElement("div"); card.className = "class-card";
+            const sObj = APP_STATE.students.find(s => s.name === c.StudentName);
+            const isCM = sObj && sObj.type === "CM";
+            let msg = `Hi, this is a reminder that ${c.StudentName} has an English class scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(c.StartTime)} IST.`;
+            if(!isCM) msg += `\n\nPlease join using your PlanetSpark class link.`;
+            msg += `\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
 
-            let msgTemplate = `Hi, this is a reminder that ${studentName} has an English class scheduled on ${dispDate} at ${dispTime} IST.`;
-            if (!isCM) { msgTemplate += `\n\nPlease join using your PlanetSpark class link.`; }
-            msgTemplate += `\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
-            
-            let statusHtml = `<div><select class="status-select" data-id="${c.ClassID}">
-                <option value="Scheduled" ${c.Status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
-                <option value="Completed" ${c.Status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
-                <option value="Student No Show" ${c.Status === 'Student No Show' ? 'selected' : ''}>⚠️ Student No Show</option>
-                <option value="Cancelled" ${c.Status === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option>
-                <option value="Paused" ${c.Status === 'Paused' ? 'selected' : ''}>⏸ Paused</option>
-                <option value="Rescheduled" ${c.Status === 'Rescheduled' ? 'selected' : ''}>🔁 Rescheduled</option>
+            let stat = `<div><select class="status-select" data-id="${c.ClassID}">
+                <option value="Scheduled" ${c.Status==='Scheduled'?'selected':''}>Scheduled</option>
+                <option value="Completed" ${c.Status==='Completed'?'selected':''}>✅ Completed</option>
+                <option value="Student No Show" ${c.Status==='Student No Show'?'selected':''}>⚠️ No Show</option>
+                <option value="Cancelled" ${c.Status==='Cancelled'?'selected':''}>❌ Cancelled</option>
+                <option value="Paused" ${c.Status==='Paused'?'selected':''}>⏸ Paused</option>
+                <option value="Rescheduled" ${c.Status==='Rescheduled'?'selected':''}>🔁 Rescheduled</option>
             </select></div>`;
 
             card.innerHTML = `
-                <div class="class-accent" style="background:${getStudentColor(c.StudentName)}"></div>
-                <div class="class-card__row"><div><div class="class-student">👤 ${c.StudentName}</div><div class="meta">📅 ${dispDate} • ⏰ ${dispTime} IST</div></div>${statusHtml}</div>
-                <div class="inline-actions"><button class="btn btn-soft btn-generate">💬 Message</button><button class="btn btn-outline btn-reschedule">🔁 Reschedule</button></div>
-                <div class="expand-block generate-area" style="display:none;"><div class="msg-preview">${msgTemplate}</div><button class="btn btn-primary btn-copy" style="margin-top:6px;">📋 Copy</button></div>
-                <div class="expand-block resched-area" style="display:none;"><input type="date" class="res-date" value="${dateStr}"><input type="text" class="res-time" value="${dispTime}" placeholder="hh:mm AM/PM"><button class="btn btn-primary btn-res-submit" style="margin-top:6px;">Save</button></div>`;
+                <div class="class-card__row"><div><div class="class-student">👤 ${c.StudentName}</div><div class="meta">📅 ${isoToDisplayDate(c.ClassDate)} • ⏰ ${time24To12(c.StartTime)} IST</div></div>${stat}</div>
+                <div class="inline-actions"><button class="btn btn-soft btn-sm btn-generate">💬 Message</button><button class="btn btn-outline btn-sm btn-reschedule">🔁 Reschedule</button></div>
+                <div class="expand-block generate-area" style="display:none;"><div class="msg-preview">${msg}</div><button class="btn btn-primary btn-sm btn-copy" style="margin-top:6px;">Copy</button></div>
+                <div class="expand-block resched-area" style="display:none;"><input type="date" class="res-date" value="${dateStr}"><input type="text" class="res-time" value="${time24To12(c.StartTime)}" placeholder="hh:mm AM/PM"><button class="btn btn-primary btn-sm btn-res-submit" style="margin-top:6px;">Save</button></div>`;
             
-            const sel = card.querySelector(".status-select");
-            sel.addEventListener("change", async () => {
-                const newStatus = sel.value;
-                sel.disabled = true; 
-                await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: newStatus });
-                sel.disabled = false;
-                showToast(`Marked as ${newStatus}`);
-                loadEarnings(); loadWeeklyCounts(); 
-            });
-
-            const resTimeInput = card.querySelector(".res-time");
-            resTimeInput.addEventListener("blur", () => normalizeUserTime(resTimeInput));
-            card.querySelector(".btn-generate").onclick = () => { const el = card.querySelector(".generate-area"); el.style.display = el.style.display==="none"?"block":"none"; };
-            card.querySelector(".btn-copy").onclick = () => { navigator.clipboard.writeText(card.querySelector(".msg-preview").textContent); showToast("Copied"); };
-            card.querySelector(".btn-reschedule").onclick = () => { const el = card.querySelector(".resched-area"); el.style.display = el.style.display==="none"?"block":"none"; };
+            card.querySelector(".status-select").onchange = async (e) => {
+                e.target.disabled = true;
+                await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: e.target.value });
+                e.target.disabled = false; showToast("Status updated"); loadEarnings(); loadWeekly();
+            };
+            const rT = card.querySelector(".res-time"); rT.onblur = () => normalizeUserTime(rT);
+            card.querySelector(".btn-generate").onclick = () => { const x=card.querySelector(".generate-area"); x.style.display = x.style.display==="none"?"block":"none"; };
+            card.querySelector(".btn-copy").onclick = () => { navigator.clipboard.writeText(msg); showToast("Copied"); };
+            card.querySelector(".btn-reschedule").onclick = () => { const x=card.querySelector(".resched-area"); x.style.display = x.style.display==="none"?"block":"none"; };
             card.querySelector(".btn-res-submit").onclick = async () => {
-                const nd = card.querySelector(".res-date").value;
-                const nt = parseUserTimeTo24(card.querySelector(".res-time").value);
+                const nd = card.querySelector(".res-date").value; const nt = parseUserTimeTo24(card.querySelector(".res-time").value);
                 if(!nd || !nt) return showToast("Invalid date/time", "error");
-                const isConflict = await checkSlotConflict(nd, nt, c.ClassID);
-                if(isConflict) { showError(`Slot taken on ${isoToDisplayDate(nd)} at ${time24To12(nt)}.`); return; }
+                const busy = await checkSlotConflict(nd, nt, c.ClassID);
+                if(busy) return showError(`Slot conflict on ${isoToDisplayDate(nd)} at ${time24To12(nt)}.`);
                 card.innerHTML = '<div class="loading">Rescheduling...</div>';
                 await fetchAPI(null, { action: "rescheduleClass", StudentName: c.StudentName, OldDate: dateStr, NewDate: nd, NewTime: nt, CalendarEventID: c.CalendarEventID, ClassID: c.ClassID });
-                showToast("Rescheduled!");
-                fetchClassesForDate(dateStr); loadWeeklyCounts(); 
+                showToast("Rescheduled"); renderClassesForDate(dateStr); loadWeekly();
             };
-            container.appendChild(card);
+            out.appendChild(card);
         });
+    }
 
-        // 2. Compute Free Slots (9:00 -> 21:00 = 540 -> 1260 mins)
-        busySlots.sort((a,b) => a.start - b.start);
+    function minToTime(m) { let h=Math.floor(m/60); let mm=m%60; let ap=h>=12?"PM":"AM"; if(h>12) h-=12; if(h===0) h=12; return `${h}:${String(mm).padStart(2,'0')} ${ap}`; }
+
+    async function checkSlotConflict(date, time, ignoreId) {
+        const r = await fetchAPI(null, { action: "getClasses", selectedDate: date });
+        return (r.classes||[]).some(c => c.StartTime === time && c.ClassID !== ignoreId);
+    }
+
+    document.getElementById("view-classes-btn").onclick = () => renderClassesForDate(document.getElementById("view-date").value);
+    document.getElementById("refresh-today-btn").onclick = () => fetchToday(true);
+    document.getElementById("refresh-week-btn").onclick = () => fetchToday(true);
+
+    /* --- SCHEDULE & BULK --- */
+    const sT = document.getElementById("schedule-time"); sT.onblur = () => normalizeUserTime(sT);
+    document.getElementById("schedule-class-btn").onclick = async () => {
+        const s = document.getElementById("schedule-student-select").value;
+        const d = document.getElementById("schedule-date").value;
+        const t = parseUserTimeTo24(sT.value);
+        const rep = parseInt(document.getElementById("schedule-repeat").value);
+        if(!s || !d || !t) return showToast("Fill all fields", "error");
+        document.getElementById("schedule-msg").innerHTML = '<div class="loading">Checking...</div>';
+        for(let i=0; i<=rep; i++) {
+            const cd = addDaysUTC(d, i*7);
+            if(await checkSlotConflict(cd, t)) { document.getElementById("schedule-msg").innerHTML = ""; return showError(`Conflict on ${isoToDisplayDate(cd)}`); }
+        }
+        document.getElementById("schedule-msg").innerHTML = '<div class="loading">Scheduling...</div>';
+        for(let i=0; i<=rep; i++) await fetchAPI(null, { action: "ScheduleClass", StudentName: s, ClassDate: addDaysUTC(d, i*7), StartTime: t });
+        document.getElementById("schedule-msg").innerHTML = '<div class="success">Done</div>';
+        loadWeekly(); fetchToday();
+    };
+
+    document.getElementById("addBulkRowBtn").onclick = () => {
+        const d = document.createElement("div"); d.className = "bulk-row";
+        let opts = ""; APP_STATE.students.forEach(s => opts += `<option value="${s.name}">${s.name}</option>`);
+        d.innerHTML = `<select class="bulk-student">${opts}</select><input type="text" class="bulk-time" placeholder="hh:mm"><button class="btn btn-outline" style="padding:4px 8px;" onclick="this.parentElement.remove()">✕</button>`;
+        d.querySelector(".bulk-time").onblur = function() { normalizeUserTime(this); };
+        document.getElementById("bulkRowsContainer").appendChild(d);
+    };
+    document.getElementById("bulkScheduleBtn").onclick = async () => {
+        const rows = document.querySelectorAll(".bulk-row");
+        const d = document.getElementById("bulkDate").value;
+        const rep = parseInt(document.getElementById("bulkRepeatWeeks").value);
+        if(!rows.length || !d) return;
+        let tasks = [];
+        rows.forEach(r => { const s=r.querySelector(".bulk-student").value; const t=parseUserTimeTo24(r.querySelector(".bulk-time").value); if(s&&t) tasks.push({s,t}); });
+        if(!tasks.length) return showToast("No valid rows", "error");
         
-        let pointer = 540; 
-        const END_DAY = 1260; 
-        
-        let htmlSlots = "";
-        
-        busySlots.forEach(slot => {
-            if (slot.start > pointer) {
-                const gapStart = pointer;
-                const gapEnd = slot.start;
-                if ((gapEnd - gapStart) >= 30) {
-                     htmlSlots += `<div class="free-slot-item">✅ ${minToTime(gapStart)} - ${minToTime(gapEnd)}</div>`;
+        showConfirm(`Schedule ${tasks.length} students starting ${isoToDisplayDate(d)}?`, async () => {
+            const btn = document.getElementById("bulkScheduleBtn"); btn.disabled = true; btn.textContent = "Processing...";
+            let log = "";
+            let booked = new Set();
+            for(let task of tasks) {
+                let fail = [];
+                for(let i=0; i<=rep; i++) {
+                    const cd = addDaysUTC(d, i*7); const k = cd+"|"+task.t;
+                    if(booked.has(k) || await checkSlotConflict(cd, task.t)) { fail.push(isoToDisplayDate(cd)); continue; }
+                    await fetchAPI(null, { action: "ScheduleClass", StudentName: task.s, ClassDate: cd, StartTime: task.t });
+                    booked.add(k); delete APP_STATE.cache[cd];
                 }
+                if(fail.length) log += `❌ ${task.s}: Failed on ${fail.join(", ")}\n`; else log += `✅ ${task.s}: Success\n`;
             }
-            if (slot.end > pointer) pointer = slot.end;
+            btn.disabled = false; btn.textContent = "Run Bulk Schedule";
+            if(log.includes("❌")) showReport(log); else showToast("All Scheduled!");
+            loadWeekly(); fetchToday();
         });
-        
-        if (pointer < END_DAY) {
-            htmlSlots += `<div class="free-slot-item">✅ ${minToTime(pointer)} - ${minToTime(END_DAY)}</div>`;
+    };
+
+    /* --- EARNINGS, HISTORY, COPY, SHIFT --- */
+    async function loadEarnings() {
+        const r = await fetchAPI(null, { action: "getMonthlyEarnings" });
+        if(r.count !== undefined) {
+            document.getElementById("stats-earnings-main").textContent = "₹" + (r.earnings||0).toLocaleString('en-IN');
+            document.getElementById("stats-earnings-sub").textContent = `${r.count} billable classes (${r.month})`;
         }
-        
-        if(htmlSlots === "") htmlSlots = "<div style='color:#999;font-size:0.8rem'>No free slots today.</div>";
-        slotContainer.innerHTML = htmlSlots;
     }
-    
-    function minToTime(m) {
-        let hh = Math.floor(m / 60);
-        let mm = m % 60;
-        let ampm = hh >= 12 ? "PM" : "AM";
-        if(hh > 12) hh -= 12;
-        if(hh === 0) hh = 12; 
-        return `${hh}:${String(mm).padStart(2,'0')} ${ampm}`;
-    }
+    document.getElementById("refresh-earnings-btn").onclick = loadEarnings;
 
-    document.getElementById("view-classes-btn").addEventListener("click", () => fetchClassesForDate(document.getElementById("view-date").value));
-    document.getElementById("refresh-today-btn").addEventListener("click", () => fetchTodayOverview(true));
-    document.getElementById("refresh-week-btn").addEventListener("click", () => fetchTodayOverview(true));
+    document.getElementById("btn-review-pending").onclick = async () => {
+        document.getElementById("pendingReviewModal").classList.add("show");
+        document.getElementById("pendingReviewList").innerHTML = '<div class="loading">Loading...</div>';
+        const r = await fetchAPI(null, { action: "getPendingReviews" });
+        const l = document.getElementById("pendingReviewList"); l.innerHTML = "";
+        if(!r.pending || !r.pending.length) { l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">No pending reviews.</div>'; return; }
+        r.pending.forEach(p => {
+            l.innerHTML += `<div class="pending-list-item">
+                <div class="pending-info"><strong>${p.StudentName}</strong><br>${isoToDisplayDate(p.ClassDate)} ${time24To12(p.StartTime)}</div>
+                <div class="pending-actions"><select class="status-select" onchange="updatePendingStatus('${p.ClassID}', this.value, this)">
+                    <option disabled selected>Action</option><option value="Completed">✅ Done</option><option value="Student No Show">⚠️ No Show</option><option value="Cancelled">❌ Cancel</option><option value="Paused">⏸ Pause</option>
+                </select></div></div>`;
+        });
+    };
+    document.getElementById("pendingReviewClose").onclick = () => document.getElementById("pendingReviewModal").classList.remove("show");
 
-    const schedTimeInput = document.getElementById("schedule-time");
-    schedTimeInput.addEventListener("blur", () => { normalizeUserTime(schedTimeInput); });
+    window.openShiftModal = (name) => {
+        document.getElementById("shiftStudentNameDisplay").textContent = "Shift: " + name;
+        document.getElementById("shiftStartDate").value = APP_STATE.todayDate;
+        document.getElementById("shiftModal").classList.add("show");
+        const oldT = document.getElementById("shiftOldTime"); const newT = document.getElementById("shiftNewTime");
+        oldT.onblur = () => normalizeUserTime(oldT); newT.onblur = () => normalizeUserTime(newT);
+        document.getElementById("shiftSaveBtn").onclick = async () => {
+            const ot = parseUserTimeTo24(oldT.value); const nt = parseUserTimeTo24(newT.value); const sd = document.getElementById("shiftStartDate").value;
+            if(!ot || !nt || !sd) return showToast("Invalid inputs", "error");
+            const btn = document.getElementById("shiftSaveBtn"); btn.textContent = "Processing..."; btn.disabled = true;
+            const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: name, OldTime: ot, NewTime: nt, StartDate: sd });
+            document.getElementById("shiftModal").classList.remove("show");
+            showToast(`Shifted ${r.count} classes`);
+            btn.textContent = "Shift All"; btn.disabled = false; fetchToday();
+        };
+    };
+    document.getElementById("shiftModalClose").onclick = () => document.getElementById("shiftModal").classList.remove("show");
 
-    document.getElementById("schedule-class-btn").addEventListener("click", async () => {
-        const student = document.getElementById("schedule-student-select").value;
-        const date = document.getElementById("schedule-date").value;
-        const time = parseUserTimeTo24(schedTimeInput.value);
-        const repeats = parseInt(document.getElementById("schedule-repeat").value);
-        if (!student || !date || !time) return showToast("Fill all fields", "error");
-        
-        const msg = document.getElementById("schedule-msg");
-        msg.innerHTML = '<div class="loading">Checking availability...</div>';
-        const datesToBook = [];
-        for(let i=0; i <= repeats; i++) {
-            const d = addDaysUTC(date, i * 7); 
-            datesToBook.push(d);
-            const isBusy = await checkSlotConflict(d, time);
-            if(isBusy) {
-                msg.innerHTML = "";
-                showError(`Slot Conflict on ${isoToDisplayDate(d)} at ${time24To12(time)}. Booking cancelled.`);
-                return;
+    window.openCopyWeekModal = () => {
+        document.getElementById("copySourceDate").value = APP_STATE.todayDate;
+        document.getElementById("copyTargetDate").value = addDaysUTC(APP_STATE.todayDate, 7);
+        const radios = document.getElementsByName('copyMode');
+        radios.forEach(r => r.addEventListener('change', (e) => {
+            const isDay = e.target.value === 'day';
+            document.getElementById("copySourceLabel").textContent = isDay ? "Source Date" : "Source Week (Pick date)";
+            document.getElementById("copyTargetLabel").textContent = isDay ? "Target Date" : "Target Week Start (Mon)";
+        }));
+        document.getElementById("copySourceDate").onchange = function() {
+            if(document.querySelector('input[name="copyMode"]:checked').value === 'week') {
+                const d = new Date(this.value); const day = d.getDay(); const diff = d.getDate() - day + (day == 0 ? -6 : 1);
+                const mon = new Date(d.setDate(diff)).toISOString().split('T')[0];
+                if(mon !== this.value) { this.value = mon; showToast("Snapped to Monday", "info"); }
             }
-        }
-        msg.innerHTML = '<div class="loading">Scheduling...</div>';
-        for (let d of datesToBook) {
-            await fetchAPI(null, { action: "ScheduleClass", StudentName: student, ClassDate: d, StartTime: time, DurationMinutes: 60, MessageType: "English Class" });
-            delete APP_STATE.cache[d]; 
-        }
-        msg.innerHTML = '<div class="success">Scheduled!</div>';
-        await loadWeeklyCounts();
-        fetchTodayOverview(true);
-    });
+        };
+        document.getElementById("copyWeekModal").classList.add("show");
+        document.getElementById("copyWeekBtn").onclick = async () => {
+            const s = document.getElementById("copySourceDate").value;
+            const t = document.getElementById("copyTargetDate").value;
+            const m = document.querySelector('input[name="copyMode"]:checked').value;
+            if(!s || !t) return showToast("Select dates", "error");
+            const btn = document.getElementById("copyWeekBtn"); btn.textContent = "Copying..."; btn.disabled = true;
+            const r = await fetchAPI(null, { action: "copySchedule", sourceDate: s, targetDate: t, mode: m });
+            document.getElementById("copyWeekModal").classList.remove("show");
+            showToast(`Copied ${r.count} classes`);
+            btn.textContent = "Copy"; btn.disabled = false; fetchToday();
+        };
+    };
+    document.getElementById("copyWeekClose").onclick = () => document.getElementById("copyWeekModal").classList.remove("show");
 
-    const mainTabButtons = document.querySelectorAll(".main-tab-btn");
-    function showMainSection(sec) {
-        mainTabButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.section === sec));
+    document.getElementById("btn-history").onclick = () => {
+        document.getElementById("historyModal").classList.add("show");
+        document.getElementById("historyResult").style.display = "none";
+        document.getElementById("historyGenBtn").onclick = async () => {
+            const m = document.getElementById("historyMonth").value; const y = document.getElementById("historyYear").value;
+            const btn = document.getElementById("historyGenBtn"); btn.disabled = true; btn.textContent = "Fetching...";
+            try {
+                const r = await fetchAPI(null, { action: "getHistoryReport", month: m, year: y });
+                document.getElementById("histTotalClasses").textContent = r.totalClasses;
+                document.getElementById("histEarnings").textContent = "₹" + (r.earnings||0).toLocaleString('en-IN');
+                const tb = document.getElementById("histTableBody"); tb.innerHTML = "";
+                const s = Object.entries(r.breakdown||{}).sort((a,b)=>b[1]-a[1]);
+                if(!s.length) tb.innerHTML = "<tr><td colspan='2' style='text-align:center'>No classes</td></tr>";
+                else s.forEach(([n,c]) => tb.innerHTML += `<tr><td>${n}</td><td>${c}</td></tr>`);
+                document.getElementById("historyResult").style.display = "block";
+            } catch(e) { showToast("Error", "error"); } finally { btn.disabled = false; btn.textContent = "Generate"; }
+        };
+    };
+    document.getElementById("historyClose").onclick = () => document.getElementById("historyModal").classList.remove("show");
+
+    /* --- INIT --- */
+    const fab = document.getElementById("fab-main");
+    const menu = document.getElementById("fab-menu");
+    fab.onclick = () => menu.classList.toggle("show");
+    window.onclick = (e) => { if(!fab.contains(e.target) && !menu.contains(e.target)) menu.classList.remove("show"); };
+
+    const tabs = document.querySelectorAll(".main-tab-btn");
+    window.showMainSection = (sec) => {
+        tabs.forEach(b => b.classList.toggle("active", b.dataset.section === sec));
         document.querySelectorAll(".section").forEach(s => s.classList.toggle("show", s.id === `section-${sec}`));
-        if(sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML === '') {
-            createBulkRow(); createBulkRow();
-        }
-    }
-    mainTabButtons.forEach(btn => btn.addEventListener("click", () => showMainSection(btn.dataset.section)));
+        if(sec==='bulk' && !document.getElementById('bulkRowsContainer').innerHTML) { document.getElementById("addBulkRowBtn").click(); document.getElementById("addBulkRowBtn").click(); }
+    };
+    tabs.forEach(b => b.onclick = () => showMainSection(b.dataset.section));
 
-    window.addEventListener("load", async () => {
+    window.onload = async () => {
         APP_STATE.todayDate = getCurrentISTDateString();
         document.getElementById("view-date").value = APP_STATE.todayDate;
         document.getElementById("schedule-date").value = APP_STATE.todayDate;
         document.getElementById("bulkDate").value = APP_STATE.todayDate;
-        initWorldClocks();
-        await loadStudentsForDropdowns();
-        await loadWeeklyCounts(); 
-        await loadEarnings(); // Initial load
+        initClocks();
+        await loadStudents();
+        await loadWeekly();
+        await loadEarnings();
+        fetchToday();
         
-        // NEW: Load classes for today automatically so "Free Slots" are visible
-        await fetchClassesForDate(APP_STATE.todayDate, false);
-        
-        fetchTodayOverview();
-        showNextMotivation();
-    });
-
-    // Bulk Logic (Improved with Partial Success)
-    document.getElementById("addBulkRowBtn").addEventListener("click", () => createBulkRow());
-    document.getElementById("clearBulkRowsBtn").addEventListener("click", () => document.getElementById("bulkRowsContainer").innerHTML = "");
-    
-    function createBulkRow() {
-        const div = document.createElement("div");
-        div.className = "bulk-row";
-        let opts = ""; 
-        if(APP_STATE.students && APP_STATE.students.length) {
-            APP_STATE.students.forEach(s => opts += `<option value="${s.name}">${s.name}</option>`);
-        } else {
-            opts = "<option disabled>Loading...</option>";
-        }
-        div.innerHTML = `<select class="bulk-student">${opts}</select><input type="text" class="bulk-time" placeholder="hh:mm AM/PM"><button class="btn btn-outline" onclick="this.parentElement.remove()">✕</button>`;
-        const inp = div.querySelector(".bulk-time");
-        inp.addEventListener("blur", () => normalizeUserTime(inp));
-        document.getElementById("bulkRowsContainer").appendChild(div);
-    }
-
-    document.getElementById("bulkScheduleBtn").addEventListener("click", async () => {
-        const rows = document.querySelectorAll(".bulk-row");
-        const date = document.getElementById("bulkDate").value;
-        const repeatWeeks = parseInt(document.getElementById("bulkRepeatWeeks").value);
-        if (!rows.length) return;
-        
-        let tasks = [];
-        for(let r of rows) {
-            const s = r.querySelector(".bulk-student").value;
-            const tRaw = r.querySelector(".bulk-time").value;
-            const t = parseUserTimeTo24(tRaw);
-            if(s && t) tasks.push({ student: s, time: t });
-        }
-        if(tasks.length === 0) return showToast("No valid rows", "error");
-
-        showConfirm(`Process ${tasks.length} student(s) starting ${isoToDisplayDate(date)}?`, async () => {
-            const btn = document.getElementById("bulkScheduleBtn");
-            btn.disabled = true; btn.textContent = "Processing...";
-            
-            let successLog = [];
-            let errorLog = [];
-            let pendingSlots = new Set(); 
-
-            for(let task of tasks) {
-                let taskFailures = [];
-                for(let i=0; i <= repeatWeeks; i++) {
-                    const d = addDaysUTC(date, i * 7);
-                    const slotKey = `${d}|${task.time}`;
-                    
-                    if(pendingSlots.has(slotKey)) {
-                        taskFailures.push(`${isoToDisplayDate(d)}: Internal batch conflict`);
-                        continue;
-                    }
-                    
-                    const isBusy = await checkSlotConflict(d, task.time);
-                    if(isBusy) {
-                        taskFailures.push(`${isoToDisplayDate(d)}: Slot already taken`);
-                        continue;
-                    }
-
-                    // No conflict -> Schedule
-                    await fetchAPI(null, { action: "ScheduleClass", StudentName: task.student, ClassDate: d, StartTime: task.time });
-                    delete APP_STATE.cache[d];
-                    pendingSlots.add(slotKey); // Mark as taken by us now
-                }
-
-                if(taskFailures.length > 0) {
-                    errorLog.push(`❌ ${task.student}: Failed on ${taskFailures.join(", ")}`);
-                } else {
-                    successLog.push(`✅ ${task.student}: All scheduled`);
-                }
-            }
-
-            btn.disabled = false; btn.textContent = "Schedule All";
-            
-            // Build Report
-            let report = "";
-            if(successLog.length) report += successLog.join("\n") + "\n\n";
-            if(errorLog.length) report += errorLog.join("\n");
-            
-            if(errorLog.length === 0) showToast("All classes scheduled!", "success");
-            else showReport(report); // Show detailed report
-
-            await loadWeeklyCounts();
-            await loadEarnings();
-            fetchTodayOverview(true);
-        });
-    });
-
-    document.getElementById("fab-main").onclick = () => document.getElementById("fab-menu").classList.toggle("show");
-    document.getElementById("fab-add-student").onclick = () => showMainSection("students");
-    document.getElementById("fab-schedule-class").onclick = () => showMainSection("classes");
-    document.getElementById("fab-load-today").onclick = () => { showMainSection("classes"); fetchTodayOverview(); };
+        // Auto load classes for today to populate free slots
+        renderClassesForDate(APP_STATE.todayDate);
+    };
 </script>
 </body>
 </html>
