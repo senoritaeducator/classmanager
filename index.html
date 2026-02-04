@@ -122,8 +122,8 @@
         .layout-with-sidebar { display: flex; gap: 20px; align-items: flex-start; }
         .main-panel { flex: 3; }
         .side-panel { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; min-width: 240px; box-shadow: var(--shadow); }
-        .slot-title { font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; }
-        .slot-subtitle { font-size: 0.75rem; color: var(--text-sub); display: block; margin-bottom: 8px; }
+        .slot-title { font-weight: 700; font-size: 0.9rem; color: #111827; margin-bottom: 8px; border-bottom: 2px solid #e0e7ff; padding-bottom: 4px; }
+        .slot-subtitle { font-size: 0.75rem; color: #6b7280; margin-bottom: 8px; display: block; }
         .free-slot-item { background: #f0fdf4; color: #166534; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-bottom: 6px; border: 1px solid #dcfce7; text-align: center; }
 
         @media (max-width: 768px) {
@@ -208,10 +208,6 @@
             <img src="senorita-profile.jpg" class="teacher-avatar" alt="Profile">
         </div>
     </header>
-
-    <div style="margin-bottom: 15px;">
-        <input type="text" id="global-search" class="global-search-input" placeholder="🔎 Search students, dates, or details..." />
-    </div>
 
     <nav class="main-tabs">
         <button class="main-tab-btn active" data-section="students">Manage Students</button>
@@ -342,9 +338,9 @@
                 <div id="view-classes-output" class="classes-list main-panel"></div>
                 
                 <div id="free-slots-panel" class="side-panel">
-                    <div class="slot-title">Working Hours:<br>09:00 AM - 09:00 PM</div>
-                    <span class="slot-subtitle" style="font-weight:600; color:var(--primary);">Free Slots Today:</span>
-                    <div id="free-slots-list"></div>
+                    <div class="slot-title">Free Slots Today</div>
+                    <span class="slot-subtitle">Working Hours: 09:00 AM - 09:00 PM</span>
+                    <div id="free-slots-list" style="margin-top:8px;"></div>
                 </div>
             </div>
         </div>
@@ -373,9 +369,9 @@
     </section>
 
     <footer class="footer">
-        <div>Advanced Class Manager &copy; 2025</div>
+        <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.5; margin-top:4px;">v32 PRO</div>
+        <div id="acm-version-info" style="opacity:0.5; margin-top:4px;">v34 PRO</div>
     </footer>
 
     <div class="fab-container">
@@ -383,7 +379,7 @@
             <div class="fab-item" onclick="showMainSection('students'); document.getElementById('student-name-input').focus();">➕ Add Student</div>
             <div class="fab-item" onclick="showMainSection('students'); document.getElementById('student-delete-select').focus();">🗑 Delete Student</div>
             <div class="fab-item" onclick="showMainSection('classes'); window.scrollTo(0, document.getElementById('schedule-class-btn').offsetTop - 200);">📅 Schedule Class</div>
-            <div class="fab-item" onclick="showMainSection('classes'); document.getElementById('view-classes-output').scrollIntoView({behavior:'smooth'});">🔁 Reschedule Class</div>
+            <div class="fab-item" onclick="document.getElementById('btn-review-pending').click();">📝 Pending Reviews</div>
             <div class="fab-item" onclick="openCopyWeekModal()">📋 Copy Week</div>
         </div>
         <button class="fab-main" id="fab-main" title="Quick Actions">⚡</button>
