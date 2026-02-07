@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     
     <style>
-        /* --- THEME: MIDNIGHT EXECUTIVE (v51 Stable) --- */
+        /* --- THEME: MIDNIGHT EXECUTIVE (v53 Final Rev 2) --- */
         :root {
             --primary: #334155;       /* Slate 700 */
             --primary-hover: #0f172a; /* Slate 900 */
@@ -42,46 +42,78 @@
         .container { max-width: 1200px; margin: 0 auto; }
 
         /* --- HEADER --- */
-        .top-bar { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+        .top-bar { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; align-items: stretch; }
         
-        .brand-block, .teacher-block { 
+        .brand-block { 
             flex: 1; 
             background: var(--bg-card); 
             border: 1px solid var(--border); 
             border-radius: var(--radius); 
             padding: 20px; 
             box-shadow: var(--shadow); 
-            display: flex; align-items: center; gap: 16px; 
+            border-left: 5px solid var(--primary); 
+            display: flex; flex-direction: column; justify-content: center;
         }
-        .brand-block { border-left: 5px solid var(--primary); flex: 1.5; justify-content: space-between; flex-wrap: wrap; }
-        .teacher-block { min-width: 280px; }
+
+        .teacher-block { 
+            flex: 0 0 auto; 
+            background: var(--bg-card); 
+            border: 1px solid var(--border); 
+            border-radius: var(--radius); 
+            padding: 20px 30px; 
+            box-shadow: var(--shadow); 
+            display: flex; align-items: center; gap: 20px; 
+            min-width: 280px;
+        }
 
         .brand-title { font-size: 1.4rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .brand-sub { font-size: 0.9rem; color: var(--text-sub); margin-top: 2px; }
 
         .teacher-info { flex: 1; }
-        .teacher-name { font-weight: 700; font-size: 1.1rem; }
+        .teacher-name { font-weight: 700; font-size: 1.2rem; } 
         .teacher-id { font-size: 0.8rem; color: var(--text-sub); }
-        .teacher-avatar { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        .teacher-avatar { 
+            width: 80px; height: 80px; 
+            border-radius: 12px; 
+            object-fit: cover; 
+            object-position: top center; 
+            border: 3px solid #fff; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+        }
 
         /* --- RESCHEDULE HELPER --- */
+        .converter-wrapper { margin-top: 15px; }
         .converter-box { 
             background: #f1f5f9; 
             padding: 10px 14px; 
             border-radius: 8px; 
             border: 1px solid var(--border); 
-            display: flex; align-items: center; gap: 10px; 
+            display: inline-flex; align-items: center; gap: 8px; 
+            flex-wrap: nowrap; 
         }
-        .conv-select, .conv-input { 
+        .conv-select { 
             background: #fff; color: #0f172a; 
             border: 1px solid #cbd5e1; padding: 6px 10px; 
             border-radius: 6px; font-size: 0.85rem; outline: none; height: 36px; 
+            min-width: 130px;
         }
-        
-        @media (max-width: 768px) {
+        .conv-input { 
+            background: #fff; color: #0f172a; 
+            border: 1px solid #cbd5e1; padding: 6px 10px; 
+            border-radius: 6px; font-size: 0.85rem; outline: none; height: 36px; 
+            width: 90px; 
+        }
+        .conv-result-pill { 
+            font-weight: 700; color: var(--primary); font-size: 0.9rem; 
+            margin-left: 4px; white-space: nowrap; flex-shrink: 0;
+        }
+
+        @media (max-width: 800px) {
             .top-bar { flex-direction: column; }
-            .converter-box { flex-direction: column; align-items: stretch; width: 100%; margin-top: 10px; }
-            .conv-select, .conv-input { width: 100%; }
+            .teacher-block { width: 100%; justify-content: space-between; }
+            .converter-box { display: flex; width: 100%; overflow-x: auto; }
+            .conv-select { flex: 1; }
         }
 
         /* --- NAVIGATION --- */
@@ -108,12 +140,11 @@
         }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
         .section-title { font-size: 1.15rem; font-weight: 700; color: var(--text-main); }
-        .section-caption { font-size: 0.9rem; color: var(--text-sub); margin-left: 12px; font-weight: 400; border-left: 1px solid #cbd5e1; padding-left: 12px; }
+        .section-caption { font-size: 0.9rem; color: var(--text-sub); margin-left: 20px; padding-left: 20px; font-weight: 400; border-left: 2px solid #e2e8f0; }
 
         /* --- INPUTS --- */
         .card-row { display: flex; flex-wrap: wrap; gap: 24px; }
         .card-column { flex: 1 1 200px; }
-        
         label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
         input[type="text"], input[type="date"], input[type="number"], select { 
             width: 100%; padding: 0 12px; height: 40px; 
@@ -121,6 +152,8 @@
             font-size: 0.9rem; background: #fff; color: var(--text-main); outline: none; 
         }
         input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.1); }
+        .classes-controls { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+        .classes-controls input[type="date"] { max-width: 160px; } 
 
         /* --- BUTTONS --- */
         .btn { 
@@ -147,7 +180,6 @@
         .overview-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-sub); font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; }
         .overview-main { font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1.1; }
         .overview-sub { font-size: 0.85rem; color: var(--text-sub); margin-top: 6px; }
-        
         .financial-tile { background: #f0fdf4; border-color: #bbf7d0; }
         .financial-tile .overview-main { color: #15803d; }
 
@@ -167,14 +199,32 @@
         .class-student { font-weight: 700; color: var(--text-main); font-size: 1.05rem; }
         .meta { color: var(--text-sub); font-size: 0.9rem; margin-top: 2px; }
         .expand-block { margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; }
-        
         .status-select { 
             padding: 4px 8px; height: 32px; font-size: 0.85rem; 
             border-radius: 20px; border: 1px solid #cbd5e1; cursor: pointer; 
             background: #f1f5f9; font-weight: 600; 
         }
 
-        /* --- LISTS --- */
+        /* --- ANALYTICS WIDGETS --- */
+        .chart-container { position: relative; height: 300px; width: 100%; margin-top: 10px; }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; }
+        
+        /* Available Slots Widget */
+        .avail-widget { height: 100%; display: flex; flex-direction: column; overflow: hidden; font-family: "Segoe UI", sans-serif; }
+        .avail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .avail-list { overflow-y: auto; flex: 1; padding-right: 4px; display: flex; flex-direction: column; gap: 12px; }
+        .avail-row { padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+        .avail-row:last-child { border-bottom: none; }
+        .avail-date-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .avail-date { font-weight: 700; font-size: 0.85rem; color: var(--text-main); }
+        .avail-slots { display: flex; flex-wrap: wrap; gap: 6px; }
+        .slot-pill { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: default; }
+        .slot-green { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .slot-grey { background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; }
+        .copy-icon-btn { border: none; background: none; cursor: pointer; color: var(--text-sub); font-size: 0.9rem; padding: 2px; transition: color 0.2s; }
+        .copy-icon-btn:hover { color: var(--primary); }
+
+        /* --- LISTS & SCROLLS --- */
         .student-columns { display: flex; gap: 20px; }
         .student-col { flex: 1; border: 1px solid var(--border); border-radius: var(--radius); background: #f9fafb; display: flex; flex-direction: column; max-height: 450px; }
         .student-col-header { padding: 12px; border-bottom: 1px solid var(--border); background: #f1f5f9; font-weight: 700; font-size: 0.9rem; display: flex; justify-content: space-between; border-radius: 11px 11px 0 0; color: var(--text-sub); }
@@ -182,7 +232,13 @@
         .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500; transition: border-color 0.1s; }
         .student-item-row:hover { border-color: var(--primary); }
 
-        /* --- MODALS --- */
+        .weekly-strip { display: flex; gap: 6px; margin-top: 12px; overflow-x: auto; padding-bottom: 4px; scroll-behavior: smooth; }
+        .weekly-day { flex: 1; min-width: 50px; text-align: center; padding: 8px 4px; border-radius: 8px; background: #fff; border: 1px solid var(--border); font-size: 0.8rem; cursor: pointer; transition: all 0.1s; }
+        .weekly-day:hover { border-color: var(--primary); transform: translateY(-1px); }
+        .weekly-day.has-classes { background: #f0f9ff; color: #0369a1; font-weight: 700; border-color: #bae6fd; }
+        .weekly-day.today { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* --- MODALS & TOAST --- */
         .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
         .modal-backdrop.show { display: flex; animation: fadeIn 0.2s; }
         .modal { background: #fff; width: 100%; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; }
@@ -190,8 +246,7 @@
         .modal-title { font-weight: 700; font-size: 1.1rem; color: var(--text-main); }
         .modal-body { padding: 24px; color: var(--text-main); line-height: 1.6; overflow-y: auto; }
         .modal-footer { padding: 16px 24px; border-top: 1px solid #e2e8f0; background: #fff; display: flex; justify-content: flex-end; gap: 10px; }
-
-        /* --- TOAST --- */
+        
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: var(--accent); color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 0.95rem; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; opacity: 0; transform: translateY(20px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -208,21 +263,7 @@
 
         .footer { text-align: center; margin-top: 60px; color: var(--text-sub); font-size: 0.8rem; border-top: 1px solid #e2e8f0; padding-top: 20px; }
         
-        /* ANALYTICS STYLES */
-        .chart-container { position: relative; height: 300px; width: 100%; margin-top: 10px; }
-        /* 2-Column Grid for Analytics */
-        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; }
         .bulk-row { display: flex; gap: 10px; align-items: center; background: #fff; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
-        .chart-help { font-size: 0.8rem; color: #64748b; margin-bottom: 12px; font-weight: 500; }
-
-        .weekly-strip { display: flex; gap: 6px; margin-top: 12px; overflow-x: auto; padding-bottom: 4px; scroll-behavior: smooth; }
-        .weekly-day { flex: 1; min-width: 50px; text-align: center; padding: 8px 4px; border-radius: 8px; background: #fff; border: 1px solid var(--border); font-size: 0.8rem; cursor: pointer; transition: all 0.1s; }
-        .weekly-day:hover { border-color: var(--primary); transform: translateY(-1px); }
-        .weekly-day.has-classes { background: #f0f9ff; color: #0369a1; font-weight: 700; border-color: #bae6fd; }
-        .weekly-day.today { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .legend-table { width: 100%; font-size: 0.85rem; border-collapse: collapse; }
-        .legend-table td { padding: 4px; border-bottom: 1px solid #f1f5f9; }
         .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
     </style>
 </head>
@@ -231,35 +272,40 @@
 <div class="container">
     <header class="top-bar">
         <div class="brand-block">
-            <div class="brand-title"><span style="font-size:1.5rem;">📊</span> Advanced Class Manager</div>
-            <div class="brand-sub">Professional Scheduling & Financial Suite</div>
+            <div>
+                <div class="brand-title"><span style="font-size:1.5rem;">📊</span> Advanced Class Manager</div>
+                <div class="brand-sub">Professional Scheduling & Financial Suite</div>
+            </div>
             
-            <div class="converter-box">
-                <div class="converter-label">Reschedule Helper</div>
-                <select id="conv-student-zone" class="conv-select" style="min-width: 140px;">
-                    <option value="" disabled selected>Select City...</option>
-                    <optgroup label="Australia & NZ">
-                        <option value="Australia/Sydney">Sydney / Melbourne</option>
-                        <option value="Australia/Adelaide">Adelaide</option>
-                        <option value="Australia/Perth">Perth</option>
-                        <option value="Pacific/Auckland">Auckland</option>
-                    </optgroup>
-                    <optgroup label="UK & Europe">
-                        <option value="Europe/London">London (UK)</option>
-                        <option value="Europe/Paris">Paris / Berlin</option>
-                    </optgroup>
-                    <optgroup label="Middle East & Asia">
-                        <option value="Asia/Dubai">Dubai / UAE</option>
-                        <option value="Asia/Singapore">Singapore</option>
-                    </optgroup>
-                    <optgroup label="USA & Canada">
-                        <option value="America/New_York">New York (EST)</option>
-                        <option value="America/Chicago">Chicago (CST)</option>
-                        <option value="America/Los_Angeles">Los Angeles (PST)</option>
-                    </optgroup>
-                </select>
-                <input type="text" id="conv-student-time" class="conv-input" placeholder="Time (e.g. 10 AM)">
-                <div id="conv-result-ist" class="conv-result-pill">--:-- IST</div>
+            <div class="converter-wrapper">
+                <div class="converter-box">
+                    <div style="font-size:0.7rem; font-weight:700; color:var(--text-sub); text-transform:uppercase;">Reschedule Helper</div>
+                    <select id="conv-student-zone" class="conv-select" style="min-width: 140px;">
+                        <option value="" disabled selected>Select City...</option>
+                        <optgroup label="Australia & NZ">
+                            <option value="Australia/Sydney">Sydney / Melbourne</option>
+                            <option value="Australia/Adelaide">Adelaide</option>
+                            <option value="Australia/Perth">Perth</option>
+                            <option value="Pacific/Auckland">Auckland</option>
+                        </optgroup>
+                        <optgroup label="UK & Europe">
+                            <option value="Europe/London">London (UK)</option>
+                            <option value="Europe/Paris">Paris / Berlin</option>
+                        </optgroup>
+                        <optgroup label="Middle East & Asia">
+                            <option value="Asia/Dubai">Dubai / UAE</option>
+                            <option value="Asia/Singapore">Singapore</option>
+                        </optgroup>
+                        <optgroup label="USA & Canada">
+                            <option value="America/New_York">New York (EST)</option>
+                            <option value="America/Chicago">Chicago (CST)</option>
+                            <option value="America/Los_Angeles">Los Angeles (PST)</option>
+                        </optgroup>
+                    </select>
+                    <input type="text" id="conv-student-time" class="conv-input" placeholder="Time (e.g. 10 AM)">
+                    <div style="color:#94a3b8; display:none;">➜</div>
+                    <div id="conv-result-ist" class="conv-result-pill">--:-- IST</div>
+                </div>
             </div>
         </div>
 
@@ -296,9 +342,7 @@
                 <div class="card-column" style="flex: 1;">
                     <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid var(--border);">
                         <h4 style="margin-bottom:16px; font-size:0.95rem; color:var(--text-main);">Add New Student</h4>
-                        <div class="form-group">
-                            <input id="student-name-input" type="text" placeholder="Full Name" />
-                        </div>
+                        <div class="form-group"><input id="student-name-input" type="text" placeholder="Full Name" /></div>
                         <div style="margin-bottom:16px; display:flex; gap:20px;">
                             <label style="font-weight:400; cursor:pointer;"><input type="radio" name="studentType" value="PS" checked> PS</label>
                             <label style="font-weight:400; cursor:pointer;"><input type="radio" name="studentType" value="CM"> CM</label>
@@ -307,30 +351,17 @@
                         <button id="add-student-btn" class="btn btn-primary btn-block">Add Student</button>
                         <div id="manage-students-msg" style="margin-top:10px;"></div>
                     </div>
-
                     <div style="margin-top:24px;">
                         <h4 style="margin-bottom:12px; font-size:0.9rem; color:#ef4444; font-weight:600;">Danger Zone</h4>
-                        <div class="form-group">
-                            <select id="student-delete-select"><option value="">Select student to delete...</option></select>
-                        </div>
+                        <div class="form-group"><select id="student-delete-select"><option value="">Select student to delete...</option></select></div>
                         <button id="delete-student-btn" class="btn btn-outline btn-block" style="color:#ef4444; border-color:#fecaca;">Delete Student</button>
                     </div>
                 </div>
-
                 <div class="card-column" style="flex: 2;">
                     <div id="all-students-content" class="student-columns">
-                        <div class="student-col">
-                            <div class="student-col-header">Trial <span id="count-trial">0</span></div>
-                            <div id="list-trial" class="scrolly-list"></div>
-                        </div>
-                        <div class="student-col">
-                            <div class="student-col-header">PS <span id="count-ps">0</span></div>
-                            <div id="list-ps" class="scrolly-list"></div>
-                        </div>
-                        <div class="student-col">
-                            <div class="student-col-header">CM <span id="count-cm">0</span></div>
-                            <div id="list-cm" class="scrolly-list"></div>
-                        </div>
+                        <div class="student-col"><div class="student-col-header">Trial <span id="count-trial">0</span></div><div id="list-trial" class="scrolly-list"></div></div>
+                        <div class="student-col"><div class="student-col-header">PS <span id="count-ps">0</span></div><div id="list-ps" class="scrolly-list"></div></div>
+                        <div class="student-col"><div class="student-col-header">CM <span id="count-cm">0</span></div><div id="list-cm" class="scrolly-list"></div></div>
                     </div>
                 </div>
             </div>
@@ -339,9 +370,7 @@
 
     <section id="section-classes" class="section">
         <div class="section-card">
-            <div class="section-header">
-                <div><span class="section-title">Dashboard Overview</span></div>
-            </div>
+            <div class="section-header"><div><span class="section-title">Dashboard Overview</span></div></div>
             <div class="overview-grid">
                 <div class="overview-tile">
                     <div class="overview-title">Students <button id="refresh-students-overview-btn" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
@@ -370,19 +399,12 @@
         </div>
 
         <div class="section-card">
-            <div class="section-header">
-                <div><span class="section-title">Schedule New Class</span></div>
-            </div>
+            <div class="section-header"><div><span class="section-title">Schedule New Class</span></div></div>
             <div class="card-row">
                 <div class="card-column"><label>Student</label><select id="schedule-student-select"><option value="">Select...</option></select></div>
                 <div class="card-column"><label>Date</label><input type="date" id="schedule-date" /></div>
                 <div class="card-column"><label>Start Time</label><input type="text" id="schedule-time" placeholder="hh:mm AM/PM" /></div>
-                <div class="card-column">
-                    <label>Repeat (Weeks)</label>
-                    <select id="schedule-repeat">
-                        <option value="0">One-time</option><option value="1">1 Week</option><option value="2">2 Weeks</option><option value="4">4 Weeks</option>
-                    </select>
-                </div>
+                <div class="card-column"><label>Repeat (Weeks)</label><select id="schedule-repeat"><option value="0">One-time</option><option value="1">1 Week</option><option value="2">2 Weeks</option><option value="4">4 Weeks</option></select></div>
             </div>
             <div style="margin-top:20px;">
                 <button id="schedule-class-btn" class="btn btn-primary">Schedule Class</button>
@@ -393,25 +415,17 @@
         <div class="section-card">
             <div class="section-header">
                 <div><span class="section-title">Daily Operations</span></div>
-                <div style="display:flex; gap:10px;">
-                     <button class="btn btn-outline btn-sm" onclick="openCopyWeekModal()">📋 Copy Week</button>
-                </div>
+                <div style="display:flex; gap:10px;"><button class="btn btn-outline btn-sm" onclick="openCopyWeekModal()">📋 Copy Week</button></div>
             </div>
-            
             <div class="classes-controls">
-                <div class="form-group" style="flex: 0 0 auto;">
-                    <label>Select Date</label>
-                    <input type="date" id="view-date" />
-                </div>
+                <div class="form-group" style="flex: 0 0 auto;"><label>Select Date</label><input type="date" id="view-date" /></div>
                 <button id="view-classes-btn" class="btn btn-primary" style="margin-bottom:1px;">Load Schedule</button>
             </div>
-
             <div class="layout-with-sidebar" style="margin-top:24px; display:flex; gap:24px; align-items:flex-start;">
                 <div id="view-classes-output" class="classes-list" style="flex:3;"></div>
-                
                 <div id="free-slots-panel" class="side-panel" style="flex:1; background:#fff; border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:var(--shadow);">
                     <div class="slot-title" style="font-weight:700; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px;">Free Slots</div>
-                    <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:12px;">Working Hours: 09:00 AM - 09:00 PM</div>
+                    <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:12px;">Working Hours: 09:00 AM - 10:00 PM</div>
                     <div id="free-slots-list" style="display:flex; flex-direction:column; gap:6px;"></div>
                 </div>
             </div>
@@ -421,19 +435,14 @@
 
     <section id="section-bulk" class="section">
         <div class="section-card">
-            <div class="section-header">
-                <div><span class="section-title">Bulk Scheduling</span><span class="section-caption">Schedule multiple students for one specific date.</span></div>
-            </div>
+            <div class="section-header"><div><span class="section-title">Bulk Scheduling</span><span class="section-caption">Schedule multiple students for one specific date.</span></div></div>
             <div class="card-row">
                 <div class="card-column"><label>Target Date</label><input type="date" id="bulkDate" /></div>
                 <div class="card-column"><label>Repeat (Weeks)</label><input type="number" id="bulkRepeatWeeks" value="0" min="0" /></div>
             </div>
             <hr style="margin:24px 0; border:0; border-top:1px solid #e2e8f0;">
             <div id="bulkRowsContainer"></div>
-            <div class="inline-actions">
-                <button id="addBulkRowBtn" class="btn btn-soft">+ Add Row</button>
-                <button id="clearBulkRowsBtn" class="btn btn-outline">Clear All</button>
-            </div>
+            <div class="inline-actions"><button id="addBulkRowBtn" class="btn btn-soft">+ Add Row</button><button id="clearBulkRowsBtn" class="btn btn-outline">Clear All</button></div>
             <div style="margin-top:24px; display:flex; justify-content:flex-end; gap:12px;">
                 <button class="btn btn-outline" onclick="resetBulkScheduler()">Reset</button>
                 <button id="bulkScheduleBtn" class="btn btn-primary">Run Bulk Schedule</button>
@@ -444,10 +453,7 @@
     <section id="section-analytics" class="section">
         <div class="section-card">
             <div class="section-header">
-                <div>
-                    <span class="section-title">Executive Analytics</span>
-                    <span class="section-caption" style="margin-left:12px;">Business intelligence and workload analysis.</span>
-                </div>
+                <div><span class="section-title">Executive Analytics</span><span class="section-caption">Business intelligence and workload analysis.</span></div>
                 <button class="btn btn-soft btn-sm" onclick="loadAnalytics(false)">Refresh Data</button>
             </div>
             
@@ -460,21 +466,32 @@
 
                 <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow);">
                     <div style="font-weight:700; margin-bottom:4px; color:var(--text-main);">⚖️ Weekly Capacity vs Utilization</div>
-                    <div class="chart-help">Blue = Utilized, Green = Available (Total 12).</div>
+                    <div class="chart-help">Blue = Utilized, Green = Available (Total 13).</div>
                     <div class="chart-container"><canvas id="chartWorkload"></canvas></div>
                 </div>
 
                 <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow);">
                     <div style="font-weight:700; margin-bottom:4px; color:var(--text-main);">⚙️ Operational Efficiency</div>
-                    <div class="chart-help">Status breakdown for current month.</div>
+                    <div class="chart-help" id="opsChartHelp">Status breakdown.</div>
                     <div style="display:flex; gap:20px; align-items:center; height:100%;">
                         <div class="chart-container" style="flex:2;"><canvas id="chartOps"></canvas></div>
                         <div id="opsLegend" style="flex:1; font-size:0.85rem; display:flex; flex-direction:column; gap:8px;"></div>
                     </div>
                 </div>
-                
-                <div style="background:#f8fafc; border:2px dashed #cbd5e1; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-weight:600;">
-                    Additional Metrics (Coming Soon)
+
+                <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow);">
+                    <div class="avail-widget">
+                        <div class="avail-header">
+                            <div>
+                                <div style="font-weight:700; color:var(--text-main);">📅 Available Slots</div>
+                                <div class="chart-help" style="margin-bottom:0;">Free Slots (Real-time).</div>
+                            </div>
+                            <button class="btn btn-soft btn-sm" onclick="copyAvailabilityWeek()" title="Copy Week for WhatsApp">📋 Copy All</button>
+                        </div>
+                        <div class="avail-list" id="avail-feed-list">
+                            <div style="padding:20px; text-align:center; color:#94a3b8;">Loading feed...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -483,7 +500,7 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v51 PRO (Midnight Executive)</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v53 PRO (Final Rev 2) | Powered by LazifAI</div>
     </footer>
 
     <div class="fab-container">
@@ -504,7 +521,6 @@
             <div class="modal-footer"><button id="confirmNo" class="btn btn-outline">Cancel</button><button id="confirmYes" class="btn btn-primary">Proceed</button></div>
         </div>
     </div>
-
     <div id="errorModal" class="modal-backdrop">
         <div class="modal">
             <div class="modal-header" style="border-left: 5px solid #ef4444;"><div class="modal-title" style="color:#ef4444;">System Alert</div></div>
@@ -512,7 +528,6 @@
             <div class="modal-footer"><button id="errorOk" class="btn btn-primary">Acknowledge</button></div>
         </div>
     </div>
-
     <div id="reportModal" class="modal-backdrop">
         <div class="modal">
             <div class="modal-header"><div class="modal-title">Status Report</div></div>
@@ -520,7 +535,6 @@
             <div class="modal-footer"><button id="reportOk" class="btn btn-primary">Close</button></div>
         </div>
     </div>
-
     <div id="editStudentModal" class="modal-backdrop">
         <div class="modal">
             <div class="modal-header"><div class="modal-title">Edit Student</div><button id="editStudentClose" class="btn btn-outline btn-sm">✕</button></div>
@@ -532,7 +546,6 @@
             <div class="modal-footer"><button id="editStudentSaveBtn" class="btn btn-primary">Save Changes</button></div>
         </div>
     </div>
-
     <div id="shiftModal" class="modal-backdrop">
         <div class="modal">
             <div class="modal-header"><div class="modal-title">Bulk Shift Classes</div><button id="shiftModalClose" class="btn btn-outline btn-sm">✕</button></div>
@@ -545,7 +558,6 @@
             <div class="modal-footer"><button id="shiftSaveBtn" class="btn btn-primary">Shift All Future Classes</button></div>
         </div>
     </div>
-
     <div id="copyWeekModal" class="modal-backdrop">
         <div class="modal">
             <div class="modal-header"><div class="modal-title">Copy Schedule</div><button id="copyWeekClose" class="btn btn-outline btn-sm">✕</button></div>
@@ -560,7 +572,6 @@
             <div class="modal-footer"><button id="copyWeekBtn" class="btn btn-primary">Execute Copy</button></div>
         </div>
     </div>
-
     <div id="pendingReviewModal" class="modal-backdrop">
         <div class="modal">
             <div class="modal-header"><div class="modal-title">Pending Reviews</div><button id="pendingReviewClose" class="btn btn-outline btn-sm">✕</button></div>
@@ -568,7 +579,6 @@
             <div class="modal-footer" style="justify-content:space-between;"><span style="font-size:0.8rem; color:var(--text-sub);">Select status to clear item</span><button class="btn btn-soft btn-sm" onclick="document.getElementById('pendingReviewClose').click()">Close</button></div>
         </div>
     </div>
-
     <div id="historyModal" class="modal-backdrop">
         <div class="modal">
             <div class="modal-header"><div class="modal-title">Historical Report</div><button id="historyClose" class="btn btn-outline btn-sm">✕</button></div>
@@ -593,7 +603,6 @@
             </div>
         </div>
     </div>
-
     <div id="toast-container" class="toast-container"></div>
 </div>
 
@@ -604,15 +613,7 @@
         return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' });
     }
 
-    const APP_STATE = { 
-        students: [], 
-        todayDate: null, 
-        currentClasses: [], 
-        weeklySummary: {}, 
-        cache: {},
-        analyticsLoaded: false,
-        isAnalyticsLoading: false 
-    };
+    const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false };
 
     function showToast(message, type = "success") {
         const container = document.getElementById("toast-container");
@@ -790,25 +791,32 @@
         setTimeout(() => {
             const todayEl = document.querySelector('.weekly-day.today');
             if(todayEl) todayEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        }, 500);
+        }, 800);
     }
 
     function updateStats(date, classes) {
         APP_STATE.currentClasses = classes;
+        
+        // v53 Final: Filter out Paused/Absent/Cancelled from Workload Count
+        const activeClasses = classes.filter(c => !["Paused", "Absent", "Cancelled"].includes(c.Status));
+
         if(date === APP_STATE.todayDate) {
-            document.getElementById("stats-today-main").textContent = classes.length ? `${classes.length} classes` : "No classes";
+            document.getElementById("stats-today-main").textContent = activeClasses.length ? `${activeClasses.length} classes` : "No classes";
             const l = document.getElementById("today-classes-list"); l.innerHTML = "";
-            classes.forEach(c => l.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #e2e8f0; font-size:0.85rem;">${time24To12(c.StartTime)} - <b>${c.StudentName}</b></div>`);
+            activeClasses.forEach(c => l.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #e2e8f0; font-size:0.85rem;">${time24To12(c.StartTime)} - <b>${c.StudentName}</b></div>`);
         }
+        
         const s = document.getElementById("weekly-strip"); s.innerHTML = "";
         const base = new Date(APP_STATE.todayDate); base.setDate(base.getDate() - (base.getDay()+6)%7);
         for(let i=0; i<7; i++) {
             const d = new Date(base); d.setDate(base.getDate()+i); const iso = d.toISOString().split('T')[0];
-            const c = (APP_STATE.weeklySummary||{})[iso];
+            let count = (APP_STATE.weeklySummary||{})[iso];
+            if(iso === date) count = activeClasses.length;
+
             const div = document.createElement("div"); div.className = "weekly-day";
             if(iso === APP_STATE.todayDate) div.classList.add("today");
-            if(c > 0) div.classList.add("has-classes");
-            div.innerHTML = `${d.toLocaleDateString("en-GB",{weekday:"short"})}<br>${c||'-'}`;
+            if(count > 0) div.classList.add("has-classes");
+            div.innerHTML = `${d.toLocaleDateString("en-GB",{weekday:"short"})}<br>${count||'-'}`;
             div.onclick = () => { document.getElementById("view-date").value = iso; showMainSection('classes'); renderClassesForDate(iso); };
             s.appendChild(div);
         }
@@ -819,15 +827,22 @@
         out.innerHTML = '<div style="color:var(--text-sub); text-align:center; padding:20px;">Loading schedule...</div>';
         const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr });
         const classes = res.classes || [];
-        
+        updateStats(dateStr, classes); 
+
+        // v53 Final: Sidebar Free Slots Logic (9PM-10PM added)
         const busy = [];
         classes.forEach(c => {
-            const [h,m] = c.StartTime.split(':').map(Number);
-            const s = parseInt(h)*60 + parseInt(m);
-            busy.push({ s: s, e: s+60 });
+            if(["Scheduled", "Completed", "Student No Show", "Cancelled"].includes(c.Status)) {
+                const [h,m] = c.StartTime.split(':').map(Number);
+                const s = parseInt(h)*60 + parseInt(m);
+                busy.push({ s: s, e: s+60 });
+            }
         });
         busy.sort((a,b) => a.s - b.s);
-        let ptr = 540; const end = 1260; let html = "";
+        let ptr = 540; // 9:00 AM
+        const end = 1320; // 10:00 PM (22*60)
+        let html = "";
+        
         busy.forEach(b => {
             if(b.s > ptr) { if(b.s - ptr >= 30) html += `<div style="background:#f0fdf4; color:#166534; padding:6px; border-radius:4px; font-size:0.8rem; text-align:center; border:1px solid #dcfce7;">${minToTime(ptr)} - ${minToTime(b.s)}</div>`; }
             if(b.e > ptr) ptr = b.e;
@@ -841,8 +856,11 @@
         classes.forEach(c => {
             const card = document.createElement("div"); card.className = "class-card";
             const sObj = APP_STATE.students.find(s => s.name === c.StudentName);
+            const isTrial = sObj && sObj.type === "Trial";
             const isCM = sObj && sObj.type === "CM";
-            let msg = `Hi, this is a reminder that ${c.StudentName} has an English class scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(c.StartTime)} IST.`;
+            
+            const term = isTrial ? "Demo Session" : "English class";
+            let msg = `Hi, this is a reminder regarding the ${term} for ${c.StudentName} scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(c.StartTime)} IST.`;
             if(!isCM) msg += `\n\nPlease join using your PlanetSpark class link.`;
             msg += `\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
 
@@ -885,7 +903,11 @@
 
     async function checkSlotConflict(date, time, ignoreId) {
         const r = await fetchAPI(null, { action: "getClasses", selectedDate: date });
-        return (r.classes||[]).some(c => c.StartTime === time && c.ClassID !== ignoreId);
+        return (r.classes||[]).some(c => {
+            if(c.ClassID === ignoreId) return false;
+            const blocking = ["Scheduled", "Completed", "Student No Show", "Cancelled"];
+            return c.StartTime === time && blocking.includes(c.Status);
+        });
     }
 
     document.getElementById("view-classes-btn").onclick = () => renderClassesForDate(document.getElementById("view-date").value);
@@ -1041,110 +1063,172 @@
     };
     document.getElementById("historyClose").onclick = () => document.getElementById("historyModal").classList.remove("show");
 
-    /* --- ANALYTICS (v51 Fixed & Merged) --- */
+    /* --- ANALYTICS --- */
     let charts = {};
     window.loadAnalytics = async (silent = false) => {
         if(!silent) showMainSection('analytics');
-        
-        // --- 1. Prevent Overlapping Calls & Unnecessary Refreshes ---
-        if(APP_STATE.isAnalyticsLoading) return; // Busy
-        if(silent && APP_STATE.analyticsLoaded) return; // Already cached (Tab Switch)
-        
+        if(APP_STATE.isAnalyticsLoading) return;
+        if(silent && APP_STATE.analyticsLoaded) return;
         APP_STATE.isAnalyticsLoading = true;
 
         try {
             const r = await fetchAPI(null, { action: "getDashboardAnalytics" });
-            if(!r || !r.financials) {
-                if(!silent) showToast("Failed to load analytics", "error");
-                throw new Error("No Data");
-            }
+            if(!r || !r.financials) throw new Error("No Data");
 
-            const mkChart = (id, type, labels, data, colors, title, options = {}) => {
-                const canvas = document.getElementById(id);
-                if(!canvas) return;
-
+            const mkChart = (id, type, labels, data, colors, title, fillMode=false, stackOpts={}) => {
+                const canvas = document.getElementById(id); if(!canvas) return;
                 const ctx = canvas.getContext('2d');
-                if(charts[id]) charts[id].destroy(); // Destroy old instance to stop flicker
-                
+                if(charts[id]) charts[id].destroy();
                 charts[id] = new Chart(ctx, {
                     type: type,
-                    data: {
-                        labels: labels,
-                        datasets: data // Accepts array for stacked
-                    },
+                    data: { labels: labels, datasets: data },
                     options: { 
                         responsive: true, 
                         maintainAspectRatio: false, 
-                        animation: { duration: silent ? 0 : 500 }, // Instant if silent
-                        plugins: { legend: { display: type!=='bar' && type!=='line' } },
-                        scales: options.scales || { x: { grid: { display: false } }, y: { grid: { display: false } } }
+                        animation: { duration: silent ? 0 : 500 }, 
+                        plugins: { legend: { display: type!=='bar' && type!=='line' } }, 
+                        scales: stackOpts.scales || { x: { grid: { display: false } }, y: { grid: { display: false }, beginAtZero: true } } 
                     }
                 });
             };
 
-            const opsKeys = Object.keys(r.operations);
-            const opsVals = Object.values(r.operations);
-            
-            // Legend
+            const opsKeys = Object.keys(r.operations); const opsVals = Object.values(r.operations);
             const lg = document.getElementById("opsLegend");
-            if(lg) {
-                lg.innerHTML = "";
-                opsKeys.forEach((k, i) => {
-                    lg.innerHTML += `<div><b>${opsVals[i]}</b> <span style="color:#64748b">${k}</span></div>`;
-                });
-            }
+            if(lg) { lg.innerHTML = ""; opsKeys.forEach((k, i) => { lg.innerHTML += `<div><b>${opsVals[i]}</b> <span style="color:#64748b">${k}</span></div>`; }); }
+            const opsColors = opsKeys.map(k => { const l=k.toLowerCase(); return l.includes('completed')?'#0f766e':l.includes('no show')?'#ef4444':l.includes('absent')?'#64748b':l.includes('cancelled')?'#f59e0b':l.includes('paused')?'#8b5cf6':l.includes('scheduled')?'#3b82f6':'#cbd5e1'; });
 
-            const opsColors = opsKeys.map(key => {
-                const k = key.toLowerCase();
-                if(k.includes('completed')) return '#0f766e'; 
-                if(k.includes('no show')) return '#ef4444';   
-                if(k.includes('absent')) return '#64748b';    
-                if(k.includes('cancelled')) return '#f59e0b'; 
-                if(k.includes('paused')) return '#8b5cf6';    
-                if(k.includes('scheduled')) return '#3b82f6'; 
-                return '#cbd5e1'; 
-            });
+            // v53 Final Rev 2: Dynamic Month Label
+            const currentMonthName = new Date().toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+            document.getElementById("opsChartHelp").textContent = `Status breakdown for ${currentMonthName}.`;
 
-            // 1. PORTFOLIO
-            mkChart('chartPortfolio', 'doughnut', Object.keys(r.portfolio), [{
-                data: Object.values(r.portfolio),
-                backgroundColor: ['#334155','#0f766e','#f59e0b']
-            }], null, 'Students', { scales: { x: { display: false }, y: { display: false } } }); // Disable Axes
-
-            // 2. MERGED: Workload vs Capacity (Stacked Bar)
             const curr = new Date();
-            const first = curr.getDate() - curr.getDay() + 1; // Monday
-            const weekLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+            const first = curr.getDate() - curr.getDay() + 1; 
+            const weekLabels = [];
             const weekCounts = [];
             
             for (let i = 0; i < 7; i++) {
                 let day = new Date(curr.setDate(first + i));
-                let key = day.toLocaleDateString("en-US", { month: 'short', day: '2-digit' });
+                let key = day.toLocaleDateString("en-US", { month: 'short', day: '2-digit' }); 
+                let label = day.toLocaleDateString("en-US", { weekday: 'short' }); 
+                weekLabels.push(label);
                 weekCounts.push(r.workload[key] || 0);
             }
-            const availableSlots = weekCounts.map(c => Math.max(0, 12 - c));
+            
+            // v53 Final Rev 2: Updated Y-Max to 13 (9am-10pm = 13 hrs)
+            const freeSlots = weekCounts.map(k => Math.max(0, 13 - k));
 
+            mkChart('chartPortfolio', 'doughnut', Object.keys(r.portfolio), [{ data: Object.values(r.portfolio), backgroundColor: ['#334155','#0f766e','#f59e0b'] }], null, 'Students', false, { scales: { x:{display:false}, y:{display:false} } });
+            
             mkChart('chartWorkload', 'bar', weekLabels, [
                 { label: 'Utilized', data: weekCounts, backgroundColor: '#334155' },
-                { label: 'Available', data: availableSlots, backgroundColor: '#10b981' }
-            ], null, 'Capacity', { scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { display: false } } } });
+                { label: 'Available', data: freeSlots, backgroundColor: '#10b981' }
+            ], null, 'Capacity', false, { 
+                scales: { 
+                    x: { stacked: true, grid: { display: false } }, 
+                    y: { stacked: true, grid: { display: false }, min: 0, max: 13 } 
+                } 
+            });
+            
+            mkChart('chartOps', 'pie', opsKeys, [{ data: opsVals, backgroundColor: opsColors }], null, 'Status', false, { scales: { x:{display:false}, y:{display:false} } });
 
-            // 3. OPS EFFICIENCY
-            mkChart('chartOps', 'pie', opsKeys, [{
-                data: opsVals,
-                backgroundColor: opsColors
-            }], null, 'Status', { scales: { x: { display: false }, y: { display: false } } }); // Disable Axes
+            renderAvailabilityFeed();
+            APP_STATE.analyticsLoaded = true;
 
-            APP_STATE.analyticsLoaded = true; // Mark as done
-
-        } catch(e) {
-            console.log("Analytics loading skipped (silent mode or network error).");
-        } finally {
-            APP_STATE.isAnalyticsLoading = false; // Release lock
-        }
+        } catch(e) { console.log("Analytics loading skipped"); } finally { APP_STATE.isAnalyticsLoading = false; }
     };
 
-    /* --- INIT --- */
+    // --- AVAILABILITY FEED (WhatsApp Ready) ---
+    async function renderAvailabilityFeed() {
+        const list = document.getElementById("avail-feed-list");
+        if(!list) return;
+        list.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8;">Calculating slots...</div>';
+        
+        const feedData = [];
+        const today = new Date();
+        
+        for(let i=0; i<7; i++) {
+            const d = new Date(today); d.setDate(today.getDate() + i);
+            const dateStr = d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+            const r = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr });
+            const classes = r.classes || [];
+
+            let slots = [];
+            // v53 Final Rev 2: 9am-10pm (h=9 to h=21)
+            for(let h=9; h<22; h++) slots.push({ h: h, status: 'free' });
+
+            classes.forEach(c => {
+                const [hh, mm] = c.StartTime.split(':').map(Number);
+                const idx = slots.findIndex(s => s.h === hh);
+                if(idx !== -1) {
+                    if(["Scheduled", "Completed", "Student No Show", "Cancelled"].includes(c.Status)) slots[idx].status = 'busy';
+                    else if(["Paused", "Absent"].includes(c.Status) && slots[idx].status !== 'busy') slots[idx].status = 'temp';
+                }
+            });
+
+            const avail = slots.filter(s => s.status !== 'busy');
+            if(avail.length > 0) feedData.push({ date: d, slots: avail });
+        }
+
+        list.innerHTML = "";
+        if(feedData.length === 0) { list.innerHTML = '<div style="padding:10px;text-align:center;">No slots available</div>'; return; }
+
+        feedData.forEach(day => {
+            const dateFmt = day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            let pills = "";
+            day.slots.forEach(s => {
+                const time = `${s.h%12||12} ${s.h<12?'AM':'PM'}`;
+                const cls = s.status === 'free' ? 'slot-green' : 'slot-grey';
+                pills += `<div class="slot-pill ${cls}">${time}</div>`;
+            });
+            list.innerHTML += `<div class="avail-row">
+                <div class="avail-date-row"><span>${dateFmt}</span><button class="copy-icon-btn" onclick="copySingleDay('${dateFmt}')">📋</button></div>
+                <div class="avail-slots">${pills}</div>
+            </div>`;
+        });
+        APP_STATE.feedData = feedData;
+    }
+
+    window.copyAvailabilityWeek = () => {
+        if(!APP_STATE.feedData) return;
+        let text = `📅 *Availability (${APP_STATE.feedData[0].date.toLocaleDateString('en-US', {month:'short', day:'numeric'})} - ${APP_STATE.feedData[APP_STATE.feedData.length-1].date.toLocaleDateString('en-US', {month:'short', day:'numeric'})})*\n\n`;
+        APP_STATE.feedData.forEach(day => {
+            text += `*${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}*\n`;
+            day.slots.forEach(s => {
+                const t1 = `${s.h%12||12}:00 ${s.h<12?'AM':'PM'}`;
+                const t2 = `${(s.h+1)%12||12}:00 ${s.h+1<12?'AM':'PM'}`;
+                const icon = s.status === 'free' ? '🟢' : '⚪';
+                // v53 Final Rev 2: Text Fix
+                const note = s.status === 'temp' ? ' (Temporarily Available)' : '';
+                text += `${icon} ${t1} - ${t2}${note}\n`;
+            });
+            text += `\n`;
+        });
+        text += `_Powered by LazifAI_`;
+        navigator.clipboard.writeText(text);
+        showToast("Weekly availability copied!");
+    };
+
+    window.copySingleDay = (dateFmt) => {
+        if(!APP_STATE.feedData) return;
+        const dayData = APP_STATE.feedData.find(d => 
+            d.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) === dateFmt
+        );
+        
+        if(!dayData) return showToast("Data not found", "error");
+
+        let text = `📅 *Availability for ${dayData.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}*\n\n`;
+        dayData.slots.forEach(s => {
+            const t1 = `${s.h%12||12}:00 ${s.h<12?'AM':'PM'}`;
+            const t2 = `${(s.h+1)%12||12}:00 ${s.h+1<12?'AM':'PM'}`;
+            const icon = s.status === 'free' ? '🟢' : '⚪';
+            const note = s.status === 'temp' ? ' (Temporarily Available)' : '';
+            text += `${icon} ${t1} - ${t2}${note}\n`;
+        });
+        text += `\n_Powered by LazifAI_`;
+        navigator.clipboard.writeText(text);
+        showToast("Day availability copied!");
+    };
+
     const fab = document.getElementById("fab-main");
     const menu = document.getElementById("fab-menu");
     fab.onclick = () => menu.classList.toggle("show");
@@ -1155,8 +1239,6 @@
         tabs.forEach(b => b.classList.toggle("active", b.getAttribute("onclick").includes(sec)));
         document.querySelectorAll(".section").forEach(s => s.classList.toggle("show", s.id === `section-${sec}`));
         if(sec==='bulk' && !document.getElementById('bulkRowsContainer').innerHTML) { document.getElementById("addBulkRowBtn").click(); document.getElementById("addBulkRowBtn").click(); }
-        // Only load if explicitly clicked AND not already loaded (Performance)
-        if(sec==='analytics' && !APP_STATE.analyticsLoaded) loadAnalytics(false);
     };
 
     window.onload = async () => {
@@ -1170,7 +1252,6 @@
         await loadWeekly(); 
         await loadEarnings();
         
-        // Initial Background Load (Silent)
         setTimeout(() => loadAnalytics(true), 1500); 
         
         fetchToday();
