@@ -29,7 +29,7 @@
 
         /* --- GLOBAL RESET --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: "Segoe UI", "Inter", system-ui, sans-serif; background-color: var(--bg-body); color: var(--text-main); min-height: 100vh; padding: 20px; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        body { font-family: "Segoe UI", "Inter", system-ui, sans-serif; background-color: var(--bg-body); color: var(--text-main); min-height: 100vh; padding: 20px; padding-bottom: 90px; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         .container { max-width: 1200px; margin: 0 auto; width: 100%; }
 
         /* --- HEADER --- */
@@ -69,7 +69,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
         .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow); width: 100%; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); gap: 10px; }
         .section-title { font-size: 1.15rem; font-weight: 700; color: var(--text-main); }
         .section-caption { font-size: 0.9rem; color: var(--text-sub); margin-left: 20px; padding-left: 20px; font-weight: 400; border-left: 2px solid #e2e8f0; }
 
@@ -174,6 +174,17 @@
         .weekly-day.has-classes { background: #f0f9ff; color: #0369a1; font-weight: 700; border-color: #bae6fd; }
         .weekly-day.today { background: var(--primary); color: white; border-color: var(--primary); }
 
+        @media (max-width: 768px) { 
+            .top-bar { flex-direction: column; } 
+            .teacher-block { width: 100%; justify-content: space-between; } 
+            .converter-box { display: flex; flex-wrap: wrap; width: 100%; gap: 10px; } 
+            .conv-select { width: 100%; flex: 1 1 100%; } 
+            .conv-input { flex: 1; min-width: 80px; } 
+            .conv-result-pill { flex: 0 0 auto; } 
+            .student-col { flex: 1 1 100%; min-width: 100%; max-height: 350px; } 
+            .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+        }
+
         /* --- MODALS & TOAST --- */
         .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
         .modal-backdrop.show { display: flex; animation: fadeIn 0.2s; }
@@ -258,7 +269,8 @@
         <button class="main-tab-btn" onclick="showMainSection('classes')">Manage Classes</button>
         <button class="main-tab-btn" onclick="showMainSection('bulk')">Bulk Schedule</button>
         <button class="main-tab-btn" onclick="showMainSection('communications')">Parent Relations</button>
-        <button class="main-tab-btn" onclick="showMainSection('onboarding')">Onboarding</button> <button class="main-tab-btn" onclick="showMainSection('analytics')">Analytics</button>
+        <button class="main-tab-btn" onclick="showMainSection('onboarding')">Onboarding</button> 
+        <button class="main-tab-btn" onclick="showMainSection('analytics')">Analytics</button>
     </nav>
 
     <section id="section-communications" class="section">
@@ -302,7 +314,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group"><label>Recent Topics Covered</label><input type="text" id="fbTopic" placeholder="e.g. Adjectives & Storytelling"></div>
+                            <div class="form-group"><label>Recent Topics Covered (Optional)</label><input type="text" id="fbTopic" placeholder="e.g. Adjectives & Storytelling"></div>
                             
                             <div class="form-group" style="background:#f1f5f9; padding:12px; border-radius:8px; border:1px solid #cbd5e1;">
                                 <label>Resource Finder (Optional)</label>
@@ -385,7 +397,7 @@
         <div class="section-card">
             <div class="section-header">
                 <div><span class="section-title">Student Directory</span><span class="section-caption">Manage active students and enrollment types.</span></div>
-                <button id="refresh-students-btn" class="btn btn-soft btn-sm">Refresh List</button>
+                <button id="refresh-students-btn" class="btn btn-soft btn-sm" onclick="loadStudents()">Refresh List</button>
             </div>
             
             <div class="card-row">
@@ -426,17 +438,17 @@
             <div class="section-header"><div><span class="section-title">Dashboard Overview</span></div></div>
             <div class="overview-grid">
                 <div class="overview-tile">
-                    <div class="overview-title">Students <button id="refresh-students-overview-btn" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
+                    <div class="overview-title">Students <button id="refresh-students-overview-btn" onclick="loadStudents()" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
                     <div class="overview-main" id="stats-total-students">--</div>
                     <div class="overview-sub" id="stats-students-sub">Active Enrollments</div>
                 </div>
                 <div class="overview-tile">
-                    <div class="overview-title">Today's Load <button id="refresh-today-btn" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
+                    <div class="overview-title">Today's Load <button id="refresh-today-btn" onclick="fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
                     <div class="overview-main" id="stats-today-main">--</div>
                     <div class="today-classes-list" id="today-classes-list" style="margin-top:8px; max-height:100px; overflow-y:auto;"></div>
                 </div>
                 <div class="overview-tile financial-tile">
-                    <div class="overview-title" style="color:#15803d;">Financials (CM & Personal) <button id="refresh-earnings-btn" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
+                    <div class="overview-title" style="color:#15803d;">Financials (CM & Personal) <button id="refresh-earnings-btn" onclick="loadEarnings()" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
                     <div class="overview-main" id="stats-earnings-main">₹0</div>
                     <div class="overview-sub" id="stats-earnings-sub">Current Month</div>
                     <div style="display:flex; gap:8px; margin-top:12px;">
@@ -445,7 +457,7 @@
                     </div>
                 </div>
                 <div class="overview-tile">
-                    <div class="overview-title">Weekly Trend <button id="refresh-week-btn" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
+                    <div class="overview-title">Weekly Trend <button id="refresh-week-btn" onclick="fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
                     <div class="weekly-strip" id="weekly-strip"></div>
                 </div>
             </div>
@@ -533,7 +545,6 @@
                 </div>
 
                 <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow); display:flex; flex-direction:column; gap:20px;">
-                    
                     <div style="background:#f8fafc; padding:16px; border-radius:12px; border:1px solid var(--border);">
                         <div style="font-weight:700; margin-bottom:4px; color:var(--text-main);">🎯 Trial Conversion Engine</div>
                         <div class="chart-help">Current Month Performance</div>
@@ -568,7 +579,7 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v73 PRO (Business Architect Build) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v76 PRO (Boot UI Fixes) | Powered by LazifAI</div>
     </footer>
 
     <div id="smartBulletinModal" class="modal-backdrop">
@@ -647,13 +658,14 @@
     </div>
     
     <div id="toast-container" class="toast-container"></div>
+
     <div class="fab-container">
         <div class="fab-menu" id="fab-menu">
-            <div class="fab-item" onclick="showMainSection('students'); document.getElementById('student-name-input').focus();">➕ Add Student</div>
-            <div class="fab-item" onclick="showMainSection('students'); document.getElementById('student-delete-select').focus();">🗑 Delete Student</div>
-            <div class="fab-item" onclick="showMainSection('classes'); window.scrollTo(0, document.getElementById('schedule-class-btn').offsetTop - 200);">📅 Schedule Class</div>
+            <div class="fab-item" onclick="openSmartBulletin()">🚀 Open Smart Bulletin</div>
+            <div class="fab-item" onclick="showMainSection('communications'); document.querySelector('input[value=\'progress\']').click(); document.getElementById('crm-student-select').focus(); window.scrollTo(0,0);">💬 Write Progress Report</div>
             <div class="fab-item" onclick="document.getElementById('btn-review-pending').click();">📝 Pending Reviews</div>
-            <div class="fab-item" onclick="openCopyWeekModal()">📋 Copy Week</div>
+            <div class="fab-item" onclick="showMainSection('classes'); window.scrollTo(0, document.getElementById('schedule-class-btn').offsetTop - 200);">📅 Schedule Class</div>
+            <div class="fab-item" onclick="copyAvailabilityWeek()">📋 Copy Weekly Availability</div>
         </div>
         <button class="fab-main" id="fab-main" title="Quick Actions">⚡</button>
     </div>
@@ -743,9 +755,18 @@
 
     window.cancelAllClassesForDay = async () => { const dateStr = document.getElementById("view-date").value; const activeClasses = (APP_STATE.currentClasses || []).filter(c => c.Status !== "Cancelled" && c.Status !== "Deleted"); if (!activeClasses.length) return showToast("No active classes to cancel.", "error"); showConfirm(`Cancel all ${activeClasses.length} classes for ${isoToDisplayDate(dateStr)}?`, async () => { const btn = document.getElementById("cancel-all-btn"); btn.textContent = "Processing..."; btn.disabled = true; const updates = activeClasses.map(c => ({ ClassID: c.ClassID, Status: "Cancelled" })); await fetchAPI(null, { action: "bulkUpdateStatus", updates: updates }); await loadEarnings(); await loadWeekly(); await renderAvailabilityFeed(); document.getElementById("view-classes-output").innerHTML = `<div style="background:#fef2f2; border:2px dashed #fca5a5; border-radius:12px; padding:40px 20px; text-align:center; color:#b91c1c; animation: fadeIn 0.4s ease;"><div style="font-size:3rem; margin-bottom:12px;">🏝️</div><h3 style="font-size:1.4rem; font-weight:700; margin-bottom:8px;">All Classes Cancelled</h3><p style="font-size:1rem; color:#ef4444;">All scheduled classes for today have been gracefully cancelled by the Teacher.</p></div>`; fetchToday(); renderClassesForDate(dateStr, true); btn.textContent = "Cancel All"; btn.disabled = false; showToast("All classes successfully cancelled and calendars synced."); }); };
 
-    async function renderClassesForDate(dateStr, holdBanner = false) {
-        const out = document.getElementById("view-classes-output"); if (!holdBanner) out.innerHTML = '<div style="color:var(--text-sub); text-align:center; padding:20px;">Loading schedule...</div>';
-        const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr }); const classes = res.classes || []; updateStats(dateStr, classes); 
+    // 🟢 BUG FIX: Ensure preloaded mega-payload classes can bypass the API call so `holdBanner` false doesn't break.
+    async function renderClassesForDate(dateStr, holdBanner = false, preloadedClasses = null) {
+        const out = document.getElementById("view-classes-output"); 
+        if (!holdBanner) out.innerHTML = '<div style="color:var(--text-sub); text-align:center; padding:20px;">Loading schedule...</div>';
+        
+        let classes = preloadedClasses;
+        if (!classes) {
+            const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr }); 
+            classes = res.classes || []; 
+        }
+        
+        updateStats(dateStr, classes); 
         const busy = []; const isToday = (dateStr === APP_STATE.todayDate); let currentMins = 0;
         if(isToday) { const now = new Date(); const ist = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); currentMins = ist.getHours() * 60 + ist.getMinutes(); }
         classes.forEach(c => { if(BLOCKED_STATUSES.includes(c.Status)) { const [h,m] = c.StartTime.split(':').map(Number); const s = parseInt(h)*60 + parseInt(m); busy.push({ s: s, e: s+60, status: c.Status }); } });
@@ -770,14 +791,12 @@
         classes.forEach(c => {
             const card = document.createElement("div"); card.className = "class-card"; 
             if (c.Status === "Cancelled") card.classList.add("cancelled-card");
-            if (c.Status === "System Glitch") card.classList.add("glitch-card"); // 🟢 GLITCH CSS Hook
+            if (c.Status === "System Glitch") card.classList.add("glitch-card"); 
             
-            // 🟢 SYSTEM GLITCH INTEGRATION
             let stat = `<div><select class="status-select" data-id="${c.ClassID}">
                 <option value="Scheduled" ${c.Status==='Scheduled'?'selected':''}>📅 Scheduled</option><option value="Completed" ${c.Status==='Completed'?'selected':''}>✅ Completed</option><option value="Student No Show" ${c.Status==='Student No Show'?'selected':''}>⚠️ No Show</option><option value="Absent" ${c.Status==='Absent'?'selected':''}>📉 Absent</option><option value="Cancelled" ${c.Status==='Cancelled'?'selected':''}>❌ Cancelled</option><option value="System Glitch" ${c.Status==='System Glitch'?'selected':''}>💻 System Glitch</option><option value="Rescheduled" ${c.Status==='Rescheduled'?'selected':''}>🔁 Rescheduled</option><option value="Paused" ${c.Status==='Paused'?'selected':''}>⏸ Paused</option>
             </select></div>`;
 
-            // 🟢 PHASE 7 UI: Dual Notes & Topic Area
             let notesHtml = `
             <div class="notes-area">
                 <input type="text" class="card-notes-input" placeholder="Save session notes..." value="${c.Notes}">
@@ -810,7 +829,6 @@
             card.querySelector(".status-select").onchange = async (e) => { e.target.disabled = true; await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: e.target.value }); e.target.disabled = false; showToast("Status & Calendar updated"); loadEarnings(); loadWeekly(); renderAvailabilityFeed(); renderClassesForDate(dateStr); };
             const rT = card.querySelector(".res-time"); rT.onblur = () => normalizeUserTime(rT);
             
-            // 🟢 PHASE 7 JS: Sends both Note and NextTopic to backend.
             card.querySelector(".btn-save-notes").onclick = async () => { 
                 const btn = card.querySelector(".btn-save-notes"); btn.disabled = true; btn.textContent="⌛";
                 const notes = card.querySelector(".card-notes-input").value;
@@ -830,7 +848,6 @@
 
     async function checkSlotConflict(date, time, ignoreId) { const r = await fetchAPI(null, { action: "getClasses", selectedDate: date }); return (r.classes||[]).some(c => { if(c.ClassID === ignoreId) return false; return c.StartTime === time && BLOCKED_STATUSES.includes(c.Status); }); }
     document.getElementById("view-classes-btn").onclick = () => renderClassesForDate(document.getElementById("view-date").value);
-    document.getElementById("refresh-today-btn").onclick = () => fetchToday(true); document.getElementById("refresh-week-btn").onclick = () => fetchToday(true);
     const sT = document.getElementById("schedule-time"); sT.onblur = () => normalizeUserTime(sT);
     document.getElementById("schedule-class-btn").onclick = async () => { const s = document.getElementById("schedule-student-select").value; const d = document.getElementById("schedule-date").value; const t = parseUserTimeTo24(sT.value); const rep = parseInt(document.getElementById("schedule-repeat").value); if(!s || !d || !t) return showToast("Fill all fields", "error"); const sObj = APP_STATE.students.find(stu => stu.name === s); const isTrial = sObj && sObj.type === "Trial"; document.getElementById("schedule-msg").innerHTML = '<div style="color:var(--primary);">Checking...</div>'; let hasPast = false; for(let i=0; i<=rep; i++) { const cd = addDaysUTC(d, i*7); if(await checkSlotConflict(cd, t)) { document.getElementById("schedule-msg").innerHTML = ""; return showError(`Slot conflict on ${isoToDisplayDate(cd)}`); } if(isTimeInPast(cd, t)) hasPast = true; } const executeSchedule = async () => { document.getElementById("schedule-msg").innerHTML = '<div style="color:var(--primary);">Scheduling...</div>'; const eventTitle = isTrial ? `Trial Class for ${s}` : `English Class for ${s}`; for(let i=0; i<=rep; i++) await fetchAPI(null, { action: "ScheduleClass", StudentName: s, ClassDate: addDaysUTC(d, i*7), StartTime: t, EventTitle: eventTitle }); document.getElementById("schedule-msg").innerHTML = '<div style="color:var(--accent);">Done</div>'; loadWeekly(); fetchToday(); }; if(hasPast) { document.getElementById("schedule-msg").innerHTML = ""; showConfirm("Warning: Past time.", executeSchedule); } else executeSchedule(); };
 
@@ -844,9 +861,7 @@
             document.getElementById("stats-earnings-sub").textContent = `${r.cmCount || 0} CM | ${r.personalCount || 0} Personal`; 
         } 
     } 
-    document.getElementById("refresh-earnings-btn").onclick = loadEarnings;
     
-    // 🟢 GLITCH STATUS IN PENDING
     document.getElementById("btn-review-pending").onclick = async () => { document.getElementById("pendingReviewModal").classList.add("show"); document.getElementById("pendingReviewList").innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>'; const r = await fetchAPI(null, { action: "getPendingReviews" }); const l = document.getElementById("pendingReviewList"); l.innerHTML = ""; if(!r.pending || !r.pending.length) { l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">No pending reviews.</div>'; return; } r.pending.forEach(p => { l.innerHTML += `<div style="background:#fff; border:1px solid #e2e8f0; padding:10px; margin-bottom:8px; border-radius:8px; font-size:0.9rem;"><div style="font-weight:700; margin-bottom:4px;">${p.StudentName}</div><div style="color:var(--text-sub); margin-bottom:8px;">${isoToDisplayDate(p.ClassDate)} ${time24To12(p.StartTime)}</div><select class="status-select" style="width:100%;" onchange="updatePendingStatus('${p.ClassID}', this.value, this)"><option disabled selected>Select Action</option><option value="Completed">✅ Done</option><option value="Student No Show">⚠️ No Show</option><option value="Absent">📉 Absent</option><option value="Cancelled">❌ Cancel</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Pause</option></select></div>`; }); }; document.getElementById("pendingReviewClose").onclick = () => document.getElementById("pendingReviewModal").classList.remove("show");
     window.openShiftModal = (name) => { document.getElementById("shiftStudentNameDisplay").textContent = "Shift: " + name; document.getElementById("shiftStartDate").value = APP_STATE.todayDate; document.getElementById("shiftModal").classList.add("show"); const oldT = document.getElementById("shiftOldTime"); const newT = document.getElementById("shiftNewTime"); oldT.onblur = () => normalizeUserTime(oldT); newT.onblur = () => normalizeUserTime(newT); document.getElementById("shiftSaveBtn").onclick = async () => { const ot = parseUserTimeTo24(oldT.value); const nt = parseUserTimeTo24(newT.value); const sd = document.getElementById("shiftStartDate").value; if(!ot || !nt || !sd) return showToast("Invalid inputs", "error"); const btn = document.getElementById("shiftSaveBtn"); btn.textContent = "Processing..."; btn.disabled = true; const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: name, OldTime: ot, NewTime: nt, StartDate: sd }); document.getElementById("shiftModal").classList.remove("show"); showToast(`Shifted ${r.count} classes`); btn.textContent = "Shift All Future Classes"; btn.disabled = false; fetchToday(); }; }; document.getElementById("shiftModalClose").onclick = () => document.getElementById("shiftModal").classList.remove("show");
     window.openCopyWeekModal = () => { document.getElementById("copySourceDate").value = APP_STATE.todayDate; document.getElementById("copyTargetDate").value = addDaysUTC(APP_STATE.todayDate, 7); const radios = document.getElementsByName('copyMode'); radios.forEach(r => r.addEventListener('change', (e) => { const isDay = e.target.value === 'day'; document.getElementById("copySourceLabel").textContent = isDay ? "Source Date" : "Source Week (Pick date)"; document.getElementById("copyTargetLabel").textContent = isDay ? "Target Date" : "Target Week Start (Mon)"; })); document.getElementById("copySourceDate").onchange = function() { if(document.querySelector('input[name="copyMode"]:checked').value === 'week') { const d = new Date(this.value); const day = d.getDay(); const diff = d.getDate() - day + (day == 0 ? -6 : 1); const mon = new Date(d.setDate(diff)).toISOString().split('T')[0]; if(mon !== this.value) { this.value = mon; showToast("Snapped to Monday", "info"); } } }; document.getElementById("copyWeekModal").classList.add("show"); document.getElementById("copyWeekBtn").onclick = async () => { const s = document.getElementById("copySourceDate").value; const t = document.getElementById("copyTargetDate").value; const m = document.querySelector('input[name="copyMode"]:checked').value; if(!s || !t) return showToast("Select dates", "error"); const btn = document.getElementById("copyWeekBtn"); btn.textContent = "Copying..."; btn.disabled = true; const r = await fetchAPI(null, { action: "copySchedule", sourceDate: s, targetDate: t, mode: m }); document.getElementById("copyWeekModal").classList.remove("show"); showToast(`Copied ${r.count} classes`); btn.textContent = "Execute Copy"; btn.disabled = false; fetchToday(); }; }; document.getElementById("copyWeekClose").onclick = () => document.getElementById("copyWeekModal").classList.remove("show");
@@ -879,15 +894,13 @@
             
             const mkChart = (id, type, labels, data, stackOpts={}) => { const canvas = document.getElementById(id); if(!canvas) return; const ctx = canvas.getContext('2d'); if(charts[id]) charts[id].destroy(); charts[id] = new Chart(ctx, { type: type, data: { labels: labels, datasets: data }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: silent ? 0 : 500 }, plugins: { legend: { display: type!=='bar' && type!=='pie' && type!=='doughnut' } }, scales: stackOpts.scales || { x: { grid: { display: false } }, y: { grid: { display: false }, beginAtZero: true } } } }); };
             
-            // 🟢 Update Trial Conversions Widget
             if(r.trialStats) {
                 document.getElementById("stat-trials").textContent = r.trialStats.conducted || 0;
                 document.getElementById("stat-conversions").textContent = r.trialStats.conversions || 0;
             }
 
-            // 🟢 Update Revenue Matrix
             if(r.revenueMatrix) {
-                const revKeys = Object.keys(r.revenueMatrix).reverse(); // Oldest to Newest for charts
+                const revKeys = Object.keys(r.revenueMatrix).reverse(); 
                 const cmData = revKeys.map(k => r.revenueMatrix[k].cm);
                 const pData = revKeys.map(k => r.revenueMatrix[k].personal);
                 try { mkChart('chartRevenue', 'bar', revKeys, [
@@ -896,16 +909,13 @@
                 ], { scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { display: false } } } }); } catch(err){}
             }
 
-            // Workload setup
             const curr = new Date(); const first = curr.getDate() - curr.getDay() + 1; const weekLabels = []; const weekCounts = [];
             for (let i = 0; i < 7; i++) { let day = new Date(curr.setDate(first + i)); let key = day.toLocaleDateString("en-US", { month: 'short', day: '2-digit' }); weekLabels.push(day.toLocaleDateString("en-US", { weekday: 'short' })); weekCounts.push(r.workload[key] || 0); }
             try { mkChart('chartWorkload', 'bar', weekLabels, [{ label: 'Utilized', data: weekCounts, backgroundColor: '#334155' }, { label: 'Available', data: weekCounts.map(k => Math.max(0, 13 - k)), backgroundColor: '#10b981' }], { scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { display: false }, min: 0, max: 13 } } }); } catch(err){}
             
-            // Ops Pie Setup
             const opsSelect = document.getElementById("opsMonthSelect");
             window.updateOpsChart = (month) => { 
                 const data = r.operations[month] || {}; const opsKeys = Object.keys(data); const opsVals = Object.values(data); const lg = document.getElementById("opsLegend"); if(lg) { lg.innerHTML = ""; opsKeys.forEach((k, i) => { lg.innerHTML += `<div><b>${opsVals[i]}</b> <span style="color:#64748b">${k}</span></div>`; }); if (opsKeys.length === 0) lg.innerHTML = "<div style='color:#94a3b8; font-size:0.8rem;'>No data</div>"; } 
-                // 🟢 Added Glitch Color Mapping
                 const opsColors = opsKeys.map(k => { const l=k.toLowerCase(); return l.includes('completed')?'#0f766e':l.includes('no show')?'#ef4444':l.includes('absent')?'#64748b':l.includes('glitch')?'#f97316':l.includes('cancelled')?'#f59e0b':l.includes('paused')?'#8b5cf6':l.includes('scheduled')?'#3b82f6':'#cbd5e1'; }); document.getElementById("opsChartHelp").textContent = `Status breakdown for ${month}.`; try { mkChart('chartOps', 'pie', opsKeys, [{ data: opsVals, backgroundColor: opsColors }], { scales: { x:{display:false}, y:{display:false} } }); } catch(err){} 
             };
             if(opsSelect) { opsSelect.innerHTML = ""; const mKeys = Object.keys(r.operations); [...mKeys].reverse().forEach(m => opsSelect.innerHTML += `<option value="${m}">${m}</option>`); opsSelect.onchange = (e) => updateOpsChart(e.target.value); if(mKeys.length > 0) updateOpsChart(mKeys[mKeys.length-1]); }
@@ -958,6 +968,19 @@
     async function updateSmartBarText() { const barText = document.getElementById("smart-bar-content"); if(!barText) return; let trials = APP_STATE.students.filter(s => s.type === "Trial").length; barText.innerHTML = "LazifAI Operations Command"; if (trials > 0) barText.innerHTML = `⚠️ ${trials} Trial${trials > 1 ? 's' : ''} awaiting conversion`; try { const res = await fetchAPI(null, { action: "getRetentionAlerts" }); if (res.alerts && res.alerts.length > 0) barText.innerHTML = `📉 ${res.alerts.length} Flight Risk${res.alerts.length > 1 ? 's' : ''} &nbsp;|&nbsp; ⚠️ ${trials} Trial${trials > 1 ? 's' : ''}`; else if (res.feedbackAlerts && res.feedbackAlerts.length > 0) barText.innerHTML = `💬 ${res.feedbackAlerts.length} Reports Due &nbsp;|&nbsp; ⚠️ ${trials} Trial${trials > 1 ? 's' : ''}`; } catch(e) {} }
 
     /* --- PARENT CRM LOGIC --- */
+    window.refreshCrmHistory = async (name) => {
+        const list = document.getElementById("crm-history-list");
+        const r = await fetchAPI(null, { action: "getStudentHistory", StudentName: name });
+        list.innerHTML = "";
+        if(!r.history || r.history.length === 0) { list.innerHTML = `<div style="color:#94a3b8; text-align:center; padding:20px; font-size:0.85rem;">No historical records found for ${name}.</div>`; return; }
+        r.history.forEach(h => {
+            const dateStr = isoToDisplayDate(h.date.substring(0,10));
+            const icon = h.type === "PTM Invite" ? "📅" : h.type === "Progress Report" ? "📝" : "📊";
+            const borderCol = h.type === "PTM Invite" ? "#3b82f6" : h.type === "Progress Report" ? "#10b981" : "#f59e0b";
+            list.innerHTML += `<div class="history-card" style="border-left-color: ${borderCol};"><div class="history-card-header"><span class="history-card-type">${icon} ${h.type}</span><span>${dateStr}</span></div><div style="font-size:0.85rem; color:var(--text-main); margin-bottom:4px;"><b>Details:</b> ${h.details}</div><div style="font-size:0.8rem; color:var(--text-sub); max-height:40px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-style:italic;">"${h.message}"</div></div>`;
+        });
+    };
+
     window.loadStudentCRM = async (name) => {
         APP_STATE.currentCrmStudent = name;
         document.getElementById("crm-action-area").style.display = "block";
@@ -968,18 +991,8 @@
         document.getElementById("fbHwStrategy").value = "Revise Classwork"; toggleHwInputs("Revise Classwork");
         document.getElementById("ptmDiscussed").value = ""; document.getElementById("ptmImprove").value = ""; document.getElementById("ptmAction").value = "";
         
-        const list = document.getElementById("crm-history-list");
-        list.innerHTML = `<div style="text-align:center; padding:20px; color:#94a3b8;">Fetching history...</div>`;
-        const r = await fetchAPI(null, { action: "getStudentHistory", StudentName: name });
-        list.innerHTML = "";
-        if(!r.history || r.history.length === 0) { list.innerHTML = `<div style="color:#94a3b8; text-align:center; padding:20px; font-size:0.85rem;">No historical records found for ${name}.</div>`; return; }
-        
-        r.history.forEach(h => {
-            const dateStr = isoToDisplayDate(h.date.substring(0,10));
-            const icon = h.type === "PTM Invite" ? "📅" : h.type === "Progress Report" ? "📝" : "📊";
-            const borderCol = h.type === "PTM Invite" ? "#3b82f6" : h.type === "Progress Report" ? "#10b981" : "#f59e0b";
-            list.innerHTML += `<div class="history-card" style="border-left-color: ${borderCol};"><div class="history-card-header"><span class="history-card-type">${icon} ${h.type}</span><span>${dateStr}</span></div><div style="font-size:0.85rem; color:var(--text-main); margin-bottom:4px;"><b>Details:</b> ${h.details}</div><div style="font-size:0.8rem; color:var(--text-sub); max-height:40px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-style:italic;">"${h.message}"</div></div>`;
-        });
+        document.getElementById("crm-history-list").innerHTML = `<div style="text-align:center; padding:20px; color:#94a3b8;">Fetching history...</div>`;
+        refreshCrmHistory(name);
     };
 
     window.toggleCrmView = () => {
@@ -1007,8 +1020,10 @@
         const msg = `Hi Parents,\n\nIt is time for ${APP_STATE.currentCrmStudent}'s periodic Parent-Teacher Meeting to discuss their progress for the month of ${m}.\n\nI have scheduled a tentative slot for *${isoToDisplayDate(d)}* at *${time24To12(t)} IST*. Please confirm if this works for you, or let me know if you need to reschedule.\n\nLooking forward to speaking with you!\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
         
         document.getElementById("crmOutput").value = msg; document.getElementById("crm-output-area").style.display = "block"; btn.disabled = false; btn.textContent = "Schedule & Generate Invite";
-        await fetchAPI(null, { action: "saveFeedback", StudentName: APP_STATE.currentCrmStudent, ReportType: "PTM Invite", Details: `Scheduled for ${isoToDisplayDate(d)} (${m})`, Message: msg });
-        loadStudentCRM(APP_STATE.currentCrmStudent);
+        
+        fetchAPI(null, { action: "saveFeedback", StudentName: APP_STATE.currentCrmStudent, ReportType: "PTM Invite", Details: `Scheduled for ${isoToDisplayDate(d)} (${m})`, Message: msg }).then(() => {
+            refreshCrmHistory(APP_STATE.currentCrmStudent);
+        });
     };
 
     window.generateCRMMessage = async (type) => {
@@ -1016,13 +1031,22 @@
         const btn = document.querySelector(`#crm-view-${type} button`); btn.disabled = true; btn.textContent = "Generating...";
 
         if (type === 'progress') {
-            const vibe = document.getElementById("fbVibe").value; const topic = document.getElementById("fbTopic").value.trim(); const hwStrat = document.getElementById("fbHwStrategy").value; const hwInput = document.getElementById("fbHwInput1").value.trim(); 
+            const vibe = document.getElementById("fbVibe").value; 
+            const topic = document.getElementById("fbTopic").value.trim(); 
+            const hwStrat = document.getElementById("fbHwStrategy").value; 
+            const hwInput = document.getElementById("fbHwInput1").value.trim(); 
             let strengths = []; document.querySelectorAll('.pill-checkbox:checked').forEach(cb => strengths.push(cb.value));
-            if(!topic) { btn.disabled = false; btn.textContent = "Generate & Save Report"; return showToast("Enter Topic", "error"); }
             
-            msg = `Hi Parents,\n\nHere is ${APP_STATE.currentCrmStudent}'s periodic progress update. They are making *${vibe}*!\n\nDuring our recent sessions, we have focused on *${topic}*. I am very pleased to see their improvement, particularly in ${strengths.length > 0 ? '*' + strengths.join(", ") + '*' : 'class participation'}.`;
-            if(hwStrat === "Specific Topic") msg += `\n\nFor upcoming homework, please have them focus on: *${hwInput}*.`; else if(hwStrat === "External Resource") msg += `\n\nFor upcoming homework, please have them complete the resource linked here: ${hwInput}`; else msg += `\n\nFor upcoming homework, please have them spend 15 minutes revising the concepts covered in our recent classes.`;
-            msg += `\n\nRegards,\nSenorita Saha\nPowered by LazifAI`; detailsStr = `Strengths: ${strengths.join(", ") || 'N/A'}`;
+            msg = `Hi Parents,\n\nHere is ${APP_STATE.currentCrmStudent}'s periodic progress update. They are making *${vibe}*!\n\n`;
+            if (topic) msg += `During our recent sessions, we have focused on *${topic}*. `;
+            msg += `I am pleased to note their effort, particularly in ${strengths.length > 0 ? '*' + strengths.join(", ") + '*' : 'overall class participation'}.`;
+            
+            if(hwStrat === "Specific Topic" && hwInput) msg += `\n\nFor upcoming homework, please have them focus on: *${hwInput}*.`; 
+            else if(hwStrat === "External Resource" && hwInput) msg += `\n\nFor upcoming homework, please have them complete the resource linked here: ${hwInput}`; 
+            else msg += `\n\nFor upcoming homework, please have them spend 15 minutes revising the concepts covered in our recent classes.`;
+            
+            msg += `\n\nRegards,\nSenorita Saha\nPowered by LazifAI`; 
+            detailsStr = `Strengths: ${strengths.join(", ") || 'General'}`;
         } 
         else if (type === 'ptmPost') {
             const d = document.getElementById("ptmDiscussed").value.trim(); const i = document.getElementById("ptmImprove").value.trim(); const a = document.getElementById("ptmAction").value.trim();
@@ -1031,10 +1055,14 @@
             detailsStr = `Discussed: ${d.substring(0,30)}...`;
         }
 
-        document.getElementById("crmOutput").value = msg; document.getElementById("crm-output-area").style.display = "block";
-        await fetchAPI(null, { action: "saveFeedback", StudentName: APP_STATE.currentCrmStudent, ReportType: type==='progress' ? 'Progress Report' : 'PTM Summary', Details: detailsStr, Message: msg });
-        btn.disabled = false; btn.textContent = type==='progress' ? "Generate & Save Report" : "Generate & Save Summary";
-        loadStudentCRM(APP_STATE.currentCrmStudent);
+        document.getElementById("crmOutput").value = msg; 
+        document.getElementById("crm-output-area").style.display = "block";
+        btn.disabled = false; 
+        btn.textContent = type==='progress' ? "Generate & Save Report" : "Generate & Save Summary";
+        
+        fetchAPI(null, { action: "saveFeedback", StudentName: APP_STATE.currentCrmStudent, ReportType: type==='progress' ? 'Progress Report' : 'PTM Summary', Details: detailsStr, Message: msg }).then(() => {
+            refreshCrmHistory(APP_STATE.currentCrmStudent);
+        });
     };
 
     window.copyCrmMessage = () => { navigator.clipboard.writeText(document.getElementById("crmOutput").value); showToast("Message copied!"); };
@@ -1043,9 +1071,7 @@
     window.generateOnboarding = () => {
         const name = document.getElementById("onboard-student-select").value;
         if(!name) return showToast("Select a student", "error");
-        
         const msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
-        
         document.getElementById("onboardOutput").value = msg;
         document.getElementById("onboard-output-area").style.display = "block";
     };
@@ -1063,18 +1089,45 @@
         } 
     };
 
+    // 🟢 PERFORMANCE UPGRADE: Mega-Payload Boot Sequence (Bug Fixed)
     window.onload = async () => { 
         APP_STATE.todayDate = getCurrentISTDateString(); 
         document.getElementById("view-date").value = APP_STATE.todayDate; 
         document.getElementById("schedule-date").value = APP_STATE.todayDate; 
         document.getElementById("bulkDate").value = APP_STATE.todayDate; 
         initClocks(); 
-        await loadStudents(); 
-        await loadWeekly(); 
-        await loadEarnings(); 
-        setTimeout(() => loadAnalytics(true), 1500); 
-        fetchToday(); 
-        renderClassesForDate(APP_STATE.todayDate); 
+        
+        const d = new Date(APP_STATE.todayDate); 
+        d.setDate(d.getDate() - (d.getDay()+6)%7); 
+        const isoWeekStart = d.toISOString().split('T')[0];
+
+        try {
+            const r = await fetchAPI(null, { action: "bootApp", todayDate: APP_STATE.todayDate, startDate: isoWeekStart });
+            
+            APP_STATE.students = (r.studentsRes.students || []).sort((a, b) => a.name.localeCompare(b.name));
+            const delSel = document.getElementById("student-delete-select"), schSel = document.getElementById("schedule-student-select"), crmSel = document.getElementById("crm-student-select"), obSel = document.getElementById("onboard-student-select");
+            delSel.innerHTML = '<option value="">Select student...</option>'; schSel.innerHTML = '<option value="">Select student...</option>'; crmSel.innerHTML = '<option value="" disabled selected>Select active student...</option>'; obSel.innerHTML = '<option value="" disabled selected>Select active student...</option>';
+            APP_STATE.students.forEach(s => { const opt = `<option value="${s.name}">${s.name}</option>`; delSel.innerHTML += opt; schSel.innerHTML += opt; crmSel.innerHTML += opt; obSel.innerHTML += opt; });
+            document.getElementById("stats-total-students").textContent = APP_STATE.students.length;
+            document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`;
+            renderStudents(); updateSmartBarText();
+
+            if(r.earningsRes) { 
+                document.getElementById("stats-earnings-main").textContent = "₹" + (r.earningsRes.earnings||0).toLocaleString('en-IN'); 
+                document.getElementById("stats-earnings-sub").textContent = `${r.earningsRes.cmCount || 0} CM | ${r.earningsRes.personalCount || 0} Personal`; 
+            }
+
+            APP_STATE.weeklySummary = r.weekRes.summary || {};
+            APP_STATE.cache[APP_STATE.todayDate] = r.classesRes.classes || [];
+            
+            // 🟢 BUG FIX: Safely pass the classes to the rendering engine so the banner turns off properly
+            renderClassesForDate(APP_STATE.todayDate, false, r.classesRes.classes); 
+            
+            setTimeout(() => loadAnalytics(true), 1500); 
+
+        } catch(e) {
+            await loadStudents(); await loadWeekly(); await loadEarnings(); fetchToday(); renderClassesForDate(APP_STATE.todayDate);
+        }
     };
 </script>
 </body>
