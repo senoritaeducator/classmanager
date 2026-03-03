@@ -50,8 +50,6 @@
         .conv-input { background: #fff; border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 6px; width: 90px; height: 36px; }
         .conv-result-pill { font-weight: 700; color: var(--primary); font-size: 0.9rem; margin-left: 4px; white-space: nowrap; flex-shrink: 0; }
 
-        @media (max-width: 768px) { .top-bar { flex-direction: column; } .teacher-block { width: 100%; justify-content: space-between; } .converter-box { display: flex; flex-wrap: wrap; width: 100%; gap: 10px; } .conv-select { width: 100%; flex: 1 1 100%; } .conv-input { flex: 1; min-width: 80px; } .conv-result-pill { flex: 0 0 auto; } }
-
         .smart-bar { background: linear-gradient(135deg, #1e293b 0%, #0f766e 100%); color: white; padding: 12px 20px; border-radius: 10px; margin-bottom: 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(15, 118, 110, 0.25); transition: transform 0.2s, box-shadow 0.2s; }
         .smart-bar:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(15, 118, 110, 0.3); }
         .smart-bar-text { font-weight: 600; display: flex; align-items: center; gap: 10px; font-size:0.95rem; }
@@ -164,8 +162,12 @@
         .student-col { flex: 1 1 200px; border: 1px solid var(--border); border-radius: var(--radius); background: #f9fafb; display: flex; flex-direction: column; max-height: 450px; }
         .student-col-header { padding: 12px; border-bottom: 1px solid var(--border); background: #f1f5f9; font-weight: 700; font-size: 0.9rem; display: flex; justify-content: space-between; border-radius: 11px 11px 0 0; color: var(--text-sub); }
         .scrolly-list { overflow-y: auto; padding: 10px; flex: 1; }
+        
+        /* 🟢 UI FIX: Flexible truncating name span, non-shrinking buttons */
         .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500; transition: border-color 0.1s; gap: 12px; }
-        .student-item-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .student-item-row span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; }
+        .student-item-row .action-btns { display: flex; gap: 6px; flex-shrink: 0; }
+        
         .student-item-row:hover { border-color: var(--primary); }
 
         .weekly-strip { display: flex; gap: 6px; margin-top: 12px; overflow-x: auto; padding-bottom: 4px; scroll-behavior: smooth; }
@@ -174,6 +176,7 @@
         .weekly-day.has-classes { background: #f0f9ff; color: #0369a1; font-weight: 700; border-color: #bae6fd; }
         .weekly-day.today { background: var(--primary); color: white; border-color: var(--primary); }
 
+        /* 🟢 UI FIX: Comprehensive Mobile Breakpoints */
         @media (max-width: 768px) { 
             .top-bar { flex-direction: column; } 
             .teacher-block { width: 100%; justify-content: space-between; } 
@@ -181,8 +184,19 @@
             .conv-select { width: 100%; flex: 1 1 100%; } 
             .conv-input { flex: 1; min-width: 80px; } 
             .conv-result-pill { flex: 0 0 auto; } 
-            .student-col { flex: 1 1 100%; min-width: 100%; max-height: 350px; } 
+            
+            /* Stacking Columns */
+            .card-row { flex-direction: column; gap: 16px; }
+            .card-column { flex: 1 1 100% !important; min-width: 100% !important; width: 100% !important; }
+            .student-col { flex: 1 1 100%; min-width: 100%; max-height: 400px; margin-bottom: 12px; } 
+            
+            /* Header Fixes */
             .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .section-caption { margin-left: 0; padding-left: 0; border-left: none; display: block; margin-top: 4px; }
+            
+            /* Radio Group Wrap Fix */
+            .radio-group { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .radio-label { margin-left: 0 !important; width: 100%; }
         }
 
         /* --- MODALS & TOAST --- */
@@ -224,7 +238,7 @@
         <div class="brand-block">
             <div>
                 <div class="brand-title"><span style="font-size:1.5rem;">📊</span> Advanced Class Manager</div>
-                <div class="brand-sub">Professional Scheduling & Financial Suite</div>
+                <div class="brand-sub">AI-Powered Scheduling, CRM & Financial Suite</div>
             </div>
             
             <div class="converter-wrapper">
@@ -292,7 +306,7 @@
                         <div class="radio-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--border);">
                             <label class="radio-label"><input type="radio" name="crmAction" value="progress" checked onchange="toggleCrmView()"> Progress Report</label>
                             <label class="radio-label"><input type="radio" name="crmAction" value="ptmPost" onchange="toggleCrmView()"> Post-PTM Summary</label>
-                            <label class="radio-label" style="margin-left:auto;"><input type="radio" name="crmAction" value="ptmInvite" onchange="toggleCrmView()"> Schedule PTM Invite</label>
+                            <label class="radio-label"><input type="radio" name="crmAction" value="ptmInvite" onchange="toggleCrmView()"> Schedule PTM Invite</label>
                         </div>
 
                         <div id="crm-view-progress">
@@ -579,7 +593,7 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v76 PRO (Boot UI Fixes) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v77 PRO (Mobile UI Master) | Powered by LazifAI</div>
     </footer>
 
     <div id="smartBulletinModal" class="modal-backdrop">
@@ -701,16 +715,7 @@
         zone.onchange = calc; timeIn.onblur = calc;
     }
 
-    async function loadStudents() {
-        const r = await fetchAPI(null, { action: "getAllStudents" }); APP_STATE.students = (r.students || []).sort((a, b) => a.name.localeCompare(b.name));
-        const delSel = document.getElementById("student-delete-select"), schSel = document.getElementById("schedule-student-select"), crmSel = document.getElementById("crm-student-select"), obSel = document.getElementById("onboard-student-select");
-        delSel.innerHTML = '<option value="">Select student...</option>'; schSel.innerHTML = '<option value="">Select student...</option>'; crmSel.innerHTML = '<option value="" disabled selected>Select active student...</option>'; obSel.innerHTML = '<option value="" disabled selected>Select active student...</option>';
-        APP_STATE.students.forEach(s => { const opt = `<option value="${s.name}">${s.name}</option>`; delSel.innerHTML += opt; schSel.innerHTML += opt; crmSel.innerHTML += opt; obSel.innerHTML += opt; });
-        document.getElementById("stats-total-students").textContent = APP_STATE.students.length;
-        document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`;
-        renderStudents(); updateSmartBarText(); 
-    }
-
+    // 🟢 JS FIX: Button HTML string generation updated to use `action-btns` class for safety
     function renderStudents(filter="") {
         const q = filter.toLowerCase(); 
         const buckets = { "Trial": [], "PS": [], "CM": [], "Personal": [] };
@@ -726,9 +731,9 @@
             document.getElementById("count-"+type.toLowerCase()).textContent = list.length;
             if(!list.length) { el.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:10px;">None</div>'; return; }
             let h = ""; list.forEach(s => { 
-                let btns = `<button class="btn btn-outline" style="padding:2px 6px; font-size:0.7rem;" onclick="openShiftModal('${s.name}')">🔁</button>`; 
-                btns += `<button class="btn btn-soft" style="padding:2px 6px; font-size:0.7rem; margin-left:4px;" onclick="openEdit('${s.name}','${s.type}')">✎</button>`; 
-                h += `<div class="student-item-row"><span>${s.name}</span><div>${btns}</div></div>`; 
+                let btns = `<button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="openShiftModal('${s.name}')">🔁</button>`; 
+                btns += `<button class="btn btn-soft" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="openEdit('${s.name}','${s.type}')">✎</button>`; 
+                h += `<div class="student-item-row"><span>${s.name}</span><div class="action-btns">${btns}</div></div>`; 
             }); 
             el.innerHTML = h;
         };
@@ -738,10 +743,20 @@
         fill("list-personal", buckets["Personal"], "Personal");
     }
 
-    window.openEdit = (name, type) => { document.getElementById("editStudentNameDisplay").textContent = name; document.getElementById("editStudentTypeSelect").value = type; document.getElementById("editStudentModal").classList.add("show"); document.getElementById("editStudentSaveBtn").onclick = async () => { const nt = document.getElementById("editStudentTypeSelect").value; const btn = document.getElementById("editStudentSaveBtn"); btn.textContent = "Saving..."; await fetchAPI(null, { action: "updateStudentType", StudentName: name, NewType: nt }); btn.textContent = "Save Changes"; document.getElementById("editStudentModal").classList.remove("show"); showToast("Updated"); loadStudents(); }; };
+    window.openEdit = (name, type) => { document.getElementById("editStudentNameDisplay").textContent = name; document.getElementById("editStudentTypeSelect").value = type; document.getElementById("editStudentModal").classList.add("show"); document.getElementById("editStudentSaveBtn").onclick = async () => { const nt = document.getElementById("editStudentTypeSelect").value; const btn = document.getElementById("editStudentSaveBtn"); btn.textContent = "Saving..."; await fetchAPI(null, { action: "updateStudentType", StudentName: name, NewType: nt }); btn.textContent = "Save Changes"; document.getElementById("editStudentModal").classList.remove("show"); showToast("Updated"); await loadStudents(); }; };
     document.getElementById("editStudentClose").onclick = () => document.getElementById("editStudentModal").classList.remove("show");
-    document.getElementById("add-student-btn").onclick = async () => { const name = document.getElementById("student-name-input").value.trim(); const type = document.querySelector("input[name='studentType']:checked").value; if(!name) return showToast("Enter name", "error"); document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--primary);">Adding...</div>'; await fetchAPI(null, { action: "addStudent", StudentName: name, Type: type }); document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--accent);">Added</div>'; loadStudents(); };
-    document.getElementById("delete-student-btn").onclick = () => { const name = document.getElementById("student-delete-select").value; if(!name) return showToast("Select student", "error"); showConfirm(`Delete ${name}? This completely clears all their future classes.`, async () => { document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--primary);">Deleting...</div>'; await fetchAPI(null, { action: "deleteStudent", StudentName: name }); document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--accent);">Deleted</div>'; loadStudents(); fetchToday(); renderClassesForDate(document.getElementById("view-date").value); }); };
+    document.getElementById("add-student-btn").onclick = async () => { const name = document.getElementById("student-name-input").value.trim(); const type = document.querySelector("input[name='studentType']:checked").value; if(!name) return showToast("Enter name", "error"); document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--primary);">Adding...</div>'; await fetchAPI(null, { action: "addStudent", StudentName: name, Type: type }); document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--accent);">Added</div>'; await loadStudents(); };
+    document.getElementById("delete-student-btn").onclick = () => { const name = document.getElementById("student-delete-select").value; if(!name) return showToast("Select student", "error"); showConfirm(`Delete ${name}? This completely clears all their future classes.`, async () => { document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--primary);">Deleting...</div>'; await fetchAPI(null, { action: "deleteStudent", StudentName: name }); document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--accent);">Deleted</div>'; await loadStudents(); fetchToday(); renderClassesForDate(document.getElementById("view-date").value); }); };
+
+    async function loadStudents() {
+        const r = await fetchAPI(null, { action: "getAllStudents" }); APP_STATE.students = (r.students || []).sort((a, b) => a.name.localeCompare(b.name));
+        const delSel = document.getElementById("student-delete-select"), schSel = document.getElementById("schedule-student-select"), crmSel = document.getElementById("crm-student-select"), obSel = document.getElementById("onboard-student-select");
+        delSel.innerHTML = '<option value="">Select student...</option>'; schSel.innerHTML = '<option value="">Select student...</option>'; crmSel.innerHTML = '<option value="" disabled selected>Select active student...</option>'; obSel.innerHTML = '<option value="" disabled selected>Select active student...</option>';
+        APP_STATE.students.forEach(s => { const opt = `<option value="${s.name}">${s.name}</option>`; delSel.innerHTML += opt; schSel.innerHTML += opt; crmSel.innerHTML += opt; obSel.innerHTML += opt; });
+        document.getElementById("stats-total-students").textContent = APP_STATE.students.length;
+        document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`;
+        renderStudents(); updateSmartBarText(); 
+    }
 
     async function fetchToday(force=false) { const cls = await fetchAPI(null, { action: "getClasses", selectedDate: APP_STATE.todayDate }); APP_STATE.cache[APP_STATE.todayDate] = cls.classes || []; if(force) loadWeekly(); updateStats(APP_STATE.todayDate, cls.classes || []); }
     async function loadWeekly() { const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7); const iso = d.toISOString().split('T')[0]; const r = await fetchAPI(null, { action: "getWeekSummary", startDate: iso }); APP_STATE.weeklySummary = r.summary || {}; updateStats(APP_STATE.todayDate, APP_STATE.currentClasses); setTimeout(() => { const todayEl = document.querySelector('.weekly-day.today'); if(todayEl) todayEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }, 800); }
@@ -755,16 +770,12 @@
 
     window.cancelAllClassesForDay = async () => { const dateStr = document.getElementById("view-date").value; const activeClasses = (APP_STATE.currentClasses || []).filter(c => c.Status !== "Cancelled" && c.Status !== "Deleted"); if (!activeClasses.length) return showToast("No active classes to cancel.", "error"); showConfirm(`Cancel all ${activeClasses.length} classes for ${isoToDisplayDate(dateStr)}?`, async () => { const btn = document.getElementById("cancel-all-btn"); btn.textContent = "Processing..."; btn.disabled = true; const updates = activeClasses.map(c => ({ ClassID: c.ClassID, Status: "Cancelled" })); await fetchAPI(null, { action: "bulkUpdateStatus", updates: updates }); await loadEarnings(); await loadWeekly(); await renderAvailabilityFeed(); document.getElementById("view-classes-output").innerHTML = `<div style="background:#fef2f2; border:2px dashed #fca5a5; border-radius:12px; padding:40px 20px; text-align:center; color:#b91c1c; animation: fadeIn 0.4s ease;"><div style="font-size:3rem; margin-bottom:12px;">🏝️</div><h3 style="font-size:1.4rem; font-weight:700; margin-bottom:8px;">All Classes Cancelled</h3><p style="font-size:1rem; color:#ef4444;">All scheduled classes for today have been gracefully cancelled by the Teacher.</p></div>`; fetchToday(); renderClassesForDate(dateStr, true); btn.textContent = "Cancel All"; btn.disabled = false; showToast("All classes successfully cancelled and calendars synced."); }); };
 
-    // 🟢 BUG FIX: Ensure preloaded mega-payload classes can bypass the API call so `holdBanner` false doesn't break.
     async function renderClassesForDate(dateStr, holdBanner = false, preloadedClasses = null) {
         const out = document.getElementById("view-classes-output"); 
         if (!holdBanner) out.innerHTML = '<div style="color:var(--text-sub); text-align:center; padding:20px;">Loading schedule...</div>';
         
         let classes = preloadedClasses;
-        if (!classes) {
-            const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr }); 
-            classes = res.classes || []; 
-        }
+        if (!classes) { const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr }); classes = res.classes || []; }
         
         updateStats(dateStr, classes); 
         const busy = []; const isToday = (dateStr === APP_STATE.todayDate); let currentMins = 0;
@@ -1067,7 +1078,6 @@
 
     window.copyCrmMessage = () => { navigator.clipboard.writeText(document.getElementById("crmOutput").value); showToast("Message copied!"); };
 
-    // 🟢 ONBOARDING GENERATOR
     window.generateOnboarding = () => {
         const name = document.getElementById("onboard-student-select").value;
         if(!name) return showToast("Select a student", "error");
@@ -1089,7 +1099,6 @@
         } 
     };
 
-    // 🟢 PERFORMANCE UPGRADE: Mega-Payload Boot Sequence (Bug Fixed)
     window.onload = async () => { 
         APP_STATE.todayDate = getCurrentISTDateString(); 
         document.getElementById("view-date").value = APP_STATE.todayDate; 
@@ -1120,7 +1129,6 @@
             APP_STATE.weeklySummary = r.weekRes.summary || {};
             APP_STATE.cache[APP_STATE.todayDate] = r.classesRes.classes || [];
             
-            // 🟢 BUG FIX: Safely pass the classes to the rendering engine so the banner turns off properly
             renderClassesForDate(APP_STATE.todayDate, false, r.classesRes.classes); 
             
             setTimeout(() => loadAnalytics(true), 1500); 
