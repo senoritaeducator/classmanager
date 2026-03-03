@@ -8,11 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     
     <style>
-        /* --- THEME: MIDNIGHT EXECUTIVE (v60 Production) --- */
+        /* --- THEME: MIDNIGHT EXECUTIVE --- */
         :root {
-            --primary: #334155;       /* Slate 700 */
-            --primary-hover: #0f172a; /* Slate 900 */
-            --accent: #0f766e;        /* Deep Teal */
+            --primary: #334155;       
+            --primary-hover: #0f172a; 
+            --accent: #0f766e;        
             
             --bg-body: #f8fafc;       
             --bg-card: #ffffff;
@@ -76,7 +76,6 @@
         .conv-input { background: #fff; border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 6px; width: 90px; height: 36px; }
         .conv-result-pill { font-weight: 700; color: var(--primary); font-size: 0.9rem; margin-left: 4px; white-space: nowrap; flex-shrink: 0; }
 
-        /* Mobile Header Stack */
         @media (max-width: 768px) {
             .top-bar { flex-direction: column; }
             .teacher-block { width: 100%; justify-content: space-between; }
@@ -86,7 +85,7 @@
             .conv-result-pill { flex: 0 0 auto; } 
         }
 
-        /* 🟢 PHASE 4: SMART BAR UI */
+        /* --- SMART BAR UI --- */
         .smart-bar { background: linear-gradient(135deg, #1e293b 0%, #0f766e 100%); color: white; padding: 12px 20px; border-radius: 10px; margin-bottom: 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(15, 118, 110, 0.25); transition: transform 0.2s, box-shadow 0.2s; }
         .smart-bar:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(15, 118, 110, 0.3); }
         .smart-bar-text { font-weight: 600; display: flex; align-items: center; gap: 10px; font-size:0.95rem; }
@@ -157,35 +156,9 @@
         .btn-outline:hover { background: #f8fafc; border-color: #94a3b8; }
         .btn-soft:hover { background: #cbd5e1; }
 
-        /* Responsive Button Sizing */
-        .btn-primary, .btn-outline, #add-student-btn, #schedule-class-btn { width: 100%; }
-        
         @media (min-width: 768px) {
             .btn-primary, .btn-outline, #add-student-btn, #schedule-class-btn { width: auto; }
             .btn-block { width: 100%; } 
-        }
-
-        /* --- MOBILE FIXES (Manage Students Tab) --- */
-        @media (max-width: 768px) {
-            .card-column {
-                flex: 1 1 100% !important; 
-                width: 100% !important;
-                margin-bottom: 24px;
-            }
-            #delete-student-btn {
-                font-size: 0.85rem;
-                padding: 0 8px;
-                white-space: nowrap;
-            }
-            .student-item-row .btn {
-                width: 34px !important;
-                height: 34px !important;
-                padding: 0 !important;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-            }
         }
 
         /* --- OVERVIEW & TILES --- */
@@ -258,7 +231,6 @@
         .modal-body { padding: 24px; color: var(--text-main); line-height: 1.6; overflow-y: auto; max-height: 60vh; }
         .modal-footer { padding: 16px 24px; border-top: 1px solid #e2e8f0; background: #fff; display: flex; justify-content: flex-end; gap: 10px; }
         
-        /* 🟢 PHASE 4: Smart Bulletin Tabs */
         .sb-tab-btn { background: transparent; border: none; padding: 14px 10px; font-size: 0.95rem; color: var(--text-sub); font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; flex: 1; text-align: center; }
         .sb-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: #fff; }
         .sb-content { display: none; animation: fadeIn 0.3s ease; }
@@ -496,7 +468,10 @@
                 </div>
 
                 <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow);">
-                    <div style="font-weight:700; margin-bottom:4px; color:var(--text-main);">⚙️ Operational Efficiency</div>
+                    <div style="font-weight:700; margin-bottom:4px; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
+                        <span>⚙️ Operational Efficiency</span>
+                        <select id="opsMonthSelect" style="border:1px solid #cbd5e1; border-radius:6px; padding:2px 6px; font-size:0.8rem; cursor:pointer; outline:none; background:#fff;"></select>
+                    </div>
                     <div class="chart-help" id="opsChartHelp">Status breakdown.</div>
                     <div style="display:flex; gap:20px; align-items:center; height:100%;">
                         <div class="chart-container" style="flex:2;"><canvas id="chartOps"></canvas></div>
@@ -525,7 +500,7 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v67 PRO (Master Final) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v68 PRO (Strict Grid / Zero Latency) | Powered by LazifAI</div>
     </footer>
 
     <div class="fab-container">
@@ -876,22 +851,20 @@
             }
         });
         
-        busy.sort((a,b) => a.s - b.s);
+        // 🟢 STRICT GRID UPGRADE: Checks perfect 1-hour boundaries for overlap instead of jumping.
         let html = "";
-        let ptr = 540; 
-        const endOfDay = 1320; 
-
-        while (ptr + 60 <= endOfDay) {
-            const overlap = busy.find(b => (b.s < ptr + 60) && (b.e > ptr));
+        for (let h = 540; h < 1320; h += 60) {
+            const slotStart = h;
+            const slotEnd = h + 60;
+            
+            // Does any busy class touch this 1-hour block?
+            const overlap = busy.find(b => (b.s < slotEnd) && (b.e > slotStart));
+            
             if (overlap) {
                 if (overlap.status === "Cancelled") {
-                    html += `<div style="background:#fef2f2; color:#b91c1c; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #fecaca; margin-bottom:6px;">${minToTime(overlap.s)} - ${minToTime(overlap.e)} (Cancelled)</div>`;
+                    html += `<div style="background:#fef2f2; color:#b91c1c; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #fecaca; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)} (Cancelled)</div>`;
                 }
-                ptr = overlap.e; 
             } else {
-                const slotStart = ptr;
-                const slotEnd = ptr + 60;
-                
                 if (isToday) {
                     if (slotEnd <= currentMins) {
                         html += `<div style="background:#fef2f2; color:#b91c1c; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #fecaca; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)} (Expired)</div>`;
@@ -903,7 +876,6 @@
                 } else {
                     html += `<div style="background:#f0fdf4; color:#166534; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #dcfce7; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)}</div>`;
                 }
-                ptr += 60; 
             }
         }
         
@@ -1195,19 +1167,11 @@
                 });
             };
 
-            const opsKeys = Object.keys(r.operations); const opsVals = Object.values(r.operations);
-            const lg = document.getElementById("opsLegend");
-            if(lg) { lg.innerHTML = ""; opsKeys.forEach((k, i) => { lg.innerHTML += `<div><b>${opsVals[i]}</b> <span style="color:#64748b">${k}</span></div>`; }); }
-            const opsColors = opsKeys.map(k => { const l=k.toLowerCase(); return l.includes('completed')?'#0f766e':l.includes('no show')?'#ef4444':l.includes('absent')?'#64748b':l.includes('cancelled')?'#f59e0b':l.includes('paused')?'#8b5cf6':l.includes('scheduled')?'#3b82f6':'#cbd5e1'; });
-
-            const currentMonthName = new Date().toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-            document.getElementById("opsChartHelp").textContent = `Status breakdown for ${currentMonthName}.`;
-
+            // Workload setup
             const curr = new Date();
             const first = curr.getDate() - curr.getDay() + 1; 
             const weekLabels = [];
             const weekCounts = [];
-            
             for (let i = 0; i < 7; i++) {
                 let day = new Date(curr.setDate(first + i));
                 let key = day.toLocaleDateString("en-US", { month: 'short', day: '2-digit' }); 
@@ -1215,22 +1179,35 @@
                 weekLabels.push(label);
                 weekCounts.push(r.workload[key] || 0);
             }
-            
             const freeSlots = weekCounts.map(k => Math.max(0, 13 - k));
 
             try { mkChart('chartPortfolio', 'doughnut', Object.keys(r.portfolio), [{ data: Object.values(r.portfolio), backgroundColor: ['#334155','#0f766e','#f59e0b'] }], null, 'Students', false, { scales: { x:{display:false}, y:{display:false} } }); } catch(err){ console.warn("Portfolio chart skipped", err); }
-            
-            try { mkChart('chartWorkload', 'bar', weekLabels, [
-                { label: 'Utilized', data: weekCounts, backgroundColor: '#334155' },
-                { label: 'Available', data: freeSlots, backgroundColor: '#10b981' }
-            ], null, 'Capacity', false, { 
-                scales: { 
-                    x: { stacked: true, grid: { display: false } }, 
-                    y: { stacked: true, grid: { display: false }, min: 0, max: 13 } 
-                } 
-            }); } catch(err){ console.warn("Workload chart skipped", err); }
-            
-            try { mkChart('chartOps', 'pie', opsKeys, [{ data: opsVals, backgroundColor: opsColors }], null, 'Status', false, { scales: { x:{display:false}, y:{display:false} } }); } catch(err){ console.warn("Operations chart skipped", err); }
+            try { mkChart('chartWorkload', 'bar', weekLabels, [{ label: 'Utilized', data: weekCounts, backgroundColor: '#334155' }, { label: 'Available', data: freeSlots, backgroundColor: '#10b981' }], null, 'Capacity', false, { scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { display: false }, min: 0, max: 13 } } }); } catch(err){ console.warn("Workload chart skipped", err); }
+
+            // 🟢 ZERO-LATENCY OPS CHART UPGRADE
+            const opsSelect = document.getElementById("opsMonthSelect");
+            window.updateOpsChart = (month) => {
+                const data = r.operations[month] || {};
+                const opsKeys = Object.keys(data); 
+                const opsVals = Object.values(data);
+                
+                const lg = document.getElementById("opsLegend");
+                if(lg) { lg.innerHTML = ""; opsKeys.forEach((k, i) => { lg.innerHTML += `<div><b>${opsVals[i]}</b> <span style="color:#64748b">${k}</span></div>`; }); }
+                if (opsKeys.length === 0 && lg) lg.innerHTML = "<div style='color:#94a3b8; font-size:0.8rem;'>No data</div>";
+                
+                const opsColors = opsKeys.map(k => { const l=k.toLowerCase(); return l.includes('completed')?'#0f766e':l.includes('no show')?'#ef4444':l.includes('absent')?'#64748b':l.includes('cancelled')?'#f59e0b':l.includes('paused')?'#8b5cf6':l.includes('scheduled')?'#3b82f6':'#cbd5e1'; });
+                document.getElementById("opsChartHelp").textContent = `Status breakdown for ${month}.`;
+                try { mkChart('chartOps', 'pie', opsKeys, [{ data: opsVals, backgroundColor: opsColors }], null, 'Status', false, { scales: { x:{display:false}, y:{display:false} } }); } catch(err){ console.warn("Operations chart skipped", err); }
+            };
+
+            if(opsSelect) {
+                opsSelect.innerHTML = "";
+                const mKeys = Object.keys(r.operations);
+                // Reverse to show newest month first
+                [...mKeys].reverse().forEach(m => opsSelect.innerHTML += `<option value="${m}">${m}</option>`);
+                opsSelect.onchange = (e) => updateOpsChart(e.target.value);
+                if(mKeys.length > 0) updateOpsChart(mKeys[mKeys.length-1]); // Load current month instantly
+            }
 
             renderAvailabilityFeed();
             APP_STATE.analyticsLoaded = true;
@@ -1238,6 +1215,7 @@
         } catch(e) { console.log("Analytics loading skipped"); } finally { APP_STATE.isAnalyticsLoading = false; }
     };
 
+    // 🟢 STRICT GRID UPGRADE: WhatsApp Availability Feed
     async function renderAvailabilityFeed() {
         const list = document.getElementById("avail-feed-list");
         if(!list) return;
@@ -1268,14 +1246,22 @@
 
             classes.forEach(c => {
                 const [hh, mm] = c.StartTime.split(':').map(Number);
-                const idx = slots.findIndex(s => s.h === hh);
-                if(idx !== -1) {
-                    if(BLOCKED_STATUSES.includes(c.Status)) {
-                        slots[idx].status = 'busy';
-                    } else if(["Paused", "Absent"].includes(c.Status)) {
-                        if(slots[idx].status !== 'expired') slots[idx].status = 'temp';
+                const startMins = hh * 60 + mm;
+                const endMins = startMins + 60; 
+
+                // Check overlap against rigid 1-hour slots
+                slots.forEach(slot => {
+                    const slotStartMins = slot.h * 60;
+                    const slotEndMins = slotStartMins + 60;
+                    
+                    if (startMins < slotEndMins && endMins > slotStartMins) {
+                        if(BLOCKED_STATUSES.includes(c.Status)) {
+                            slot.status = 'busy';
+                        } else if(["Paused", "Absent"].includes(c.Status)) {
+                            if(slot.status !== 'expired' && slot.status !== 'busy') slot.status = 'temp';
+                        }
                     }
-                }
+                });
             });
 
             const avail = slots.filter(s => s.status !== 'busy');
@@ -1357,7 +1343,7 @@
         showToast("Day availability copied!");
     };
 
-    /* 🟢 PHASE 4: SMART BULLETIN LOGIC */
+    /* --- SMART BULLETIN LOGIC --- */
     window.openSmartBulletin = () => {
         document.getElementById("smartBulletinModal").classList.add("show");
         renderTrialScout();
