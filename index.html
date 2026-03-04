@@ -36,13 +36,12 @@
         .top-bar { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; align-items: stretch; }
         .brand-block, .teacher-block { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); min-width: 280px; }
         .brand-block { border-left: 5px solid var(--primary); display: flex; flex-direction: column; justify-content: center; }
-        .teacher-block { flex: 0 0 auto; display: flex; align-items: center; gap: 20px; }
+        .teacher-block { flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-end; gap: 20px; }
         .brand-title { font-size: 1.4rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .brand-sub { font-size: 0.9rem; color: var(--text-sub); margin-top: 2px; }
-        .teacher-info { flex: 1; }
+        .teacher-info { display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
         .teacher-name { font-weight: 700; font-size: 1.2rem; } 
         .teacher-id { font-size: 0.8rem; color: var(--text-sub); }
-        .teacher-avatar { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; object-position: top center; border: 3px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
         .converter-wrapper { margin-top: 15px; }
         .converter-box { background: #f1f5f9; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 8px; max-width: 100%; }
@@ -56,10 +55,13 @@
         .smart-bar-action { background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
         /* --- NAVIGATION --- */
-        .main-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 0; overflow-x: auto; }
+        .main-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 0; overflow-x: auto; scroll-behavior: smooth; }
         .main-tab-btn { background: transparent; border: none; padding: 10px 20px; font-size: 0.95rem; color: var(--text-sub); font-weight: 600; cursor: pointer; border-radius: 8px 8px 0 0; transition: all 0.2s; white-space: nowrap; margin-bottom: -2px; border-bottom: 2px solid transparent; }
         .main-tab-btn.active { background: #fff; color: var(--primary); border-bottom-color: var(--primary); }
         .main-tab-btn:hover:not(.active) { color: var(--text-main); background: #f1f5f9; }
+        
+        /* 🟢 UX UPGRADE: Premium Tab Glow */
+        .tab-ai.active { color: #6d28d9; border-bottom-color: #8b5cf6; background: linear-gradient(to top, rgba(139, 92, 246, 0.08), transparent); }
 
         /* --- SECTIONS --- */
         .section { display: none; animation: fadeIn 0.3s ease; }
@@ -163,7 +165,6 @@
         .student-col-header { padding: 12px; border-bottom: 1px solid var(--border); background: #f1f5f9; font-weight: 700; font-size: 0.9rem; display: flex; justify-content: space-between; border-radius: 11px 11px 0 0; color: var(--text-sub); }
         .scrolly-list { overflow-y: auto; padding: 10px; flex: 1; }
         
-        /* 🟢 UI FIX: Flexible truncating name span, non-shrinking buttons */
         .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500; transition: border-color 0.1s; gap: 12px; }
         .student-item-row span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; }
         .student-item-row .action-btns { display: flex; gap: 6px; flex-shrink: 0; }
@@ -176,25 +177,22 @@
         .weekly-day.has-classes { background: #f0f9ff; color: #0369a1; font-weight: 700; border-color: #bae6fd; }
         .weekly-day.today { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 🟢 UI FIX: Comprehensive Mobile Breakpoints */
         @media (max-width: 768px) { 
             .top-bar { flex-direction: column; } 
-            .teacher-block { width: 100%; justify-content: space-between; } 
+            .teacher-block { width: 100%; justify-content: flex-start; } 
+            .teacher-info { align-items: flex-start; text-align: left; }
             .converter-box { display: flex; flex-wrap: wrap; width: 100%; gap: 10px; } 
             .conv-select { width: 100%; flex: 1 1 100%; } 
             .conv-input { flex: 1; min-width: 80px; } 
             .conv-result-pill { flex: 0 0 auto; } 
             
-            /* Stacking Columns */
             .card-row { flex-direction: column; gap: 16px; }
             .card-column { flex: 1 1 100% !important; min-width: 100% !important; width: 100% !important; }
             .student-col { flex: 1 1 100%; min-width: 100%; max-height: 400px; margin-bottom: 12px; } 
             
-            /* Header Fixes */
             .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
             .section-caption { margin-left: 0; padding-left: 0; border-left: none; display: block; margin-top: 4px; }
             
-            /* Radio Group Wrap Fix */
             .radio-group { flex-direction: column; align-items: flex-start; gap: 12px; }
             .radio-label { margin-left: 0 !important; width: 100%; }
         }
@@ -266,7 +264,6 @@
                 <div class="teacher-clock" id="clock-india">India: --:-- --</div>
                 <a href="#" class="btn btn-outline btn-sm" style="margin-top:8px;">View Portfolio</a>
             </div>
-            <img src="senorita-profile.jpg" class="teacher-avatar" alt="Profile">
         </div>
     </header>
 
@@ -279,13 +276,116 @@
     </div>
 
     <nav class="main-tabs">
-        <button class="main-tab-btn active" onclick="showMainSection('students')">Manage Students</button>
-        <button class="main-tab-btn" onclick="showMainSection('classes')">Manage Classes</button>
-        <button class="main-tab-btn" onclick="showMainSection('bulk')">Bulk Schedule</button>
-        <button class="main-tab-btn" onclick="showMainSection('communications')">Parent Relations</button>
-        <button class="main-tab-btn" onclick="showMainSection('onboarding')">Onboarding</button> 
-        <button class="main-tab-btn" onclick="showMainSection('analytics')">Analytics</button>
+        <button class="main-tab-btn active" onclick="showMainSection('classes')">Manage Classes</button>
+        <button class="main-tab-btn" onclick="showMainSection('students')">Manage Students</button>
+        <button class="main-tab-btn" onclick="showMainSection('communications')">💬 Parent Relations</button>
+        <button class="main-tab-btn tab-ai" onclick="showMainSection('drafter')">✨ AI Drafter</button>
+        <button class="main-tab-btn" onclick="showMainSection('analytics')">📊 Analytics</button>
+        <button class="main-tab-btn" onclick="showMainSection('bulk')">⚙️ Bulk Schedule</button>
+        <button class="main-tab-btn" onclick="showMainSection('onboarding')">⚙️ Onboarding</button> 
     </nav>
+
+    <section id="section-classes" class="section show">
+        <div class="section-card">
+            <div class="section-header"><div><span class="section-title">Dashboard Overview</span></div></div>
+            <div class="overview-grid">
+                <div class="overview-tile">
+                    <div class="overview-title">Students <button id="refresh-students-overview-btn" onclick="loadStudents()" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
+                    <div class="overview-main" id="stats-total-students">--</div>
+                    <div class="overview-sub" id="stats-students-sub">Active Enrollments</div>
+                </div>
+                <div class="overview-tile">
+                    <div class="overview-title">Today's Load <button id="refresh-today-btn" onclick="fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
+                    <div class="overview-main" id="stats-today-main">--</div>
+                    <div class="today-classes-list" id="today-classes-list" style="margin-top:8px; max-height:100px; overflow-y:auto;"></div>
+                </div>
+                <div class="overview-tile financial-tile">
+                    <div class="overview-title" style="color:#15803d;">Financials (CM & Personal) <button id="refresh-earnings-btn" onclick="loadEarnings()" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
+                    <div class="overview-main" id="stats-earnings-main">₹0</div>
+                    <div class="overview-sub" id="stats-earnings-sub">Current Month</div>
+                    <div style="display:flex; gap:8px; margin-top:12px;">
+                        <button id="btn-review-pending" class="btn btn-outline btn-sm" style="flex:1; background:#fff;">Review</button>
+                        <button id="btn-history" class="btn btn-outline btn-sm" style="flex:1; background:#fff;">History</button>
+                    </div>
+                </div>
+                <div class="overview-tile">
+                    <div class="overview-title">Weekly Trend <button id="refresh-week-btn" onclick="fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
+                    <div class="weekly-strip" id="weekly-strip"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header"><div><span class="section-title">Schedule New Class</span></div></div>
+            <div class="card-row">
+                <div class="card-column"><div class="form-group"><label>Student</label><select id="schedule-student-select"><option value="">Select...</option></select></div></div>
+                <div class="card-column"><div class="form-group"><label>Date</label><input type="date" id="schedule-date" /></div></div>
+                <div class="card-column"><div class="form-group"><label>Start Time</label><input type="text" id="schedule-time" placeholder="hh:mm AM/PM" /></div></div>
+                <div class="card-column"><div class="form-group"><label>Repeat (Weeks)</label><select id="schedule-repeat"><option value="0">One-time</option><option value="1">1 Week</option><option value="2">2 Weeks</option><option value="4">4 Weeks</option></select></div></div>
+            </div>
+            <div style="margin-top:20px;"><button id="schedule-class-btn" class="btn btn-primary btn-block">Schedule Class</button><div id="schedule-msg" style="margin-top:10px;"></div></div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <div><span class="section-title">Daily Operations</span></div>
+                <div style="display:flex; gap:10px;"><button class="btn btn-outline btn-sm" onclick="openCopyWeekModal()">📋 Copy Week</button></div>
+            </div>
+            <div class="classes-controls">
+                <div class="form-group" style="flex: 0 0 auto; margin-bottom:0;"><label>Select Date</label><input type="date" id="view-date" /></div>
+                <button id="view-classes-btn" class="btn btn-primary" style="margin-bottom:1px;">Load Schedule</button>
+                <button id="cancel-all-btn" class="btn btn-outline" style="margin-bottom:1px; color:#ef4444; border-color:#fecaca;">Cancel All</button>
+            </div>
+            <div class="layout-with-sidebar" style="margin-top:24px; display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
+                <div id="view-classes-output" class="classes-list" style="flex:2; min-width:300px;"></div>
+                <div id="free-slots-panel" class="side-panel" style="flex:1; min-width:280px; background:#fff; border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:var(--shadow);">
+                    <div class="slot-title" style="font-weight:700; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px;">Free Slots</div>
+                    <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:12px;">Working Hours: 09:00 AM - 10:00 PM</div>
+                    <div id="free-slots-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-students" class="section">
+        <div class="section-card">
+            <div class="section-header">
+                <div><span class="section-title">Student Directory</span><span class="section-caption">Manage active students and enrollment types.</span></div>
+                <button id="refresh-students-btn" class="btn btn-soft btn-sm" onclick="loadStudents()">Refresh List</button>
+            </div>
+            
+            <div class="card-row">
+                <div class="card-column" style="flex: 1;">
+                    <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid var(--border);">
+                        <h4 style="margin-bottom:16px; font-size:0.95rem; color:var(--text-main);">Add New Student</h4>
+                        <div class="form-group"><input id="student-name-input" type="text" placeholder="Full Name" /></div>
+                        
+                        <div class="radio-group" style="flex-wrap:wrap; gap:10px;">
+                            <label class="radio-label"><input type="radio" name="studentType" value="PS" checked> PS</label>
+                            <label class="radio-label"><input type="radio" name="studentType" value="CM"> CM</label>
+                            <label class="radio-label"><input type="radio" name="studentType" value="Trial"> Trial</label>
+                            <label class="radio-label"><input type="radio" name="studentType" value="Personal"> Personal</label>
+                        </div>
+                        <button id="add-student-btn" class="btn btn-primary btn-block">Add Student</button>
+                        <div id="manage-students-msg" style="margin-top:10px;"></div>
+                    </div>
+                    <div style="margin-top:24px;">
+                        <h4 style="margin-bottom:12px; font-size:0.9rem; color:#ef4444; font-weight:600;">Danger Zone</h4>
+                        <div class="form-group"><select id="student-delete-select"><option value="">Select student to delete...</option></select></div>
+                        <button id="delete-student-btn" class="btn btn-outline btn-block" style="color:#ef4444; border-color:#fecaca;">Delete Student</button>
+                    </div>
+                </div>
+                <div class="card-column" style="flex: 2;">
+                    <div id="all-students-content" class="student-columns">
+                        <div class="student-col"><div class="student-col-header">Trial <span id="count-trial">0</span></div><div id="list-trial" class="scrolly-list"></div></div>
+                        <div class="student-col"><div class="student-col-header">PS <span id="count-ps">0</span></div><div id="list-ps" class="scrolly-list"></div></div>
+                        <div class="student-col"><div class="student-col-header">CM <span id="count-cm">0</span></div><div id="list-cm" class="scrolly-list"></div></div>
+                        <div class="student-col"><div class="student-col-header">Personal <span id="count-personal">0</span></div><div id="list-personal" class="scrolly-list"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <section id="section-communications" class="section">
         <div class="section-card" style="padding-bottom: 0;">
@@ -387,142 +487,33 @@
         </div>
     </section>
 
-    <section id="section-onboarding" class="section">
+    <section id="section-drafter" class="section">
         <div class="section-card">
             <div class="section-header">
-                <div><span class="section-title">Personal Student Onboarding</span><span class="section-caption">Generate premium welcome packets & SOPs.</span></div>
+                <div><span class="section-title">✨ AI Smart Drafter</span><span class="section-caption">Instantly generate professional replies and support tickets using your personal AI model.</span></div>
             </div>
             
-            <div class="form-group" style="max-width: 400px;">
-                <label>Select Student</label>
-                <select id="onboard-student-select"><option value="" disabled selected>Select student...</option></select>
+            <div class="radio-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--border);">
+                <label class="radio-label"><input type="radio" name="draftType" value="parent" checked onchange="toggleAiOptions()"> 👨‍👩‍👧‍👦 Parent / Counselor Query</label>
+                <label class="radio-label"><input type="radio" name="draftType" value="ticket" onchange="toggleAiOptions()"> 🎫 Platform Support Ticket</label>
+            </div>
+
+            <div id="ai-platform-routing" style="display: none; margin-bottom: 20px; padding: 12px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-main);">Select Platform for Ticket</label>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <label class="radio-label"><input type="radio" name="ticketPlatform" value="PlanetSpark" checked> PlanetSpark (PS)</label>
+                    <label class="radio-label"><input type="radio" name="ticketPlatform" value="CueMath"> CueMath (CM)</label>
+                </div>
             </div>
             
-            <button class="btn btn-primary" onclick="generateOnboarding()">Generate Welcome Packet</button>
-            
-            <div id="onboard-output-area" style="margin-top:20px; display:none;">
-                <textarea id="onboardOutput" readonly style="width:100%; height:320px; padding:12px; border-radius:8px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:none; font-size:0.9rem;"></textarea>
-                <button class="btn btn-outline" style="margin-top:8px; width:100%; max-width:400px;" onclick="copyOnboarding()">📋 Copy Acknowledgment Message</button>
-            </div>
-        </div>
-    </section>
-
-    <section id="section-students" class="section show">
-        <div class="section-card">
-            <div class="section-header">
-                <div><span class="section-title">Student Directory</span><span class="section-caption">Manage active students and enrollment types.</span></div>
-                <button id="refresh-students-btn" class="btn btn-soft btn-sm" onclick="loadStudents()">Refresh List</button>
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Raw Notes / Context</label>
+                <textarea id="ai-draft-context" placeholder="Brain dump your thoughts here... e.g., 'Platform is not loading, page is blank and thus I am unable to take the Trial Class.'" style="height: 120px;"></textarea>
             </div>
             
-            <div class="card-row">
-                <div class="card-column" style="flex: 1;">
-                    <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid var(--border);">
-                        <h4 style="margin-bottom:16px; font-size:0.95rem; color:var(--text-main);">Add New Student</h4>
-                        <div class="form-group"><input id="student-name-input" type="text" placeholder="Full Name" /></div>
-                        
-                        <div class="radio-group" style="flex-wrap:wrap; gap:10px;">
-                            <label class="radio-label"><input type="radio" name="studentType" value="PS" checked> PS</label>
-                            <label class="radio-label"><input type="radio" name="studentType" value="CM"> CM</label>
-                            <label class="radio-label"><input type="radio" name="studentType" value="Trial"> Trial</label>
-                            <label class="radio-label"><input type="radio" name="studentType" value="Personal"> Personal</label>
-                        </div>
-                        <button id="add-student-btn" class="btn btn-primary btn-block">Add Student</button>
-                        <div id="manage-students-msg" style="margin-top:10px;"></div>
-                    </div>
-                    <div style="margin-top:24px;">
-                        <h4 style="margin-bottom:12px; font-size:0.9rem; color:#ef4444; font-weight:600;">Danger Zone</h4>
-                        <div class="form-group"><select id="student-delete-select"><option value="">Select student to delete...</option></select></div>
-                        <button id="delete-student-btn" class="btn btn-outline btn-block" style="color:#ef4444; border-color:#fecaca;">Delete Student</button>
-                    </div>
-                </div>
-                <div class="card-column" style="flex: 2;">
-                    <div id="all-students-content" class="student-columns">
-                        <div class="student-col"><div class="student-col-header">Trial <span id="count-trial">0</span></div><div id="list-trial" class="scrolly-list"></div></div>
-                        <div class="student-col"><div class="student-col-header">PS <span id="count-ps">0</span></div><div id="list-ps" class="scrolly-list"></div></div>
-                        <div class="student-col"><div class="student-col-header">CM <span id="count-cm">0</span></div><div id="list-cm" class="scrolly-list"></div></div>
-                        <div class="student-col"><div class="student-col-header">Personal <span id="count-personal">0</span></div><div id="list-personal" class="scrolly-list"></div></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+            <button id="btn-generate-draft" class="btn btn-primary btn-block" onclick="generateAIDraft()">✨ Generate AI Options</button>
 
-    <section id="section-classes" class="section">
-        <div class="section-card">
-            <div class="section-header"><div><span class="section-title">Dashboard Overview</span></div></div>
-            <div class="overview-grid">
-                <div class="overview-tile">
-                    <div class="overview-title">Students <button id="refresh-students-overview-btn" onclick="loadStudents()" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
-                    <div class="overview-main" id="stats-total-students">--</div>
-                    <div class="overview-sub" id="stats-students-sub">Active Enrollments</div>
-                </div>
-                <div class="overview-tile">
-                    <div class="overview-title">Today's Load <button id="refresh-today-btn" onclick="fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
-                    <div class="overview-main" id="stats-today-main">--</div>
-                    <div class="today-classes-list" id="today-classes-list" style="margin-top:8px; max-height:100px; overflow-y:auto;"></div>
-                </div>
-                <div class="overview-tile financial-tile">
-                    <div class="overview-title" style="color:#15803d;">Financials (CM & Personal) <button id="refresh-earnings-btn" onclick="loadEarnings()" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
-                    <div class="overview-main" id="stats-earnings-main">₹0</div>
-                    <div class="overview-sub" id="stats-earnings-sub">Current Month</div>
-                    <div style="display:flex; gap:8px; margin-top:12px;">
-                        <button id="btn-review-pending" class="btn btn-outline btn-sm" style="flex:1; background:#fff;">Review</button>
-                        <button id="btn-history" class="btn btn-outline btn-sm" style="flex:1; background:#fff;">History</button>
-                    </div>
-                </div>
-                <div class="overview-tile">
-                    <div class="overview-title">Weekly Trend <button id="refresh-week-btn" onclick="fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
-                    <div class="weekly-strip" id="weekly-strip"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section-card">
-            <div class="section-header"><div><span class="section-title">Schedule New Class</span></div></div>
-            <div class="card-row">
-                <div class="card-column"><div class="form-group"><label>Student</label><select id="schedule-student-select"><option value="">Select...</option></select></div></div>
-                <div class="card-column"><div class="form-group"><label>Date</label><input type="date" id="schedule-date" /></div></div>
-                <div class="card-column"><div class="form-group"><label>Start Time</label><input type="text" id="schedule-time" placeholder="hh:mm AM/PM" /></div></div>
-                <div class="card-column"><div class="form-group"><label>Repeat (Weeks)</label><select id="schedule-repeat"><option value="0">One-time</option><option value="1">1 Week</option><option value="2">2 Weeks</option><option value="4">4 Weeks</option></select></div></div>
-            </div>
-            <div style="margin-top:20px;"><button id="schedule-class-btn" class="btn btn-primary btn-block">Schedule Class</button><div id="schedule-msg" style="margin-top:10px;"></div></div>
-        </div>
-
-        <div class="section-card">
-            <div class="section-header">
-                <div><span class="section-title">Daily Operations</span></div>
-                <div style="display:flex; gap:10px;"><button class="btn btn-outline btn-sm" onclick="openCopyWeekModal()">📋 Copy Week</button></div>
-            </div>
-            <div class="classes-controls">
-                <div class="form-group" style="flex: 0 0 auto; margin-bottom:0;"><label>Select Date</label><input type="date" id="view-date" /></div>
-                <button id="view-classes-btn" class="btn btn-primary" style="margin-bottom:1px;">Load Schedule</button>
-                <button id="cancel-all-btn" class="btn btn-outline" style="margin-bottom:1px; color:#ef4444; border-color:#fecaca;">Cancel All</button>
-            </div>
-            <div class="layout-with-sidebar" style="margin-top:24px; display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
-                <div id="view-classes-output" class="classes-list" style="flex:2; min-width:300px;"></div>
-                <div id="free-slots-panel" class="side-panel" style="flex:1; min-width:280px; background:#fff; border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:var(--shadow);">
-                    <div class="slot-title" style="font-weight:700; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px;">Free Slots</div>
-                    <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:12px;">Working Hours: 09:00 AM - 10:00 PM</div>
-                    <div id="free-slots-list" style="display:flex; flex-direction:column; gap:6px;"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="section-bulk" class="section">
-        <div class="section-card">
-            <div class="section-header"><div><span class="section-title">Bulk Scheduling</span><span class="section-caption">Schedule multiple students for one specific date.</span></div></div>
-            <div class="card-row">
-                <div class="card-column"><div class="form-group"><label>Target Date</label><input type="date" id="bulkDate" /></div></div>
-                <div class="card-column"><div class="form-group"><label>Repeat (Weeks)</label><input type="number" id="bulkRepeatWeeks" value="0" min="0" /></div></div>
-            </div>
-            <hr style="margin:24px 0; border:0; border-top:1px solid #e2e8f0;">
-            <div id="bulkRowsContainer"></div>
-            <div class="inline-actions"><button id="addBulkRowBtn" class="btn btn-soft">+ Add Row</button><button id="clearBulkRowsBtn" class="btn btn-outline">Clear All</button></div>
-            <div style="margin-top:24px; display:flex; justify-content:flex-end; gap:12px;">
-                <button class="btn btn-outline" onclick="resetBulkScheduler()">Reset</button>
-                <button id="bulkScheduleBtn" class="btn btn-primary">Run Bulk Schedule</button>
-            </div>
+            <div id="ai-output-container" style="display:none; margin-top:30px; flex-direction:column; gap:16px;"></div>
         </div>
     </section>
 
@@ -590,10 +581,44 @@
         </div>
     </section>
 
+    <section id="section-bulk" class="section">
+        <div class="section-card">
+            <div class="section-header"><div><span class="section-title">Bulk Scheduling</span><span class="section-caption">Schedule multiple students for one specific date.</span></div></div>
+            <div class="card-row">
+                <div class="card-column"><div class="form-group"><label>Target Date</label><input type="date" id="bulkDate" /></div></div>
+                <div class="card-column"><div class="form-group"><label>Repeat (Weeks)</label><input type="number" id="bulkRepeatWeeks" value="0" min="0" /></div></div>
+            </div>
+            <hr style="margin:24px 0; border:0; border-top:1px solid #e2e8f0;">
+            <div id="bulkRowsContainer"></div>
+            <div class="inline-actions"><button id="addBulkRowBtn" class="btn btn-soft">+ Add Row</button><button id="clearBulkRowsBtn" class="btn btn-outline">Clear All</button></div>
+            <div style="margin-top:24px; display:flex; justify-content:flex-end; gap:12px;">
+                <button class="btn btn-outline" onclick="resetBulkScheduler()">Reset</button>
+                <button id="bulkScheduleBtn" class="btn btn-primary">Run Bulk Schedule</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-onboarding" class="section">
+        <div class="section-card">
+            <div class="section-header">
+                <div><span class="section-title">Personal Student Onboarding</span><span class="section-caption">Generate premium welcome packets & SOPs.</span></div>
+            </div>
+            <div class="form-group" style="max-width: 400px;">
+                <label>Select Student</label>
+                <select id="onboard-student-select"><option value="" disabled selected>Select student...</option></select>
+            </div>
+            <button class="btn btn-primary" onclick="generateOnboarding()">Generate Welcome Packet</button>
+            <div id="onboard-output-area" style="margin-top:20px; display:none;">
+                <textarea id="onboardOutput" readonly style="width:100%; height:320px; padding:12px; border-radius:8px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:none; font-size:0.9rem;"></textarea>
+                <button class="btn btn-outline" style="margin-top:8px; width:100%; max-width:400px;" onclick="copyOnboarding()">📋 Copy Acknowledgment Message</button>
+            </div>
+        </div>
+    </section>
+
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v77 PRO (Mobile UI Master) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v81 PRO (AI UX & Persona) | Powered by LazifAI</div>
     </footer>
 
     <div id="smartBulletinModal" class="modal-backdrop">
@@ -676,10 +701,10 @@
     <div class="fab-container">
         <div class="fab-menu" id="fab-menu">
             <div class="fab-item" onclick="openSmartBulletin()">🚀 Open Smart Bulletin</div>
+            <div class="fab-item" onclick="openAiDrafter()">✨ Draft AI Reply</div>
             <div class="fab-item" onclick="showMainSection('communications'); document.querySelector('input[value=\'progress\']').click(); document.getElementById('crm-student-select').focus(); window.scrollTo(0,0);">💬 Write Progress Report</div>
             <div class="fab-item" onclick="document.getElementById('btn-review-pending').click();">📝 Pending Reviews</div>
             <div class="fab-item" onclick="showMainSection('classes'); window.scrollTo(0, document.getElementById('schedule-class-btn').offsetTop - 200);">📅 Schedule Class</div>
-            <div class="fab-item" onclick="copyAvailabilityWeek()">📋 Copy Weekly Availability</div>
         </div>
         <button class="fab-main" id="fab-main" title="Quick Actions">⚡</button>
     </div>
@@ -715,7 +740,6 @@
         zone.onchange = calc; timeIn.onblur = calc;
     }
 
-    // 🟢 JS FIX: Button HTML string generation updated to use `action-btns` class for safety
     function renderStudents(filter="") {
         const q = filter.toLowerCase(); 
         const buckets = { "Trial": [], "PS": [], "CM": [], "Personal": [] };
@@ -775,7 +799,10 @@
         if (!holdBanner) out.innerHTML = '<div style="color:var(--text-sub); text-align:center; padding:20px;">Loading schedule...</div>';
         
         let classes = preloadedClasses;
-        if (!classes) { const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr }); classes = res.classes || []; }
+        if (!classes) {
+            const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr }); 
+            classes = res.classes || []; 
+        }
         
         updateStats(dateStr, classes); 
         const busy = []; const isToday = (dateStr === APP_STATE.todayDate); let currentMins = 0;
@@ -1078,6 +1105,7 @@
 
     window.copyCrmMessage = () => { navigator.clipboard.writeText(document.getElementById("crmOutput").value); showToast("Message copied!"); };
 
+    // 🟢 ONBOARDING GENERATOR
     window.generateOnboarding = () => {
         const name = document.getElementById("onboard-student-select").value;
         if(!name) return showToast("Select a student", "error");
@@ -1086,6 +1114,84 @@
         document.getElementById("onboard-output-area").style.display = "block";
     };
     window.copyOnboarding = () => { navigator.clipboard.writeText(document.getElementById("onboardOutput").value); showToast("Onboarding packet copied!"); };
+
+    // 🟢 AI SMART DRAFTER LOGIC (v81 - Persona & JSON Options)
+    window.toggleAiOptions = () => {
+        const type = document.querySelector('input[name="draftType"]:checked').value;
+        document.getElementById("ai-platform-routing").style.display = type === 'ticket' ? 'block' : 'none';
+    };
+
+    window.generateAIDraft = async () => {
+        const context = document.getElementById("ai-draft-context").value.trim();
+        const type = document.querySelector('input[name="draftType"]:checked').value;
+        let platform = "";
+        
+        if (type === "ticket") {
+            platform = document.querySelector('input[name="ticketPlatform"]:checked').value;
+        }
+
+        if (!context) return showToast("Please enter some raw notes first.", "error");
+
+        const btn = document.getElementById("btn-generate-draft");
+        btn.disabled = true;
+        btn.textContent = "✨ Generating Options...";
+
+        try {
+            const r = await fetchAPI(null, { action: "generateAIDraft", context: context, draftType: type, platform: platform });
+            if (r.status === "error") throw new Error(r.message);
+            
+            // 🟢 Safely parse the JSON response from Gemini
+            let options = [];
+            try {
+                // Remove markdown code block wrapping if Gemini included it
+                let cleanJsonStr = r.draft.replace(/```json/g, '').replace(/```/g, '').trim();
+                options = JSON.parse(cleanJsonStr);
+            } catch (jsonErr) {
+                throw new Error("AI returned an invalid format. Please try again.");
+            }
+
+            let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Generated AI Options</label>`;
+            
+            options.forEach((opt, idx) => {
+                let recBadge = opt.is_recommended ? `<div style="display:inline-block; background:#fef08a; color:#854d0e; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:700; margin-left:12px; border:1px solid #fde047; transform: translateY(-2px);">🌟 Recommended</div>` : '';
+                let borderStyle = opt.is_recommended ? `border: 2px solid #8b5cf6; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);` : `border: 1px solid #cbd5e1;`;
+                let bgStyle = opt.is_recommended ? `background: #faf5ff;` : `background: #f8fafc;`;
+                
+                html += `<div style="${bgStyle} border-radius:10px; padding:16px; margin-bottom:12px; ${borderStyle}">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
+                        <div style="font-weight:700; color:var(--primary); font-size:1rem; display:flex; align-items:center;">${opt.title} ${recBadge}</div>
+                        <button class="btn btn-primary btn-sm" onclick="copyAiOpt('ai-opt-${idx}')">📋 Copy</button>
+                    </div>
+                    <textarea id="ai-opt-${idx}" readonly style="width:100%; min-height:100px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${opt.text}</textarea>
+                </div>`;
+            });
+
+            document.getElementById("ai-output-container").innerHTML = html;
+            document.getElementById("ai-output-container").style.display = "flex";
+            document.getElementById("ai-output-container").scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (e) {
+            showToast(e.message || "Failed to connect to AI.", "error");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "✨ Generate AI Options";
+        }
+    };
+    
+    window.copyAiOpt = (id) => {
+        const el = document.getElementById(id);
+        el.select();
+        navigator.clipboard.writeText(el.value);
+        showToast("Option copied!");
+    };
+
+    // 🟢 Quick Action Route
+    window.openAiDrafter = () => {
+        showMainSection('drafter');
+        document.querySelector('input[name="draftType"][value="parent"]').click();
+        toggleAiOptions();
+        document.getElementById('ai-draft-context').focus();
+        window.scrollTo(0,0);
+    };
 
     document.addEventListener('keydown', (e) => { if ((e.altKey && e.key === 's') || (e.ctrlKey && e.key === 'k')) { e.preventDefault(); openSmartBulletin(); } });
     const fab = document.getElementById("fab-main"), menu = document.getElementById("fab-menu"); fab.onclick = () => menu.classList.toggle("show"); window.onclick = (e) => { if(!fab.contains(e.target) && !menu.contains(e.target)) menu.classList.remove("show"); };
