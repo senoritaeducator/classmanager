@@ -395,7 +395,7 @@
                     <div id="crm-action-area" style="display:none;">
                         <div class="radio-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--border);">
                             <label class="radio-label"><input type="radio" name="crmAction" value="progress" checked onchange="window.handleCrmActionChange(event)"> Progress Report</label>
-                            <label class="radio-label"><input type="radio" name="crmAction" value="demoFeedback" onchange="window.handleCrmActionChange(event)"> Demo Feedback</label>
+                            <label class="radio-label"><input type="radio" name="crmAction" value="demoFeedback" onchange="window.handleCrmActionChange(event)"> Demo Feedback Handover</label>
                             <label class="radio-label"><input type="radio" name="crmAction" value="ptmPost" onchange="window.handleCrmActionChange(event)"> Post-PTM Summary</label>
                             <label class="radio-label"><input type="radio" name="crmAction" value="ptmInvite" onchange="window.handleCrmActionChange(event)"> Schedule PTM Invite</label>
                         </div>
@@ -440,6 +440,30 @@
                         </div>
 
                         <div id="crm-view-demoFeedback" style="display:none;">
+                            <div class="card-row" style="margin-bottom: 16px;">
+                                <div class="card-column">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Lead Potential</label>
+                                        <select id="demoLeadPotential">
+                                            <option value="Hot (Ready to enroll)">🔥 Hot (Ready to enroll)</option>
+                                            <option value="Warm (Interested, needs nurturing)">☀️ Warm (Needs nurturing)</option>
+                                            <option value="Cold (Unlikely to enroll)">❄️ Cold (Unlikely)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="card-column">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Parent Vibe / Interest</label>
+                                        <select id="demoParentVibe">
+                                            <option value="Very positive, asked about fees and schedule">Positive, asked about fees/schedule</option>
+                                            <option value="Neutral, said they will discuss and get back">Neutral, needs to discuss</option>
+                                            <option value="Price sensitive / Hesitant">Price sensitive / Hesitant</option>
+                                            <option value="Other (Added to notes)">Other (Add to notes below)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-group">
                                 <label>Key Strengths / Positives (Select multiple)</label>
                                 <div id="demo-strengths-pills">
@@ -450,11 +474,11 @@
                                     <input type="checkbox" id="ds5" value="Creative Ideas" class="pill-checkbox"><label for="ds5" class="pill-label">Creative Ideas</label>
                                     <input type="checkbox" id="ds6" value="Expressive Reading" class="pill-checkbox"><label for="ds6" class="pill-label">Expressive Reading</label>
                                 </div>
-                                <input type="text" id="demoOtherStrengths" placeholder="Other strengths (comma separated)..." style="margin-top: 8px;">
+                                <input type="text" id="demoOtherStrengths" placeholder="Other strengths / vibes (comma separated)..." style="margin-top: 8px;">
                             </div>
                             
                             <div class="form-group">
-                                <label>Areas of Improvement (Select multiple)</label>
+                                <label>Areas of Improvement (Sales Pain Points)</label>
                                 <div id="demo-improvements-pills">
                                     <input type="checkbox" id="di1" value="Grammar Accuracy" class="pill-checkbox"><label for="di1" class="pill-label">Grammar Accuracy</label>
                                     <input type="checkbox" id="di2" value="Sentence Construction" class="pill-checkbox"><label for="di2" class="pill-label">Sentence Construction</label>
@@ -463,10 +487,10 @@
                                     <input type="checkbox" id="di5" value="Hesitation / Pauses" class="pill-checkbox"><label for="di5" class="pill-label">Hesitation / Pauses</label>
                                     <input type="checkbox" id="di6" value="Eye Contact" class="pill-checkbox"><label for="di6" class="pill-label">Eye Contact</label>
                                 </div>
-                                <input type="text" id="demoOtherImprovements" placeholder="Other improvements (comma separated)..." style="margin-top: 8px;">
+                                <input type="text" id="demoOtherImprovements" placeholder="Other improvements / pain points (comma separated)..." style="margin-top: 8px;">
                             </div>
 
-                            <button id="btn-crm-demofeedback" class="btn btn-outline btn-block" onclick="window.generateCRMMessage('demoFeedback')">✨ Generate Demo Report</button>
+                            <button id="btn-crm-demofeedback" class="btn btn-outline btn-block" onclick="window.generateCRMMessage('demoFeedback')">✨ Generate Handover Brief</button>
                         </div>
 
                         <div id="crm-view-ptmPost" style="display:none;">
@@ -694,7 +718,7 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v103.1 PRO (The Precision Build) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v103.2 PRO (The Precision Build) | Powered by LazifAI</div>
     </footer>
 
     <div id="renameStudentModal" class="modal-backdrop">
@@ -2336,6 +2360,10 @@
             currentCrmType = 'Progress Report';
 
         } else if (type === 'demoFeedback') {
+            // 🟢 V103.2 Internal Handover payload
+            payload.leadPotential = document.getElementById("demoLeadPotential").value;
+            payload.parentInterest = document.getElementById("demoParentVibe").value;
+
             let strengths = [];
             document.querySelectorAll('#crm-view-demoFeedback input[id^="ds"]:checked').forEach(cb => strengths.push(cb.value));
             payload.strengths = strengths.length > 0 ? strengths.join(", ") : "Good general participation";
@@ -2346,9 +2374,9 @@
             payload.improvements = improvements.length > 0 ? improvements.join(", ") : "General fluency";
             payload.otherImprovements = document.getElementById("demoOtherImprovements").value.trim();
 
-            if(!payload.strengths && !payload.otherStrengths) { btn.disabled = false; btn.textContent = "✨ Generate Demo Report"; return showToast("Select at least one strength", "error"); }
+            if(!payload.strengths && !payload.otherStrengths) { btn.disabled = false; btn.textContent = "✨ Generate Handover Brief"; return showToast("Select at least one strength", "error"); }
 
-            currentCrmDetails = `Demo Strengths: ${payload.strengths.substring(0,30)}...`;
+            currentCrmDetails = `${payload.leadPotential.split(' ')[0]} Lead | Vibe: ${payload.parentInterest.substring(0,20)}...`;
             currentCrmType = 'Demo Feedback';
 
         } else if (type === 'ptmPost') {
@@ -2370,7 +2398,7 @@
             showToast(e.message || "Failed to generate AI Draft.", "error");
         } finally {
             btn.disabled = false; 
-            if(type === 'demoFeedback') btn.textContent = "✨ Generate Demo Report";
+            if(type === 'demoFeedback') btn.textContent = "✨ Generate Handover Brief";
             else btn.textContent = "✨ Generate AI Draft";
         }
     };
