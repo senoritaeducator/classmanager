@@ -209,6 +209,12 @@
         .fab-item { background: white; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 0.9rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.1s; }
         .fab-item:hover { background: #f1f5f9; color: var(--primary); }
         .bulk-row { display: flex; gap: 10px; align-items: center; background: #fff; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+
+        /* --- V103 VOICE DICTATION CSS --- */
+        .mic-btn { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; cursor: pointer; transition: all 0.2s; font-size: 1rem; }
+        .mic-btn:hover { background: #e2e8f0; }
+        .recording-pulse { animation: pulse 1.5s infinite; background-color: #fee2e2 !important; color: #dc2626 !important; border: 1px solid #f87171 !important; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
     </style>
 </head>
 <body>
@@ -371,7 +377,7 @@
     <section id="section-communications" class="section">
         <div class="section-card" style="padding-bottom: 0;">
             <div class="section-header" style="margin-bottom: 0; border-bottom: none;">
-                <div><span class="section-title">Communications Hub</span><span class="section-caption">Progress Reports & PTM Scheduling</span></div>
+                <div><span class="section-title">Communications Hub</span><span class="section-caption">Progress Reports, Demos & PTM Scheduling</span></div>
             </div>
         </div>
 
@@ -389,15 +395,25 @@
                     <div id="crm-action-area" style="display:none;">
                         <div class="radio-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--border);">
                             <label class="radio-label"><input type="radio" name="crmAction" value="progress" checked onchange="window.handleCrmActionChange(event)"> Progress Report</label>
+                            <label class="radio-label"><input type="radio" name="crmAction" value="demoFeedback" onchange="window.handleCrmActionChange(event)"> Demo Feedback</label>
                             <label class="radio-label"><input type="radio" name="crmAction" value="ptmPost" onchange="window.handleCrmActionChange(event)"> Post-PTM Summary</label>
                             <label class="radio-label"><input type="radio" name="crmAction" value="ptmInvite" onchange="window.handleCrmActionChange(event)"> Schedule PTM Invite</label>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 15px;" id="crmToneGroup">
+                            <label>AI Tone Protocol</label>
+                            <select id="crmTone">
+                                <option value="Encouraging">🟢 Encouraging & Warm (Default)</option>
+                                <option value="Neutral">🟡 Direct & Neutral</option>
+                                <option value="Firm">🔴 Firm & Authoritative</option>
+                            </select>
                         </div>
 
                         <div id="crm-view-progress">
                             <div class="form-group"><label>Overall Performance</label><select id="fbVibe"><option value="Excellent Progress 🌟">Excellent Progress 🌟</option><option value="Good Effort 👍">Good Effort 👍</option><option value="Needs More Focus 🎯">Needs More Focus 🎯</option></select></div>
                             <div class="form-group">
                                 <label>Key Strengths Observed (Select multiple)</label>
-                                <div>
+                                <div id="progress-strengths-pills">
                                     <input type="checkbox" id="s1" value="Public Speaking" class="pill-checkbox"><label for="s1" class="pill-label">Public Speaking</label>
                                     <input type="checkbox" id="s2" value="Articulation" class="pill-checkbox"><label for="s2" class="pill-label">Articulation</label>
                                     <input type="checkbox" id="s3" value="Voice Modulation" class="pill-checkbox"><label for="s3" class="pill-label">Voice Modulation</label>
@@ -423,10 +439,58 @@
                             <button id="btn-crm-progress" class="btn btn-outline btn-block" onclick="window.generateCRMMessage('progress')">✨ Generate AI Draft</button>
                         </div>
 
+                        <div id="crm-view-demoFeedback" style="display:none;">
+                            <div class="form-group">
+                                <label>Key Strengths / Positives (Select multiple)</label>
+                                <div id="demo-strengths-pills">
+                                    <input type="checkbox" id="ds1" value="Confident Speaking" class="pill-checkbox"><label for="ds1" class="pill-label">Confident Speaking</label>
+                                    <input type="checkbox" id="ds2" value="Good Vocabulary" class="pill-checkbox"><label for="ds2" class="pill-label">Good Vocabulary</label>
+                                    <input type="checkbox" id="ds3" value="Active Listener" class="pill-checkbox"><label for="ds3" class="pill-label">Active Listener</label>
+                                    <input type="checkbox" id="ds4" value="Clear Pronunciation" class="pill-checkbox"><label for="ds4" class="pill-label">Clear Pronunciation</label>
+                                    <input type="checkbox" id="ds5" value="Creative Ideas" class="pill-checkbox"><label for="ds5" class="pill-label">Creative Ideas</label>
+                                    <input type="checkbox" id="ds6" value="Expressive Reading" class="pill-checkbox"><label for="ds6" class="pill-label">Expressive Reading</label>
+                                </div>
+                                <input type="text" id="demoOtherStrengths" placeholder="Other strengths (comma separated)..." style="margin-top: 8px;">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Areas of Improvement (Select multiple)</label>
+                                <div id="demo-improvements-pills">
+                                    <input type="checkbox" id="di1" value="Grammar Accuracy" class="pill-checkbox"><label for="di1" class="pill-label">Grammar Accuracy</label>
+                                    <input type="checkbox" id="di2" value="Sentence Construction" class="pill-checkbox"><label for="di2" class="pill-label">Sentence Construction</label>
+                                    <input type="checkbox" id="di3" value="Voice Modulation" class="pill-checkbox"><label for="di3" class="pill-label">Voice Modulation</label>
+                                    <input type="checkbox" id="di4" value="Body Language/Gestures" class="pill-checkbox"><label for="di4" class="pill-label">Body Language/Gestures</label>
+                                    <input type="checkbox" id="di5" value="Hesitation / Pauses" class="pill-checkbox"><label for="di5" class="pill-label">Hesitation / Pauses</label>
+                                    <input type="checkbox" id="di6" value="Eye Contact" class="pill-checkbox"><label for="di6" class="pill-label">Eye Contact</label>
+                                </div>
+                                <input type="text" id="demoOtherImprovements" placeholder="Other improvements (comma separated)..." style="margin-top: 8px;">
+                            </div>
+
+                            <button id="btn-crm-demofeedback" class="btn btn-outline btn-block" onclick="window.generateCRMMessage('demoFeedback')">✨ Generate Demo Report</button>
+                        </div>
+
                         <div id="crm-view-ptmPost" style="display:none;">
-                            <div class="form-group"><label>Key Points Discussed</label><textarea id="ptmDiscussed" placeholder="What went well..."></textarea></div>
-                            <div class="form-group"><label>Areas for Improvement</label><textarea id="ptmImprove" placeholder="Where the student needs help..."></textarea></div>
-                            <div class="form-group"><label>Action Plan (Homework/Goals)</label><textarea id="ptmAction" placeholder="Next steps..."></textarea></div>
+                            <div class="form-group">
+                                <label>Key Points Discussed</label>
+                                <div style="display: flex; gap: 8px; align-items: flex-start;">
+                                    <textarea id="ptmDiscussed" placeholder="What went well..." style="flex:1;"></textarea>
+                                    <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ptmDiscussed', this)" style="height: 40px;">🎤</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Areas for Improvement</label>
+                                <div style="display: flex; gap: 8px; align-items: flex-start;">
+                                    <textarea id="ptmImprove" placeholder="Where the student needs help..." style="flex:1;"></textarea>
+                                    <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ptmImprove', this)" style="height: 40px;">🎤</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Action Plan (Homework/Goals)</label>
+                                <div style="display: flex; gap: 8px; align-items: flex-start;">
+                                    <textarea id="ptmAction" placeholder="Next steps..." style="flex:1;"></textarea>
+                                    <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ptmAction', this)" style="height: 40px;">🎤</button>
+                                </div>
+                            </div>
                             <button id="btn-crm-ptmpost" class="btn btn-outline btn-block" onclick="window.generateCRMMessage('ptmPost')">✨ Generate AI Draft</button>
                         </div>
 
@@ -441,7 +505,7 @@
 
                         <div id="crm-output-area" style="margin-top:20px; display:none; padding-top:16px; border-top:2px dashed #e2e8f0;">
                             <label style="color:var(--primary);">Generated Draft (Review before saving)</label>
-                            <textarea id="crmOutput" style="width:100%; height:180px; padding:12px; border-radius:8px; border:1px solid var(--primary); background:#f8fafc; font-family:inherit; resize:none; font-size:0.9rem;"></textarea>
+                            <textarea id="crmOutput" style="width:100%; height:260px; padding:12px; border-radius:8px; border:1px solid var(--primary); background:#f8fafc; font-family:inherit; resize:none; font-size:0.9rem;"></textarea>
                             <div style="display:flex; gap:10px; margin-top:12px;">
                                 <button class="btn btn-outline" style="flex:1;" onclick="window.copyCrmMessage()">📋 Copy Text</button>
                                 <button class="btn btn-primary" id="btn-save-crm" style="flex:1;" onclick="window.saveCrmDraft()">💾 Save to History</button>
@@ -473,6 +537,7 @@
                 <label class="radio-label"><input type="radio" name="draftType" value="parent" checked onchange="window.handleAiTypeChange(event)"> 👨‍👩‍👧‍👦 Parent / Counselor Query</label>
                 <label class="radio-label"><input type="radio" name="draftType" value="ticket" onchange="window.handleAiTypeChange(event)"> 🎫 Platform Support Ticket</label>
                 <label class="radio-label"><input type="radio" name="draftType" value="greeting" onchange="window.handleAiTypeChange(event)"> 🎉 Festive / Birthday Greeting</label>
+                <label class="radio-label"><input type="radio" name="draftType" value="forge" onchange="window.handleAiTypeChange(event)"> 📚 Academic Content Forge</label>
             </div>
 
             <div id="ai-platform-routing" style="display: none; margin-bottom: 20px; padding: 12px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
@@ -489,10 +554,36 @@
                     <div class="card-column"><div class="form-group"><label>Occasion</label><input type="text" id="ai-greet-occasion" placeholder="e.g., 10th Birthday, Holi, Eid"></div></div>
                 </div>
             </div>
+
+            <div id="ai-forge-inputs" style="display: none; margin-bottom: 20px; padding: 16px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                <div class="form-group">
+                    <label>Topic / Objective</label>
+                    <div style="display: flex; gap: 8px; align-items: flex-start;">
+                        <textarea id="ai-forge-topic" placeholder="e.g., How to write a movie review" style="flex:1; height: 60px;"></textarea>
+                        <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ai-forge-topic', this)" style="height: 40px;">🎤</button>
+                    </div>
+                </div>
+                <div class="card-row">
+                    <div class="card-column"><div class="form-group"><label>Grade (Optional)</label><input type="text" id="ai-forge-grade" placeholder="e.g., 3rd Grade"></div></div>
+                    <div class="card-column"><div class="form-group"><label>Region / Curriculum (Optional)</label><input type="text" id="ai-forge-region" placeholder="e.g., Brisbane, Australia"></div></div>
+                </div>
+                <div class="form-group">
+                    <label>Output Types (Select multiple)</label>
+                    <div>
+                        <input type="checkbox" id="fo1" value="Step-by-Step Guide" class="pill-checkbox"><label for="fo1" class="pill-label">Guide</label>
+                        <input type="checkbox" id="fo2" value="Sample Essay" class="pill-checkbox"><label for="fo2" class="pill-label">Sample Essay</label>
+                        <input type="checkbox" id="fo3" value="Vocabulary List" class="pill-checkbox"><label for="fo3" class="pill-label">Vocab List</label>
+                        <input type="checkbox" id="fo4" value="Worksheet" class="pill-checkbox"><label for="fo4" class="pill-label">Worksheet</label>
+                    </div>
+                </div>
+            </div>
             
             <div class="form-group" style="margin-top: 20px;">
                 <label id="ai-context-label">Raw Notes / Context</label>
-                <textarea id="ai-draft-context" placeholder="Brain dump your thoughts here..." style="height: 120px;"></textarea>
+                <div style="display: flex; gap: 8px; align-items: flex-start;">
+                    <textarea id="ai-draft-context" placeholder="Brain dump your thoughts here..." style="height: 120px; flex: 1;"></textarea>
+                    <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ai-draft-context', this)" style="height: 40px;">🎤</button>
+                </div>
             </div>
             
             <button id="btn-generate-draft" class="btn btn-primary btn-block" onclick="window.generateAIDraft()">✨ Generate AI Options</button>
@@ -603,8 +694,29 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v100 PRO (The Final Master Build) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v103.1 PRO (The Precision Build) | Powered by LazifAI</div>
     </footer>
+
+    <div id="renameStudentModal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Rename Student</div>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('renameStudentModal').classList.remove('show')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="font-weight:700; margin-bottom:16px; font-size:1.1rem; color:var(--primary);">Rename: <span id="renameOldNameDisplay"></span></div>
+                <div class="form-group">
+                    <label>New Name</label>
+                    <input type="text" id="renameNewNameInput" placeholder="Enter new name...">
+                </div>
+                <p style="font-size:0.85rem; color:var(--text-sub); border-left: 3px solid #f59e0b; padding-left: 10px;">This securely updates all past classes, financial tracking, and feedback history.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="document.getElementById('renameStudentModal').classList.remove('show')">Cancel</button>
+                <button id="renameStudentSaveBtn" class="btn btn-primary">Rename</button>
+            </div>
+        </div>
+    </div>
 
     <div id="smartBulletinModal" class="modal-backdrop">
         <div class="modal" style="max-width: 550px;">
@@ -685,21 +797,41 @@
     
     <div id="historyModal" class="modal-backdrop">
         <div class="modal">
-            <div class="modal-header"><div class="modal-title">Historical Report</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('historyModal').classList.remove('show')">✕</button></div>
+            <div class="modal-header"><div class="modal-title">Advanced Historical Report</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('historyModal').classList.remove('show')">✕</button></div>
             <div class="modal-body">
-                <div style="display:flex; gap:10px; margin-bottom:16px;">
-                    <select id="historyMonth" style="flex:1;"><option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option><option value="3">Apr</option><option value="4">May</option><option value="5">Jun</option><option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option><option value="9">Oct</option><option value="10">Nov</option><option value="11">Dec</option></select>
-                    <select id="historyYear" style="flex:1;"><option value="2025">2025</option><option value="2026" selected>2026</option></select>
-                    <select id="historyTypeFilter" style="flex:1;">
-                        <option value="All">All Types</option>
-                        <option value="CM">CM Only</option>
-                        <option value="PS">PS Only</option>
-                        <option value="Trial">Trial Only</option>
-                        <option value="Personal">Personal Only</option> 
-                    </select>
+                <div class="form-group" style="display:flex; gap:10px; margin-bottom:12px;">
+                    <div style="flex:1;"><label>Start Date</label><input type="date" id="historyStartDate"></div>
+                    <div style="flex:1;"><label>End Date</label><input type="date" id="historyEndDate"></div>
+                </div>
+                <div class="form-group" style="display:flex; gap:10px; margin-bottom:16px;">
+                    <div style="flex:1;">
+                        <label>Student Filter</label>
+                        <select id="historyStudentFilter"><option value="All">All Students</option></select>
+                    </div>
+                    <div style="flex:1;">
+                        <label>Type Filter</label>
+                        <select id="historyTypeFilter">
+                            <option value="All">All Types</option>
+                            <option value="CM">CM Only</option>
+                            <option value="PS">PS Only</option>
+                            <option value="Trial">Trial Only</option>
+                            <option value="Personal">Personal Only</option>
+                        </select>
+                    </div>
                 </div>
                 <button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button>
-                <div id="historyResult" style="display:none; margin-top:20px; border:1px solid var(--border); padding:16px; border-radius:8px; background:#fff;"><div style="display:flex; justify-content:space-between; margin-bottom:10px; font-weight:700;"><div>Total Classes: <span id="histTotalClasses">0</span></div><div style="color:var(--accent);">Earnings: <span id="histEarnings">0</span></div></div><div style="font-size:0.85rem; max-height:200px; overflow-y:auto;"><table style="width:100%; text-align:left; border-collapse:collapse;"><thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead><tbody id="histTableBody"></tbody></table></div></div>
+                <div id="historyResult" style="display:none; margin-top:20px; border:1px solid var(--border); padding:16px; border-radius:8px; background:#fff;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-weight:700;">
+                        <div>Total Classes: <span id="histTotalClasses">0</span></div>
+                        <div style="color:var(--accent);">Earnings: <span id="histEarnings">0</span></div>
+                    </div>
+                    <div style="font-size:0.85rem; max-height:200px; overflow-y:auto;">
+                        <table style="width:100%; text-align:left; border-collapse:collapse;">
+                            <thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead>
+                            <tbody id="histTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -730,6 +862,9 @@
     let currentCrmDetails = "";
     let currentCrmType = "";
     let previousAiType = 'parent';
+
+    let speechRecog = null;
+    let isRecording = false;
 
     /* --- GLOBAL UTILITIES --- */
     function getCurrentISTDateString() { 
@@ -771,6 +906,39 @@
         document.getElementById("reportModal").classList.add("show"); 
     }
     
+    /* --- V103 VOICE ENGINE --- */
+    window.toggleVoiceDictation = (targetId, btnElement) => {
+        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+            return showToast("Voice dictation not supported in this browser.", "error");
+        }
+        if (isRecording) { speechRecog.stop(); return; }
+
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        speechRecog = new SR();
+        speechRecog.continuous = true;
+        speechRecog.interimResults = false;
+
+        speechRecog.onstart = function() {
+            isRecording = true;
+            btnElement.classList.add("recording-pulse");
+            btnElement.innerHTML = "🔴";
+        };
+
+        speechRecog.onresult = function(event) {
+            const target = document.getElementById(targetId);
+            const transcript = event.results[event.results.length - 1][0].transcript;
+            target.value += (target.value ? " " : "") + transcript.trim();
+        };
+
+        speechRecog.onend = function() {
+            isRecording = false;
+            btnElement.classList.remove("recording-pulse");
+            btnElement.innerHTML = "🎤";
+        };
+
+        speechRecog.start();
+    };
+
     /* --- SAFE API FETCHER --- */
     async function fetchAPI(url, payload) { 
         try { 
@@ -921,8 +1089,9 @@
                 h += `<div class="student-item-row">
                         <span>${s.name}</span>
                         <div class="action-btns">
-                            <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openShiftModal('${s.name}')">🔁</button>
-                            <button class="btn btn-soft" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openEdit('${s.name}','${s.type}')">✎</button>
+                            <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️</button>
+                            <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁</button>
+                            <button class="btn btn-soft" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openEdit('${s.name}','${s.type}')" title="Edit Type">✎</button>
                         </div>
                       </div>`; 
             }); 
@@ -952,16 +1121,23 @@
         let opts = '<option value="">Select student...</option>';
         let optsDisabled = '<option value="" disabled selected>Select active student...</option>';
         
+        // V103 Repopulate History Filter
+        let histOpts = '<option value="All">All Students</option>';
+
         APP_STATE.students.forEach(s => { 
             const o = `<option value="${s.name}">${s.name}</option>`; 
             opts += o; 
             optsDisabled += o; 
+            histOpts += o;
         });
         
         delSel.innerHTML = opts; 
         schSel.innerHTML = opts; 
         crmSel.innerHTML = optsDisabled; 
         obSel.innerHTML = optsDisabled;
+        if(document.getElementById("historyStudentFilter")) {
+            document.getElementById("historyStudentFilter").innerHTML = histOpts;
+        }
         
         document.getElementById("stats-total-students").textContent = APP_STATE.students.length;
         document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`;
@@ -1439,12 +1615,52 @@
         }; 
     };
     
+    // V103.1 SLEEK RENAME MODAL LOGIC
+    let currentRenameOldName = "";
+    window.promptRenameStudent = (oldName) => {
+        currentRenameOldName = oldName;
+        document.getElementById("renameOldNameDisplay").textContent = oldName;
+        document.getElementById("renameNewNameInput").value = oldName;
+        document.getElementById("renameStudentModal").classList.add("show");
+        
+        document.getElementById("renameStudentSaveBtn").onclick = async () => {
+            const newName = document.getElementById("renameNewNameInput").value.trim();
+            if (!newName || newName === currentRenameOldName) return;
+            
+            document.getElementById("renameStudentModal").classList.remove("show");
+            
+            showConfirm(`Are you sure you want to rename ${currentRenameOldName} to ${newName}?`, async () => {
+                const btn = document.getElementById("refresh-students-btn");
+                const originalText = btn.textContent;
+                btn.textContent = "Renaming...";
+                btn.disabled = true;
+
+                const r = await fetchAPI(null, { action: "renameStudent", oldName: currentRenameOldName, newName: newName });
+                
+                btn.textContent = originalText;
+                btn.disabled = false;
+
+                if(r.status === "error") return showToast("Failed to rename.", "error");
+                
+                showToast("Student securely renamed.");
+                await window.loadStudents();
+                window.fetchToday();
+            });
+        };
+    };
+
     window.executeAddStudent = async () => { 
         const nameInput = document.getElementById("student-name-input"); 
         const name = nameInput.value.trim(); 
         const type = document.querySelector("input[name='studentType']:checked").value; 
         
         if(!name) return showToast("Enter name", "error"); 
+
+        const isDuplicate = APP_STATE.students.some(s => s.name.toLowerCase() === name.toLowerCase());
+        if(isDuplicate) {
+            const proceed = confirm(`A student named "${name}" already exists. Create duplicate?`);
+            if(!proceed) return;
+        }
         
         document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--primary);">Adding...</div>'; 
         await fetchAPI(null, { action: "addStudent", StudentName: name, Type: type }); 
@@ -1568,40 +1784,50 @@
         window.fetchToday(true); 
     };
 
-    window.openHistoryReport = () => { 
-        document.getElementById("historyModal").classList.add("show"); 
-        document.getElementById("historyResult").style.display = "none"; 
+    // V103 ADVANCED HISTORY ENGINE
+    window.openHistoryReport = () => {
+        document.getElementById("historyModal").classList.add("show");
+        document.getElementById("historyResult").style.display = "none";
         
-        document.getElementById("historyGenBtn").onclick = async () => { 
-            const m = document.getElementById("historyMonth").value; 
-            const y = document.getElementById("historyYear").value; 
-            const f = document.getElementById("historyTypeFilter").value; 
-            
-            const btn = document.getElementById("historyGenBtn"); 
-            btn.disabled = true; 
-            btn.textContent = "Fetching..."; 
-            
-            try { 
-                const r = await fetchAPI(null, { action: "getHistoryReport", month: m, year: y, typeFilter: f }); 
-                document.getElementById("histTotalClasses").textContent = r.totalClasses; 
-                document.getElementById("histEarnings").textContent = "₹" + (r.earnings||0).toLocaleString('en-IN'); 
-                
-                const tb = document.getElementById("histTableBody"); 
-                tb.innerHTML = ""; 
-                const s = Object.entries(r.breakdown||{}).sort((a,b)=>b[1]-a[1]); 
-                
-                if(!s.length) tb.innerHTML = "<tr><td colspan='2' style='text-align:center'>No classes</td></tr>"; 
-                else s.forEach(([n,c]) => tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px;">${n}</td><td style="padding:4px;">${c}</td></tr>`); 
-                
-                document.getElementById("historyResult").style.display = "block"; 
-            } catch(e) { 
-                showToast("Error", "error"); 
-            } finally { 
-                btn.disabled = false; 
-                btn.textContent = "Generate Report"; 
-            } 
-        }; 
-    }; 
+        const d = new Date();
+        document.getElementById("historyStartDate").value = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
+        document.getElementById("historyEndDate").value = APP_STATE.todayDate;
+
+        document.getElementById("historyGenBtn").onclick = async () => {
+            const sd = document.getElementById("historyStartDate").value;
+            const ed = document.getElementById("historyEndDate").value;
+            const sf = document.getElementById("historyStudentFilter").value;
+            const tf = document.getElementById("historyTypeFilter").value;
+
+            if(!sd || !ed) return showToast("Select date range.", "error");
+
+            const btn = document.getElementById("historyGenBtn");
+            btn.disabled = true;
+            btn.textContent = "Crunching Data...";
+
+            try {
+                const r = await fetchAPI(null, { action: "getHistoryReport", startDate: sd, endDate: ed, studentFilter: sf, typeFilter: tf });
+                if(r.status === "error") throw new Error(r.message);
+
+                document.getElementById("histTotalClasses").textContent = r.totalClasses;
+                document.getElementById("histEarnings").textContent = "₹" + (r.earnings||0).toLocaleString('en-IN');
+
+                const tb = document.getElementById("histTableBody");
+                tb.innerHTML = "";
+                const s = Object.entries(r.breakdown||{}).sort((a,b)=>b[1]-a[1]);
+
+                if(!s.length) tb.innerHTML = "<tr><td colspan='2' style='text-align:center; padding:10px;'>No classes found for this filter.</td></tr>";
+                else s.forEach(([n,c]) => tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 4px;">${n}</td><td style="padding:8px 4px; font-weight:700;">${c}</td></tr>`);
+
+                document.getElementById("historyResult").style.display = "block";
+            } catch(e) {
+                showToast(e.message || "Failed to fetch report", "error");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Generate Report";
+            }
+        };
+    };
 
     /* --- ANALYTICS ENGINE --- */
     window.loadEarnings = async () => { 
@@ -1917,7 +2143,7 @@
         document.getElementById("sb-retention-list").innerHTML = html;
     };
 
-    window.jumpToCRM = (studentName) => { document.getElementById("smartBulletinClose").click(); document.getElementById("crm-student-select").value = studentName; previousCrmStudent = studentName; window.showMainSection('communications'); window.loadStudentCRM(studentName); };
+    window.jumpToCRM = (studentName) => { document.getElementById("smartBulletinClose")?.click(); document.getElementById("crm-student-select").value = studentName; previousCrmStudent = studentName; window.showMainSection('communications'); window.loadStudentCRM(studentName); };
     
     window.generateVacationAI = async () => {
         const start = document.getElementById("vac-start").value, end = document.getElementById("vac-end").value; 
@@ -1972,6 +2198,8 @@
         document.getElementById("ptmDiscussed").value = ""; 
         document.getElementById("ptmImprove").value = ""; 
         document.getElementById("ptmAction").value = "";
+        document.getElementById("demoOtherStrengths").value = ""; 
+        document.getElementById("demoOtherImprovements").value = "";
         document.getElementById("crmOutput").value = ""; 
         document.getElementById("crm-output-area").style.display = "none";
         
@@ -2016,8 +2244,8 @@
         
         r.history.forEach(h => {
             const dateStr = isoToDisplayDate(h.date.substring(0,10));
-            const icon = h.type === "PTM Invite" ? "📅" : h.type === "Progress Report" ? "📝" : "📊";
-            const borderCol = h.type === "PTM Invite" ? "#3b82f6" : h.type === "Progress Report" ? "#10b981" : "#f59e0b";
+            const icon = h.type === "PTM Invite" ? "📅" : h.type === "Progress Report" ? "📝" : h.type === "Demo Feedback" ? "🌟" : "📊";
+            const borderCol = h.type === "PTM Invite" ? "#3b82f6" : h.type === "Progress Report" ? "#10b981" : h.type === "Demo Feedback" ? "#8b5cf6" : "#f59e0b";
             list.innerHTML += `<div class="history-card" style="border-left-color: ${borderCol};"><div class="history-card-header"><span class="history-card-type">${icon} ${h.type}</span><span>${dateStr}</span></div><div style="font-size:0.85rem; color:var(--text-main); margin-bottom:4px;"><b>Details:</b> ${h.details}</div><div style="font-size:0.8rem; color:var(--text-sub); max-height:40px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-style:italic;">"${h.message}"</div></div>`;
         });
     };
@@ -2033,8 +2261,12 @@
     window.toggleCrmView = () => {
         const val = document.querySelector('input[name="crmAction"]:checked').value;
         document.getElementById("crm-view-progress").style.display = val === 'progress' ? 'block' : 'none';
+        document.getElementById("crm-view-demoFeedback").style.display = val === 'demoFeedback' ? 'block' : 'none';
         document.getElementById("crm-view-ptmPost").style.display = val === 'ptmPost' ? 'block' : 'none';
         document.getElementById("crm-view-ptmInvite").style.display = val === 'ptmInvite' ? 'block' : 'none';
+        
+        // V103.1 Tone Slider visibility
+        document.getElementById("crmToneGroup").style.display = (val === 'progress' || val === 'ptmPost' || val === 'demoFeedback') ? 'block' : 'none';
     };
 
     window.toggleHwInputs = (val) => {
@@ -2060,7 +2292,6 @@
         btn.disabled = true; 
         btn.textContent = "Scheduling...";
         
-        // 🟢 V100: Conflict Check Added to PTM Scheduler
         if(await window.checkSlotConflict(d, t)) {
             btn.disabled = false; btn.textContent = "📅 Schedule Event & Generate Draft";
             return showError(`Slot conflict on ${isoToDisplayDate(d)} at ${time24To12(t)}.`); 
@@ -2082,7 +2313,7 @@
 
     window.generateCRMMessage = async (type) => {
         if(!APP_STATE.currentCrmStudent) return showToast("Select a student", "error");
-        let payload = { action: "generateCrmDraft", crmType: type, studentName: APP_STATE.currentCrmStudent };
+        let payload = { action: "generateCrmDraft", crmType: type, studentName: APP_STATE.currentCrmStudent, tone: document.getElementById("crmTone").value };
         const btn = document.querySelector(`#crm-view-${type} button`); 
         btn.disabled = true; 
         btn.textContent = "✨ Generating AI Draft...";
@@ -2094,7 +2325,7 @@
             const hwInput = document.getElementById("fbHwInput1").value.trim(); 
             
             let strengths = []; 
-            document.querySelectorAll('.pill-checkbox:checked').forEach(cb => strengths.push(cb.value));
+            document.querySelectorAll('#crm-view-progress .pill-checkbox:checked').forEach(cb => strengths.push(cb.value));
             payload.strengths = strengths.length > 0 ? strengths.join(", ") : "overall class participation";
             
             if(hwStrat === "Specific Topic" && hwInput) payload.hw = `Focus on: ${hwInput}`; 
@@ -2103,11 +2334,26 @@
             
             currentCrmDetails = `Strengths: ${payload.strengths}`;
             currentCrmType = 'Progress Report';
+
+        } else if (type === 'demoFeedback') {
+            let strengths = [];
+            document.querySelectorAll('#crm-view-demoFeedback input[id^="ds"]:checked').forEach(cb => strengths.push(cb.value));
+            payload.strengths = strengths.length > 0 ? strengths.join(", ") : "Good general participation";
+            payload.otherStrengths = document.getElementById("demoOtherStrengths").value.trim();
+
+            let improvements = [];
+            document.querySelectorAll('#crm-view-demoFeedback input[id^="di"]:checked').forEach(cb => improvements.push(cb.value));
+            payload.improvements = improvements.length > 0 ? improvements.join(", ") : "General fluency";
+            payload.otherImprovements = document.getElementById("demoOtherImprovements").value.trim();
+
+            if(!payload.strengths && !payload.otherStrengths) { btn.disabled = false; btn.textContent = "✨ Generate Demo Report"; return showToast("Select at least one strength", "error"); }
+
+            currentCrmDetails = `Demo Strengths: ${payload.strengths.substring(0,30)}...`;
+            currentCrmType = 'Demo Feedback';
+
         } else if (type === 'ptmPost') {
             payload.discussed = document.getElementById("ptmDiscussed").value.trim(); 
             payload.improve = document.getElementById("ptmImprove").value.trim(); 
-            
-            // 🟢 V100: Variable collision fixed (was payload.action)
             payload.plan = document.getElementById("ptmAction").value.trim();
             if(!payload.discussed) { btn.disabled = false; btn.textContent = "✨ Generate AI Draft"; return showToast("Enter discussed points", "error"); }
             
@@ -2123,7 +2369,9 @@
         } catch(e) {
             showToast(e.message || "Failed to generate AI Draft.", "error");
         } finally {
-            btn.disabled = false; btn.textContent = "✨ Generate AI Draft";
+            btn.disabled = false; 
+            if(type === 'demoFeedback') btn.textContent = "✨ Generate Demo Report";
+            else btn.textContent = "✨ Generate AI Draft";
         }
     };
 
@@ -2181,17 +2429,61 @@
         document.getElementById("ai-output-container").style.display = "none"; 
         document.getElementById("ai-greet-student").value = ""; 
         document.getElementById("ai-greet-occasion").value = ""; 
+        document.getElementById("ai-forge-topic").value = "";
+        document.getElementById("ai-forge-grade").value = "";
+        document.getElementById("ai-forge-region").value = "";
+        document.querySelectorAll('#ai-forge-inputs .pill-checkbox').forEach(cb => cb.checked = false);
     }
     window.toggleAiOptions = () => { 
         const type = document.querySelector('input[name="draftType"]:checked').value; 
         document.getElementById("ai-platform-routing").style.display = type === 'ticket' ? 'block' : 'none'; 
         document.getElementById("ai-greeting-inputs").style.display = type === 'greeting' ? 'block' : 'none'; 
-        document.getElementById("ai-context-label").textContent = type === 'greeting' ? 'Additional Vibe/Context (Optional)' : 'Raw Notes / Context'; 
+        document.getElementById("ai-forge-inputs").style.display = type === 'forge' ? 'block' : 'none'; 
+        
+        const contextArea = document.getElementById("ai-draft-context").parentElement.parentElement;
+        contextArea.style.display = type === 'forge' ? 'none' : 'block';
+
+        if(document.getElementById("ai-context-label")) {
+            document.getElementById("ai-context-label").textContent = type === 'greeting' ? 'Additional Vibe/Context (Optional)' : 'Raw Notes / Context'; 
+        }
     };
     
     window.generateAIDraft = async () => {
-        const context = document.getElementById("ai-draft-context").value.trim();
         const type = document.querySelector('input[name="draftType"]:checked').value;
+        const btn = document.getElementById("btn-generate-draft"); 
+        
+        if (type === "forge") {
+            const topic = document.getElementById("ai-forge-topic").value.trim();
+            const grade = document.getElementById("ai-forge-grade").value.trim();
+            const region = document.getElementById("ai-forge-region").value.trim();
+            let outputs = [];
+            document.querySelectorAll('#ai-forge-inputs .pill-checkbox:checked').forEach(cb => outputs.push(cb.value));
+
+            if (!topic) return showToast("Enter a Topic.", "error");
+            if (outputs.length === 0) return showToast("Select at least one output type.", "error");
+
+            btn.disabled = true; btn.textContent = "✨ Forging Content...";
+            try {
+                const r = await fetchAPI(null, { action: "generateContentForge", topic: topic, grade: grade, region: region, outputTypes: outputs });
+                if (r.status === "error") throw new Error(r.message);
+
+                let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Forged Academic Content</label>
+                <div style="background: #f8fafc; border-radius:10px; padding:16px; border: 1px solid #cbd5e1;">
+                    <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+                        <button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('ai-opt-forge')">📋 Copy Lesson</button>
+                    </div>
+                    <textarea id="ai-opt-forge" readonly style="width:100%; min-height:300px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${r.draft}</textarea>
+                </div>`;
+
+                document.getElementById("ai-output-container").innerHTML = html;
+                document.getElementById("ai-output-container").style.display = "flex";
+                document.getElementById("ai-output-container").scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch(e) { showToast(e.message || "Failed to generate content.", "error"); } 
+            finally { btn.disabled = false; btn.textContent = "✨ Generate Options"; }
+            return;
+        }
+
+        const context = document.getElementById("ai-draft-context").value.trim();
         let platform = ""; let stuName = ""; let occasion = "";
         
         if (type === "ticket") platform = document.querySelector('input[name="ticketPlatform"]:checked').value;
@@ -2203,7 +2495,6 @@
 
         if (!context && type !== 'greeting') return showToast("Please enter some raw notes first.", "error");
         
-        const btn = document.getElementById("btn-generate-draft"); 
         btn.disabled = true; btn.textContent = "✨ Generating Options...";
 
         try {
@@ -2260,7 +2551,7 @@
         if (sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML.trim() === "") { window.resetBulkScheduler(); } 
     };
 
-    // 🟢 V100 BOOT: Safe, Modular, and Asynchronous
+    // BOOT
     async function runBootSequence() {
         APP_STATE.todayDate = getCurrentISTDateString(); 
         document.getElementById("view-date").value = APP_STATE.todayDate; 
@@ -2268,24 +2559,16 @@
         document.getElementById("bulkDate").value = APP_STATE.todayDate; 
         initClocks(); 
 
-        try {
-            await window.loadStudents();
-        } catch(e) {}
-
+        try { await window.loadStudents(); } catch(e) {}
         try {
             await window.fetchToday(true);
-            // 🟢 V100: Explicitly renders classes on the dashboard right after fetching today's data
             window.renderClassesForDate(APP_STATE.todayDate);
         } catch(e) {}
 
-        try {
-            await window.loadEarnings();
-        } catch(e) {}
+        try { await window.loadEarnings(); } catch(e) {}
 
         setTimeout(() => {
-            try {
-                window.loadAnalytics(true);
-            } catch(e) {}
+            try { window.loadAnalytics(true); } catch(e) {}
         }, 1000);
     }
     
