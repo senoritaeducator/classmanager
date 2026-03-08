@@ -718,7 +718,7 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v103.2 PRO (The Precision Build) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v103.3 PRO (The Precision Build) | Powered by LazifAI</div>
     </footer>
 
     <div id="renameStudentModal" class="modal-backdrop">
@@ -864,7 +864,7 @@
 
     <div class="fab-container">
         <div class="fab-menu" id="fab-menu">
-            <div class="fab-item" onclick="openSmartBulletin()">🚀 Open Smart Bulletin</div>
+            <div class="fab-item" onclick="window.openSmartBulletin()">🚀 Open Smart Bulletin</div>
             <div class="fab-item" onclick="window.openAiDrafter()">✨ Draft AI Reply</div>
             <div class="fab-item" onclick="window.showMainSection('communications'); document.querySelector('input[value=\'progress\']').click(); document.getElementById('crm-student-select').focus(); window.scrollTo(0,0);">💬 Write Progress Report</div>
             <div class="fab-item" onclick="window.openPendingReviews()">📝 Pending Reviews</div>
@@ -1389,7 +1389,7 @@
             
             let msg = `Hi, this is a reminder regarding the ${term} for ${c.StudentName} scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(c.StartTime)} IST.`;
             if (sObj && sObj.type === "PS") msg += `\n\nPlease join using your PlanetSpark class link.`;
-            msg += `\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
+            msg += `\n\nRegards,\nSenorita Saha`;
 
             card.innerHTML = `
                 <div class="class-card__row">
@@ -2167,7 +2167,7 @@
         document.getElementById("sb-retention-list").innerHTML = html;
     };
 
-    window.jumpToCRM = (studentName) => { document.getElementById("smartBulletinClose")?.click(); document.getElementById("crm-student-select").value = studentName; previousCrmStudent = studentName; window.showMainSection('communications'); window.loadStudentCRM(studentName); };
+    window.jumpToCRM = (studentName) => { document.getElementById("smartBulletinModal").classList.remove('show'); document.getElementById("crm-student-select").value = studentName; previousCrmStudent = studentName; window.showMainSection('communications'); window.loadStudentCRM(studentName); };
     
     window.generateVacationAI = async () => {
         const start = document.getElementById("vac-start").value, end = document.getElementById("vac-end").value; 
@@ -2316,6 +2316,7 @@
         btn.disabled = true; 
         btn.textContent = "Scheduling...";
         
+        // 🟢 V100: Conflict Check Added to PTM Scheduler
         if(await window.checkSlotConflict(d, t)) {
             btn.disabled = false; btn.textContent = "📅 Schedule Event & Generate Draft";
             return showError(`Slot conflict on ${isoToDisplayDate(d)} at ${time24To12(t)}.`); 
@@ -2324,7 +2325,7 @@
         const r = await fetchAPI(null, { action: "schedulePTM", StudentName: APP_STATE.currentCrmStudent, PTMMonth: m, PTMDate: d, PTMTime: t });
         if (r.status === "error") { btn.disabled = false; btn.textContent = "📅 Schedule Event & Generate Draft"; return showToast("Failed to schedule event.", "error"); }
         
-        const msg = `Hi Parents,\n\nA meeting is requested for ${APP_STATE.currentCrmStudent}'s ${m} review.\n\nI have scheduled a tentative slot for *${isoToDisplayDate(d)}* at *${time24To12(t)} IST*.\n\nPlease respond back with confirmation or a reschedule time. Reschedule will depend on availability.\n\nLooking forward to speaking with you!\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
+        const msg = `Hi Parents,\n\nA meeting is requested for ${APP_STATE.currentCrmStudent}'s ${m} review.\n\nI have scheduled a tentative slot for *${isoToDisplayDate(d)}* at *${time24To12(t)} IST*.\n\nPlease respond back with confirmation or a reschedule time. Reschedule will depend on availability.\n\nLooking forward to speaking with you!\n\nRegards,\nSenorita Saha`;
         document.getElementById("crmOutput").value = msg; 
         document.getElementById("crm-output-area").style.display = "block"; 
         
@@ -2429,7 +2430,7 @@
     window.generateOnboarding = () => {
         const name = document.getElementById("onboard-student-select").value;
         if(!name) return showToast("Select a student", "error");
-        const msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nRegards,\nSenorita Saha\nPowered by LazifAI`;
+        const msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nRegards,\nSenorita Saha`;
         document.getElementById("onboardOutput").value = msg;
         document.getElementById("onboard-output-area").style.display = "block";
     };
@@ -2579,7 +2580,7 @@
         if (sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML.trim() === "") { window.resetBulkScheduler(); } 
     };
 
-    // BOOT
+    // 🟢 V100 BOOT: Safe, Modular, and Asynchronous
     async function runBootSequence() {
         APP_STATE.todayDate = getCurrentISTDateString(); 
         document.getElementById("view-date").value = APP_STATE.todayDate; 
@@ -2587,16 +2588,24 @@
         document.getElementById("bulkDate").value = APP_STATE.todayDate; 
         initClocks(); 
 
-        try { await window.loadStudents(); } catch(e) {}
+        try {
+            await window.loadStudents();
+        } catch(e) {}
+
         try {
             await window.fetchToday(true);
+            // 🟢 V100: Explicitly renders classes on the dashboard right after fetching today's data
             window.renderClassesForDate(APP_STATE.todayDate);
         } catch(e) {}
 
-        try { await window.loadEarnings(); } catch(e) {}
+        try {
+            await window.loadEarnings();
+        } catch(e) {}
 
         setTimeout(() => {
-            try { window.loadAnalytics(true); } catch(e) {}
+            try {
+                window.loadAnalytics(true);
+            } catch(e) {}
         }, 1000);
     }
     
