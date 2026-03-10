@@ -870,7 +870,7 @@
             <div class="fab-item" onclick="window.openPendingReviews()">📝 Pending Reviews</div>
             <div class="fab-item" onclick="window.showMainSection('classes'); window.scrollTo(0, document.getElementById('schedule-class-btn').offsetTop - 200);">📅 Schedule Class</div>
         </div>
-        <button class="fab-main" id="fab-main" title="Quick Actions">⚡</button>
+        <button class="fab-main" id="fab-main" title="Quick Actions" onclick="window.toggleQuickMenu(event)">⚡</button>
     </div>
 </div>
 
@@ -891,6 +891,17 @@
     let isRecording = false;
 
     /* --- GLOBAL UTILITIES --- */
+	window.toggleQuickMenu = (e) => {
+        e.stopPropagation();
+        document.getElementById("fab-menu").classList.toggle("show");
+    };
+
+    document.addEventListener('click', (e) => {
+        const menu = document.getElementById("fab-menu");
+        if (menu && menu.classList.contains("show") && e.target.id !== "fab-main") {
+            menu.classList.remove("show");
+        }
+    });
     function getCurrentISTDateString() { 
         return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }); 
     }
