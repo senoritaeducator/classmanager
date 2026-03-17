@@ -562,6 +562,7 @@
                 <label class="radio-label"><input type="radio" name="draftType" value="ticket" onchange="window.handleAiTypeChange(event)"> 🎫 Platform Support Ticket</label>
                 <label class="radio-label"><input type="radio" name="draftType" value="greeting" onchange="window.handleAiTypeChange(event)"> 🎉 Festive / Birthday Greeting</label>
                 <label class="radio-label"><input type="radio" name="draftType" value="forge" onchange="window.handleAiTypeChange(event)"> 📚 Academic Content Forge</label>
+                <label class="radio-label"><input type="radio" name="draftType" value="vision" onchange="window.handleAiTypeChange(event)"> 📸 Snap & Correct</label>
             </div>
 
             <div id="ai-platform-routing" style="display: none; margin-bottom: 20px; padding: 12px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
@@ -601,8 +602,22 @@
                     </div>
                 </div>
             </div>
+
+            <div id="ai-vision-inputs" style="display: none; margin-bottom: 20px; padding: 16px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                <div class="form-group">
+                    <label>📸 Upload Handwritten Draft (Image)</label>
+                    <input type="file" id="ai-vision-file" accept="image/*" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label>Correction / Enhancement Instructions</label>
+                    <div style="display: flex; gap: 8px; align-items: flex-start;">
+                        <textarea id="ai-vision-instructions" placeholder="e.g., Rewrite this story adding adjectives of size, shape, number, texture..." style="flex:1; height: 60px;"></textarea>
+                        <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ai-vision-instructions', this)" style="height: 40px;">🎤</button>
+                    </div>
+                </div>
+            </div>
             
-            <div class="form-group" style="margin-top: 20px;">
+            <div class="form-group" style="margin-top: 20px;" id="ai-context-group">
                 <label id="ai-context-label">Raw Notes / Context</label>
                 <div style="display: flex; gap: 8px; align-items: flex-start;">
                     <textarea id="ai-draft-context" placeholder="Brain dump your thoughts here..." style="height: 120px; flex: 1;"></textarea>
@@ -703,11 +718,26 @@
                 <div><span class="section-title">Personal Student Onboarding</span><span class="section-caption">Generate premium welcome packets & SOPs.</span></div>
                 <button class="btn btn-soft btn-sm" onclick="window.clearOnboarding()">🔄 Reset</button>
             </div>
-            <div class="form-group" style="max-width: 400px;">
-                <label>Select Student</label>
-                <select id="onboard-student-select"><option value="" disabled selected>Select student...</option></select>
+            
+            <div class="card-row" style="margin-bottom: 20px;">
+                <div class="card-column" style="max-width: 400px;">
+                    <div class="form-group">
+                        <label>Select Student</label>
+                        <select id="onboard-student-select"><option value="" disabled selected>Select student...</option></select>
+                    </div>
+                </div>
+                <div class="card-column" style="max-width: 400px;">
+                    <div class="form-group">
+                        <label>Packet Type</label>
+                        <select id="onboard-type-select">
+                            <option value="new">🌟 New Student Welcome Packet</option>
+                            <option value="existing">📜 Existing Student Policy Refresh</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <button class="btn btn-primary" onclick="window.generateOnboarding()">Generate Welcome Packet</button>
+            
+            <button class="btn btn-primary" onclick="window.generateOnboarding()">Generate Packet</button>
             <div id="onboard-output-area" style="margin-top:20px; display:none;">
                 <textarea id="onboardOutput" readonly style="width:100%; height:320px; padding:12px; border-radius:8px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:none; font-size:0.9rem;"></textarea>
                 <button class="btn btn-outline" style="margin-top:8px; width:100%; max-width:400px;" onclick="window.copyOnboarding()">📋 Copy Acknowledgment Message</button>
@@ -718,7 +748,7 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v103.3 PRO (The Precision Build) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v103.4 PRO (The Executive Build) | Powered by LazifAI</div>
     </footer>
 
     <div id="renameStudentModal" class="modal-backdrop">
@@ -891,7 +921,7 @@
     let isRecording = false;
 
     /* --- GLOBAL UTILITIES --- */
-	window.toggleQuickMenu = (e) => {
+    window.toggleQuickMenu = (e) => {
         e.stopPropagation();
         document.getElementById("fab-menu").classList.toggle("show");
     };
@@ -1155,8 +1185,6 @@
         
         let opts = '<option value="">Select student...</option>';
         let optsDisabled = '<option value="" disabled selected>Select active student...</option>';
-        
-        // V103 Repopulate History Filter
         let histOpts = '<option value="All">All Students</option>';
 
         APP_STATE.students.forEach(s => { 
@@ -1650,7 +1678,6 @@
         }; 
     };
     
-    // V103.1 SLEEK RENAME MODAL LOGIC
     let currentRenameOldName = "";
     window.promptRenameStudent = (oldName) => {
         currentRenameOldName = oldName;
@@ -1819,7 +1846,6 @@
         window.fetchToday(true); 
     };
 
-    // V103 ADVANCED HISTORY ENGINE
     window.openHistoryReport = () => {
         document.getElementById("historyModal").classList.add("show");
         document.getElementById("historyResult").style.display = "none";
@@ -2018,6 +2044,7 @@
         APP_STATE.feedData = feedData;
     };
 
+    // 🟢 V103.4 Signature Branding fix for Analytics Copier
     window.copyAvailabilityWeek = () => { 
         if(!APP_STATE.feedData) return; 
         let text = `📅 *Availability (${APP_STATE.feedData[0].date.toLocaleDateString('en-US', {month:'short', day:'numeric'})} - ${APP_STATE.feedData[APP_STATE.feedData.length-1].date.toLocaleDateString('en-US', {month:'short', day:'numeric'})})*\n\n`; 
@@ -2035,7 +2062,7 @@
             }); 
             if (hasSlots) text += dayText + `\n`; 
         }); 
-        text += `_Powered by LazifAI_`; navigator.clipboard.writeText(text); showToast("Weekly availability copied!"); 
+        text += `\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`; navigator.clipboard.writeText(text); showToast("Weekly availability copied!"); 
     };
 
     window.copySingleDay = (dateFmt) => { 
@@ -2044,8 +2071,8 @@
         if(!dayData) return showToast("Data not found", "error"); 
         let text = `📅 *Availability for ${dayData.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}*\n\n`; 
         
-        if (dayData.status === 'cancelled') { text += `🏝️ Fully Booked / Cancelled\n\n_Powered by LazifAI_`; navigator.clipboard.writeText(text); return showToast("Day availability copied!"); }
-        if (dayData.status === 'off') { text += `🏖️ Scheduled Weekly Off\n\n_Powered by LazifAI_`; navigator.clipboard.writeText(text); return showToast("Day availability copied!"); }
+        if (dayData.status === 'cancelled') { text += `🏝️ Fully Booked / Cancelled\n\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`; navigator.clipboard.writeText(text); return showToast("Day availability copied!"); }
+        if (dayData.status === 'off') { text += `🏖️ Scheduled Weekly Off\n\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`; navigator.clipboard.writeText(text); return showToast("Day availability copied!"); }
 
         let hasSlots = false; 
         dayData.slots.forEach(s => { 
@@ -2055,7 +2082,7 @@
             text += `${s.status === 'temp' ? '🟡' : '🟢'} ${t1} - ${t2}${s.status === 'temp' ? ' (Temporarily Available)' : ''}\n`; 
         }); 
         if(!hasSlots) return showToast("No upcoming slots.", "error"); 
-        text += `\n_Powered by LazifAI_`; navigator.clipboard.writeText(text); showToast("Day availability copied!"); 
+        text += `\n\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`; navigator.clipboard.writeText(text); showToast("Day availability copied!"); 
     };
 
     /* --- SMART BULLETIN LOGIC --- */
@@ -2300,7 +2327,6 @@
         document.getElementById("crm-view-ptmPost").style.display = val === 'ptmPost' ? 'block' : 'none';
         document.getElementById("crm-view-ptmInvite").style.display = val === 'ptmInvite' ? 'block' : 'none';
         
-        // V103.1 Tone Slider visibility
         document.getElementById("crmToneGroup").style.display = (val === 'progress' || val === 'ptmPost' || val === 'demoFeedback') ? 'block' : 'none';
     };
 
@@ -2327,7 +2353,6 @@
         btn.disabled = true; 
         btn.textContent = "Scheduling...";
         
-        // 🟢 V100: Conflict Check Added to PTM Scheduler
         if(await window.checkSlotConflict(d, t)) {
             btn.disabled = false; btn.textContent = "📅 Schedule Event & Generate Draft";
             return showError(`Slot conflict on ${isoToDisplayDate(d)} at ${time24To12(t)}.`); 
@@ -2372,7 +2397,6 @@
             currentCrmType = 'Progress Report';
 
         } else if (type === 'demoFeedback') {
-            // 🟢 V103.2 Internal Handover payload
             payload.leadPotential = document.getElementById("demoLeadPotential").value;
             payload.parentInterest = document.getElementById("demoParentVibe").value;
 
@@ -2434,14 +2458,24 @@
     /* --- ONBOARDING RESET LOGIC --- */
     window.clearOnboarding = () => {
         const sel = document.getElementById("onboard-student-select"); if(sel) sel.value = "";
+        const typeSel = document.getElementById("onboard-type-select"); if(typeSel) typeSel.value = "new";
         const out = document.getElementById("onboardOutput"); if(out) out.value = "";
         const area = document.getElementById("onboard-output-area"); if(area) area.style.display = "none";
     };
 
+    // 🟢 V103.4 Bifurcated Onboarding Generation
     window.generateOnboarding = () => {
         const name = document.getElementById("onboard-student-select").value;
+        const type = document.getElementById("onboard-type-select").value;
         if(!name) return showToast("Select a student", "error");
-        const msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nRegards,\nSenorita Saha`;
+        
+        let msg = "";
+        if (type === "new") {
+            msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`;
+        } else {
+            msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Last-minute cancellations are strictly reserved for genuine medical emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show."\n🛑 *90-Day Inactivity:* Students who pause or remain inactive for over 90 days without prior formal agreement will have their ongoing enrollment closed to accommodate the waitlist.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`;
+        }
+        
         document.getElementById("onboardOutput").value = msg;
         document.getElementById("onboard-output-area").style.display = "block";
     };
@@ -2463,6 +2497,8 @@
             () => { document.querySelector(`input[name="draftType"][value="${previousAiType}"]`).checked = true; }); 
         } else { previousAiType = targetType; window.toggleAiOptions(); }
     };
+    
+    // 🟢 V103.4 Clear Vision Engine Inputs
     window.clearAiDrafter = () => { 
         document.getElementById("ai-draft-context").value = ""; 
         document.getElementById("ai-output-container").innerHTML = ""; 
@@ -2473,15 +2509,20 @@
         document.getElementById("ai-forge-grade").value = "";
         document.getElementById("ai-forge-region").value = "";
         document.querySelectorAll('#ai-forge-inputs .pill-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById("ai-vision-file").value = "";
+        document.getElementById("ai-vision-instructions").value = "";
     }
+    
+    // 🟢 V103.4 Toggle UI Logic updated for Vision
     window.toggleAiOptions = () => { 
         const type = document.querySelector('input[name="draftType"]:checked').value; 
         document.getElementById("ai-platform-routing").style.display = type === 'ticket' ? 'block' : 'none'; 
         document.getElementById("ai-greeting-inputs").style.display = type === 'greeting' ? 'block' : 'none'; 
         document.getElementById("ai-forge-inputs").style.display = type === 'forge' ? 'block' : 'none'; 
+        document.getElementById("ai-vision-inputs").style.display = type === 'vision' ? 'block' : 'none'; 
         
-        const contextArea = document.getElementById("ai-draft-context").parentElement.parentElement;
-        contextArea.style.display = type === 'forge' ? 'none' : 'block';
+        const contextArea = document.getElementById("ai-context-group");
+        contextArea.style.display = (type === 'forge' || type === 'vision') ? 'none' : 'block';
 
         if(document.getElementById("ai-context-label")) {
             document.getElementById("ai-context-label").textContent = type === 'greeting' ? 'Additional Vibe/Context (Optional)' : 'Raw Notes / Context'; 
@@ -2492,6 +2533,43 @@
         const type = document.querySelector('input[name="draftType"]:checked').value;
         const btn = document.getElementById("btn-generate-draft"); 
         
+        // 🟢 V103.4 Vision Logic
+        if (type === "vision") {
+            const fileInput = document.getElementById("ai-vision-file");
+            const instructions = document.getElementById("ai-vision-instructions").value.trim();
+
+            if (!fileInput.files.length) return showToast("Please upload an image.", "error");
+            if (!instructions) return showToast("Please enter correction instructions.", "error");
+
+            btn.disabled = true; btn.textContent = "📸 Analyzing Image...";
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onloadend = async () => {
+                const base64String = reader.result;
+                try {
+                    const r = await fetchAPI(null, { action: "enhanceStudentDraft", base64Image: base64String, instructions: instructions });
+                    if (r.status === "error") throw new Error(r.message);
+
+                    let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Enhanced Student Draft</label>
+                    <div style="background: #f8fafc; border-radius:10px; padding:16px; border: 1px solid #cbd5e1;">
+                        <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+                            <button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('ai-opt-vision')">📋 Copy Draft</button>
+                        </div>
+                        <textarea id="ai-opt-vision" readonly style="width:100%; min-height:200px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${r.draft}</textarea>
+                    </div>`;
+
+                    document.getElementById("ai-output-container").innerHTML = html;
+                    document.getElementById("ai-output-container").style.display = "flex";
+                    document.getElementById("ai-output-container").scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } catch(e) { showToast(e.message || "Failed to process image.", "error"); } 
+                finally { btn.disabled = false; btn.textContent = "✨ Generate Options"; }
+            };
+            reader.readAsDataURL(file);
+            return;
+        }
+
         if (type === "forge") {
             const topic = document.getElementById("ai-forge-topic").value.trim();
             const grade = document.getElementById("ai-forge-grade").value.trim();
@@ -2552,7 +2630,7 @@
                 if (jsonMatch) options = JSON.parse(jsonMatch[0]); else throw new Error("Invalid AI format returned.");
             }
             
-            let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Generated AI Options</label>`;
+            let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Generated AI Response</label>`;
             options.forEach((opt, idx) => {
                 let recBadge = opt.is_recommended ? `<div style="display:inline-block; background:#fef08a; color:#854d0e; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:700; margin-left:12px; border:1px solid #fde047; transform: translateY(-2px);">🌟 Recommended</div>` : '';
                 let borderStyle = opt.is_recommended ? `border: 2px solid #8b5cf6; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);` : `border: 1px solid #cbd5e1;`; let bgStyle = opt.is_recommended ? `background: #faf5ff;` : `background: #f8fafc;`;
@@ -2573,7 +2651,7 @@
         const el = document.getElementById(id); 
         el.select(); 
         navigator.clipboard.writeText(el.value); 
-        showToast("Option copied!"); 
+        showToast("Copied to clipboard!"); 
     };
     
     window.openAiDrafter = () => { 
@@ -2591,7 +2669,6 @@
         if (sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML.trim() === "") { window.resetBulkScheduler(); } 
     };
 
-    // 🟢 V100 BOOT: Safe, Modular, and Asynchronous
     async function runBootSequence() {
         APP_STATE.todayDate = getCurrentISTDateString(); 
         document.getElementById("view-date").value = APP_STATE.todayDate; 
@@ -2599,25 +2676,11 @@
         document.getElementById("bulkDate").value = APP_STATE.todayDate; 
         initClocks(); 
 
-        try {
-            await window.loadStudents();
-        } catch(e) {}
+        try { await window.loadStudents(); } catch(e) {}
+        try { await window.fetchToday(true); window.renderClassesForDate(APP_STATE.todayDate); } catch(e) {}
+        try { await window.loadEarnings(); } catch(e) {}
 
-        try {
-            await window.fetchToday(true);
-            // 🟢 V100: Explicitly renders classes on the dashboard right after fetching today's data
-            window.renderClassesForDate(APP_STATE.todayDate);
-        } catch(e) {}
-
-        try {
-            await window.loadEarnings();
-        } catch(e) {}
-
-        setTimeout(() => {
-            try {
-                window.loadAnalytics(true);
-            } catch(e) {}
-        }, 1000);
+        setTimeout(() => { try { window.loadAnalytics(true); } catch(e) {} }, 1000);
     }
     
     window.onload = runBootSequence;
