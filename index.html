@@ -235,6 +235,7 @@
                         <optgroup label="UK & Europe"><option value="Europe/London">London</option><option value="Europe/Paris">Paris / Berlin</option></optgroup>
                         <optgroup label="Middle East & Asia"><option value="Asia/Dubai">Dubai</option><option value="Asia/Singapore">Singapore</option></optgroup>
                         <optgroup label="USA & Canada"><option value="America/New_York">New York</option><option value="America/Chicago">Chicago</option><option value="America/Los_Angeles">Los Angeles</option></optgroup>
+                        <option value="ADD_NEW" style="font-weight:bold; color:var(--primary);">+ Add Custom City</option>
                     </select>
                     <input type="text" id="conv-student-time" class="conv-input" placeholder="Time" onblur="if(window.normalizeUserTime) window.normalizeUserTime(this); if(window.calcConv) window.calcConv();">
                     <button class="btn btn-soft btn-sm" style="padding: 0 8px; height: 36px;" onclick="window.resetConv()" title="Reset Converter">🔄</button>
@@ -354,12 +355,13 @@
                             <label class="radio-label"><input type="radio" name="studentType" value="Personal"> Personal</label>
                         </div>
                         <button id="add-student-btn" class="btn btn-primary btn-block" onclick="window.executeAddStudent()">Add Student</button>
-                        <div id="manage-students-msg" style="margin-top:10px;"></div>
+                        <div id="manage-students-msg" style="margin-top:10px; font-size: 0.9rem;"></div>
                     </div>
                     <div style="margin-top:24px;">
                         <h4 style="margin-bottom:12px; font-size:0.9rem; color:#ef4444; font-weight:600;">Danger Zone</h4>
                         <div class="form-group"><select id="student-delete-select"><option value="">Select student to delete...</option></select></div>
                         <button id="delete-student-btn" class="btn btn-outline btn-block" style="color:#ef4444; border-color:#fecaca;" onclick="window.executeDeleteStudent()">Delete Student</button>
+                        <div id="delete-student-msg" style="margin-top:10px; font-size: 0.9rem; text-align: center;"></div>
                     </div>
                 </div>
                 <div class="card-column" style="flex: 2;">
@@ -748,7 +750,7 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v103.4 PRO (The Executive Build) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v105 PRO (The Executive Build) | Powered by LazifAI</div>
     </footer>
 
     <div id="renameStudentModal" class="modal-backdrop">
@@ -768,6 +770,26 @@
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="document.getElementById('renameStudentModal').classList.remove('show')">Cancel</button>
                 <button id="renameStudentSaveBtn" class="btn btn-primary">Rename</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="customTzModal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Add Custom City</div>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('customTzModal').classList.remove('show')">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;">Type a city or country to find its timezone (e.g., "Toronto" for America/Toronto).</p>
+                <div class="form-group">
+                    <input type="text" id="customTzSearch" list="tz-list" placeholder="Search standard timezones..." autocomplete="off">
+                    <datalist id="tz-list"></datalist>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="document.getElementById('customTzModal').classList.remove('show')">Cancel</button>
+                <button class="btn btn-primary" onclick="window.saveCustomTz()">Save & Select</button>
             </div>
         </div>
     </div>
@@ -1090,6 +1112,46 @@
     };
 
     /* --- CLOCKS & CONVERTER --- */
+    window.loadCustomTzs = () => {
+        const saved = JSON.parse(localStorage.getItem('acm_custom_tzs') || '[]');
+        const select = document.getElementById("conv-student-zone");
+        let optgroup = document.getElementById("custom-tz-group");
+        
+        if (!optgroup) {
+            optgroup = document.createElement("optgroup");
+            optgroup.id = "custom-tz-group";
+            optgroup.label = "Custom Saved";
+            const addNewOpt = select.querySelector("option[value='ADD_NEW']");
+            select.insertBefore(optgroup, addNewOpt);
+        }
+        
+        optgroup.innerHTML = "";
+        saved.forEach(tz => {
+            const label = tz.split('/').pop().replace(/_/g, ' ');
+            optgroup.innerHTML += `<option value="${tz}">${label}</option>`;
+        });
+    };
+
+    window.saveCustomTz = () => {
+        const tz = document.getElementById("customTzSearch").value.trim();
+        if (!tz) return;
+        try {
+            new Intl.DateTimeFormat('en-US', { timeZone: tz }); // Validation check
+            let saved = JSON.parse(localStorage.getItem('acm_custom_tzs') || '[]');
+            if (!saved.includes(tz)) {
+                saved.push(tz);
+                localStorage.setItem('acm_custom_tzs', JSON.stringify(saved));
+            }
+            window.loadCustomTzs();
+            document.getElementById("conv-student-zone").value = tz;
+            document.getElementById("customTzModal").classList.remove("show");
+            window.calcConv();
+            showToast("City saved to your list!");
+        } catch(err) {
+            showToast("Invalid Timezone. Select from the dropdown.", "error");
+        }
+    };
+
     function initClocks() {
         setInterval(() => { 
             document.getElementById("clock-india").textContent = "India: " + new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true }); 
@@ -1100,7 +1162,7 @@
             const timeIn = document.getElementById("conv-student-time");
             const resDiv = document.getElementById("conv-result-ist");
             
-            if(!zone.value || !timeIn.value) { 
+            if(!zone.value || zone.value === "ADD_NEW" || !timeIn.value) { 
                 resDiv.textContent = "--:-- IST"; 
                 return; 
             } 
@@ -1120,7 +1182,15 @@
             resDiv.textContent = new Date(d.getTime() + diff).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " IST"; 
         };
         
-        document.getElementById("conv-student-zone").onchange = window.calcConv;
+        document.getElementById("conv-student-zone").onchange = (e) => {
+            if (e.target.value === "ADD_NEW") {
+                e.target.value = ""; 
+                document.getElementById("customTzSearch").value = "";
+                document.getElementById("customTzModal").classList.add("show");
+            } else {
+                window.calcConv();
+            }
+        };
     }
 
     window.resetConv = () => {
@@ -1428,7 +1498,7 @@
             
             let msg = `Hi, this is a reminder regarding the ${term} for ${c.StudentName} scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(c.StartTime)} IST.`;
             if (sObj && sObj.type === "PS") msg += `\n\nPlease join using your PlanetSpark class link.`;
-            msg += `\n\nRegards,\nSenorita Saha`;
+            msg += `\n\nBest regards,\nSenorita Saha`;
 
             card.innerHTML = `
                 <div class="class-card__row">
@@ -1473,9 +1543,29 @@
                 setTimeout(()=> {btn.textContent="Save"; btn.disabled=false;}, 1000); 
             };
             
-            card.querySelector(".btn-generate").onclick = () => { 
-                const x=card.querySelector(".generate-area"); 
-                x.style.display = x.style.display==="none"?"block":"none"; 
+            card.querySelector(".btn-generate").onclick = async () => { 
+                const x = card.querySelector(".generate-area"); 
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    if (isTrial && !card.dataset.trialLoaded) {
+                        const preview = x.querySelector(".msg-preview");
+                        preview.innerHTML = "<i>✨ Generating dynamic Trial template...</i>";
+                        try {
+                            const r = await fetchAPI(null, { action: "generateTrialMessage", StudentName: c.StudentName, ClassTime: time24To12(c.StartTime) + " IST" });
+                            if (r.status === "success") {
+                                msg = r.draft;
+                                preview.innerHTML = msg;
+                                card.dataset.trialLoaded = "true";
+                            } else {
+                                preview.innerHTML = "Error loading template. Fallback:\n\n" + msg;
+                            }
+                        } catch(e) {
+                            preview.innerHTML = msg;
+                        }
+                    }
+                } else {
+                    x.style.display = "none";
+                }
             };
             
             card.querySelector(".btn-copy").onclick = () => { 
@@ -1740,13 +1830,13 @@
         if(!name) return showToast("Select student", "error"); 
         
         showConfirm(`Delete ${name}? This completely clears all their future classes.`, async () => { 
-            document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--primary);">Deleting...</div>'; 
+            document.getElementById("delete-student-msg").innerHTML = '<div style="color:var(--primary);">Deleting...</div>'; 
             await fetchAPI(null, { action: "deleteStudent", StudentName: name }); 
-            document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--accent);">Deleted</div>'; 
+            document.getElementById("delete-student-msg").innerHTML = '<div style="color:#ef4444;">Deleted</div>'; 
             await window.loadStudents(); 
             window.fetchToday(); 
             window.renderClassesForDate(document.getElementById("view-date").value); 
-            setTimeout(() => document.getElementById("manage-students-msg").innerHTML = "", 3000); 
+            setTimeout(() => document.getElementById("delete-student-msg").innerHTML = "", 3000); 
         }); 
     };
 
@@ -2044,7 +2134,6 @@
         APP_STATE.feedData = feedData;
     };
 
-    // 🟢 V103.4 Signature Branding fix for Analytics Copier
     window.copyAvailabilityWeek = () => { 
         if(!APP_STATE.feedData) return; 
         let text = `📅 *Availability (${APP_STATE.feedData[0].date.toLocaleDateString('en-US', {month:'short', day:'numeric'})} - ${APP_STATE.feedData[APP_STATE.feedData.length-1].date.toLocaleDateString('en-US', {month:'short', day:'numeric'})})*\n\n`; 
@@ -2062,7 +2151,7 @@
             }); 
             if (hasSlots) text += dayText + `\n`; 
         }); 
-        text += `\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`; navigator.clipboard.writeText(text); showToast("Weekly availability copied!"); 
+        text += `\nBest regards,\nSenorita Saha`; navigator.clipboard.writeText(text); showToast("Weekly availability copied!"); 
     };
 
     window.copySingleDay = (dateFmt) => { 
@@ -2071,8 +2160,8 @@
         if(!dayData) return showToast("Data not found", "error"); 
         let text = `📅 *Availability for ${dayData.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}*\n\n`; 
         
-        if (dayData.status === 'cancelled') { text += `🏝️ Fully Booked / Cancelled\n\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`; navigator.clipboard.writeText(text); return showToast("Day availability copied!"); }
-        if (dayData.status === 'off') { text += `🏖️ Scheduled Weekly Off\n\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`; navigator.clipboard.writeText(text); return showToast("Day availability copied!"); }
+        if (dayData.status === 'cancelled') { text += `🏝️ Fully Booked / Cancelled\n\nBest regards,\nSenorita Saha`; navigator.clipboard.writeText(text); return showToast("Day availability copied!"); }
+        if (dayData.status === 'off') { text += `🏖️ Scheduled Weekly Off\n\nBest regards,\nSenorita Saha`; navigator.clipboard.writeText(text); return showToast("Day availability copied!"); }
 
         let hasSlots = false; 
         dayData.slots.forEach(s => { 
@@ -2082,7 +2171,7 @@
             text += `${s.status === 'temp' ? '🟡' : '🟢'} ${t1} - ${t2}${s.status === 'temp' ? ' (Temporarily Available)' : ''}\n`; 
         }); 
         if(!hasSlots) return showToast("No upcoming slots.", "error"); 
-        text += `\n\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`; navigator.clipboard.writeText(text); showToast("Day availability copied!"); 
+        text += `\n\nBest regards,\nSenorita Saha`; navigator.clipboard.writeText(text); showToast("Day availability copied!"); 
     };
 
     /* --- SMART BULLETIN LOGIC --- */
@@ -2361,7 +2450,7 @@
         const r = await fetchAPI(null, { action: "schedulePTM", StudentName: APP_STATE.currentCrmStudent, PTMMonth: m, PTMDate: d, PTMTime: t });
         if (r.status === "error") { btn.disabled = false; btn.textContent = "📅 Schedule Event & Generate Draft"; return showToast("Failed to schedule event.", "error"); }
         
-        const msg = `Hi Parents,\n\nA meeting is requested for ${APP_STATE.currentCrmStudent}'s ${m} review.\n\nI have scheduled a tentative slot for *${isoToDisplayDate(d)}* at *${time24To12(t)} IST*.\n\nPlease respond back with confirmation or a reschedule time. Reschedule will depend on availability.\n\nLooking forward to speaking with you!\n\nRegards,\nSenorita Saha`;
+        const msg = `Hi Parents,\n\nA meeting is requested for ${APP_STATE.currentCrmStudent}'s ${m} review.\n\nI have scheduled a tentative slot for *${isoToDisplayDate(d)}* at *${time24To12(t)} IST*.\n\nPlease respond back with confirmation or a reschedule time. Reschedule will depend on availability.\n\nLooking forward to speaking with you!\n\nBest regards,\nSenorita Saha`;
         document.getElementById("crmOutput").value = msg; 
         document.getElementById("crm-output-area").style.display = "block"; 
         
@@ -2471,9 +2560,9 @@
         
         let msg = "";
         if (type === "new") {
-            msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`;
+            msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita Saha`;
         } else {
-            msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Last-minute cancellations are strictly reserved for genuine medical emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show."\n🛑 *90-Day Inactivity:* Students who pause or remain inactive for over 90 days without prior formal agreement will have their ongoing enrollment closed to accommodate the waitlist.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nRegards,\nSenorita Saha\n\n_Powered by LazifAI_`;
+            msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Last-minute cancellations are strictly reserved for genuine medical emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show."\n🛑 *90-Day Inactivity:* Students who pause or remain inactive for over 90 days without prior formal agreement will have their ongoing enrollment closed to accommodate the waitlist.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita Saha`;
         }
         
         document.getElementById("onboardOutput").value = msg;
@@ -2674,6 +2763,17 @@
         document.getElementById("view-date").value = APP_STATE.todayDate; 
         document.getElementById("schedule-date").value = APP_STATE.todayDate; 
         document.getElementById("bulkDate").value = APP_STATE.todayDate; 
+        
+        // Initialize Custom Timezones Datalist
+        try {
+            const tzs = Intl.supportedValuesOf('timeZone');
+            const list = document.getElementById("tz-list");
+            if (list) {
+                tzs.forEach(tz => list.innerHTML += `<option value="${tz}"></option>`);
+            }
+            window.loadCustomTzs();
+        } catch(e) { console.error("TZ API not supported in this browser."); }
+
         initClocks(); 
 
         try { await window.loadStudents(); } catch(e) {}
