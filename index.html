@@ -567,6 +567,16 @@
                 <label class="radio-label"><input type="radio" name="draftType" value="vision" onchange="window.handleAiTypeChange(event)"> 📸 Snap & Correct</label>
             </div>
 
+            <div id="ai-audience-block" style="display: block; margin-bottom: 20px; padding: 16px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <label style="margin-bottom:0;">Target Audience (Select Students)</label>
+                    <button class="btn btn-soft btn-sm" onclick="window.toggleAllAiStudents()">Toggle Select All</button>
+                </div>
+                <div id="ai-student-pills" style="max-height: 140px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px; background: #f8fafc;">
+                    <div style="color:#94a3b8; text-align:center; padding:10px; font-size:0.85rem;">Loading students...</div>
+                </div>
+            </div>
+
             <div id="ai-platform-routing" style="display: none; margin-bottom: 20px; padding: 12px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
                 <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-main);">Select Platform for Ticket</label>
                 <div style="display: flex; gap: 16px; flex-wrap: wrap;">
@@ -576,10 +586,7 @@
             </div>
 
             <div id="ai-greeting-inputs" style="display: none; margin-bottom: 20px; padding: 16px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                <div class="card-row">
-                    <div class="card-column"><div class="form-group"><label>Student Name</label><input type="text" id="ai-greet-student" placeholder="e.g., Armaan"></div></div>
-                    <div class="card-column"><div class="form-group"><label>Occasion</label><input type="text" id="ai-greet-occasion" placeholder="e.g., 10th Birthday, Holi, Eid"></div></div>
-                </div>
+                <div class="form-group"><label>Occasion</label><input type="text" id="ai-greet-occasion" placeholder="e.g., 10th Birthday, Holi, Eid, Diwali"></div>
             </div>
 
             <div id="ai-forge-inputs" style="display: none; margin-bottom: 20px; padding: 16px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
@@ -750,8 +757,29 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v105 PRO (The Executive Build) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v105.2 PRO (The Mail Merge Update) | Powered by LazifAI</div>
     </footer>
+
+    <div id="dispatchModal" class="modal-backdrop">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header" style="border-left: 5px solid #8b5cf6;">
+                <div class="modal-title">🚀 Batch Dispatch (<span id="dispatch-progress" style="color:#8b5cf6;">1 of X</span>)</div>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('dispatchModal').classList.remove('show')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="font-weight:700; margin-bottom:12px; color:var(--text-main); font-size:1.05rem;">Message for: <span id="dispatch-student-name" style="color:var(--primary);"></span></div>
+                <textarea id="dispatch-message-text" style="width:100%; height:200px; padding:12px; border-radius:8px; border:1px solid var(--border); background:#f8fafc; font-family:inherit; resize:none; font-size:0.95rem;"></textarea>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between; background:#f8fafc;">
+                <button class="btn btn-outline" onclick="window.dispatchPrev()">⬅️ Prev</button>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-soft" onclick="window.dispatchCopy()">📋 Copy</button>
+                    <button class="btn btn-primary" onclick="window.dispatchWhatsApp()" style="background:#25D366; border-color:#25D366; color:#fff;">💬 WhatsApp</button>
+                    <button class="btn btn-primary" onclick="window.dispatchNext()">Next ➡️</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="renameStudentModal" class="modal-backdrop">
         <div class="modal">
@@ -942,6 +970,9 @@
     let speechRecog = null;
     let isRecording = false;
 
+    // Mail Merge Dispatch State
+    let dispatchState = { students: [], template: "", currentIndex: 0 };
+
     /* --- GLOBAL UTILITIES --- */
     window.toggleQuickMenu = (e) => {
         e.stopPropagation();
@@ -961,8 +992,8 @@
     function showToast(message, type = "success") { 
         const container = document.getElementById("toast-container"); 
         const toast = document.createElement("div"); 
-        toast.className = `toast ${type === 'error' ? 'toast-error' : ''}`; 
-        toast.innerHTML = `<span>${type==='error'?'⚠️':'✅'}</span><span>${message}</span>`; 
+        toast.className = `toast ${type === 'error' ? 'toast-error' : type === 'info' ? 'toast-info' : ''}`; 
+        toast.innerHTML = `<span>${type==='error'?'⚠️':type==='info'?'ℹ️':'✅'}</span><span>${message}</span>`; 
         container.appendChild(toast); 
         requestAnimationFrame(() => toast.classList.add("show")); 
         setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 300); }, 3000); 
@@ -1278,6 +1309,16 @@
         renderStudents(); 
         window.updateSmartBarText(); 
         
+        // 🟢 V105.2: Populate AI Audience Pills
+        const pillsContainer = document.getElementById("ai-student-pills");
+        if (pillsContainer) {
+            let pillsHtml = "";
+            APP_STATE.students.forEach((s, i) => {
+                pillsHtml += `<input type="checkbox" id="aud-${i}" value="${s.name}" class="pill-checkbox"><label for="aud-${i}" class="pill-label">${s.name}</label>`;
+            });
+            pillsContainer.innerHTML = pillsHtml;
+        }
+
         if (document.getElementById("bulkRowsContainer").innerHTML.trim() !== "") { 
             window.resetBulkScheduler(); 
         } else { 
@@ -2575,7 +2616,7 @@
         window.clearOnboarding();
     };
 
-    /* --- AI SMART DRAFTER --- */
+    /* --- AI SMART DRAFTER & MAIL MERGE --- */
     window.isAiDirty = () => { return document.getElementById("ai-draft-context").value.trim() !== "" || document.getElementById("ai-output-container").innerHTML.trim() !== ""; };
     window.triggerManualAiReset = () => { if(window.isAiDirty()) { showConfirm("Clear context and discard generated options?", () => { window.clearAiDrafter(); }); } else { window.clearAiDrafter(); } };
     window.handleAiTypeChange = (e) => {
@@ -2587,22 +2628,26 @@
         } else { previousAiType = targetType; window.toggleAiOptions(); }
     };
     
-    // 🟢 V103.4 Clear Vision Engine Inputs
     window.clearAiDrafter = () => { 
         document.getElementById("ai-draft-context").value = ""; 
         document.getElementById("ai-output-container").innerHTML = ""; 
         document.getElementById("ai-output-container").style.display = "none"; 
-        document.getElementById("ai-greet-student").value = ""; 
         document.getElementById("ai-greet-occasion").value = ""; 
         document.getElementById("ai-forge-topic").value = "";
         document.getElementById("ai-forge-grade").value = "";
         document.getElementById("ai-forge-region").value = "";
         document.querySelectorAll('#ai-forge-inputs .pill-checkbox').forEach(cb => cb.checked = false);
+        document.querySelectorAll('#ai-student-pills .pill-checkbox').forEach(cb => cb.checked = false);
         document.getElementById("ai-vision-file").value = "";
         document.getElementById("ai-vision-instructions").value = "";
     }
     
-    // 🟢 V103.4 Toggle UI Logic updated for Vision
+    window.toggleAllAiStudents = () => {
+        const cbs = document.querySelectorAll('#ai-student-pills .pill-checkbox');
+        const allChecked = Array.from(cbs).every(cb => cb.checked);
+        cbs.forEach(cb => cb.checked = !allChecked);
+    };
+
     window.toggleAiOptions = () => { 
         const type = document.querySelector('input[name="draftType"]:checked').value; 
         document.getElementById("ai-platform-routing").style.display = type === 'ticket' ? 'block' : 'none'; 
@@ -2610,6 +2655,9 @@
         document.getElementById("ai-forge-inputs").style.display = type === 'forge' ? 'block' : 'none'; 
         document.getElementById("ai-vision-inputs").style.display = type === 'vision' ? 'block' : 'none'; 
         
+        const audienceBlock = document.getElementById("ai-audience-block");
+        if (audienceBlock) audienceBlock.style.display = (type === 'parent' || type === 'greeting') ? 'block' : 'none';
+
         const contextArea = document.getElementById("ai-context-group");
         contextArea.style.display = (type === 'forge' || type === 'vision') ? 'none' : 'block';
 
@@ -2617,12 +2665,87 @@
             document.getElementById("ai-context-label").textContent = type === 'greeting' ? 'Additional Vibe/Context (Optional)' : 'Raw Notes / Context'; 
         }
     };
+
+    // 🟢 V105.2: Mail Merge Dispatch Engine
+    window.startBatchDispatch = (textareaId) => {
+        const template = document.getElementById(textareaId).value;
+        const selected = [];
+        
+        document.querySelectorAll('#ai-student-pills .pill-checkbox:checked').forEach(cb => {
+            const s = APP_STATE.students.find(x => x.name === cb.value);
+            if (s) selected.push(s);
+        });
+
+        if (selected.length === 0) return showToast("No students selected.", "error");
+        if (!template.includes("[Student Name]")) {
+            showToast("Template doesn't contain [Student Name]. It will be prepended.", "info");
+        }
+
+        dispatchState.students = selected;
+        dispatchState.template = template;
+        dispatchState.currentIndex = 0;
+
+        window.renderDispatchCard();
+        document.getElementById('dispatchModal').classList.add('show');
+    };
+
+    window.renderDispatchCard = () => {
+        const s = dispatchState.students[dispatchState.currentIndex];
+        document.getElementById("dispatch-progress").textContent = `${dispatchState.currentIndex + 1} of ${dispatchState.students.length}`;
+        document.getElementById("dispatch-student-name").textContent = s.name;
+
+        let msg = dispatchState.template;
+        if (msg.includes("[Student Name]")) {
+            msg = msg.replace(/\[Student Name\]/gi, s.name);
+        } else {
+            msg = `Hi ${s.name},\n\n` + msg;
+        }
+        document.getElementById("dispatch-message-text").value = msg;
+    };
+
+    window.dispatchNext = () => {
+        if (dispatchState.currentIndex < dispatchState.students.length - 1) {
+            dispatchState.currentIndex++;
+            window.renderDispatchCard();
+        } else {
+            showToast("You've reached the end of the batch.");
+        }
+    };
+
+    window.dispatchPrev = () => {
+        if (dispatchState.currentIndex > 0) {
+            dispatchState.currentIndex--;
+            window.renderDispatchCard();
+        }
+    };
+
+    window.dispatchCopy = () => {
+        const el = document.getElementById("dispatch-message-text");
+        el.select();
+        navigator.clipboard.writeText(el.value);
+        showToast("Message copied!");
+    };
+
+    window.dispatchWhatsApp = () => {
+        const s = dispatchState.students[dispatchState.currentIndex];
+        const msg = document.getElementById("dispatch-message-text").value;
+        let phone = s.phone || "";
+        phone = phone.replace(/\D/g, ''); 
+
+        if (!phone) {
+            return showToast(`No phone number recorded for ${s.name}`, "error");
+        }
+        
+        if (phone.length === 10) phone = "91" + phone;
+
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+    };
     
     window.generateAIDraft = async () => {
         const type = document.querySelector('input[name="draftType"]:checked').value;
         const btn = document.getElementById("btn-generate-draft"); 
         
-        // 🟢 V103.4 Vision Logic
         if (type === "vision") {
             const fileInput = document.getElementById("ai-vision-file");
             const instructions = document.getElementById("ai-vision-instructions").value.trim();
@@ -2691,13 +2814,18 @@
         }
 
         const context = document.getElementById("ai-draft-context").value.trim();
-        let platform = ""; let stuName = ""; let occasion = "";
-        
+        let platform = ""; let occasion = "";
+        let studentNames = [];
+
         if (type === "ticket") platform = document.querySelector('input[name="ticketPlatform"]:checked').value;
-        else if (type === "greeting") { 
-            stuName = document.getElementById("ai-greet-student").value.trim(); 
+        else if (type === "parent" || type === "greeting") {
+            document.querySelectorAll('#ai-student-pills .pill-checkbox:checked').forEach(cb => studentNames.push(cb.value));
+        }
+        
+        if (type === "greeting") { 
             occasion = document.getElementById("ai-greet-occasion").value.trim(); 
-            if(!stuName || !occasion) return showToast("Enter Student Name and Occasion.", "error"); 
+            if(!occasion) return showToast("Enter an Occasion.", "error"); 
+            if(studentNames.length === 0) return showToast("Select at least one student from Audience.", "error");
         }
 
         if (!context && type !== 'greeting') return showToast("Please enter some raw notes first.", "error");
@@ -2705,7 +2833,8 @@
         btn.disabled = true; btn.textContent = "✨ Generating Options...";
 
         try {
-            const r = await fetchAPI(null, { action: "generateAIDraft", context: context, draftType: type, platform: platform, studentName: stuName, occasion: occasion });
+            // 🟢 V105.2: Sending array of student names to trigger Mail Merge logic in backend
+            const r = await fetchAPI(null, { action: "generateAIDraft", context: context, draftType: type, platform: platform, studentNames: studentNames, occasion: occasion });
             if (r.status === "error") throw new Error(r.message);
             
             let rawText = r.draft.replace(/```json/gi, '').replace(/```/gi, '').trim();
@@ -2723,7 +2852,20 @@
             options.forEach((opt, idx) => {
                 let recBadge = opt.is_recommended ? `<div style="display:inline-block; background:#fef08a; color:#854d0e; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:700; margin-left:12px; border:1px solid #fde047; transform: translateY(-2px);">🌟 Recommended</div>` : '';
                 let borderStyle = opt.is_recommended ? `border: 2px solid #8b5cf6; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);` : `border: 1px solid #cbd5e1;`; let bgStyle = opt.is_recommended ? `background: #faf5ff;` : `background: #f8fafc;`;
-                html += `<div style="${bgStyle} border-radius:10px; padding:16px; margin-bottom:12px; ${borderStyle}"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;"><div style="font-weight:700; color:var(--primary); font-size:1rem; display:flex; align-items:center;">${opt.title} ${recBadge}</div><button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('ai-opt-${idx}')">📋 Copy</button></div><textarea id="ai-opt-${idx}" readonly style="width:100%; min-height:100px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${opt.text}</textarea></div>`;
+                
+                // 🟢 V105.2: Render Dispatch button if Audience was selected
+                let batchBtnHtml = studentNames.length > 0 ? `<button class="btn btn-primary btn-sm" style="background:#8b5cf6; border-color:#8b5cf6;" onclick="window.startBatchDispatch('ai-opt-${idx}')">🚀 Dispatch (${studentNames.length})</button>` : '';
+
+                html += `<div style="${bgStyle} border-radius:10px; padding:16px; margin-bottom:12px; ${borderStyle}">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
+                                <div style="font-weight:700; color:var(--primary); font-size:1rem; display:flex; align-items:center;">${opt.title} ${recBadge}</div>
+                                <div style="display:flex; gap:8px;">
+                                    ${batchBtnHtml}
+                                    <button class="btn btn-outline btn-sm" onclick="window.copyAiOpt('ai-opt-${idx}')">📋 Copy</button>
+                                </div>
+                            </div>
+                            <textarea id="ai-opt-${idx}" style="width:100%; min-height:100px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${opt.text}</textarea>
+                        </div>`;
             });
             
             document.getElementById("ai-output-container").innerHTML = html; 
