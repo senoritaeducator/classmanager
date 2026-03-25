@@ -580,24 +580,25 @@
             </div>
 
             <div id="ai-recipient-role-block" style="display: none; margin-bottom: 20px; padding: 12px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-main);">Target Recipient Role</label>
-                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-main);">Target Recipient Role & Name</label>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px;">
                     <label class="radio-label"><input type="radio" name="aiRecipientRole" value="Parent" checked> 👨‍👩‍👧‍👦 Parent</label>
                     <label class="radio-label"><input type="radio" name="aiRecipientRole" value="Academic Counselor"> 💼 Academic Counselor</label>
                     <label class="radio-label"><input type="radio" name="aiRecipientRole" value="Student"> 🎓 Student</label>
                 </div>
+                <input type="text" id="ai-recipient-name" placeholder="e.g., Mr. Sharma (Optional specific name)" style="width: 100%; max-width: 300px; height: 36px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
             </div>
 
             <div id="ai-audience-block" style="display: block; margin-bottom: 20px; padding: 16px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <label style="margin-bottom:0;">Target Audience (Select Current Students)</label>
+                    <label style="margin-bottom:0;">Target Audience (Optional for Parent/Counselor queries)</label>
                     <button class="btn btn-soft btn-sm" onclick="window.toggleAllAiStudents()">Toggle Select All</button>
                 </div>
                 <div id="ai-student-pills" style="max-height: 140px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px; background: #f8fafc; margin-bottom: 12px;">
                     <div style="color:#94a3b8; text-align:center; padding:10px; font-size:0.85rem;">Loading students...</div>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label>Additional / Custom Names (Comma separated)</label>
+                    <label>Additional / Custom Audience Names (Comma separated)</label>
                     <input type="text" id="ai-custom-names" placeholder="e.g., Rahul, Priya (Ex-students)">
                 </div>
             </div>
@@ -770,7 +771,7 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita Saha</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v105.10 PRO (The Executive Build) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v106 PRO (The Executive Build) | Powered by LazifAI</div>
     </footer>
 
     <div id="dispatchModal" class="modal-backdrop">
@@ -1322,7 +1323,6 @@
         renderStudents(); 
         window.updateSmartBarText(); 
         
-        // 🟢 V105.2: Populate AI Audience Pills
         const pillsContainer = document.getElementById("ai-student-pills");
         if (pillsContainer) {
             let pillsHtml = "";
@@ -1886,7 +1886,7 @@
         showConfirm(`Delete ${name}? This completely clears all their future classes.`, async () => { 
             document.getElementById("delete-student-msg").innerHTML = '<div style="color:var(--primary);">Deleting...</div>'; 
             await fetchAPI(null, { action: "deleteStudent", StudentName: name }); 
-            document.getElementById("delete-student-msg").innerHTML = '<div style="color:#ef4444;">Deleted</div>'; 
+            document.getElementById("delete-student-msg").innerHTML = '<div style="#ef4444;">Deleted</div>'; 
             await window.loadStudents(); 
             window.fetchToday(); 
             window.renderClassesForDate(document.getElementById("view-date").value); 
@@ -2646,6 +2646,7 @@
         document.getElementById("ai-output-container").innerHTML = ""; 
         document.getElementById("ai-output-container").style.display = "none"; 
         document.getElementById("ai-custom-names").value = "";
+        if(document.getElementById("ai-recipient-name")) document.getElementById("ai-recipient-name").value = "";
         document.getElementById("ai-greet-occasion").value = ""; 
         document.getElementById("ai-forge-topic").value = "";
         document.getElementById("ai-forge-grade").value = "";
@@ -2846,12 +2847,15 @@
             studentNames = studentNames.concat(customNames);
             
             if (type === "parent") {
-                recipientRole = document.querySelector('input[name="aiRecipientRole"]:checked').value;
+                let roleBase = document.querySelector('input[name="aiRecipientRole"]:checked').value;
+                let specName = document.getElementById("ai-recipient-name").value.trim();
+                recipientRole = specName ? specName : roleBase;
+                // V106: No forced studentName check for Parent queries. Let them be general.
             } else if (type === "greeting") {
                 occasion = document.getElementById("ai-greet-occasion").value.trim(); 
                 if(!occasion) return showToast("Enter an Occasion.", "error"); 
+                if(studentNames.length === 0) return showToast("Select or type at least one Target Name.", "error");
             }
-            if(studentNames.length === 0) return showToast("Select or type at least one Target Name.", "error");
         }
 
         if (!context && type !== 'greeting') return showToast("Please enter some raw notes first.", "error");
