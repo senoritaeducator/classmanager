@@ -28,7 +28,7 @@
 
         /* --- HEADER --- */
         .top-bar { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 24px; justify-content: center; max-width: 1000px; margin-left: auto; margin-right: auto; }
-        .brand-block, .teacher-block { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); min-width: 280px; max-width: 450px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .brand-block, .teacher-block { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); min-width: 280px; max-width: 450px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         .brand-block { border-top: 5px solid var(--primary); }
         .teacher-block { border-top: 5px solid var(--accent); }
         .brand-title { font-size: 1.4rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -55,7 +55,7 @@
         .main-tab-btn:hover:not(.active) { color: var(--text-main); background: #f1f5f9; }
         .tab-ai.active { color: #6d28d9; border-bottom-color: #8b5cf6; background: linear-gradient(to top, rgba(139, 92, 246, 0.08), transparent); }
 
-        /* --- SECTIONS --- */
+        /* --- SECTIONS & CARDS --- */
         .section { display: none; animation: fadeIn 0.3s ease; }
         .section.show { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -74,11 +74,11 @@
         input[type="text"], input[type="date"], input[type="number"], select { height: 42px; }
         textarea { resize: vertical; min-height: 80px; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.1); }
-
+        
         .classes-controls { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
         .classes-controls .form-group { width: auto; flex: 0 0 auto; margin-bottom: 0; }
         .classes-controls input[type="date"] { width: 160px; } 
-        
+
         .radio-group { display: flex; gap: 20px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
         .radio-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 500; }
 
@@ -108,7 +108,14 @@
         .financial-tile { background: #f0fdf4; border-color: #bbf7d0; }
         .financial-tile .overview-main { color: #15803d; }
 
-        /* --- CLASS CARDS --- */
+        /* --- LISTS & CARDS --- */
+        .student-columns { display: flex; gap: 20px; flex-wrap: wrap; }
+        .student-col { flex: 1 1 200px; border: 1px solid var(--border); border-radius: var(--radius); background: #f9fafb; display: flex; flex-direction: column; max-height: 450px; }
+        .student-col-header { padding: 12px; border-bottom: 1px solid var(--border); background: #f1f5f9; font-weight: 700; font-size: 0.9rem; display: flex; justify-content: space-between; border-radius: 11px 11px 0 0; color: var(--text-sub); }
+        .scrolly-list { overflow-y: auto; padding: 10px; flex: 1; }
+        .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500; transition: border-color 0.1s; gap: 12px; flex-wrap: wrap; }
+        .student-item-row .action-btns { display: flex; gap: 6px; flex-shrink: 0; }
+        
         .classes-list { display: flex; flex-direction: column; gap: 16px; }
         .class-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 16px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: transform 0.2s; }
         .class-card:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.05); }
@@ -124,13 +131,18 @@
         .card-notes-input { flex: 2; min-height: 38px; height: 38px; padding: 6px 12px; font-size: 0.85rem; }
         .card-next-topic { flex: 1; min-height: 38px; height: 38px; padding: 6px 12px; font-size: 0.85rem; border-left: 2px solid var(--primary); }
         .class-card .inline-actions { margin-top: 12px; display: flex; justify-content: flex-end; gap: 10px;}
-        
-        /* --- HISTORY PANEL --- */
+
         .history-list { display: flex; flex-direction: column; gap: 12px; max-height: 600px; overflow-y: auto; padding-right: 10px; }
         .history-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px; border-left: 3px solid var(--primary); }
         .history-card-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 8px; }
         .history-card-type { font-weight: 700; color: var(--primary); }
 
+        .weekly-strip { display: flex; gap: 6px; margin-top: 12px; overflow-x: auto; padding-bottom: 4px; scroll-behavior: smooth; }
+        .weekly-day { flex: 1; min-width: 50px; text-align: center; padding: 8px 4px; border-radius: 8px; background: #fff; border: 1px solid var(--border); font-size: 0.8rem; cursor: pointer; transition: all 0.1s; }
+        .weekly-day:hover { border-color: var(--primary); transform: translateY(-1px); }
+        .weekly-day.has-classes { background: #f0f9ff; color: #0369a1; font-weight: 700; border-color: #bae6fd; }
+        .weekly-day.today { background: var(--primary); color: white; border-color: var(--primary); }
+        
         /* --- ANALYTICS WIDGETS --- */
         .chart-container { position: relative; height: 300px; width: 100%; margin-top: 10px; overflow: hidden; }
         @media (max-width: 600px) { .chart-container { padding-left: 10px; } }
@@ -143,30 +155,13 @@
         .avail-date-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .avail-date { font-weight: 700; font-size: 0.85rem; color: var(--text-main); }
         .avail-slots { display: flex; flex-wrap: wrap; gap: 6px; }
-        .slot-pill { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: default; }
+        .slot-pill { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: default; display: inline-block; margin: 2px; }
         .slot-green { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-        .slot-grey { background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; }
         .slot-red { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
         .slot-yellow { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+        .slot-grey { background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; }
         .copy-icon-btn { border: none; background: none; cursor: pointer; color: var(--text-sub); font-size: 0.9rem; padding: 2px; transition: color 0.2s; }
         .copy-icon-btn:hover { color: var(--primary); }
-
-        /* --- LISTS --- */
-        .student-columns { display: flex; gap: 20px; flex-wrap: wrap; }
-        .student-col { flex: 1 1 200px; border: 1px solid var(--border); border-radius: var(--radius); background: #f9fafb; display: flex; flex-direction: column; max-height: 450px; }
-        .student-col-header { padding: 12px; border-bottom: 1px solid var(--border); background: #f1f5f9; font-weight: 700; font-size: 0.9rem; display: flex; justify-content: space-between; border-radius: 11px 11px 0 0; color: var(--text-sub); }
-        .scrolly-list { overflow-y: auto; padding: 10px; flex: 1; }
-        
-        .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500; transition: border-color 0.1s; gap: 12px; }
-        .student-item-row span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; }
-        .student-item-row .action-btns { display: flex; gap: 6px; flex-shrink: 0; }
-        .student-item-row:hover { border-color: var(--primary); }
-
-        .weekly-strip { display: flex; gap: 6px; margin-top: 12px; overflow-x: auto; padding-bottom: 4px; scroll-behavior: smooth; }
-        .weekly-day { flex: 1; min-width: 50px; text-align: center; padding: 8px 4px; border-radius: 8px; background: #fff; border: 1px solid var(--border); font-size: 0.8rem; cursor: pointer; transition: all 0.1s; }
-        .weekly-day:hover { border-color: var(--primary); transform: translateY(-1px); }
-        .weekly-day.has-classes { background: #f0f9ff; color: #0369a1; font-weight: 700; border-color: #bae6fd; }
-        .weekly-day.today { background: var(--primary); color: white; border-color: var(--primary); }
 
         @media (max-width: 768px) { 
             .converter-box { display: flex; flex-wrap: wrap; width: 100%; gap: 10px; } 
@@ -182,12 +177,12 @@
         /* --- MODALS & TOAST --- */
         .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
         .modal-backdrop.show { display: flex; animation: fadeIn 0.2s; }
-        .modal { background: #fff; width: 90%; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; }
+        .modal { background: #fff; width: 90%; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; max-height: 90vh; }
         .modal-header { padding: 16px 24px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; }
         .modal-title { font-weight: 700; font-size: 1.1rem; color: var(--text-main); }
-        .modal-body { padding: 24px; color: var(--text-main); line-height: 1.6; overflow-y: auto; max-height: 60vh; }
+        .modal-body { padding: 24px; color: var(--text-main); line-height: 1.6; overflow-y: auto; }
         .modal-footer { padding: 16px 24px; border-top: 1px solid #e2e8f0; background: #fff; display: flex; justify-content: flex-end; gap: 10px; }
-        
+
         .sb-tab-btn { background: transparent; border: none; padding: 14px 10px; font-size: 0.95rem; color: var(--text-sub); font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; flex: 1; text-align: center; }
         .sb-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: #fff; }
         .sb-content { display: none; animation: fadeIn 0.3s ease; }
@@ -196,7 +191,7 @@
 
         .toast-container { position: fixed; bottom: 24px; right: 24px; left: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         @media (min-width: 600px) { .toast-container { left: auto; width: 320px; } }
-        .toast { background: var(--accent); color: #fff; padding: 14px 20px; border-radius: 8px; font-size: 0.95rem; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; opacity: 0; transform: translateY(20px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: auto; }
+        .toast { background: var(--accent); color: #fff; padding: 14px 20px; border-radius: 8px; font-size: 0.95rem; font-weight: 500; opacity: 0; transform: translateY(20px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: auto; }
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast-error { background: #ef4444; }
 
@@ -210,10 +205,9 @@
         .fab-item:hover { background: #f1f5f9; color: var(--primary); }
         .bulk-row { display: flex; gap: 10px; align-items: center; background: #fff; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
 
-        /* --- V103 VOICE DICTATION CSS --- */
         .mic-btn { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; cursor: pointer; transition: all 0.2s; font-size: 1rem; }
         .mic-btn:hover { background: #e2e8f0; }
-        .recording-pulse { animation: pulse 1.5s infinite; background-color: #fee2e2 !important; color: #dc2626 !important; border: 1px solid #f87171 !important; }
+        .recording-pulse { animation: pulse 1.5s infinite; background-color: #fee2e2 !important; border-color: #f87171 !important; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
     </style>
 </head>
@@ -232,15 +226,14 @@
                     <input type="date" id="conv-student-date" class="conv-input" style="width: 140px;" onchange="if(window.calcConv) window.calcConv();">
                     <select id="conv-student-zone" class="conv-select" style="min-width: 140px;">
                         <option value="" disabled selected>Select City...</option>
-                        <optgroup label="Australia & NZ"><option value="Australia/Sydney">Sydney</option><option value="Australia/Adelaide">Adelaide</option><option value="Australia/Perth">Perth</option><option value="Pacific/Auckland">Auckland</option></optgroup>
+                        <optgroup label="Australia & NZ"><option value="Australia/Sydney">Sydney</option><option value="Pacific/Auckland">Auckland</option></optgroup>
                         <optgroup label="UK & Europe"><option value="Europe/London">London</option><option value="Europe/Paris">Paris / Berlin</option></optgroup>
                         <optgroup label="Middle East & Asia"><option value="Asia/Dubai">Dubai</option><option value="Asia/Singapore">Singapore</option></optgroup>
                         <optgroup label="USA & Canada"><option value="America/New_York">New York</option><option value="America/Chicago">Chicago</option><option value="America/Los_Angeles">Los Angeles</option></optgroup>
                         <option value="ADD_NEW" style="font-weight:bold; color:var(--primary);">+ Add Custom City</option>
                     </select>
                     <input type="text" id="conv-student-time" class="conv-input" placeholder="Time" onblur="if(window.normalizeUserTime) window.normalizeUserTime(this); if(window.calcConv) window.calcConv();">
-                    <button class="btn btn-soft btn-sm" style="padding: 0 8px; height: 36px;" onclick="window.resetConv()" title="Reset Converter">🔄</button>
-                    <div style="color:#94a3b8; display:none;">➜</div>
+                    <button class="btn btn-soft btn-sm" style="padding: 0 8px; height: 36px;" onclick="window.resetConv()" title="Reset">🔄</button>
                     <div id="conv-result-ist" class="conv-result-pill">--:-- IST</div>
                 </div>
             </div>
@@ -252,6 +245,10 @@
                 <div class="teacher-name">Senorita</div>
                 <div class="teacher-id">ID: 181577</div>
                 <div class="teacher-clock" id="clock-india">India: --:-- --</div>
+            </div>
+            <div style="margin-top:15px; display:flex; justify-content:center; gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="window.openStudyMaterial()">📚 Study Material</button>
+                <button class="btn btn-soft btn-sm" onclick="window.editStudyMaterial()" title="Update Link">⚙️</button>
             </div>
         </div>
     </header>
@@ -321,9 +318,9 @@
                 <div style="display:flex; gap:10px;"><button class="btn btn-outline btn-sm" onclick="window.openCopyWeekModal()">📋 Copy Schedule</button></div>
             </div>
             <div class="classes-controls">
-                <div class="form-group" style="flex: 0 0 auto; margin-bottom:0;"><label>Select Date</label><input type="date" id="view-date" /></div>
-                <button id="view-classes-btn" class="btn btn-primary" style="margin-bottom:1px;" onclick="window.loadClassesForViewDate()">Load Schedule</button>
-                <button id="cancel-all-btn" class="btn btn-outline" style="margin-bottom:1px; color:#ef4444; border-color:#fecaca;" onclick="window.cancelAllClassesForDay()">Cancel All</button>
+                <div class="form-group" style="flex: 0 0 auto; margin-bottom:0;"><label>Select Date</label><input type="date" id="view-date" style="width: 160px;"/></div>
+                <button id="view-classes-btn" class="btn btn-primary" onclick="window.loadClassesForViewDate()">Load Schedule</button>
+                <button id="cancel-all-btn" class="btn btn-outline" style="color:#ef4444; border-color:#fecaca;" onclick="window.cancelAllClassesForDay()">Cancel All</button>
             </div>
             <div class="layout-with-sidebar" style="margin-top:24px; display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
                 <div id="view-classes-output" class="classes-list" style="flex:2; min-width:300px;"></div>
@@ -350,11 +347,17 @@
                         <div class="form-group"><input id="student-name-input" type="text" placeholder="Full Name" /></div>
                         
                         <div class="radio-group" style="flex-wrap:wrap; gap:10px;">
-                            <label class="radio-label"><input type="radio" name="studentType" value="PS" checked> PS</label>
-                            <label class="radio-label"><input type="radio" name="studentType" value="CM"> CM</label>
-                            <label class="radio-label"><input type="radio" name="studentType" value="Trial"> Trial</label>
-                            <label class="radio-label"><input type="radio" name="studentType" value="Personal"> Personal</label>
+                            <label class="radio-label"><input type="radio" name="studentType" value="PS" checked onchange="window.toggleAddPersonalFields()"> PS</label>
+                            <label class="radio-label"><input type="radio" name="studentType" value="CM" onchange="window.toggleAddPersonalFields()"> CM</label>
+                            <label class="radio-label"><input type="radio" name="studentType" value="Trial" onchange="window.toggleAddPersonalFields()"> Trial</label>
+                            <label class="radio-label"><input type="radio" name="studentType" value="Personal" onchange="window.toggleAddPersonalFields()"> Personal</label>
                         </div>
+                        
+                        <div id="add-personal-fields" style="display:none; gap:10px; margin-bottom:16px;">
+                            <input type="number" id="add-pkg-total" placeholder="Package Size (e.g. 15)" style="flex:1;">
+                            <input type="number" id="add-custom-price" placeholder="Custom Price (Optional)" style="flex:1;">
+                        </div>
+
                         <button id="add-student-btn" class="btn btn-primary btn-block" onclick="window.executeAddStudent()">Add Student</button>
                         <div id="manage-students-msg" style="margin-top:10px; font-size: 0.9rem;"></div>
                     </div>
@@ -398,15 +401,15 @@
                     <div id="crm-action-area" style="display:none;">
                         <div class="radio-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--border);">
                             <label class="radio-label"><input type="radio" name="crmAction" value="progress" checked onchange="window.handleCrmActionChange(event)"> Progress Report</label>
-                            <label class="radio-label"><input type="radio" name="crmAction" value="demoFeedback" onchange="window.handleCrmActionChange(event)"> Demo Feedback Handover</label>
+                            <label class="radio-label"><input type="radio" name="crmAction" value="demoFeedback" onchange="window.handleCrmActionChange(event)"> Demo Feedback</label>
                             <label class="radio-label"><input type="radio" name="crmAction" value="ptmPost" onchange="window.handleCrmActionChange(event)"> Post-PTM Summary</label>
-                            <label class="radio-label"><input type="radio" name="crmAction" value="ptmInvite" onchange="window.handleCrmActionChange(event)"> Schedule PTM Invite</label>
+                            <label class="radio-label"><input type="radio" name="crmAction" value="ptmInvite" onchange="window.handleCrmActionChange(event)"> Schedule PTM</label>
                         </div>
 
                         <div class="form-group" style="margin-top: 15px;" id="crmToneGroup">
                             <label>AI Tone Protocol</label>
                             <select id="crmTone">
-                                <option value="Encouraging">🟢 Encouraging & Warm (Default)</option>
+                                <option value="Encouraging">🟢 Encouraging & Warm</option>
                                 <option value="Neutral">🟡 Direct & Neutral</option>
                                 <option value="Firm">🔴 Firm & Authoritative</option>
                             </select>
@@ -541,12 +544,11 @@
                     </div>
                 </div>
             </div>
-
             <div class="card-column" style="flex: 1; min-width:300px;">
                 <div class="section-card" style="height: 100%;">
                     <div style="font-weight:700; margin-bottom:16px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">📜 History Log</div>
                     <div id="crm-history-list" class="history-list">
-                        <div style="color:#94a3b8; text-align:center; padding:20px; font-size:0.85rem;">Select a student to view past feedback & PTM summaries.</div>
+                        <div style="color:#94a3b8; text-align:center; padding:20px;">Select a student...</div>
                     </div>
                 </div>
             </div>
@@ -556,20 +558,20 @@
     <section id="section-drafter" class="section">
         <div class="section-card">
             <div class="section-header">
-                <div><span class="section-title">✨ AI Smart Drafter</span><span class="section-caption">Instantly generate professional replies and support tickets using your personal AI model.</span></div>
-                <button class="btn btn-soft btn-sm" onclick="window.triggerManualAiReset()">🔄 Clear Draft</button>
+                <div><span class="section-title">✨ AI Smart Drafter</span></div>
+                <button class="btn btn-soft btn-sm" onclick="window.triggerManualAiReset()">🔄 Clear</button>
             </div>
             
             <div class="radio-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--border);">
-                <label class="radio-label"><input type="radio" name="draftType" value="parent" checked onchange="window.handleAiTypeChange(event)"> 👨‍👩‍👧‍👦 Parent / Counselor Query</label>
-                <label class="radio-label"><input type="radio" name="draftType" value="ticket" onchange="window.handleAiTypeChange(event)"> 🎫 Platform Support Ticket</label>
-                <label class="radio-label"><input type="radio" name="draftType" value="greeting" onchange="window.handleAiTypeChange(event)"> 🎉 Festive / Birthday Greeting</label>
-                <label class="radio-label"><input type="radio" name="draftType" value="forge" onchange="window.handleAiTypeChange(event)"> 📚 Academic Content Forge</label>
+                <label class="radio-label"><input type="radio" name="draftType" value="parent" checked onchange="window.handleAiTypeChange(event)"> 👨‍👩‍👧‍👦 Query Reply</label>
+                <label class="radio-label"><input type="radio" name="draftType" value="ticket" onchange="window.handleAiTypeChange(event)"> 🎫 Support Ticket</label>
+                <label class="radio-label"><input type="radio" name="draftType" value="greeting" onchange="window.handleAiTypeChange(event)"> 🎉 Greeting</label>
+                <label class="radio-label"><input type="radio" name="draftType" value="forge" onchange="window.handleAiTypeChange(event)"> 📚 Content Forge</label>
                 <label class="radio-label"><input type="radio" name="draftType" value="vision" onchange="window.handleAiTypeChange(event)"> 📸 Snap & Correct</label>
             </div>
 
             <div id="ai-platform-routing" style="display: none; margin-bottom: 20px; padding: 12px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-main);">Select Platform for Ticket</label>
+                <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-main);">Select Platform</label>
                 <div style="display: flex; gap: 16px; flex-wrap: wrap;">
                     <label class="radio-label"><input type="radio" name="ticketPlatform" value="PlanetSpark" checked> PlanetSpark (PS)</label>
                     <label class="radio-label"><input type="radio" name="ticketPlatform" value="CueMath"> CueMath (CM)</label>
@@ -577,30 +579,28 @@
             </div>
 
             <div id="ai-greeting-inputs" style="display: none; margin-bottom: 20px; padding: 16px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                <div class="form-group"><label>Occasion</label><input type="text" id="ai-greet-occasion" placeholder="e.g., 10th Birthday, Holi, Eid, Diwali"></div>
+                <div class="form-group"><label>Occasion</label><input type="text" id="ai-greet-occasion" placeholder="e.g., 10th Birthday, Holi"></div>
             </div>
 
             <div id="ai-recipient-role-block" style="display: none; margin-bottom: 20px; padding: 12px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-main);">Target Recipient Role & Name</label>
+                <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-main);">Target Recipient Role</label>
                 <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px;">
                     <label class="radio-label"><input type="radio" name="aiRecipientRole" value="Parent" checked> 👨‍👩‍👧‍👦 Parent</label>
                     <label class="radio-label"><input type="radio" name="aiRecipientRole" value="Academic Counselor"> 💼 Academic Counselor</label>
                     <label class="radio-label"><input type="radio" name="aiRecipientRole" value="Student"> 🎓 Student</label>
                 </div>
-                <input type="text" id="ai-recipient-name" placeholder="e.g., Mr. Sharma (Optional specific name)" style="width: 100%; max-width: 300px; height: 36px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                <input type="text" id="ai-recipient-name" placeholder="e.g., Mr. Sharma (Optional)" style="width: 100%; max-width: 300px; height: 36px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
             </div>
 
             <div id="ai-audience-block" style="display: block; margin-bottom: 20px; padding: 16px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <label style="margin-bottom:0;">Target Audience (Optional for Parent/Counselor queries)</label>
+                    <label style="margin-bottom:0;">Target Audience</label>
                     <button class="btn btn-soft btn-sm" onclick="window.toggleAllAiStudents()">Toggle Select All</button>
                 </div>
-                <div id="ai-student-pills" style="max-height: 140px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px; background: #f8fafc; margin-bottom: 12px;">
-                    <div style="color:#94a3b8; text-align:center; padding:10px; font-size:0.85rem;">Loading students...</div>
-                </div>
+                <div id="ai-student-pills" style="max-height: 140px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px; background: #f8fafc; margin-bottom: 12px;"></div>
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label>Additional / Custom Audience Names (Comma separated)</label>
-                    <input type="text" id="ai-custom-names" placeholder="e.g., Rahul, Priya (Ex-students)">
+                    <label>Additional Custom Names (Comma separated)</label>
+                    <input type="text" id="ai-custom-names" placeholder="e.g., Rahul, Priya">
                 </div>
             </div>
 
@@ -609,7 +609,7 @@
                     <label>Topic / Objective</label>
                     <div style="display: flex; gap: 8px; align-items: flex-start;">
                         <textarea id="ai-forge-topic" placeholder="e.g., How to write a movie review" style="flex:1; height: 60px;"></textarea>
-                        <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ai-forge-topic', this)" style="height: 40px;">🎤</button>
+                        <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ai-forge-topic', this)">🎤</button>
                     </div>
                 </div>
                 <div class="card-row">
@@ -629,14 +629,15 @@
 
             <div id="ai-vision-inputs" style="display: none; margin-bottom: 20px; padding: 16px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
                 <div class="form-group">
-                    <label>📸 Upload Handwritten Draft (Image)</label>
-                    <input type="file" id="ai-vision-file" accept="image/*" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <label>📸 Upload Handwritten Draft(s)</label>
+                    <input type="file" id="ai-vision-file" accept="image/*" multiple style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <div style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">You can select multiple pages at once.</div>
                 </div>
                 <div class="form-group">
-                    <label>Correction / Enhancement Instructions</label>
+                    <label>Correction / Creative Instructions</label>
                     <div style="display: flex; gap: 8px; align-items: flex-start;">
-                        <textarea id="ai-vision-instructions" placeholder="e.g., Rewrite this story adding adjectives of size, shape, number, texture..." style="flex:1; height: 60px;"></textarea>
-                        <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ai-vision-instructions', this)" style="height: 40px;">🎤</button>
+                        <textarea id="ai-vision-instructions" placeholder="e.g., Rewrite this story as realistic fiction. Fix the grammar but keep the plot..." style="flex:1; height: 60px;"></textarea>
+                        <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ai-vision-instructions', this)">🎤</button>
                     </div>
                 </div>
             </div>
@@ -645,24 +646,20 @@
                 <label id="ai-context-label">Raw Notes / Context</label>
                 <div style="display: flex; gap: 8px; align-items: flex-start;">
                     <textarea id="ai-draft-context" placeholder="Brain dump your thoughts here..." style="height: 120px; flex: 1;"></textarea>
-                    <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ai-draft-context', this)" style="height: 40px;">🎤</button>
+                    <button type="button" class="mic-btn" onclick="window.toggleVoiceDictation('ai-draft-context', this)">🎤</button>
                 </div>
             </div>
             
-            <button id="btn-generate-draft" class="btn btn-primary btn-block" onclick="window.generateAIDraft()">✨ Generate AI Options</button>
-
+            <button id="btn-generate-draft" class="btn btn-primary btn-block" onclick="window.generateAIDraft()">✨ Generate AI</button>
             <div id="ai-output-container" style="display:none; margin-top:30px; flex-direction:column; gap:16px;"></div>
         </div>
     </section>
 
     <section id="section-analytics" class="section">
         <div class="section-card">
-            <div class="section-header">
-                <div><span class="section-title">Executive Analytics</span><span class="section-caption">Business intelligence and workload analysis.</span></div>
-                <button class="btn btn-soft btn-sm" onclick="window.loadAnalytics(false)">Refresh Data</button>
-            </div>
+            <div class="section-header"><div><span class="section-title">Executive Analytics</span></div><button class="btn btn-soft btn-sm" onclick="window.loadAnalytics(false)">Refresh Data</button></div>
+            
             <div class="chart-grid">
-                
                 <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow);">
                     <div style="font-weight:700; margin-bottom:4px; color:var(--text-main);">💰 The Revenue Matrix</div>
                     <div class="chart-help">CM vs Personal Revenue (6 Months).</div>
@@ -706,15 +703,14 @@
                     <div class="avail-widget" style="flex:1;">
                         <div class="avail-header">
                             <div>
-                                <div style="font-weight:700; color:var(--text-main);">📅 Available Slots</div>
+                                <div style="font-weight:700; color:var(--text-main);">📅 Smart Availability Feed</div>
                                 <div class="chart-help" style="margin-bottom:0;">Free Slots (Real-time).</div>
                             </div>
-                            <button class="btn btn-soft btn-sm" onclick="window.copyAvailabilityWeek()" title="Copy Week for WhatsApp">📋 Copy All</button>
+                            <button class="btn btn-soft btn-sm" onclick="window.openSmartCopyModal('week')" title="Copy Week for WhatsApp">📋 Copy Select</button>
                         </div>
                         <div class="avail-list" id="avail-feed-list" style="max-height:200px;"><div style="padding:20px; text-align:center; color:#94a3b8;">Loading feed...</div></div>
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
@@ -739,7 +735,7 @@
     <section id="section-onboarding" class="section">
         <div class="section-card">
             <div class="section-header">
-                <div><span class="section-title">Personal Student Onboarding</span><span class="section-caption">Generate premium welcome packets & SOPs.</span></div>
+                <div><span class="section-title">Student Onboarding</span><span class="section-caption">Generate premium welcome packets & SOPs.</span></div>
                 <button class="btn btn-soft btn-sm" onclick="window.clearOnboarding()">🔄 Reset</button>
             </div>
             
@@ -772,7 +768,7 @@
     <footer class="footer">
         <div>Advanced Class Manager &copy; 2026</div>
         <div style="margin-top:4px;">Licensed to Senorita</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v107 PRO (The Executive Build) | Powered by LazifAI</div>
+        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v108.3 PRO (The Executive Build) | Powered by LazifAI</div>
     </footer>
 
     <div id="dispatchModal" class="modal-backdrop">
@@ -793,6 +789,19 @@
                     <button class="btn btn-primary" onclick="window.dispatchNext()">Next ➡️</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="driveLinkModal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header"><div class="modal-title">Update Study Material Link</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('driveLinkModal').classList.remove('show')">✕</button></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Google Drive Folder URL</label>
+                    <input type="text" id="driveLinkInput" placeholder="Paste link here...">
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary" onclick="window.saveDriveLink()">Save Link</button></div>
         </div>
     </div>
 
@@ -896,13 +905,19 @@
             <div class="modal-header"><div class="modal-title">Edit Student</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('editStudentModal').classList.remove('show')">✕</button></div>
             <div class="modal-body">
                 <div id="editStudentNameDisplay" style="font-weight:700; margin-bottom:16px; font-size:1.1rem;"></div>
-                <label>Enrollment Type</label>
-                <select id="editStudentTypeSelect">
-                    <option value="PS">PS</option>
-                    <option value="CM">CM</option>
-                    <option value="Trial">Trial</option>
-                    <option value="Personal">Personal</option>
-                </select>
+                <div class="form-group"><label>Enrollment Type</label>
+                    <select id="editStudentTypeSelect" onchange="window.toggleEditPersonalFields(this.value)">
+                        <option value="PS">PS</option><option value="CM">CM</option><option value="Trial">Trial</option><option value="Personal">Personal</option>
+                    </select>
+                </div>
+                <div id="edit-personal-fields" style="display:none; gap:10px; margin-bottom:16px;">
+                    <div style="flex:1;"><label>Package Size</label><input type="number" id="edit-pkg-total"></div>
+                    <div style="flex:1;"><label>Custom Price</label><input type="number" id="edit-custom-price"></div>
+                </div>
+                <div style="margin-top:10px; border-top:1px solid #e2e8f0; padding-top:15px;">
+                    <button class="btn btn-outline btn-sm btn-block" onclick="window.scrubStudentData()" style="color:#f59e0b; border-color:#fcd34d;">🧹 Scrub PS Data (Convert to Personal)</button>
+                    <div style="font-size:0.75rem; color:var(--text-sub); text-align:center; margin-top:4px;">Updates future Google Meet links & branding</div>
+                </div>
             </div>
             <div class="modal-footer"><button id="editStudentSaveBtn" class="btn btn-primary">Save Changes</button></div>
         </div>
@@ -915,8 +930,8 @@
     <div id="pendingReviewModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Pending Reviews</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('pendingReviewModal').classList.remove('show')">✕</button></div><div class="modal-body" style="max-height:60vh; overflow-y:auto; background:#f8fafc; padding:10px;" id="pendingReviewList"></div><div class="modal-footer" style="justify-content:space-between;"><span style="font-size:0.8rem; color:var(--text-sub);">Select status to clear item</span><button class="btn btn-soft btn-sm" onclick="document.getElementById('pendingReviewModal').classList.remove('show')">Close</button></div></div></div>
     
     <div id="historyModal" class="modal-backdrop">
-        <div class="modal">
-            <div class="modal-header"><div class="modal-title">Advanced Historical Report</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('historyModal').classList.remove('show')">✕</button></div>
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header"><div class="modal-title">Advanced Data Report</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('historyModal').classList.remove('show')">✕</button></div>
             <div class="modal-body">
                 <div class="form-group" style="display:flex; gap:10px; margin-bottom:12px;">
                     <div style="flex:1;"><label>Start Date</label><input type="date" id="historyStartDate"></div>
@@ -924,37 +939,45 @@
                 </div>
                 <div class="form-group" style="display:flex; gap:10px; margin-bottom:16px;">
                     <div style="flex:1;">
-                        <label>Student Filter</label>
-                        <select id="historyStudentFilter"><option value="All">All Students</option></select>
+                        <label>Org Filter</label>
+                        <select id="historyTypeFilter">
+                            <option value="All">All Orgs</option><option value="CM">CM</option><option value="PS">PS</option><option value="Personal">Personal</option><option value="Trial">Trial</option>
+                        </select>
                     </div>
                     <div style="flex:1;">
-                        <label>Type Filter</label>
-                        <select id="historyTypeFilter">
-                            <option value="All">All Types</option>
-                            <option value="CM">CM Only</option>
-                            <option value="PS">PS Only</option>
-                            <option value="Trial">Trial Only</option>
-                            <option value="Personal">Personal Only</option>
+                        <label>Status Filter</label>
+                        <select id="historyStatusFilter">
+                            <option value="All">All Statuses</option><option value="Completed">Completed</option><option value="Student No Show">No Show</option><option value="Absent">Absent</option><option value="Cancelled">Cancelled</option>
                         </select>
                     </div>
                 </div>
                 <button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button>
-                <div id="historyResult" style="display:none; margin-top:20px; border:1px solid var(--border); padding:16px; border-radius:8px; background:#fff;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-weight:700;">
-                        <div>Total Classes: <span id="histTotalClasses">0</span></div>
-                        <div style="color:var(--accent);">Earnings: <span id="histEarnings">0</span></div>
-                    </div>
-                    <div style="font-size:0.85rem; max-height:200px; overflow-y:auto;">
-                        <table style="width:100%; text-align:left; border-collapse:collapse;">
-                            <thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead>
-                            <tbody id="histTableBody"></tbody>
-                        </table>
-                    </div>
+                <div id="historyResult" style="display:none; margin-top:20px;">
+                    <div id="histOrgBreakdown"></div>
+                    <table style="width:100%; text-align:left; border-collapse:collapse; margin-top:10px; font-size:0.9rem;">
+                        <thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead>
+                        <tbody id="histTableBody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
     
+    <div id="smartCopyModal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header"><div class="modal-title">Select Shifts to Copy</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('smartCopyModal').classList.remove('show')">✕</button></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="radio-label"><input type="checkbox" id="scMorn" checked> 🌅 Morning (Before 12 PM)</label>
+                    <label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scAft" checked> ☀️ Afternoon (12 PM - 5 PM)</label>
+                    <label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scEve" checked> 🌙 Evening (5 PM Onwards)</label>
+                </div>
+                <input type="hidden" id="scDateTarget">
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary" onclick="window.executeSmartCopy()">📋 Copy Selected</button></div>
+        </div>
+    </div>
+
     <div id="toast-container" class="toast-container"></div>
 
     <div class="fab-container">
@@ -973,7 +996,7 @@
     /* --- CONSTANTS & STATE --- */
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcnNovhrSOIObYUJZg9fIPoG1IuojN9t5lnnATcX5rhsWagfixg/exec";
     const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
-    const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [] };
+    const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [] };
     
     let charts = {};
     let previousCrmStudent = "";
@@ -1218,7 +1241,6 @@
             const t24 = parseUserTimeTo24(timeIn.value); 
             if(!t24) return; 
             
-            // 🟢 V107: DST Fix. Math runs on the specific selected date instead of "today"
             const [h, m] = t24.split(':'); 
             const baseDate = new Date(dateIn.value);
             baseDate.setHours(parseInt(h), parseInt(m), 0, 0);
@@ -1248,7 +1270,36 @@
         document.getElementById("conv-result-ist").textContent = "--:-- IST";
     };
 
-    /* --- DATA LOADERS --- */
+    /* --- DYNAMIC STUDY MATERIAL --- */
+    window.openStudyMaterial = () => {
+        if(APP_STATE.studyMaterialLink) window.open(APP_STATE.studyMaterialLink, '_blank');
+        else showToast("Link not set. Click ⚙️ to add.", "error");
+    };
+    window.editStudyMaterial = () => {
+        document.getElementById("driveLinkInput").value = APP_STATE.studyMaterialLink || "";
+        document.getElementById("driveLinkModal").classList.add("show");
+    };
+    window.saveDriveLink = async () => {
+        const link = document.getElementById("driveLinkInput").value.trim();
+        APP_STATE.studyMaterialLink = link;
+        document.getElementById("driveLinkModal").classList.remove("show");
+        showToast("Saving Link...");
+        await fetchAPI(null, { action: "updateDriveLink", Link: link });
+        showToast("Study Material Link Saved!");
+    };
+
+    /* --- STUDENTS & DYNAMIC LEDGER --- */
+    window.toggleAddPersonalFields = () => {
+        const val = document.querySelector("input[name='studentType']:checked").value;
+        const pFields = document.getElementById("add-personal-fields");
+        if(pFields) pFields.style.display = val === 'Personal' ? 'flex' : 'none';
+    };
+
+    window.toggleEditPersonalFields = (val) => {
+        const pFields = document.getElementById("edit-personal-fields");
+        if(pFields) pFields.style.display = val === 'Personal' ? 'flex' : 'none';
+    };
+
     function renderStudents() {
         const buckets = { "Trial": [], "PS": [], "CM": [], "Personal": [] };
         
@@ -1270,12 +1321,22 @@
             
             let h = ""; 
             list.forEach(s => { 
+                let ledgerHtml = "";
+                if(type === "Personal") {
+                    let total = parseInt(s.packageTotal) || 0;
+                    let used = parseInt(s.classesUsed) || 0;
+                    if(total > 0) ledgerHtml = `<div style="font-size:0.75rem; color:var(--accent); width:100%; margin-top:2px;"><b>${used} / ${total}</b> Classes Used</div>`;
+                }
+
                 h += `<div class="student-item-row">
-                        <span>${s.name}</span>
+                        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+                            <span style="font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span>
+                            ${ledgerHtml}
+                        </div>
                         <div class="action-btns">
                             <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️</button>
                             <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁</button>
-                            <button class="btn btn-soft" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openEdit('${s.name}','${s.type}')" title="Edit Type">✎</button>
+                            <button class="btn btn-soft" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openEdit('${s.name}')" title="Edit Type">✎</button>
                         </div>
                       </div>`; 
             }); 
@@ -1288,15 +1349,7 @@
         fill("list-personal", buckets["Personal"], "Personal");
     }
 
-    async function loadStudents() {
-        const r = await fetchAPI(null, { action: "getAllStudents" }); 
-        if(r.status === "error") {
-            showToast("Failed to load students.", "error");
-            return;
-        }
-        
-        APP_STATE.students = (r.students || []).sort((a, b) => a.name.localeCompare(b.name));
-        
+    function populateStudentDropdowns() {
         const delSel = document.getElementById("student-delete-select");
         const schSel = document.getElementById("schedule-student-select");
         const crmSel = document.getElementById("crm-student-select");
@@ -1313,19 +1366,10 @@
             histOpts += o;
         });
         
-        delSel.innerHTML = opts; 
-        schSel.innerHTML = opts; 
-        crmSel.innerHTML = optsDisabled; 
-        obSel.innerHTML = optsDisabled;
-        if(document.getElementById("historyStudentFilter")) {
-            document.getElementById("historyStudentFilter").innerHTML = histOpts;
-        }
-        
-        document.getElementById("stats-total-students").textContent = APP_STATE.students.length;
-        document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`;
-        
-        renderStudents(); 
-        window.updateSmartBarText(); 
+        if(delSel) delSel.innerHTML = opts; 
+        if(schSel) schSel.innerHTML = opts; 
+        if(crmSel) crmSel.innerHTML = optsDisabled; 
+        if(obSel) obSel.innerHTML = optsDisabled;
         
         const pillsContainer = document.getElementById("ai-student-pills");
         if (pillsContainer) {
@@ -1336,11 +1380,26 @@
             pillsContainer.innerHTML = pillsHtml;
         }
 
-        if (document.getElementById("bulkRowsContainer").innerHTML.trim() !== "") { 
-            window.resetBulkScheduler(); 
-        } else { 
+        if (document.getElementById("bulkRowsContainer") && document.getElementById("bulkRowsContainer").innerHTML.trim() === "") { 
             window.resetBulkScheduler(); 
         }
+    }
+
+    async function loadStudents() {
+        const r = await fetchAPI(null, { action: "getAllStudents" }); 
+        if(r.status === "error") {
+            showToast("Failed to load students.", "error");
+            return;
+        }
+        
+        APP_STATE.students = (r.students || []).sort((a, b) => a.name.localeCompare(b.name));
+        populateStudentDropdowns();
+        
+        document.getElementById("stats-total-students").textContent = APP_STATE.students.length;
+        document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`;
+        
+        renderStudents(); 
+        window.updateSmartBarText(); 
     }
 
     async function fetchToday(force=false) { 
@@ -1387,29 +1446,31 @@
         }
         
         const s = document.getElementById("weekly-strip"); 
-        s.innerHTML = ""; 
-        const base = new Date(APP_STATE.todayDate); 
-        base.setDate(base.getDate() - (base.getDay()+6)%7);
-        
-        for(let i=0; i<7; i++) { 
-            const d = new Date(base); 
-            d.setDate(base.getDate()+i); 
-            const iso = d.toISOString().split('T')[0]; 
-            let count = (APP_STATE.weeklySummary||{})[iso]; 
-            if(iso === date) count = activeClasses.length; 
+        if(s) {
+            s.innerHTML = ""; 
+            const base = new Date(APP_STATE.todayDate); 
+            base.setDate(base.getDate() - (base.getDay()+6)%7);
             
-            const div = document.createElement("div"); 
-            div.className = "weekly-day"; 
-            if(iso === APP_STATE.todayDate) div.classList.add("today"); 
-            if(count > 0) div.classList.add("has-classes"); 
-            div.innerHTML = `${d.toLocaleDateString("en-GB",{weekday:"short"})}<br>${count||'-'}`; 
-            
-            div.onclick = () => { 
-                document.getElementById("view-date").value = iso; 
-                window.showMainSection('classes'); 
-                window.renderClassesForDate(iso); 
-            }; 
-            s.appendChild(div); 
+            for(let i=0; i<7; i++) { 
+                const d = new Date(base); 
+                d.setDate(base.getDate()+i); 
+                const iso = d.toISOString().split('T')[0]; 
+                let count = (APP_STATE.weeklySummary||{})[iso]; 
+                if(iso === date) count = activeClasses.length; 
+                
+                const div = document.createElement("div"); 
+                div.className = "weekly-day"; 
+                if(iso === APP_STATE.todayDate) div.classList.add("today"); 
+                if(count > 0) div.classList.add("has-classes"); 
+                div.innerHTML = `${d.toLocaleDateString("en-GB",{weekday:"short"})}<br>${count||'-'}`; 
+                
+                div.onclick = () => { 
+                    document.getElementById("view-date").value = iso; 
+                    window.showMainSection('classes'); 
+                    window.renderClassesForDate(iso); 
+                }; 
+                s.appendChild(div); 
+            }
         }
     }
 
@@ -1809,23 +1870,6 @@
         }
     };
 
-    window.openEdit = (name, type) => { 
-        document.getElementById("editStudentNameDisplay").textContent = name; 
-        document.getElementById("editStudentTypeSelect").value = type; 
-        document.getElementById("editStudentModal").classList.add("show"); 
-        
-        document.getElementById("editStudentSaveBtn").onclick = async () => { 
-            const nt = document.getElementById("editStudentTypeSelect").value; 
-            const btn = document.getElementById("editStudentSaveBtn"); 
-            btn.textContent = "Saving..."; 
-            await fetchAPI(null, { action: "updateStudentType", StudentName: name, NewType: nt }); 
-            btn.textContent = "Save Changes"; 
-            document.getElementById("editStudentModal").classList.remove("show"); 
-            showToast("Updated"); 
-            await window.loadStudents(); 
-        }; 
-    };
-    
     let currentRenameOldName = "";
     window.promptRenameStudent = (oldName) => {
         currentRenameOldName = oldName;
@@ -1857,30 +1901,6 @@
                 window.fetchToday();
             });
         };
-    };
-
-    window.executeAddStudent = async () => { 
-        const nameInput = document.getElementById("student-name-input"); 
-        const name = nameInput.value.trim(); 
-        const type = document.querySelector("input[name='studentType']:checked").value; 
-        
-        if(!name) return showToast("Enter name", "error"); 
-
-        const isDuplicate = APP_STATE.students.some(s => s.name.toLowerCase() === name.toLowerCase());
-        if(isDuplicate) {
-            const proceed = confirm(`A student named "${name}" already exists. Create duplicate?`);
-            if(!proceed) return;
-        }
-        
-        document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--primary);">Adding...</div>'; 
-        await fetchAPI(null, { action: "addStudent", StudentName: name, Type: type }); 
-        
-        document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--accent);">Added Successfully</div>'; 
-        await window.loadStudents(); 
-        
-        nameInput.value = ""; 
-        document.querySelector("input[name='studentType'][value='PS']").checked = true;
-        setTimeout(() => document.getElementById("manage-students-msg").innerHTML = "", 3000);
     };
 
     window.executeDeleteStudent = () => { 
@@ -1994,50 +2014,6 @@
         window.fetchToday(true); 
     };
 
-    window.openHistoryReport = () => {
-        document.getElementById("historyModal").classList.add("show");
-        document.getElementById("historyResult").style.display = "none";
-        
-        const d = new Date();
-        document.getElementById("historyStartDate").value = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
-        document.getElementById("historyEndDate").value = APP_STATE.todayDate;
-
-        document.getElementById("historyGenBtn").onclick = async () => {
-            const sd = document.getElementById("historyStartDate").value;
-            const ed = document.getElementById("historyEndDate").value;
-            const sf = document.getElementById("historyStudentFilter").value;
-            const tf = document.getElementById("historyTypeFilter").value;
-
-            if(!sd || !ed) return showToast("Select date range.", "error");
-
-            const btn = document.getElementById("historyGenBtn");
-            btn.disabled = true;
-            btn.textContent = "Crunching Data...";
-
-            try {
-                const r = await fetchAPI(null, { action: "getHistoryReport", startDate: sd, endDate: ed, studentFilter: sf, typeFilter: tf });
-                if(r.status === "error") throw new Error(r.message);
-
-                document.getElementById("histTotalClasses").textContent = r.totalClasses;
-                document.getElementById("histEarnings").textContent = "₹" + (r.earnings||0).toLocaleString('en-IN');
-
-                const tb = document.getElementById("histTableBody");
-                tb.innerHTML = "";
-                const s = Object.entries(r.breakdown||{}).sort((a,b)=>b[1]-a[1]);
-
-                if(!s.length) tb.innerHTML = "<tr><td colspan='2' style='text-align:center; padding:10px;'>No classes found for this filter.</td></tr>";
-                else s.forEach(([n,c]) => tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 4px;">${n}</td><td style="padding:8px 4px; font-weight:700;">${c}</td></tr>`);
-
-                document.getElementById("historyResult").style.display = "block";
-            } catch(e) {
-                showToast(e.message || "Failed to fetch report", "error");
-            } finally {
-                btn.disabled = false;
-                btn.textContent = "Generate Report";
-            }
-        };
-    };
-
     /* --- ANALYTICS ENGINE --- */
     window.loadEarnings = async () => { 
         try {
@@ -2128,110 +2104,6 @@
         } catch(e) {} finally { APP_STATE.isAnalyticsLoading = false; }
     };
 
-    window.renderAvailabilityFeed = async () => {
-        const list = document.getElementById("avail-feed-list"); if(!list) return; 
-        list.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8;">Calculating slots...</div>';
-        
-        const feedData = []; const today = new Date();
-        for(let i=0; i<7; i++) {
-            const d = new Date(today); d.setDate(today.getDate() + i); 
-            const dateStr = d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-            const isToday = (dateStr === APP_STATE.todayDate); 
-            let currentHour = -1; 
-            
-            if(isToday) { 
-                const now = new Date(); 
-                const ist = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); 
-                currentHour = ist.getHours(); 
-            }
-            
-            const r = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr }); 
-            if(r.status === "error") continue;
-            
-            const classes = r.classes || [];
-            const isWednesday = d.getDay() === 3;
-            const validClasses = classes.filter(c => c.Status !== "Deleted");
-            
-            if (validClasses.length > 0 && validClasses.every(c => c.Status === "Cancelled")) { 
-                feedData.push({ date: d, status: 'cancelled' }); continue; 
-            }
-            if (isWednesday && validClasses.filter(c => c.Status !== "Cancelled").length === 0) { 
-                feedData.push({ date: d, status: 'off' }); continue; 
-            }
-
-            let slots = []; 
-            for(let h=9; h<22; h++) slots.push({ h: h, status: (isToday && h <= currentHour) ? 'expired' : 'free' });
-            
-            classes.forEach(c => { 
-                let st = String(c.StartTime || "00:00").trim(); 
-                let parts = st.split(':'); 
-                let hh = parseInt(parts[0]) || 0;
-                slots.forEach(slot => { 
-                    if (slot.h === hh) { 
-                        if(BLOCKED_STATUSES.includes(c.Status)) slot.status = 'busy'; 
-                        else if(["Paused", "Absent", "System Glitch"].includes(c.Status) && slot.status !== 'expired' && slot.status !== 'busy') slot.status = 'temp'; 
-                    } 
-                }); 
-            });
-            
-            const avail = slots.filter(s => s.status !== 'busy'); 
-            if(avail.length > 0) feedData.push({ date: d, slots: avail, status: 'active' });
-        }
-        
-        list.innerHTML = ""; 
-        if(feedData.length === 0) { list.innerHTML = '<div style="padding:10px;text-align:center;">No slots available</div>'; return; }
-        
-        feedData.forEach(day => { 
-            const dateFmt = day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); 
-            let pills = ""; 
-            if (day.status === 'cancelled') { pills = `<div class="slot-pill slot-red">🏝️ All Cancelled</div>`; } 
-            else if (day.status === 'off') { pills = `<div class="slot-pill slot-grey">🏖️ Weekly Off</div>`; } 
-            else { day.slots.forEach(s => pills += `<div class="slot-pill ${s.status === 'expired' ? 'slot-red' : s.status === 'temp' ? 'slot-yellow' : 'slot-green'}">${s.h%12||12} ${s.h<12?'AM':'PM'}</div>`); }
-            list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span>${dateFmt}</span><button class="copy-icon-btn" onclick="window.copySingleDay('${dateFmt}')">📋</button></div><div class="avail-slots">${pills}</div></div>`; 
-        }); 
-        APP_STATE.feedData = feedData;
-    };
-
-    window.copyAvailabilityWeek = () => { 
-        if(!APP_STATE.feedData) return; 
-        let text = `📅 *Availability (${APP_STATE.feedData[0].date.toLocaleDateString('en-US', {month:'short', day:'numeric'})} - ${APP_STATE.feedData[APP_STATE.feedData.length-1].date.toLocaleDateString('en-US', {month:'short', day:'numeric'})})*\n\n`; 
-        APP_STATE.feedData.forEach(day => { 
-            let dayText = `*${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}*\n`; 
-            if (day.status === 'cancelled') { text += dayText + `🏝️ Fully Booked / Cancelled\n\n`; return; }
-            if (day.status === 'off') { text += dayText + `🏖️ Scheduled Weekly Off\n\n`; return; }
-            
-            let hasSlots = false; 
-            day.slots.forEach(s => { 
-                if(s.status === 'expired') return; 
-                hasSlots = true; 
-                const t1 = `${s.h%12||12}:00 ${s.h<12?'AM':'PM'}`, t2 = `${(s.h+1)%12||12}:00 ${s.h+1<12?'AM':'PM'}`; 
-                dayText += `${s.status === 'temp' ? '🟡' : '🟢'} ${t1} - ${t2}${s.status === 'temp' ? ' (Temporarily Available)' : ''}\n`; 
-            }); 
-            if (hasSlots) text += dayText + `\n`; 
-        }); 
-        text += `\nBest regards,\nSenorita`; navigator.clipboard.writeText(text); showToast("Weekly availability copied!"); 
-    };
-
-    window.copySingleDay = (dateFmt) => { 
-        if(!APP_STATE.feedData) return; 
-        const dayData = APP_STATE.feedData.find(d => d.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) === dateFmt); 
-        if(!dayData) return showToast("Data not found", "error"); 
-        let text = `📅 *Availability for ${dayData.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}*\n\n`; 
-        
-        if (dayData.status === 'cancelled') { text += `🏝️ Fully Booked / Cancelled\n\nBest regards,\nSenorita`; navigator.clipboard.writeText(text); return showToast("Day availability copied!"); }
-        if (dayData.status === 'off') { text += `🏖️ Scheduled Weekly Off\n\nBest regards,\nSenorita`; navigator.clipboard.writeText(text); return showToast("Day availability copied!"); }
-
-        let hasSlots = false; 
-        dayData.slots.forEach(s => { 
-            if(s.status === 'expired') return; 
-            hasSlots = true; 
-            const t1 = `${s.h%12||12}:00 ${s.h<12?'AM':'PM'}`, t2 = `${(s.h+1)%12||12}:00 ${s.h+1<12?'AM':'PM'}`; 
-            text += `${s.status === 'temp' ? '🟡' : '🟢'} ${t1} - ${t2}${s.status === 'temp' ? ' (Temporarily Available)' : ''}\n`; 
-        }); 
-        if(!hasSlots) return showToast("No upcoming slots.", "error"); 
-        text += `\n\nBest regards,\nSenorita`; navigator.clipboard.writeText(text); showToast("Day availability copied!"); 
-    };
-
     /* --- SMART BULLETIN LOGIC --- */
     window.openSmartBulletin = () => { 
         document.getElementById("smartBulletinModal").classList.add("show"); 
@@ -2282,7 +2154,7 @@
 
     window.convertTrial = async (name, newType) => { 
         document.getElementById("sb-scout-list").innerHTML = `<div style="text-align:center; padding:20px; color:var(--primary);">Converting ${name}...</div>`; 
-        await fetchAPI(null, { action: "updateStudentType", StudentName: name, NewType: newType }); 
+        await fetchAPI(null, { action: "updateStudentData", StudentName: name, NewType: newType }); 
         showToast(`${name} converted to ${newType}!`); 
         await window.loadStudents(); 
         window.renderTrialScout(); 
@@ -2603,37 +2475,7 @@
         btn.disabled = false; btn.textContent = "💾 Save to History";
     };
 
-    /* --- ONBOARDING RESET LOGIC --- */
-    window.clearOnboarding = () => {
-        const sel = document.getElementById("onboard-student-select"); if(sel) sel.value = "";
-        const typeSel = document.getElementById("onboard-type-select"); if(typeSel) typeSel.value = "new";
-        const out = document.getElementById("onboardOutput"); if(out) out.value = "";
-        const area = document.getElementById("onboard-output-area"); if(area) area.style.display = "none";
-    };
-
-    window.generateOnboarding = () => {
-        const name = document.getElementById("onboard-student-select").value;
-        const type = document.getElementById("onboard-type-select").value;
-        if(!name) return showToast("Select a student", "error");
-        
-        let msg = "";
-        if (type === "new") {
-            msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`;
-        } else {
-            msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Last-minute cancellations are strictly reserved for genuine medical emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show."\n🛑 *90-Day Inactivity:* Students who pause or remain inactive for over 90 days without prior formal agreement will have their ongoing enrollment closed to accommodate the waitlist.\n💻 *Tech Readiness:* Please ensure the student joins via a laptop or PC (preferably) and is seated in a quiet, distraction-free environment.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`;
-        }
-        
-        document.getElementById("onboardOutput").value = msg;
-        document.getElementById("onboard-output-area").style.display = "block";
-    };
-    
-    window.copyOnboarding = () => { 
-        navigator.clipboard.writeText(document.getElementById("onboardOutput").value); 
-        showToast("Onboarding packet copied!"); 
-        window.clearOnboarding();
-    };
-
-    /* --- AI SMART DRAFTER --- */
+    /* --- AI DRAFTER LOGIC --- */
     window.isAiDirty = () => { return document.getElementById("ai-draft-context").value.trim() !== "" || document.getElementById("ai-output-container").innerHTML.trim() !== ""; };
     window.triggerManualAiReset = () => { if(window.isAiDirty()) { showConfirm("Clear context and discard generated options?", () => { window.clearAiDrafter(); }); } else { window.clearAiDrafter(); } };
     window.handleAiTypeChange = (e) => {
@@ -2696,10 +2538,9 @@
             if (s) selected.push(s);
         });
 
-        // Add custom typed names
         const customNames = document.getElementById("ai-custom-names").value.split(',').map(n => n.trim()).filter(n => n);
         customNames.forEach(cn => {
-            selected.push({ name: cn, phone: "" }); // Minimal object for custom names
+            selected.push({ name: cn, phone: "" }); 
         });
 
         if (selected.length === 0) return showToast("No students selected.", "error");
@@ -2768,6 +2609,197 @@
         window.open(url, '_blank');
     };
 
+    window.copyAiOpt = (id) => { 
+        const el = document.getElementById(id); 
+        el.select(); 
+        navigator.clipboard.writeText(el.value); 
+        showToast("Copied to clipboard!"); 
+    };
+    
+    window.openAiDrafter = () => { 
+        window.showMainSection('drafter'); 
+        if (previousAiType !== 'parent') { document.querySelector('input[name="draftType"][value="parent"]').click(); } 
+        document.getElementById('ai-draft-context').focus(); 
+        window.scrollTo(0,0); 
+    };
+
+    /* --- TABS & INIT --- */
+    window.showMainSection = (sec) => { 
+        document.querySelectorAll(".main-tab-btn").forEach(b => b.classList.toggle("active", b.getAttribute("onclick").includes(sec))); 
+        document.querySelectorAll(".section").forEach(s => s.classList.toggle("show", s.id === `section-${sec}`)); 
+        if (sec !== 'onboarding') window.clearOnboarding();
+        if (sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML.trim() === "") { window.resetBulkScheduler(); } 
+    };
+
+    window.clearOnboarding = () => {
+        const sel = document.getElementById("onboard-student-select"); if(sel) sel.value = "";
+        const typeSel = document.getElementById("onboard-type-select"); if(typeSel) typeSel.value = "new";
+        const out = document.getElementById("onboardOutput"); if(out) out.value = "";
+        const area = document.getElementById("onboard-output-area"); if(area) area.style.display = "none";
+    };
+
+    window.copyOnboarding = () => { 
+        navigator.clipboard.writeText(document.getElementById("onboardOutput").value); 
+        showToast("Onboarding packet copied!"); 
+        window.clearOnboarding();
+    };
+
+    window.generateOnboarding = () => {
+        const name = document.getElementById("onboard-student-select").value;
+        const packetType = document.getElementById("onboard-type-select").value; 
+        if(!name) return showToast("Select a student", "error");
+        
+        const sObj = APP_STATE.students.find(s => s.name === name);
+        const isPersonal = sObj && sObj.type === "Personal";
+
+        let msg = "";
+        if (isPersonal) {
+            if (packetType === "new") {
+                msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package of classes. An automated progress update will be sent as the package nears completion to ensure seamless renewal.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show" and is consumed from the package.\n\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`;
+            } else {
+                msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package. Automated updates will be sent as the package nears completion.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show" and is consumed from the package.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`;
+            }
+        } else {
+            if (packetType === "new") {
+                msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`;
+            } else {
+                msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Last-minute cancellations are strictly reserved for genuine medical emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show."\n🛑 *90-Day Inactivity:* Students who pause or remain inactive for over 90 days without prior formal agreement will have their ongoing enrollment closed to accommodate the waitlist.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`;
+            }
+        }
+        
+        document.getElementById("onboardOutput").value = msg;
+        document.getElementById("onboard-output-area").style.display = "block";
+    };
+
+    /* --- SMART TIMEBLOCKS FEED --- */
+    window.renderAvailabilityFeed = async () => {
+        const list = document.getElementById("avail-feed-list");
+        if(!list) return;
+        list.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8;">Calculating slots...</div>';
+        
+        const feedData = []; const today = new Date();
+        for(let i=0; i<7; i++) {
+            const d = new Date(today); d.setDate(today.getDate() + i); 
+            const dateStr = d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+            const isToday = (dateStr === APP_STATE.todayDate); 
+            let currentHour = -1; if(isToday) currentHour = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})).getHours();
+            
+            const r = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr }); 
+            if(r.status === "error") continue;
+            
+            const classes = r.classes || [];
+            const isWednesday = d.getDay() === 3;
+            const validClasses = classes.filter(c => c.Status !== "Deleted");
+
+            // V108: Handle Full Day Bypasses
+            if (validClasses.length > 0 && validClasses.every(c => c.Status === "Cancelled")) {
+                feedData.push({ date: d, status: 'cancelled' }); continue;
+            }
+            if (isWednesday && validClasses.filter(c => c.Status !== "Cancelled").length === 0) {
+                feedData.push({ date: d, status: 'off' }); continue;
+            }
+
+            let slots = []; 
+            for(let h=9; h<22; h++) slots.push({ h: h, status: (isToday && h <= currentHour) ? 'expired' : 'free' });
+            
+            classes.forEach(c => { 
+                let st = String(c.StartTime || "00:00").trim();
+                let parts = st.split(':');
+                let hh = parseInt(parts[0]) || 0;
+                slots.forEach(slot => { 
+                    if (slot.h === hh) {
+                        if(BLOCKED_STATUSES.includes(c.Status)) slot.status = 'busy';
+                        else if(["Paused", "Absent", "System Glitch"].includes(c.Status) && slot.status !== 'expired' && slot.status !== 'busy') slot.status = 'temp';
+                    }
+                }); 
+            });
+            const avail = slots.filter(s => s.status !== 'busy'); 
+            if(avail.length > 0) feedData.push({ date: d, slots: avail, status: 'active' });
+        }
+        
+        list.innerHTML = ""; 
+        if(feedData.length === 0) { list.innerHTML = '<div style="padding:10px;text-align:center;">No slots available</div>'; return; }
+        
+        feedData.forEach(day => { 
+            const dateFmt = day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); 
+            
+            if (day.status === 'cancelled') {
+                list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${dateFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${dateFmt}')">📋</button></div><div><div class="slot-pill slot-red">🏝️ All Cancelled</div></div></div>`;
+                return;
+            }
+            if (day.status === 'off') {
+                list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${dateFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${dateFmt}')">📋</button></div><div><div class="slot-pill slot-grey">🏖️ Weekly Off</div></div></div>`;
+                return;
+            }
+
+            let morn="", aft="", eve="";
+            let hasMorn=false, hasAft=false, hasEve=false;
+            day.slots.forEach(s => {
+                let pill = `<div class="slot-pill ${s.status === 'expired' ? 'slot-red' : s.status === 'temp' ? 'slot-yellow' : 'slot-green'}">${s.h%12||12} ${s.h<12?'AM':'PM'}</div>`;
+                if(s.h < 12) { morn += pill; hasMorn=true; } else if(s.h < 17) { aft += pill; hasAft=true; } else { eve += pill; hasEve=true; }
+            });
+
+            let blocksHtml = "";
+            if(hasMorn) blocksHtml += `<div style="margin-bottom:6px;"><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:65px; font-weight:600;">🌅 Morning</span> ${morn}</div>`;
+            if(hasAft) blocksHtml += `<div style="margin-bottom:6px;"><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:65px; font-weight:600;">☀️ Afternoon</span> ${aft}</div>`;
+            if(hasEve) blocksHtml += `<div><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:65px; font-weight:600;">🌙 Evening</span> ${eve}</div>`;
+
+            list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${dateFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${dateFmt}')">📋</button></div><div>${blocksHtml}</div></div>`; 
+        }); 
+        APP_STATE.feedData = feedData;
+    };
+
+    window.openSmartCopyModal = (target = 'week') => {
+        document.getElementById("scDateTarget").value = target;
+        document.getElementById("smartCopyModal").classList.add("show");
+    };
+
+    window.executeSmartCopy = () => {
+        const target = document.getElementById("scDateTarget").value;
+        const incMorn = document.getElementById("scMorn").checked;
+        const incAft = document.getElementById("scAft").checked;
+        const incEve = document.getElementById("scEve").checked;
+        
+        let text = "";
+        let daysToProcess = target === 'week' ? APP_STATE.feedData : APP_STATE.feedData.filter(d => d.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) === target);
+        
+        if(target === 'week') text += `📅 *Availability Options*\n\n`;
+        
+        daysToProcess.forEach(day => {
+            let dayText = `*${day.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}*\n`;
+            
+            if (day.status === 'cancelled') {
+                text += dayText + `🏝️ Fully Booked / Cancelled\n\n`;
+                return;
+            }
+            if (day.status === 'off') {
+                text += dayText + `🏖️ Scheduled Weekly Off\n\n`;
+                return;
+            }
+
+            let addedSlots = false;
+            day.slots.forEach(s => {
+                if(s.status === 'expired') return;
+                if((s.h < 12 && incMorn) || (s.h >= 12 && s.h < 17 && incAft) || (s.h >= 17 && incEve)) {
+                    const t1 = `${s.h%12||12}:00 ${s.h<12?'AM':'PM'}`, t2 = `${(s.h+1)%12||12}:00 ${s.h+1<12?'AM':'PM'}`; 
+                    dayText += `${s.status === 'temp' ? '🟡' : '🟢'} ${t1} - ${t2}${s.status === 'temp' ? ' (Temporarily Available)' : ''}\n`;
+                    addedSlots = true;
+                }
+            });
+            if(addedSlots) text += dayText + `\n`;
+        });
+
+        if(!text.trim() || text === `📅 *Availability Options*\n\n`) {
+            return showToast("No slots found for this filter.", "error");
+        }
+
+        text += `Let me know which slot works best.\n\nBest regards,\nSenorita`;
+        navigator.clipboard.writeText(text.trim());
+        document.getElementById("smartCopyModal").classList.remove("show");
+        showToast("Filtered Availability Copied!");
+    };
+
+    /* --- VISION MULTI-UPLOAD & DRAFTER --- */
     window.generateAIDraft = async () => {
         const type = document.querySelector('input[name="draftType"]:checked').value;
         const btn = document.getElementById("btn-generate-draft"); 
@@ -2776,38 +2808,62 @@
             const fileInput = document.getElementById("ai-vision-file");
             const instructions = document.getElementById("ai-vision-instructions").value.trim();
 
-            if (!fileInput.files.length) return showToast("Please upload an image.", "error");
+            if (!fileInput.files.length) return showToast("Please upload at least one image.", "error");
             if (!instructions) return showToast("Please enter correction instructions.", "error");
 
-            btn.disabled = true; btn.textContent = "📸 Analyzing Image...";
+            btn.disabled = true; btn.textContent = "📸 Analyzing Images...";
 
-            const file = fileInput.files[0];
-            const reader = new FileReader();
+            const readImage = (file) => new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
             
-            reader.onloadend = async () => {
-                const base64String = reader.result;
-                try {
-                    const r = await fetchAPI(null, { action: "enhanceStudentDraft", base64Image: base64String, instructions: instructions });
-                    if (r.status === "error") throw new Error(r.message);
+            const base64Array = await Promise.all(Array.from(fileInput.files).map(readImage));
 
-                    let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Enhanced Student Draft</label>
-                    <div style="background: #f8fafc; border-radius:10px; padding:16px; border: 1px solid #cbd5e1;">
-                        <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
-                            <button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('ai-opt-vision')">📋 Copy Draft</button>
-                        </div>
-                        <textarea id="ai-opt-vision" readonly style="width:100%; min-height:200px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${r.draft}</textarea>
-                    </div>`;
+            try {
+                const r = await fetchAPI(null, { action: "enhanceStudentDraft", base64Images: base64Array, instructions: instructions });
+                if (r.status === "error") throw new Error(r.message);
 
-                    document.getElementById("ai-output-container").innerHTML = html;
-                    document.getElementById("ai-output-container").style.display = "flex";
-                    document.getElementById("ai-output-container").scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } catch(e) { showToast(e.message || "Failed to process image.", "error"); } 
-                finally { btn.disabled = false; btn.textContent = "✨ Generate Options"; }
-            };
-            reader.readAsDataURL(file);
+                let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Creative Rewrite</label>
+                <div style="background: #f8fafc; border-radius:10px; padding:16px; border: 1px solid #cbd5e1;">
+                    <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+                        <button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('ai-opt-vision')">📋 Copy Draft</button>
+                    </div>
+                    <textarea id="ai-opt-vision" readonly style="width:100%; min-height:200px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical;">${r.draft}</textarea>
+                </div>`;
+                document.getElementById("ai-output-container").innerHTML = html;
+                document.getElementById("ai-output-container").style.display = "flex";
+                document.getElementById("ai-output-container").scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch(e) { showToast("Failed to process images.", "error"); } 
+            finally { btn.disabled = false; btn.textContent = "✨ Generate AI"; }
             return;
         }
 
+        const context = document.getElementById("ai-draft-context").value.trim();
+        let platform = ""; let occasion = ""; let recipientRole = "Parent";
+        let studentNames = [];
+        
+        if (type === "ticket") {
+            platform = document.querySelector('input[name="ticketPlatform"]:checked').value;
+        } else if (type === "parent" || type === "greeting") {
+            document.querySelectorAll('#ai-student-pills .pill-checkbox:checked').forEach(cb => studentNames.push(cb.value));
+            const customNames = document.getElementById("ai-custom-names").value.split(',').map(n => n.trim()).filter(n => n);
+            studentNames = studentNames.concat(customNames);
+            
+            if (type === "parent") {
+                let roleBase = document.querySelector('input[name="aiRecipientRole"]:checked').value;
+                let specName = document.getElementById("ai-recipient-name").value.trim();
+                recipientRole = specName ? specName : roleBase;
+            } else if (type === "greeting") {
+                occasion = document.getElementById("ai-greet-occasion").value.trim(); 
+                if(!occasion) return showToast("Enter an Occasion.", "error"); 
+                if(studentNames.length === 0) return showToast("Select or type at least one Target Name.", "error");
+            }
+        }
+
+        if (!context && type !== 'greeting' && type !== 'forge') return showToast("Please enter some raw notes first.", "error");
+        
         if (type === "forge") {
             const topic = document.getElementById("ai-forge-topic").value.trim();
             const grade = document.getElementById("ai-forge-grade").value.trim();
@@ -2838,30 +2894,6 @@
             finally { btn.disabled = false; btn.textContent = "✨ Generate Options"; }
             return;
         }
-
-        const context = document.getElementById("ai-draft-context").value.trim();
-        let platform = ""; let occasion = ""; let recipientRole = "Parent";
-        let studentNames = [];
-        
-        if (type === "ticket") {
-            platform = document.querySelector('input[name="ticketPlatform"]:checked').value;
-        } else if (type === "parent" || type === "greeting") {
-            document.querySelectorAll('#ai-student-pills .pill-checkbox:checked').forEach(cb => studentNames.push(cb.value));
-            const customNames = document.getElementById("ai-custom-names").value.split(',').map(n => n.trim()).filter(n => n);
-            studentNames = studentNames.concat(customNames);
-            
-            if (type === "parent") {
-                let roleBase = document.querySelector('input[name="aiRecipientRole"]:checked').value;
-                let specName = document.getElementById("ai-recipient-name").value.trim();
-                recipientRole = specName ? specName : roleBase;
-            } else if (type === "greeting") {
-                occasion = document.getElementById("ai-greet-occasion").value.trim(); 
-                if(!occasion) return showToast("Enter an Occasion.", "error"); 
-                if(studentNames.length === 0) return showToast("Select or type at least one Target Name.", "error");
-            }
-        }
-
-        if (!context && type !== 'greeting') return showToast("Please enter some raw notes first.", "error");
         
         btn.disabled = true; btn.textContent = "✨ Generating Options...";
 
@@ -2918,37 +2950,18 @@
             btn.disabled = false; btn.textContent = "✨ Generate AI Options"; 
         }
     };
-    
-    window.copyAiOpt = (id) => { 
-        const el = document.getElementById(id); 
-        el.select(); 
-        navigator.clipboard.writeText(el.value); 
-        showToast("Copied to clipboard!"); 
-    };
-    
-    window.openAiDrafter = () => { 
-        window.showMainSection('drafter'); 
-        if (previousAiType !== 'parent') { document.querySelector('input[name="draftType"][value="parent"]').click(); } 
-        document.getElementById('ai-draft-context').focus(); 
-        window.scrollTo(0,0); 
-    };
 
-    /* --- TABS & INIT --- */
-    window.showMainSection = (sec) => { 
-        document.querySelectorAll(".main-tab-btn").forEach(b => b.classList.toggle("active", b.getAttribute("onclick").includes(sec))); 
-        document.querySelectorAll(".section").forEach(s => s.classList.toggle("show", s.id === `section-${sec}`)); 
-        if (sec !== 'onboarding') window.clearOnboarding();
-        if (sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML.trim() === "") { window.resetBulkScheduler(); } 
-    };
-
+    /* --- INITIALIZATION --- */
     async function runBootSequence() {
+        let bootSuccess = false;
         APP_STATE.todayDate = getCurrentISTDateString(); 
         document.getElementById("view-date").value = APP_STATE.todayDate; 
         document.getElementById("schedule-date").value = APP_STATE.todayDate; 
         document.getElementById("bulkDate").value = APP_STATE.todayDate; 
         document.getElementById("conv-student-date").value = APP_STATE.todayDate;
+        document.getElementById("historyStartDate").value = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+        document.getElementById("historyEndDate").value = APP_STATE.todayDate;
         
-        // Initialize Custom Timezones Datalist
         try {
             const tzs = Intl.supportedValuesOf('timeZone');
             const list = document.getElementById("tz-list");
@@ -2960,10 +2973,51 @@
 
         initClocks(); 
 
-        try { await window.loadStudents(); } catch(e) {}
-        try { await window.fetchToday(true); window.renderClassesForDate(APP_STATE.todayDate); } catch(e) {}
-        try { await window.loadEarnings(); } catch(e) {}
+        const d = new Date(APP_STATE.todayDate); 
+        d.setDate(d.getDate() - (d.getDay()+6)%7); 
+        const isoWeekStart = d.toISOString().split('T')[0];
 
+        try {
+            const bootData = await fetchAPI(null, { action: "bootApp", todayDate: APP_STATE.todayDate, startDate: isoWeekStart });
+            
+            if (bootData.status !== "error") {
+                APP_STATE.studyMaterialLink = bootData.studyMaterialLink || "";
+                
+                if (bootData.studentsRes && bootData.studentsRes.students) {
+                    APP_STATE.students = bootData.studentsRes.students.sort((a,b) => a.name.localeCompare(b.name));
+                    populateStudentDropdowns(); 
+                    renderStudents();
+                    document.getElementById("stats-total-students").textContent = APP_STATE.students.length;
+                    document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`;
+                }
+
+                if (bootData.classesRes && bootData.classesRes.classes) {
+                    APP_STATE.cache[APP_STATE.todayDate] = bootData.classesRes.classes;
+                }
+
+                if (bootData.weekRes && bootData.weekRes.summary) {
+                    APP_STATE.weeklySummary = bootData.weekRes.summary;
+                }
+
+                updateStats(APP_STATE.todayDate, APP_STATE.cache[APP_STATE.todayDate] || []);
+                window.renderClassesForDate(APP_STATE.todayDate, false, APP_STATE.cache[APP_STATE.todayDate] || []);
+
+                if (bootData.earningsRes) {
+                    document.getElementById("stats-earnings-main").textContent = "₹" + (bootData.earningsRes.earnings||0).toLocaleString('en-IN');
+                    document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.cmCount || 0} CM | ${bootData.earningsRes.personalCount || 0} Personal`;
+                }
+                bootSuccess = true;
+            }
+        } catch(e) {}
+
+        if (!bootSuccess) {
+            try { await window.loadStudents(); } catch(err) {}
+            try { await window.fetchToday(true); window.renderClassesForDate(APP_STATE.todayDate); } catch(err) {}
+            try { await window.loadEarnings(); } catch(err) {}
+        }
+        
+        // This explicitly guarantees the feed renders regardless of any previous API boot failures.
+        window.renderAvailabilityFeed();
         setTimeout(() => { try { window.loadAnalytics(true); } catch(e) {} }, 1000);
     }
     
