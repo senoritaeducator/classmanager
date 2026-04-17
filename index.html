@@ -355,8 +355,9 @@
                         </div>
                         
                         <div id="add-personal-fields" style="display:none; gap:10px; margin-bottom:16px;">
-                            <input type="number" id="add-pkg-total" placeholder="Package Size (e.g. 15)" style="flex:1;">
-                            <input type="number" id="add-custom-price" placeholder="Custom Price (Optional)" style="flex:1;">
+                            <input type="number" id="add-pkg-total" placeholder="Pkg Size (e.g. 15)" style="flex:1;">
+                            <input type="number" id="add-pending-balance" placeholder="Pending Bal (₹)" style="flex:1;">
+                            <input type="number" id="add-custom-price" placeholder="Custom Price" style="flex:1;">
                         </div>
 
                         <button id="add-student-btn" class="btn btn-primary btn-block" onclick="window.executeAddStudent()">Add Student</button>
@@ -405,6 +406,7 @@
                             <label class="radio-label"><input type="radio" name="crmAction" value="demoFeedback" onchange="window.handleCrmActionChange(event)"> Demo Feedback</label>
                             <label class="radio-label"><input type="radio" name="crmAction" value="ptmPost" onchange="window.handleCrmActionChange(event)"> Post-PTM Summary</label>
                             <label class="radio-label"><input type="radio" name="crmAction" value="ptmInvite" onchange="window.handleCrmActionChange(event)"> Schedule PTM</label>
+                            <label class="radio-label"><input type="radio" name="crmAction" value="receipt" onchange="window.handleCrmActionChange(event)"> 🧾 Payment Receipt</label>
                         </div>
 
                         <div class="form-group" style="margin-top: 15px;" id="crmToneGroup">
@@ -532,6 +534,22 @@
                                 <div class="card-column"><div class="form-group"><label>Time (IST)</label><input type="text" id="ptmInviteTime" placeholder="hh:mm AM/PM" onblur="if(window.normalizeUserTime) window.normalizeUserTime(this);"></div></div>
                             </div>
                             <button id="btn-crm-ptminvite" class="btn btn-outline btn-block" onclick="window.executePtmSchedule()">📅 Schedule Event & Generate Draft</button>
+                        </div>
+
+                        <div id="crm-view-receipt" style="display:none;">
+                            <div class="card-row">
+                                <div class="card-column"><div class="form-group"><label>Amount (₹)</label><input type="number" id="receiptAmount" placeholder="e.g. 7500"></div></div>
+                                <div class="card-column"><div class="form-group"><label>Payment Date</label><input type="date" id="receiptDate"></div></div>
+                            </div>
+                            <div class="card-row">
+                                <div class="card-column"><div class="form-group"><label>Plan Name</label><input type="text" id="receiptPlan" placeholder="e.g. 15 Days Plan"></div></div>
+                                <div class="card-column"><div class="form-group"><label>Classes Credited</label><input type="number" id="receiptClasses" placeholder="e.g. 15"></div></div>
+                            </div>
+                            <div class="card-row">
+                                <div class="card-column"><div class="form-group"><label>Start Date</label><input type="date" id="receiptStart"></div></div>
+                                <div class="card-column"><div class="form-group"><label>Next Due (Optional)</label><input type="text" id="receiptNextDue" placeholder="Date or 'NA'"></div></div>
+                            </div>
+                            <button id="btn-crm-receipt" class="btn btn-outline btn-block" onclick="window.generateCRMMessage('receipt')">✨ Generate Receipt Draft</button>
                         </div>
 
                         <div id="crm-output-area" style="margin-top:20px; display:none; padding-top:16px; border-top:2px dashed #e2e8f0;">
@@ -679,9 +697,9 @@
                         <select id="opsMonthSelect" style="border:1px solid #cbd5e1; border-radius:6px; padding:2px 6px; font-size:0.8rem; cursor:pointer; outline:none; background:#fff;" onchange="window.updateOpsChart(this.value)"></select>
                     </div>
                     <div class="chart-help" id="opsChartHelp">Status breakdown.</div>
-                    <div style="display:flex; gap:20px; align-items:center; height:100%;">
-                        <div class="chart-container" style="flex:2;" id="chartOpsContainer"><canvas id="chartOps"></canvas></div>
-                        <div id="opsLegend" style="flex:1; font-size:0.85rem; display:flex; flex-direction:column; gap:8px;"></div>
+                    <div style="display:flex; gap:20px; align-items:center; height:100%; flex-wrap:wrap;">
+                        <div class="chart-container" style="flex:2; min-width: 200px;" id="chartOpsContainer"><canvas id="chartOps"></canvas></div>
+                        <div id="opsLegend" style="flex:1; min-width: 0; font-size:0.85rem; display:flex; flex-direction:column; justify-content:center;"></div>
                     </div>
                 </div>
 
@@ -871,6 +889,7 @@
                 <button class="sb-tab-btn active" onclick="window.switchSbTab('scout')">🔍 Trial Scout</button>
                 <button class="sb-tab-btn" onclick="window.switchSbTab('fbAlerts')">💬 Feedback Due</button>
                 <button class="sb-tab-btn" onclick="window.switchSbTab('retention')">🛡️ At Risk</button>
+                <button class="sb-tab-btn" onclick="window.switchSbTab('packages')">📦 Renewals</button>
                 <button class="sb-tab-btn" onclick="window.switchSbTab('vacation')">✈️ Vacation</button>
             </div>
             <div class="modal-body" style="padding: 24px; background: #fff; min-height:300px; max-height:60vh;">
@@ -888,6 +907,14 @@
                         <button class="btn btn-soft btn-sm" onclick="window.runRiskScan(true)">🔄 Refresh AI Scan</button>
                     </div>
                     <div id="sb-retention-list"><div style="text-align:center; padding:20px; color:#94a3b8;">Scanning records...</div></div>
+                </div>
+
+                <div id="sb-packages" class="sb-content">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <span style="font-weight:700; color:var(--text-main);">Tranche Billing & Renewals</span>
+                        <button class="btn btn-soft btn-sm" onclick="window.renderPackageAlerts()">🔄 Scan</button>
+                    </div>
+                    <div id="sb-packages-list"><div style="text-align:center; padding:20px; color:#94a3b8;">Scanning records...</div></div>
                 </div>
 
                 <div id="sb-vacation" class="sb-content">
@@ -927,6 +954,7 @@
                 </div>
                 <div id="edit-personal-fields" style="display:none; gap:10px; margin-bottom:16px;">
                     <div style="flex:1;"><label>Package Size</label><input type="number" id="edit-pkg-total"></div>
+                    <div style="flex:1;"><label>Pending Bal (₹)</label><input type="number" id="edit-pending-balance"></div>
                     <div style="flex:1;"><label>Custom Price</label><input type="number" id="edit-custom-price"></div>
                 </div>
                 <div style="margin-top:10px; border-top:1px solid #e2e8f0; padding-top:15px;">
@@ -1212,7 +1240,7 @@
         let hh=parseInt(h); 
         const ap=hh>=12?'PM':'AM'; 
         hh=hh%12||12; 
-        return `${hh}:${m} ${ap}`; 
+        return `${String(hh).padStart(2, '0')}:${m} ${ap}`; 
     }
     
     function parseUserTimeTo24(t) { 
@@ -1233,7 +1261,7 @@
         let ap=h>=12?"PM":"AM"; 
         if(h>12) h-=12; 
         if(h===0) h=12; 
-        return `${h}:${String(mm).padStart(2,'0')} ${ap}`; 
+        return `${String(h).padStart(2, '0')}:${String(mm).padStart(2,'0')} ${ap}`; 
     }
     
     function isTimeInPast(dateStr, time24) { 
@@ -1258,7 +1286,7 @@
             let mm=m[2]||"00"; 
             let ap="PM"; 
             if(m[3] && m[3].startsWith("A")) ap="AM"; 
-            if(hh>=1 && hh<=12) input.value = `${hh}:${mm} ${ap}`; 
+            if(hh>=1 && hh<=12) input.value = `${String(hh).padStart(2, '0')}:${mm} ${ap}`; 
         } 
     };
 
@@ -1407,7 +1435,18 @@
                 if(type === "Personal") {
                     let total = parseInt(s.packageTotal) || 0;
                     let used = parseInt(s.classesUsed) || 0;
-                    if(total > 0) ledgerHtml = `<div style="font-size:0.75rem; color:var(--accent); width:100%; margin-top:2px;"><b>${used} / ${total}</b> Classes Used</div>`;
+                    let bal = parseInt(s.pendingBalance) || 0;
+                    if(total > 0) {
+                        let pct = Math.min(100, Math.round((used / total) * 100));
+                        let color = pct >= 80 ? '#ef4444' : 'var(--accent)';
+                        let balBadge = bal > 0 ? `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #fecaca; padding:1px 4px; border-radius:4px; background:#fef2f2; margin-left:6px;">₹${bal} Due</span>` : '';
+                        ledgerHtml = `<div style="font-size:0.75rem; color:var(--text-sub); width:100%; margin-top:4px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span><b>${used}</b> / ${total} Classes</span> ${balBadge}</div>
+                            <div style="background:#e2e8f0; height:6px; border-radius:3px; width:100%; overflow:hidden;">
+                                <div style="background:${color}; height:100%; width:${pct}%;"></div>
+                            </div>
+                        </div>`;
+                    }
                 }
 
                 h += `<div class="student-item-row">
@@ -1415,7 +1454,7 @@
                             <span style="font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span>
                             ${ledgerHtml}
                         </div>
-                        <div class="action-btns">
+                        <div class="action-btns" style="align-self:flex-start; margin-top:2px;">
                             <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️</button>
                             <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁</button>
                             <button class="btn btn-soft" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openEdit('${s.name}')" title="Edit Type">✎</button>
@@ -1564,14 +1603,16 @@
             const btn = document.getElementById("cancel-all-btn"); 
             btn.textContent = "Processing..."; btn.disabled = true; 
             
-            const updates = activeClasses.map(c => ({ ClassID: c.ClassID, Status: "Cancelled" })); 
-            await fetchAPI(null, { action: "bulkUpdateStatus", updates: updates }); 
+            const updates = activeClasses.map(c => ({ ClassID: c.ClassID, Status: "Cancelled", StudentName: c.StudentName })); 
+            const r = await fetchAPI(null, { action: "bulkUpdateStatus", updates: updates }); 
             
             await window.loadEarnings(); await window.loadWeekly(); await window.renderAvailabilityFeed(); 
             window.fetchToday(); window.renderClassesForDate(dateStr, false); 
             
             btn.textContent = "Cancel All"; btn.disabled = false; 
-            showToast("All classes successfully cancelled."); 
+            
+            if (r.status === "error") return showToast("Failed to cancel classes.", "error");
+            window.showAuditReport(r.success, r.failed, "Bulk Cancel Report");
         }); 
     };
 
@@ -1789,7 +1830,7 @@
             document.getElementById("schedule-student-select").value = ""; sT.value = "";
         }; 
         
-        if(hasPast) { showConfirm("Warning: Past time detected. Proceed?", executeSchedule); } 
+        if(hasPast) { showConfirm(`Warning: Past times. Schedule starting ${isoToDisplayDate(d)}?`, executeSchedule); } 
         else { executeSchedule(); }
     };
 
@@ -1900,6 +1941,7 @@
         if(type === "Personal") {
             payload.PackageTotal = document.getElementById("add-pkg-total").value;
             payload.CustomPrice = document.getElementById("add-custom-price").value;
+            payload.PendingBalance = document.getElementById("add-pending-balance").value;
         }
 
         document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--primary);">Adding...</div>'; 
@@ -1919,6 +1961,7 @@
             personalFields.style.display = 'flex';
             document.getElementById('edit-pkg-total').value = s.packageTotal || "";
             document.getElementById('edit-custom-price').value = s.customPrice || "";
+            document.getElementById('edit-pending-balance').value = s.pendingBalance || "";
         } else { personalFields.style.display = 'none'; }
 
         document.getElementById("editStudentModal").classList.add("show"); 
@@ -1929,6 +1972,7 @@
             if(nt === "Personal") {
                 payload.PackageTotal = document.getElementById("edit-pkg-total").value;
                 payload.CustomPrice = document.getElementById("edit-custom-price").value;
+                payload.PendingBalance = document.getElementById("edit-pending-balance").value;
             }
             const btn = document.getElementById("editStudentSaveBtn"); btn.textContent = "Saving..."; 
             await fetchAPI(null, payload); 
@@ -2049,9 +2093,8 @@
     /* --- HISTORY --- */
     window.openHistoryReport = () => {
         document.getElementById("historyModal").classList.add("show");
-        const d = new Date();
-        const startOfMonth = new Date(d.getFullYear(), d.getMonth(), 1);
-        const isoStart = new Date(startOfMonth.getTime() - (startOfMonth.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        const nowIST = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+        const isoStart = nowIST.getFullYear() + '-' + String(nowIST.getMonth()+1).padStart(2,'0') + '-01';
         
         document.getElementById("historyStartDate").value = isoStart;
         document.getElementById("historyEndDate").value = APP_STATE.todayDate || new Date().toISOString().split('T')[0];
@@ -2150,7 +2193,12 @@
                 
                 if(lg) { 
                     lg.innerHTML = ""; 
-                    opsKeys.forEach((k, i) => { lg.innerHTML += `<div><b>${opsVals[i]}</b> <span style="color:#64748b">${k}</span></div>`; }); 
+                    opsKeys.forEach((k, i) => { 
+                        lg.innerHTML += `<div style="display:grid; grid-template-columns: 1fr auto; gap:8px; margin-bottom:6px; align-items:center;">
+                            <span style="color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${k}">${k}</span>
+                            <b style="color:var(--text-main);">${opsVals[i]}</b>
+                        </div>`; 
+                    }); 
                     if (opsKeys.length === 0) lg.innerHTML = "<div style='color:#94a3b8; font-size:0.8rem;'>No data</div>"; 
                 } 
                 
@@ -2171,16 +2219,24 @@
                 if(mKeys.length > 0) window.updateOpsChart(mKeys[mKeys.length-1]); 
             }
             
-            window.renderAvailabilityFeed(); 
+            if (r.upcomingFeed) window.renderAvailabilityFeed(r.upcomingFeed); 
             APP_STATE.analyticsLoaded = true;
         } catch(e) {} finally { APP_STATE.isAnalyticsLoading = false; }
     };
 
     /* --- SMART BULLETIN & FEED --- */
-    window.renderAvailabilityFeed = async () => {
+    window.renderAvailabilityFeed = async (feedDataMap) => {
         const list = document.getElementById("avail-feed-list");
         if(!list) return;
-        list.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8;">Calculating slots...</div>';
+
+        if (!feedDataMap) {
+            list.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8;">Refreshing feed...</div>';
+            try {
+                const r = await fetchAPI(null, { action: "getUpcomingFeed" });
+                if (r.status === "error" || !r.upcomingFeed) return;
+                feedDataMap = r.upcomingFeed;
+            } catch (e) { return; }
+        }
         
         const feedData = []; const today = new Date();
         for(let i=0; i<7; i++) {
@@ -2189,12 +2245,9 @@
             const isToday = (dateStr === APP_STATE.todayDate); 
             let currentHour = -1; if(isToday) currentHour = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})).getHours();
             
-            const r = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr }); 
-            if(r.status === "error") continue;
-            
-            const classes = r.classes || [];
+            const classes = feedDataMap[dateStr] || [];
             const isWednesday = d.getDay() === 3;
-            const validClasses = classes.filter(c => c.Status !== "Deleted");
+            const validClasses = classes; // Already filtered for deleted status in backend
 
             if (validClasses.length > 0 && validClasses.every(c => c.Status === "Cancelled")) {
                 feedData.push({ date: d, status: 'cancelled' }); continue;
@@ -2225,7 +2278,7 @@
         if(feedData.length === 0) { list.innerHTML = '<div style="padding:10px;text-align:center;">No slots available</div>'; return; }
         
         feedData.forEach(day => { 
-            const dateFmt = day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); 
+            const dateFmt = day.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }); 
             
             if (day.status === 'cancelled') {
                 list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${dateFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${dateFmt}')">📋</button></div><div><div class="slot-pill slot-red">🏝️ All Cancelled</div></div></div>`;
@@ -2239,7 +2292,7 @@
             let morn="", aft="", eve="";
             let hasMorn=false, hasAft=false, hasEve=false;
             day.slots.forEach(s => {
-                let pill = `<div class="slot-pill ${s.status === 'expired' ? 'slot-red' : s.status === 'temp' ? 'slot-yellow' : 'slot-green'}">${s.h%12||12} ${s.h<12?'AM':'PM'}</div>`;
+                let pill = `<div class="slot-pill ${s.status === 'expired' ? 'slot-red' : s.status === 'temp' ? 'slot-yellow' : 'slot-green'}">${String(s.h%12||12).padStart(2, '0')}:00 ${s.h<12?'AM':'PM'}</div>`;
                 if(s.h < 12) { morn += pill; hasMorn=true; } else if(s.h < 17) { aft += pill; hasAft=true; } else { eve += pill; hasEve=true; }
             });
 
@@ -2265,12 +2318,12 @@
         const incEve = document.getElementById("scEve").checked;
         
         let text = "";
-        let daysToProcess = target === 'week' ? APP_STATE.feedData : APP_STATE.feedData.filter(d => d.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) === target);
+        let daysToProcess = target === 'week' ? APP_STATE.feedData : APP_STATE.feedData.filter(d => d.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) === target);
         
         if(target === 'week') text += `📅 *Availability Options*\n\n`;
         
         daysToProcess.forEach(day => {
-            let dayText = `*${day.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}*\n`;
+            let dayText = `*${day.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}*\n`;
             
             if (day.status === 'cancelled') {
                 text += dayText + `🏝️ Fully Booked / Cancelled\n\n`;
@@ -2285,7 +2338,7 @@
             day.slots.forEach(s => {
                 if(s.status === 'expired') return;
                 if((s.h < 12 && incMorn) || (s.h >= 12 && s.h < 17 && incAft) || (s.h >= 17 && incEve)) {
-                    const t1 = `${s.h%12||12}:00 ${s.h<12?'AM':'PM'}`, t2 = `${(s.h+1)%12||12}:00 ${s.h+1<12?'AM':'PM'}`; 
+                    const t1 = `${String(s.h%12||12).padStart(2, '0')}:00 ${s.h<12?'AM':'PM'}`, t2 = `${String((s.h+1)%12||12).padStart(2, '0')}:00 ${s.h+1<12?'AM':'PM'}`; 
                     dayText += `${s.status === 'temp' ? '🟡' : '🟢'} ${t1} - ${t2}${s.status === 'temp' ? ' (Temporarily Available)' : ''}\n`;
                     addedSlots = true;
                 }
@@ -2305,19 +2358,86 @@
         document.getElementById("smartBulletinModal").classList.add("show"); 
         window.renderTrialScout(); 
         window.renderBulletinAlerts(); 
+        window.renderPackageAlerts();
     };
 
     window.updateSmartBarText = async () => { 
         const barText = document.getElementById("smart-bar-content"); if(!barText) return; 
+        
         let trials = APP_STATE.students.filter(s => s.type === "Trial").length; 
+        let targets = APP_STATE.students.filter(s => s.type === "Personal" && parseInt(s.packageTotal) > 0 && (parseInt(s.classesUsed) || 0) / parseInt(s.packageTotal) >= 0.8);
+        
         barText.innerHTML = "LazifAI Operations Command"; 
-        if (trials > 0) barText.innerHTML = `⚠️ ${trials} Trial${trials > 1 ? 's' : ''} awaiting conversion`; 
+        
+        if (targets.length > 0) barText.innerHTML = `📦 ${targets.length} Package Alert${targets.length > 1 ? 's' : ''} Active`;
+        else if (trials > 0) barText.innerHTML = `⚠️ ${trials} Trial${trials > 1 ? 's' : ''} awaiting conversion`; 
+        
         try { 
             const res = await fetchAPI(null, { action: "getRetentionAlerts" }); 
-            if (res.alerts && res.alerts.length > 0) barText.innerHTML = `📉 ${res.alerts.length} Flight Risk${res.alerts.length > 1 ? 's' : ''} &nbsp;|&nbsp; ⚠️ ${trials} Trial${trials > 1 ? 's' : ''}`; 
-            else if (res.feedbackAlerts && res.feedbackAlerts.length > 0) barText.innerHTML = `💬 ${res.feedbackAlerts.length} Reports Due &nbsp;|&nbsp; ⚠️ ${trials} Trial${trials > 1 ? 's' : ''}`; 
+            if (res.alerts && res.alerts.length > 0) barText.innerHTML = `📉 ${res.alerts.length} Flight Risk${res.alerts.length > 1 ? 's' : ''} &nbsp;|&nbsp; 📦 ${targets.length} Renewals`; 
+            else if (res.feedbackAlerts && res.feedbackAlerts.length > 0) barText.innerHTML = `💬 ${res.feedbackAlerts.length} Reports Due &nbsp;|&nbsp; 📦 ${targets.length} Renewals`; 
         } catch(e) {} 
     };
+
+    /* --- PHASE 5 SMART ALERTS --- */
+    window.renderPackageAlerts = () => {
+        const list = document.getElementById("sb-packages-list");
+        const targets = APP_STATE.students.filter(s => s.type === "Personal" && parseInt(s.packageTotal) > 0);
+        let alertsHtml = "";
+        
+        targets.forEach(s => {
+            let total = parseInt(s.packageTotal);
+            let used = parseInt(s.classesUsed) || 0;
+            let bal = parseInt(s.pendingBalance) || 0;
+            
+            if ((used / total) >= 0.8) {
+                let isDebt = bal > 0;
+                let icon = isDebt ? "🚨" : "🔄";
+                let title = isDebt ? `Installment Due: ₹${bal}` : `Package Exhausted (Renewal)`;
+                let bg = isDebt ? "#fff1f2" : "#f0f9ff";
+                let border = isDebt ? "#ffe4e6" : "#bae6fd";
+                let textCol = isDebt ? "#e11d48" : "#0284c7";
+                
+                alertsHtml += `<div style="background:${bg}; border:1px solid ${border}; padding:12px; border-radius:8px; margin-bottom:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <div style="font-weight:700; color:${textCol}; font-size:0.95rem; margin-bottom:2px;">${icon} ${title}</div>
+                            <div style="font-size:0.85rem; color:var(--text-main);"><b>${s.name}</b> (${used}/${total} Classes Used)</div>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="window.generatePackageAI('${s.name}', ${used}, ${total}, ${bal})">Draft Notice</button>
+                    </div>
+                    <div id="pkg-ai-out-${s.name.replace(/\s+/g,'-')}" style="display:none; margin-top:12px;"></div>
+                </div>`;
+            }
+        });
+        
+        if(alertsHtml === "") alertsHtml = `<div style="text-align:center; padding:30px; background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0; color:#166534;">✅ All clear! No upcoming renewals or pending installments.</div>`;
+        list.innerHTML = alertsHtml;
+    };
+
+    window.generatePackageAI = async (name, used, total, bal) => {
+        const outDiv = document.getElementById(`pkg-ai-out-${name.replace(/\s+/g,'-')}`);
+        outDiv.style.display = "block";
+        outDiv.innerHTML = `<div style="color:var(--primary); font-size:0.85rem;">✨ Generating AI Notice...</div>`;
+        
+        try {
+            const r = await fetchAPI(null, { action: "generateAIDraft", draftType: "package_alert", studentName: name, used: used, total: total, balance: bal });
+            if (r.status === "error") throw new Error(r.message);
+            
+            let rawText = r.draft.replace(/```json/gi, '').replace(/```/gi, '').trim();
+            let options;
+            try { options = JSON.parse(rawText); if(options.options) options = options.options; if(!Array.isArray(options)) options = [options]; } catch(e) { throw new Error("Invalid AI format."); }
+            
+            let opt = options[0]; 
+            outDiv.innerHTML = `<textarea id="txt-${name.replace(/\s+/g,'-')}" readonly style="width:100%; min-height:120px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; font-family:inherit; resize:vertical; font-size:0.85rem; color:#1e293b; line-height:1.5;">${opt.text}</textarea>
+            <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                <button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('txt-${name.replace(/\s+/g,'-')}')">📋 Copy Message</button>
+            </div>`;
+        } catch(e) {
+            outDiv.innerHTML = `<div style="color:#ef4444; font-size:0.85rem;">Failed: ${e.message}</div>`;
+        }
+    };
+
 
     window.isVacationDirty = () => { return document.getElementById("vac-start").value !== "" || document.getElementById("vac-reason").value.trim() !== "" || document.getElementById("vac-ai-output").innerHTML.trim() !== ""; };
     window.clearVacation = () => { document.getElementById("vac-start").value = ""; document.getElementById("vac-end").value = ""; document.getElementById("vac-reason").value = ""; document.getElementById("vac-ai-output").innerHTML = ""; document.getElementById("vac-ai-output").style.display = "none"; };
@@ -2461,6 +2581,15 @@
         document.getElementById("ptmDiscussed").value = ""; document.getElementById("ptmImprove").value = ""; 
         document.getElementById("ptmAction").value = ""; document.getElementById("demoOtherStrengths").value = ""; 
         document.getElementById("demoOtherImprovements").value = ""; document.getElementById("crmOutput").value = ""; 
+        
+        // Clear Receipt Inputs
+        document.getElementById("receiptAmount").value = "";
+        document.getElementById("receiptDate").value = "";
+        document.getElementById("receiptPlan").value = "";
+        document.getElementById("receiptClasses").value = "";
+        document.getElementById("receiptStart").value = "";
+        document.getElementById("receiptNextDue").value = "";
+
         document.getElementById("crm-output-area").style.display = "none";
         
         if (hard) {
@@ -2500,8 +2629,8 @@
         
         r.history.forEach(h => {
             const dateStr = isoToDisplayDate(h.date.substring(0,10));
-            const icon = h.type === "PTM Invite" ? "📅" : h.type === "Progress Report" ? "📝" : h.type === "Demo Feedback" ? "🌟" : "📊";
-            const borderCol = h.type === "PTM Invite" ? "#3b82f6" : h.type === "Progress Report" ? "#10b981" : h.type === "Demo Feedback" ? "#8b5cf6" : "#f59e0b";
+            const icon = h.type === "PTM Invite" ? "📅" : h.type === "Progress Report" ? "📝" : h.type === "Demo Feedback" ? "🌟" : h.type === "Payment Receipt" ? "🧾" : "📊";
+            const borderCol = h.type === "PTM Invite" ? "#3b82f6" : h.type === "Progress Report" ? "#10b981" : h.type === "Demo Feedback" ? "#8b5cf6" : h.type === "Payment Receipt" ? "#14b8a6" : "#f59e0b";
             list.innerHTML += `<div class="history-card" style="border-left-color: ${borderCol};"><div class="history-card-header"><span class="history-card-type">${icon} ${h.type}</span><span>${dateStr}</span></div><div style="font-size:0.85rem; color:var(--text-main); margin-bottom:4px;"><b>Details:</b> ${h.details}</div><div style="font-size:0.8rem; color:var(--text-sub); max-height:40px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-style:italic;">"${h.message}"</div></div>`;
         });
     };
@@ -2514,6 +2643,7 @@
         document.getElementById("crm-view-demoFeedback").style.display = val === 'demoFeedback' ? 'block' : 'none';
         document.getElementById("crm-view-ptmPost").style.display = val === 'ptmPost' ? 'block' : 'none';
         document.getElementById("crm-view-ptmInvite").style.display = val === 'ptmInvite' ? 'block' : 'none';
+        document.getElementById("crm-view-receipt").style.display = val === 'receipt' ? 'block' : 'none';
         document.getElementById("crmToneGroup").style.display = (val === 'progress' || val === 'ptmPost' || val === 'demoFeedback') ? 'block' : 'none';
     };
 
@@ -2574,13 +2704,36 @@
             payload.discussed = document.getElementById("ptmDiscussed").value.trim(); payload.improve = document.getElementById("ptmImprove").value.trim(); payload.plan = document.getElementById("ptmAction").value.trim();
             if(!payload.discussed) { btn.disabled = false; btn.textContent = "✨ Generate AI Draft"; return showToast("Enter discussed points", "error"); }
             currentCrmDetails = `Discussed: ${payload.discussed.substring(0,30)}...`; currentCrmType = 'PTM Summary';
+
+        } else if (type === 'receipt') {
+            payload.amount = document.getElementById("receiptAmount").value;
+            payload.paymentDate = document.getElementById("receiptDate").value;
+            payload.plan = document.getElementById("receiptPlan").value;
+            payload.classes = document.getElementById("receiptClasses").value;
+            payload.startDate = document.getElementById("receiptStart").value;
+            payload.nextDue = document.getElementById("receiptNextDue").value;
+            
+            if(!payload.amount || !payload.paymentDate || !payload.classes) {
+                btn.disabled = false; btn.textContent = "✨ Generate Receipt Draft";
+                return showToast("Fill amount, date, and classes", "error");
+            }
+            
+            // Format dates before sending
+            if (payload.paymentDate) payload.paymentDate = isoToDisplayDate(payload.paymentDate);
+            if (payload.startDate) payload.startDate = isoToDisplayDate(payload.startDate);
+            if (payload.nextDue && payload.nextDue !== "NA" && payload.nextDue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                payload.nextDue = isoToDisplayDate(payload.nextDue);
+            }
+
+            currentCrmDetails = `Payment: ₹${payload.amount} for ${payload.classes} classes`;
+            currentCrmType = 'Payment Receipt';
         }
 
         try {
             const r = await fetchAPI(null, payload);
             if(r.status === "error") throw new Error(r.message);
             document.getElementById("crmOutput").value = r.draft; document.getElementById("crm-output-area").style.display = "block";
-        } catch(e) { showToast(e.message || "Failed to generate AI Draft.", "error"); } finally { btn.disabled = false; if(type === 'demoFeedback') btn.textContent = "✨ Generate Handover Brief"; else btn.textContent = "✨ Generate AI Draft"; }
+        } catch(e) { showToast(e.message || "Failed to generate AI Draft.", "error"); } finally { btn.disabled = false; if(type === 'demoFeedback') btn.textContent = "✨ Generate Handover Brief"; else if (type === 'receipt') btn.textContent = "✨ Generate Receipt Draft"; else btn.textContent = "✨ Generate AI Draft"; }
     };
 
     window.copyCrmMessage = () => { navigator.clipboard.writeText(document.getElementById("crmOutput").value); showToast("Message copied!"); };
@@ -2733,6 +2886,7 @@
         document.querySelectorAll(".section").forEach(s => s.classList.toggle("show", s.id === `section-${sec}`)); 
         if (sec !== 'onboarding') window.clearOnboarding();
         if (sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML.trim() === "") { window.resetBulkScheduler(); } 
+        if (sec === 'analytics' && !APP_STATE.analyticsLoaded) { window.loadAnalytics(false); }
     };
 
     window.clearOnboarding = () => {
@@ -2804,10 +2958,13 @@
                     document.getElementById("stats-earnings-main").textContent = "₹" + (bootData.earningsRes.earnings||0).toLocaleString('en-IN');
                     document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.cmCount || 0} CM | ${bootData.earningsRes.personalCount || 0} Personal`;
                 }
+                
+                if (bootData.upcomingFeed) {
+                    window.renderAvailabilityFeed(bootData.upcomingFeed);
+                }
             }
         } catch(e) {}
 
-        window.renderAvailabilityFeed();
         setTimeout(() => { try { window.loadAnalytics(true); } catch(e) {} }, 1000);
     }
     
