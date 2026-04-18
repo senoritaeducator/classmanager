@@ -195,7 +195,12 @@
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast-error { background: #ef4444; }
 
-        .footer { text-align: center; margin-top: 60px; color: var(--text-sub); font-size: 0.8rem; border-top: 1px solid #e2e8f0; padding-top: 20px; margin-bottom: 80px; }
+        /* FOOTER UPDATES */
+        .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 60px; color: var(--text-sub); font-size: 0.8rem; border-top: 1px solid #e2e8f0; padding: 20px 10px 30px; margin-bottom: 80px; }
+        .footer-left { text-align: left; opacity: 0.7; font-size: 0.75rem; flex: 1; font-weight: 500;}
+        .footer-center { text-align: center; flex: 2; }
+        .footer-right { flex: 1; }
+
         .fab-container { position: fixed; bottom: 30px; right: 30px; z-index: 900; }
         .fab-main { width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 4px 15px rgba(51, 65, 85, 0.4); font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
         .fab-main:hover { transform: scale(1.05); background: var(--primary-hover); }
@@ -785,9 +790,13 @@
     </section>
 
     <footer class="footer">
-        <div>Advanced Class Manager &copy; 2026</div>
-        <div style="margin-top:4px;">Licensed to Senorita</div>
-        <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v108.5 PRO (The Executive Build) | Powered by LazifAI</div>
+        <div class="footer-left">Last Updated: April 18, 2026, 06:30 AM IST</div>
+        <div class="footer-center">
+            <div>Advanced Class Manager &copy; 2026</div>
+            <div style="margin-top:4px;">Licensed to Senorita</div>
+            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v110.1 PRO (The Executive Build) | Powered by LazifAI</div>
+        </div>
+        <div class="footer-right"></div>
     </footer>
 
     <div id="auditModal" class="modal-backdrop" style="z-index: 3000;">
@@ -1033,6 +1042,10 @@
                 </div>
                 <button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button>
                 <div id="historyResult" style="display:none; margin-top:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;">
+                        <span style="font-weight:700; color:var(--primary);">Report Summary</span>
+                        <button class="btn btn-outline btn-sm" onclick="window.copyHistoryData()">📋 Copy Data</button>
+                    </div>
                     <div id="histOrgBreakdown"></div>
                     <table style="width:100%; text-align:left; border-collapse:collapse; margin-top:10px; font-size:0.9rem;">
                         <thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead>
@@ -1076,7 +1089,7 @@
     /* --- CONSTANTS & STATE --- */
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcnNovhrSOIObYUJZg9fIPoG1IuojN9t5lnnATcX5rhsWagfixg/exec";
     const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
-    const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [] };
+    const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "" };
     
     let charts = {};
     let previousCrmStudent = "";
@@ -1830,7 +1843,7 @@
             document.getElementById("schedule-student-select").value = ""; sT.value = "";
         }; 
         
-        if(hasPast) { showConfirm(`Warning: Past times. Schedule starting ${isoToDisplayDate(d)}?`, executeSchedule); } 
+        if(hasPast) { showConfirm("Warning: Past time detected. Proceed?", executeSchedule); } 
         else { executeSchedule(); }
     };
 
@@ -2110,13 +2123,18 @@
                 const r = await fetchAPI(null, { action: "getHistoryReport", startDate: sd, endDate: ed, typeFilter: tf, statusFilter: sf });
                 
                 let osHtml = `<div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">`;
+                let copyText = `📊 *Data Report* (${isoToDisplayDate(sd)} to ${isoToDisplayDate(ed)})\nFilter: ${tf} | Status: ${sf}\n\n`;
+                copyText += `*Total Classes:* ${r.totalClasses}\n*Total Earnings:* ₹${(r.earnings||0).toLocaleString('en-IN')}\n\n*Breakdown:*\n`;
+
                 if(r.orgStats) {
                     ['PS', 'CM', 'Personal', 'Trial'].forEach(org => {
                         let stats = r.orgStats[org];
                         if(stats && Object.keys(stats).length > 0) {
                             osHtml += `<div style="flex:1; min-width:120px; background:#f1f5f9; border:1px solid #e2e8f0; padding:12px; border-radius:8px; font-size:0.85rem;">
                                 <div style="font-weight:700; color:var(--primary); margin-bottom:8px; border-bottom:1px solid #cbd5e1; padding-bottom:4px;">${org}</div>`;
-                            for(let stat in stats) { osHtml += `<div style="display:flex; justify-content:space-between;"><span>${stat}</span> <b>${stats[stat]}</b></div>`; }
+                            for(let stat in stats) { 
+                                osHtml += `<div style="display:flex; justify-content:space-between;"><span>${stat}</span> <b>${stats[stat]}</b></div>`; 
+                            }
                             osHtml += `</div>`;
                         }
                     });
@@ -2126,11 +2144,35 @@
 
                 const tb = document.getElementById("histTableBody"); tb.innerHTML = "";
                 const s = Object.entries(r.breakdown||{}).sort((a,b)=>b[1]-a[1]);
-                if(!s.length) tb.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No records found.</td></tr>";
-                else s.forEach(([n,c]) => tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px;">${n}</td><td style="padding:8px; font-weight:700;">${c}</td></tr>`);
+                if(!s.length) {
+                    tb.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No records found.</td></tr>";
+                    copyText += "No records found.\n";
+                } else {
+                    s.forEach(([n,c]) => { 
+                        tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px;">${n}</td><td style="padding:8px; font-weight:700;">${c}</td></tr>`;
+                        copyText += `• ${n}: ${c}\n`;
+                    });
+                }
+                
+                APP_STATE.lastHistoryCopyText = copyText.trim();
                 document.getElementById("historyResult").style.display = "block";
-            } catch(e) {} finally { btn.disabled = false; btn.textContent = "Generate Report"; }
+            } catch(e) {
+                console.error(e);
+                showToast("Failed to generate report.", "error");
+            } finally { 
+                btn.disabled = false; 
+                btn.textContent = "Generate Report"; 
+            }
         };
+    };
+
+    window.copyHistoryData = () => {
+        if(APP_STATE.lastHistoryCopyText) {
+            navigator.clipboard.writeText(APP_STATE.lastHistoryCopyText);
+            showToast("Report data copied!");
+        } else {
+            showToast("No data to copy.", "error");
+        }
     };
 
     /* --- ANALYTICS --- */
