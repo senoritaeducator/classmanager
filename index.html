@@ -2204,7 +2204,7 @@
             if(r.personalEarnings !== undefined) { 
                 document.getElementById("stats-earnings-prepaid").textContent = "₹" + (r.personalEarnings||0).toLocaleString('en-IN'); 
                 document.getElementById("stats-earnings-accrued").textContent = "₹" + (r.cmEarnings||0).toLocaleString('en-IN'); 
-                document.getElementById("stats-earnings-sub").textContent = `${r.cmCount || 0} CM | ${r.personalCount || 0} Personal`; 
+                document.getElementById("stats-earnings-sub").textContent = `${r.personalCount || 0} Personal | ${r.cmCount || 0} CM`;
             } 
         } catch(e) {}
     };
@@ -3022,7 +3022,7 @@
                     if(bootData.earningsRes.personalEarnings !== undefined) { 
                         document.getElementById("stats-earnings-prepaid").textContent = "₹" + (bootData.earningsRes.personalEarnings||0).toLocaleString('en-IN'); 
                         document.getElementById("stats-earnings-accrued").textContent = "₹" + (bootData.earningsRes.cmEarnings||0).toLocaleString('en-IN'); 
-                        document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.cmCount || 0} CM | ${bootData.earningsRes.personalCount || 0} Personal`; 
+                        document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.personalCount || 0} Personal | ${bootData.earningsRes.cmCount || 0} CM`;
                     } 
                 }
                 
