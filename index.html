@@ -105,8 +105,7 @@
         .overview-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-sub); font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; }
         .overview-main { font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1.1; }
         .overview-sub { font-size: 0.85rem; color: var(--text-sub); margin-top: 6px; }
-        .financial-tile { background: #f0fdf4; border-color: #bbf7d0; }
-        .financial-tile .overview-main { color: #15803d; }
+        .financial-tile { background: #f8fafc; border-color: #e2e8f0; }
 
         /* --- LISTS & CARDS --- */
         .student-columns { display: flex; gap: 20px; flex-wrap: wrap; }
@@ -292,12 +291,21 @@
                     <div class="today-classes-list" id="today-classes-list" style="margin-top:8px; max-height:100px; overflow-y:auto;"></div>
                 </div>
                 <div class="overview-tile financial-tile">
-                    <div class="overview-title" style="color:#15803d;">Financials (CM & Personal) <button id="refresh-earnings-btn" onclick="window.loadEarnings()" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
-                    <div class="overview-main" id="stats-earnings-main">₹0</div>
-                    <div class="overview-sub" id="stats-earnings-sub">Current Month</div>
+                    <div class="overview-title" style="color:var(--text-main);">💰 Revenue Pipeline <button id="refresh-earnings-btn" onclick="window.loadEarnings()" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
+                    <div style="display:flex; justify-content:space-between; margin-top:8px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                        <div>
+                            <div style="font-size:1.4rem; font-weight:700; color:#15803d;" id="stats-earnings-prepaid">₹0</div>
+                            <div style="font-size:0.7rem; font-weight:600; color:#166534; text-transform:uppercase;">🟢 Prepaid (Personal)</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:1.4rem; font-weight:700; color:#0369a1;" id="stats-earnings-accrued">₹0</div>
+                            <div style="font-size:0.7rem; font-weight:600; color:#0284c7; text-transform:uppercase;">⏳ Accrued (CM)</div>
+                        </div>
+                    </div>
+                    <div class="overview-sub" id="stats-earnings-sub" style="text-align:center; margin-top:8px;">Current Month</div>
                     <div style="display:flex; gap:8px; margin-top:12px;">
-                        <button id="btn-review-pending" class="btn btn-outline btn-sm" style="flex:1; background:#fff;" onclick="window.openPendingReviews()">Review</button>
-                        <button id="btn-history" class="btn btn-outline btn-sm" style="flex:1; background:#fff;" onclick="window.openHistoryReport()">History</button>
+                        <button id="btn-review-pending" class="btn btn-outline btn-sm" style="flex:1; background:#fff;" onclick="window.openPendingReviews()">Review Pending</button>
+                        <button id="btn-history" class="btn btn-outline btn-sm" style="flex:1; background:#fff;" onclick="window.openHistoryReport()">Data History</button>
                     </div>
                 </div>
                 <div class="overview-tile">
@@ -790,11 +798,11 @@
     </section>
 
     <footer class="footer">
-        <div class="footer-left">Last Updated: April 18, 2026, 06:30 AM IST</div>
+        <div class="footer-left">Last Updated: April 20, 2026, 05:00 PM IST</div>
         <div class="footer-center">
             <div>Advanced Class Manager &copy; 2026</div>
             <div style="margin-top:4px;">Licensed to Senorita</div>
-            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v110.4 PRO (The Executive Build) | Powered by LazifAI</div>
+            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v111.0 PRO (The Executive Build) | Powered by LazifAI</div>
         </div>
         <div class="footer-right"></div>
     </footer>
@@ -1778,7 +1786,7 @@
                         const preview = x.querySelector(".msg-preview");
                         preview.innerHTML = "<i>✨ Generating dynamic Trial template...</i>";
                         try {
-                            const r = await fetchAPI(null, { action: "generateTrialMessage", StudentName: c.StudentName, ClassTime: time24To12(c.StartTime) + " IST" });
+                            const r = await fetchAPI(null, { action: "generateTrialMessage", StudentName: c.StudentName, ClassDate: c.ClassDate, ClassTime: time24To12(c.StartTime) + " IST" });
                             if (r.status === "success") { msg = r.draft; preview.innerHTML = msg; card.dataset.trialLoaded = "true"; } 
                             else { preview.innerHTML = "Error loading template. Fallback:\n\n" + msg; }
                         } catch(e) { preview.innerHTML = msg; }
@@ -2097,10 +2105,23 @@
     };
     
     window.updatePendingStatus = async (id, status, el) => { 
-        el.disabled = true; 
-        await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status }); 
+        el.disabled = true;
+        let originalText = el.options[el.selectedIndex].text;
+        el.options[el.selectedIndex].text = "Saving...";
+        
+        const r = await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status }); 
+        
+        if (r.status === "error") {
+            el.disabled = false;
+            el.options[el.selectedIndex].text = originalText;
+            showToast("Failed to update status.", "error");
+            return;
+        }
+
         el.parentElement.remove(); 
-        showToast("Status updated"); window.loadEarnings(); window.fetchToday(true); 
+        showToast("Status updated"); 
+        window.loadEarnings(); 
+        window.fetchToday(true); 
     };
 
     /* --- HISTORY --- */
@@ -2180,8 +2201,9 @@
         try {
             const r = await fetchAPI(null, { action: "getMonthlyEarnings" }); 
             if(!r || r.status === "error") return;
-            if(r.earnings !== undefined) { 
-                document.getElementById("stats-earnings-main").textContent = "₹" + (r.earnings||0).toLocaleString('en-IN'); 
+            if(r.personalEarnings !== undefined) { 
+                document.getElementById("stats-earnings-prepaid").textContent = "₹" + (r.personalEarnings||0).toLocaleString('en-IN'); 
+                document.getElementById("stats-earnings-accrued").textContent = "₹" + (r.cmEarnings||0).toLocaleString('en-IN'); 
                 document.getElementById("stats-earnings-sub").textContent = `${r.cmCount || 0} CM | ${r.personalCount || 0} Personal`; 
             } 
         } catch(e) {}
@@ -2997,8 +3019,11 @@
                 window.renderClassesForDate(APP_STATE.todayDate, false, APP_STATE.cache[APP_STATE.todayDate] || []);
 
                 if (bootData.earningsRes) {
-                    document.getElementById("stats-earnings-main").textContent = "₹" + (bootData.earningsRes.earnings||0).toLocaleString('en-IN');
-                    document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.cmCount || 0} CM | ${bootData.earningsRes.personalCount || 0} Personal`;
+                    if(bootData.earningsRes.personalEarnings !== undefined) { 
+                        document.getElementById("stats-earnings-prepaid").textContent = "₹" + (bootData.earningsRes.personalEarnings||0).toLocaleString('en-IN'); 
+                        document.getElementById("stats-earnings-accrued").textContent = "₹" + (bootData.earningsRes.cmEarnings||0).toLocaleString('en-IN'); 
+                        document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.cmCount || 0} CM | ${bootData.earningsRes.personalCount || 0} Personal`; 
+                    } 
                 }
                 
                 if (bootData.upcomingFeed) {
