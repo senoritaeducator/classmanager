@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>ACM | Professional Dashboard</title>
+    <title>ACM | Staging Sandbox</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -213,6 +213,15 @@
         .mic-btn:hover { background: #e2e8f0; }
         .recording-pulse { animation: pulse 1.5s infinite; background-color: #fee2e2 !important; border-color: #f87171 !important; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+
+        /* --- OMNIBOX / COMMAND PALETTE --- */
+        .omnibox-trigger { background: #f1f5f9; border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; display: flex; align-items: center; gap: 12px; cursor: text; transition: all 0.2s; width: 100%; max-width: 400px; margin-top: 15px; }
+        .omnibox-trigger:hover { background: #e2e8f0; border-color: #cbd5e1; }
+        .omnibox-placeholder { color: #94a3b8; font-size: 0.95rem; flex: 1; text-align: left; }
+        .omnibox-shortcut { font-size: 0.75rem; font-weight: 700; color: #94a3b8; background: #fff; border: 1px solid #e2e8f0; padding: 2px 6px; border-radius: 4px; }
+        .ob-result-item { padding: 12px; border-radius: 8px; margin-bottom: 6px; background: #fff; border: 1px solid #e2e8f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.1s; }
+        .ob-result-item:hover, .ob-result-item.selected { background: #f0f9ff; border-color: #bae6fd; }
+        .ob-command-badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; color: #475569; margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -222,8 +231,15 @@
         <div class="brand-block">
             <div>
                 <div class="brand-title" style="color: #ea580c;"><span style="font-size:1.5rem;">🚧</span> ACM STAGING SANDBOX</div>
-		<div class="brand-sub" style="color: #ea580c; font-weight: 700;">Safe Test Environment - Live Notifications Disabled</div>
+                <div class="brand-sub" style="color: #ea580c; font-weight: 700;">Safe Test Environment - Live Notifications Disabled</div>
             </div>
+            
+            <div class="omnibox-trigger" onclick="window.openOmnibox()" title="Search or Command (Ctrl+K)">
+                <span style="font-size:1.1rem;">🔍</span>
+                <span class="omnibox-placeholder">Search students, commands...</span>
+                <span class="omnibox-shortcut">Ctrl K</span>
+            </div>
+
             <div class="converter-wrapper">
                 <div class="converter-box">
                     <div style="font-size:0.7rem; font-weight:700; color:var(--text-sub); text-transform:uppercase;">Time Zone Converter</div>
@@ -802,7 +818,7 @@
         <div class="footer-center">
             <div>Advanced Class Manager &copy; 2026</div>
             <div style="margin-top:4px;">Licensed to Senorita</div>
-            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v111.1 PRO (The Executive Build) | Powered by LazifAI</div>
+            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v111.1 PRO (Staging Environment) | Powered by LazifAI</div>
         </div>
         <div class="footer-right"></div>
     </footer>
@@ -1076,6 +1092,20 @@
                 <input type="hidden" id="scDateTarget">
             </div>
             <div class="modal-footer"><button class="btn btn-primary" onclick="window.executeSmartCopy()">📋 Copy Selected</button></div>
+        </div>
+    </div>
+
+    <div id="omniboxModal" class="modal-backdrop" style="z-index: 4000; align-items: flex-start; padding-top: 10vh;">
+        <div class="modal" style="max-width: 600px; background: transparent; box-shadow: none;">
+            <div style="background: #fff; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--primary);">
+                <div style="display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e2e8f0;">
+                    <span style="font-size: 1.2rem; color: #64748b; margin-right: 12px;">🔍</span>
+                    <input type="text" id="omniboxInput" style="flex: 1; border: none; font-size: 1.15rem; outline: none; padding: 4px 0; background: transparent; color: var(--text-main);" placeholder="Search students, slots, or commands..." autocomplete="off">
+                    <button type="button" class="mic-btn" id="omniboxMicBtn" onclick="window.toggleOmniboxVoice(this)" style="border:none; background:transparent; font-size:1.2rem; padding: 4px;">🎤</button>
+                    <div class="omnibox-shortcut" style="margin-left: 12px;">ESC</div>
+                </div>
+                <div id="omniboxResults" style="max-height: 350px; overflow-y: auto; background: #f8fafc; padding: 12px; display: none;"></div>
+            </div>
         </div>
     </div>
 
@@ -2977,6 +3007,136 @@
         }
         
         document.getElementById("onboardOutput").value = msg; document.getElementById("onboard-output-area").style.display = "block";
+    };
+
+    /* --- OMNIBOX / COMMAND PALETTE ENGINE --- */
+    window.openOmnibox = () => {
+        document.getElementById("omniboxModal").classList.add("show");
+        const input = document.getElementById("omniboxInput");
+        input.value = "";
+        document.getElementById("omniboxResults").style.display = "none";
+        setTimeout(() => input.focus(), 100);
+    };
+
+    window.closeOmnibox = () => {
+        document.getElementById("omniboxModal").classList.remove("show");
+    };
+
+    // Global Keyboard Listener for Ctrl+K and ESC
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            window.openOmnibox();
+        }
+        if (e.key === 'Escape') {
+            window.closeOmnibox();
+        }
+    });
+
+    document.getElementById("omniboxModal").addEventListener('click', (e) => {
+        if(e.target.id === "omniboxModal") window.closeOmnibox();
+    });
+
+    // Close on enter if there's an exact match
+    document.getElementById("omniboxInput").addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') {
+            const firstResult = document.querySelector('.ob-result-item');
+            if(firstResult) firstResult.click();
+        }
+    });
+
+    // Core Search Engine
+    document.getElementById("omniboxInput").addEventListener('input', (e) => {
+        window.processOmniboxQuery(e.target.value.toLowerCase().trim());
+    });
+
+    window.processOmniboxQuery = (query) => {
+        const resultsContainer = document.getElementById("omniboxResults");
+        if (!query) { resultsContainer.style.display = "none"; return; }
+        
+        resultsContainer.style.display = "block";
+        let html = "";
+
+        // 1. Check for Commands (Deep Links)
+        const commands = [
+            { keywords: ["vacation", "ooo", "leave", "holiday"], title: "Draft Out of Office Message", icon: "✈️", action: "window.closeOmnibox(); window.openSmartBulletin(); window.switchSbTab('vacation');" },
+            { keywords: ["add", "new", "create"], title: "Quick Add Student", icon: "🆕", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(()=>document.getElementById('student-name-input').focus(), 300);" },
+            { keywords: ["revenue", "analytics", "stats", "money"], title: "View Executive Analytics", icon: "📊", action: "window.closeOmnibox(); window.showMainSection('analytics');" },
+            { keywords: ["bulk", "shift", "reschedule"], title: "Bulk Shift / Reschedule", icon: "🔁", action: "window.closeOmnibox(); window.showMainSection('students'); showToast('Click the 🔁 icon next to any student to shift.', 'info');" },
+            { keywords: ["scan", "photo", "correct", "image"], title: "Snap & Correct (Vision AI)", icon: "📸", action: "window.closeOmnibox(); window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\\'vision\\']').click(), 100);" }
+        ];
+
+        commands.forEach(cmd => {
+            if (cmd.keywords.some(kw => kw.includes(query) || query.includes(kw))) {
+                html += `<div class="ob-result-item" onclick="${cmd.action}">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="font-size:1.2rem;">${cmd.icon}</span>
+                        <span style="font-weight:600; color:var(--text-main);">${cmd.title}</span>
+                        <span class="ob-command-badge">Command</span>
+                    </div>
+                    <span style="color:#cbd5e1;">⏎</span>
+                </div>`;
+            }
+        });
+
+        // 2. Search Students
+        const matchingStudents = APP_STATE.students.filter(s => s.name.toLowerCase().includes(query));
+        matchingStudents.forEach(s => {
+            html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="font-size:1.2rem;">👤</span>
+                        <div>
+                            <div style="font-weight:700; color:var(--text-main);">${s.name}</div>
+                            <div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${s.name}')">💬 Jump to CRM</button>
+                    <button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('schedule-student-select').value='${s.name}';">📅 Schedule</button>
+                </div>
+            </div>`;
+        });
+
+        if (html === "") {
+            html = `<div style="text-align:center; padding:20px; color:#94a3b8;">No matching students or commands found.</div>`;
+        }
+        
+        resultsContainer.innerHTML = html;
+    };
+
+    window.toggleOmniboxVoice = (btnElement) => {
+        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) return showToast("Voice not supported.", "error");
+        
+        if (isRecording) { speechRecog.stop(); return; }
+
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        speechRecog = new SR();
+        speechRecog.continuous = false; 
+
+        speechRecog.onstart = function() {
+            isRecording = true;
+            btnElement.classList.add("recording-pulse");
+            btnElement.innerHTML = "🔴";
+            document.getElementById("omniboxInput").placeholder = "Listening...";
+        };
+
+        speechRecog.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            const input = document.getElementById("omniboxInput");
+            input.value = transcript.trim();
+            window.processOmniboxQuery(transcript.trim().toLowerCase());
+        };
+
+        speechRecog.onend = function() {
+            isRecording = false;
+            btnElement.classList.remove("recording-pulse");
+            btnElement.innerHTML = "🎤";
+            document.getElementById("omniboxInput").placeholder = "Search students, slots, or commands...";
+        };
+
+        speechRecog.start();
     };
 
     async function runBootSequence() {
