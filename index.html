@@ -213,6 +213,15 @@
         .mic-btn:hover { background: #e2e8f0; }
         .recording-pulse { animation: pulse 1.5s infinite; background-color: #fee2e2 !important; border-color: #f87171 !important; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+
+        /* --- OMNIBOX / COMMAND PALETTE --- */
+        .omnibox-trigger { background: #f1f5f9; border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; display: flex; align-items: center; gap: 12px; cursor: text; transition: all 0.2s; width: 100%; max-width: 400px; margin-top: 15px; }
+        .omnibox-trigger:hover { background: #e2e8f0; border-color: #cbd5e1; }
+        .omnibox-placeholder { color: #94a3b8; font-size: 0.95rem; flex: 1; text-align: left; }
+        .omnibox-shortcut { font-size: 0.75rem; font-weight: 700; color: #94a3b8; background: #fff; border: 1px solid #e2e8f0; padding: 2px 6px; border-radius: 4px; }
+        .ob-result-item { padding: 12px; border-radius: 8px; margin-bottom: 6px; background: #fff; border: 1px solid #e2e8f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.1s; }
+        .ob-result-item:hover, .ob-result-item.selected { background: #f0f9ff; border-color: #bae6fd; }
+        .ob-command-badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; color: #475569; margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -224,6 +233,13 @@
                 <div class="brand-title"><span style="font-size:1.5rem;">📊</span> Advanced Class Manager</div>
                 <div class="brand-sub">AI-Powered Scheduling, CRM & Financial Suite</div>
             </div>
+            
+            <div class="omnibox-trigger" onclick="window.openOmnibox()" title="Search or Command (Ctrl+K)">
+                <span style="font-size:1.1rem;">🔍</span>
+                <span class="omnibox-placeholder">Search students, commands...</span>
+                <span class="omnibox-shortcut">Ctrl K</span>
+            </div>
+
             <div class="converter-wrapper">
                 <div class="converter-box">
                     <div style="font-size:0.7rem; font-weight:700; color:var(--text-sub); text-transform:uppercase;">Time Zone Converter</div>
@@ -798,11 +814,11 @@
     </section>
 
     <footer class="footer">
-        <div class="footer-left">Last Updated: April 21, 2026, 01:00 PM IST</div>
+        <div class="footer-left">Last Updated: April 21, 2026, 04:50 PM IST</div>
         <div class="footer-center">
             <div>Advanced Class Manager &copy; 2026</div>
             <div style="margin-top:4px;">Licensed to Senorita</div>
-            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v111.1 PRO (The Executive Build) | Powered by LazifAI</div>
+            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v112.0 PRO (The Executive Build) | Powered by LazifAI</div>
         </div>
         <div class="footer-right"></div>
     </footer>
@@ -1076,6 +1092,20 @@
                 <input type="hidden" id="scDateTarget">
             </div>
             <div class="modal-footer"><button class="btn btn-primary" onclick="window.executeSmartCopy()">📋 Copy Selected</button></div>
+        </div>
+    </div>
+
+    <div id="omniboxModal" class="modal-backdrop" style="z-index: 4000; align-items: flex-start; padding-top: 10vh;">
+        <div class="modal" style="max-width: 600px; background: transparent; box-shadow: none;">
+            <div style="background: #fff; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--primary);">
+                <div style="display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e2e8f0;">
+                    <span style="font-size: 1.2rem; color: #64748b; margin-right: 12px;">🔍</span>
+                    <input type="text" id="omniboxInput" style="flex: 1; border: none; font-size: 1.15rem; outline: none; padding: 4px 0; background: transparent; color: var(--text-main);" placeholder="Search students, slots, or commands..." autocomplete="off">
+                    <button type="button" class="mic-btn" id="omniboxMicBtn" onclick="window.toggleOmniboxVoice(this)" style="border:none; background:transparent; font-size:1.2rem; padding: 4px;">🎤</button>
+                    <div class="omnibox-shortcut" style="margin-left: 12px;">ESC</div>
+                </div>
+                <div id="omniboxResults" style="max-height: 350px; overflow-y: auto; background: #f8fafc; padding: 12px; display: none;"></div>
+            </div>
         </div>
     </div>
 
