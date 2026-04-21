@@ -3070,6 +3070,24 @@
         }, 300);
     };
 
+/* --- TABS & NAVIGATION --- */
+    window.showMainSection = (sec) => { 
+        document.querySelectorAll(".main-tab-btn").forEach(b => b.classList.toggle("active", b.getAttribute("onclick").includes(sec))); 
+        document.querySelectorAll(".section").forEach(s => s.classList.toggle("show", s.id === `section-${sec}`)); 
+        if (sec !== 'onboarding') window.clearOnboarding();
+        if (sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML.trim() === "") { window.resetBulkScheduler(); } 
+        if (sec === 'analytics' && !APP_STATE.analyticsLoaded) { window.loadAnalytics(false); }
+    };
+
+    window.clearOnboarding = () => {
+        const sel = document.getElementById("onboard-student-select"); if(sel) sel.value = "";
+        const typeSel = document.getElementById("onboard-type-select"); if(typeSel) typeSel.value = "new";
+        const out = document.getElementById("onboardOutput"); if(out) out.value = "";
+        const area = document.getElementById("onboard-output-area"); if(area) area.style.display = "none";
+    };
+
+    window.copyOnboarding = () => { navigator.clipboard.writeText(document.getElementById("onboardOutput").value); showToast("Onboarding packet copied!"); window.clearOnboarding(); };
+
     window.generateOnboarding = () => {
         const name = document.getElementById("onboard-student-select").value; 
         const packetType = document.getElementById("onboard-type-select").value; 
