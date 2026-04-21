@@ -1524,16 +1524,16 @@
                     }
                 }
 
-                h += `<div class="student-item-row">
-                        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
-                            <span style="font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span>
-                            ${ledgerHtml}
+                h += `<div class="student-item-row" style="flex-direction:column; align-items:stretch; gap:8px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; font-size:1rem; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span>
                         </div>
-                        <div class="action-btns" style="align-self:flex-start; margin-top:2px;">
-                            <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️</button>
-                            <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁</button>
-                            <button class="btn btn-soft" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openEdit('${s.name}')" title="Edit Type">✎</button>
-                            <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1; border-color:#8b5cf6; color:#8b5cf6;" onclick="window.openSmartSlotModal('${s.name}')" title="AI Capacity Manager">✨</button>
+                        ${ledgerHtml}
+                        <div class="action-btns" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;">
+                            <button class="btn btn-outline" style="flex:1; padding:6px 0; font-size:0.85rem;" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️</button>
+                            <button class="btn btn-outline" style="flex:1; padding:6px 0; font-size:0.85rem;" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁</button>
+                            <button class="btn btn-soft" style="flex:1; padding:6px 0; font-size:0.85rem;" onclick="window.openEdit('${s.name}')" title="Edit Type">✎</button>
+                            <button class="btn btn-outline" style="flex:1; padding:6px 0; font-size:0.85rem; border-color:#8b5cf6; color:#8b5cf6;" onclick="window.openSmartSlotModal('${s.name}')" title="AI Capacity Manager">✨</button>
                         </div>
                       </div>`; 
             }); 
