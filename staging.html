@@ -3099,7 +3099,9 @@
             matched = true;
             let icon = isSlots ? "🟢" : "📅";
             let titleText = isSlots ? `View Free Slots for ${dateLabel}` : `View Schedule for ${dateLabel}`;
-            let action = `window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value='${targetDateStr}'; window.loadClassesForViewDate();`;
+            
+            // ACTION FIX: Update data AND scroll the viewport to the Daily Operations panel
+            let action = `window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value='${targetDateStr}'; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);`;
 
             html += `<div class="ob-result-item" onclick="${action}">
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -3114,10 +3116,10 @@
         // 2. CHECK COMMANDS (Deep Links)
         const commands = [
             { keywords: ["vacation", "ooo", "leave", "holiday"], title: "Draft Out of Office Message", icon: "✈️", action: "window.closeOmnibox(); window.openSmartBulletin(); window.switchSbTab('vacation');" },
-            { keywords: ["add", "new", "create"], title: "Quick Add Student", icon: "🆕", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(()=>document.getElementById('student-name-input').focus(), 300);" },
-            { keywords: ["revenue", "analytics", "stats", "money", "earnings"], title: "View Executive Analytics", icon: "📊", action: "window.closeOmnibox(); window.showMainSection('analytics');" },
-            { keywords: ["bulk", "shift", "reschedule"], title: "Bulk Shift / Reschedule", icon: "🔁", action: "window.closeOmnibox(); window.showMainSection('students'); showToast('Click the 🔁 icon next to any student to shift.', 'info');" },
-            { keywords: ["scan", "photo", "correct", "image"], title: "Snap & Correct (Vision AI)", icon: "📸", action: "window.closeOmnibox(); window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\\'vision\\']').click(), 100);" },
+            { keywords: ["add", "new", "create"], title: "Quick Add Student", icon: "🆕", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(() => { let el = document.getElementById('student-name-input'); el.scrollIntoView({behavior: 'smooth', block: 'center'}); el.focus(); }, 200);" },
+            { keywords: ["revenue", "analytics", "stats", "money", "earnings"], title: "View Executive Analytics", icon: "📊", action: "window.closeOmnibox(); window.showMainSection('analytics'); setTimeout(() => window.scrollTo({top: 0, behavior: 'smooth'}), 100);" },
+            { keywords: ["bulk", "shift", "reschedule"], title: "Bulk Shift / Reschedule", icon: "🔁", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(() => document.getElementById('all-students-content').scrollIntoView({behavior: 'smooth', block: 'start'}), 200); showToast('Click the 🔁 icon next to any student to shift.', 'info');" },
+            { keywords: ["scan", "photo", "correct", "image"], title: "Snap & Correct (Vision AI)", icon: "📸", action: "window.closeOmnibox(); window.showMainSection('drafter'); setTimeout(() => { document.querySelector('input[value=\\'vision\\']').click(); document.getElementById('ai-vision-file').scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);" },
             { keywords: ["pending", "review", "done"], title: "Clear Pending Reviews", icon: "📝", action: "window.closeOmnibox(); window.openPendingReviews();" }
         ];
 
@@ -3151,7 +3153,7 @@
                 </div>
                 <div style="display:flex; gap:8px;">
                     <button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${s.name}')">💬 Jump to CRM</button>
-                    <button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('schedule-student-select').value='${s.name}';">📅 Schedule</button>
+                    <button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); el.value='${s.name}'; el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);">📅 Schedule</button>
                 </div>
             </div>`;
         });
