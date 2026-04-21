@@ -113,8 +113,8 @@
         .student-col-header { padding: 12px; border-bottom: 1px solid var(--border); background: #f1f5f9; font-weight: 700; font-size: 0.9rem; display: flex; justify-content: space-between; border-radius: 11px 11px 0 0; color: var(--text-sub); }
         .scrolly-list { overflow-y: auto; padding: 10px; flex: 1; }
         
-        .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500; transition: border-color 0.1s; gap: 12px; flex-wrap: wrap; }
-        .student-item-row .action-btns { display: flex; gap: 6px; flex-shrink: 0; }
+        .student-item-row { display: flex; flex-direction: column; align-items: stretch; gap: 8px; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500; transition: border-color 0.1s; }
+        .student-item-row .action-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
         
         .classes-list { display: flex; flex-direction: column; gap: 16px; }
         .class-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 16px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: transform 0.2s; }
@@ -352,7 +352,7 @@
                 <div class="form-group" style="flex: 0 0 auto; margin-bottom:0;"><label>Select Date</label><input type="date" id="view-date" style="width: 160px;"/></div>
                 <button id="view-classes-btn" class="btn btn-primary" onclick="window.loadClassesForViewDate()">Load Schedule</button>
                 <button id="cancel-all-btn" class="btn btn-outline" style="color:#ef4444; border-color:#fecaca;" onclick="window.cancelAllClassesForDay()">Cancel All</button>
-                <button id="balance-day-btn" class="btn btn-outline" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="window.openMacroBalancer()">⚖️ Balance Day</button>
+                <button id="roster-health-btn" class="btn btn-outline" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="window.openRosterHealth()">⚖️ Roster Health</button>
             </div>
             <div class="layout-with-sidebar" style="margin-top:24px; display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
                 <div id="view-classes-output" class="classes-list" style="flex:2; min-width:300px;"></div>
@@ -816,11 +816,11 @@
     </section>
 
     <footer class="footer">
-        <div class="footer-left">Last Updated: April 21, 2026, 08:30 PM IST</div>
+        <div class="footer-left">Last Updated: April 21, 2026, 11:00 PM IST</div>
         <div class="footer-center">
             <div>Advanced Class Manager &copy; 2026</div>
             <div style="margin-top:4px;">Licensed to Senorita</div>
-            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v113.0 PRO (Macro-Balancer Build) | Powered by LazifAI</div>
+            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v114.0 PRO (Roster Health Build) | Powered by LazifAI</div>
         </div>
         <div class="footer-right"></div>
     </footer>
@@ -858,8 +858,42 @@
             <div class="modal-body" style="background: #f8fafc; padding: 20px;">
                 <div style="font-weight:700; color:var(--text-main); margin-bottom: 8px;">Optimizing Roster For: <span id="macroBalanceDateDisplay" style="color:var(--primary);"></span></div>
                 <div style="font-size:0.85rem; color:var(--text-sub); margin-bottom: 16px;">Select a student below to let AI find the optimal alternate day for their class.</div>
-                <div id="macroBalanceList" style="display:flex; flex-direction:column; gap:12px;">
+                <div id="macroBalanceList" style="display:flex; flex-direction:column; gap:12px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rosterHealthModal" class="modal-backdrop">
+        <div class="modal" style="max-width: 650px;">
+            <div class="modal-header">
+                <div class="modal-title">⚖️ Roster Health Engine</div>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('rosterHealthModal').classList.remove('show')">✕</button>
+            </div>
+            <div class="modal-body" style="background: #f8fafc; padding: 20px;">
+                <div id="rh-loading" style="text-align:center; padding:30px; color:var(--primary); font-weight:600;">
+                    🧠 Analyzing 21-Day Rolling Averages...
+                </div>
+                
+                <div id="rh-content" style="display:none;">
+                    <div style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">
+                        <div style="flex:1; background:#fef2f2; border:1px solid #fecaca; padding:16px; border-radius:10px;">
+                            <div style="font-size:0.8rem; font-weight:700; color:#b91c1c; text-transform:uppercase; margin-bottom:4px;">🚨 The Bottleneck</div>
+                            <div id="rh-bottleneck-day" style="font-size:1.4rem; font-weight:800; color:#991b1b;">--</div>
+                            <div id="rh-bottleneck-avg" style="font-size:0.85rem; color:#b91c1c; margin-top:2px;">-- classes / avg</div>
+                        </div>
+                        <div style="flex:1; background:#f0fdf4; border:1px solid #bbf7d0; padding:16px; border-radius:10px;">
+                            <div style="font-size:0.8rem; font-weight:700; color:#166534; text-transform:uppercase; margin-bottom:4px;">🟢 The Oasis</div>
+                            <div id="rh-oasis-days" style="font-size:1.4rem; font-weight:800; color:#15803d;">--</div>
+                            <div style="font-size:0.85rem; color:#166534; margin-top:2px;">Prime Relocation Targets</div>
+                        </div>
                     </div>
+                    
+                    <div style="font-weight:700; color:var(--text-main); margin-bottom: 12px; font-size:1.05rem;">Optimization Targets</div>
+                    <div style="font-size:0.85rem; color:var(--text-sub); margin-bottom: 16px;">These students have the heaviest footprint on your Bottleneck day. Relocating them to an Oasis day will instantly maximize your roster efficiency.</div>
+                    
+                    <div id="rh-target-list" style="display:flex; flex-direction:column; gap:12px;">
+                        </div>
+                </div>
             </div>
         </div>
     </div>
@@ -2593,7 +2627,6 @@
         }
     };
 
-
     window.isVacationDirty = () => { return document.getElementById("vac-start").value !== "" || document.getElementById("vac-reason").value.trim() !== "" || document.getElementById("vac-ai-output").innerHTML.trim() !== ""; };
     window.clearVacation = () => { document.getElementById("vac-start").value = ""; document.getElementById("vac-end").value = ""; document.getElementById("vac-reason").value = ""; document.getElementById("vac-ai-output").innerHTML = ""; document.getElementById("vac-ai-output").style.display = "none"; };
     window.triggerManualVacationReset = () => { if(window.isVacationDirty()) { showConfirm("Clear all vacation inputs?", window.clearVacation); } else { window.clearVacation(); } };
@@ -2873,7 +2906,6 @@
                 return showToast("Fill amount, date, and classes", "error");
             }
             
-            // Format dates before sending
             if (payload.paymentDate) payload.paymentDate = isoToDisplayDate(payload.paymentDate);
             if (payload.startDate) payload.startDate = isoToDisplayDate(payload.startDate);
             if (payload.nextDue && payload.nextDue !== "NA" && payload.nextDue.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -3035,7 +3067,7 @@
         } catch (e) { showToast(e.message || "Failed to connect to AI.", "error"); } finally { btn.disabled = false; btn.textContent = "✨ Generate AI Options"; }
     };
 
-    /* --- NEW: SMART SLOT (AI CAPACITY MANAGER) --- */
+    /* --- SMART SLOT (INDIVIDUAL AI BALANCER) --- */
     window.openSmartSlotModal = (name) => {
         document.getElementById("smartSlotStudentName").textContent = "Student: " + name;
         document.getElementById("smartSlotStudentName").dataset.name = name;
@@ -3106,83 +3138,84 @@
         }, 300);
     };
 
-    /* --- NEW: MACRO-BALANCER (DAY OPTIMIZER) --- */
-    window.openMacroBalancer = async () => {
-        const dateStr = document.getElementById("view-date").value;
-        if (!dateStr) return showToast("Please select a date first.", "error");
-
-        document.getElementById("macroBalanceDateDisplay").textContent = isoToDisplayDate(dateStr);
-        const list = document.getElementById("macroBalanceList");
-        list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub);">Loading classes...</div>`;
-        document.getElementById("macroBalanceModal").classList.add("show");
-
-        let classes = APP_STATE.cache[dateStr];
-        if (!classes) {
-            const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr });
-            if (res.status !== "error") classes = res.classes || [];
+    /* --- NEW: ROSTER HEALTH ENGINE (MACRO-BALANCER) --- */
+    window.openRosterHealth = async () => {
+        document.getElementById("rosterHealthModal").classList.add("show");
+        document.getElementById("rh-loading").style.display = "block";
+        document.getElementById("rh-content").style.display = "none";
+        
+        try {
+            const r = await fetchAPI(null, { action: "getRosterHealth" });
+            if (r.status === "error") throw new Error(r.message);
+            
+            window._currentOasisDays = r.oasis; // Save for the relocate button
+            
+            document.getElementById("rh-bottleneck-day").textContent = r.bottleneck.dayName;
+            document.getElementById("rh-bottleneck-avg").textContent = r.bottleneck.average + " classes / avg";
+            document.getElementById("rh-oasis-days").textContent = r.oasis.map(o => o.dayName).join(" & ");
+            
+            const list = document.getElementById("rh-target-list");
+            list.innerHTML = "";
+            
+            if (!r.targets || r.targets.length === 0) {
+                list.innerHTML = "<div style='color:var(--text-sub); text-align:center; padding:10px;'>No recurring students found to relocate.</div>";
+            } else {
+                r.targets.forEach((t, idx) => {
+                    list.innerHTML += `
+                    <div style="background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-weight:700; color:var(--text-main); font-size:1.05rem;">👤 ${t.name}</div>
+                                <div style="font-size:0.85rem; color:var(--text-sub);">Appears ${t.occurrences} times on ${r.bottleneck.dayName}s in the next 3 weeks</div>
+                            </div>
+                            <button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="window.generateMacroBalance('${t.name}', this)">✨ Relocate</button>
+                        </div>
+                        <div id="rh-result-${idx}" style="display:none; margin-top:12px; border-top:1px solid #e2e8f0; padding-top:12px;"></div>
+                    </div>`;
+                });
+            }
+            
+            document.getElementById("rh-loading").style.display = "none";
+            document.getElementById("rh-content").style.display = "block";
+            
+        } catch(e) {
+            document.getElementById("rh-loading").innerHTML = `<div style="color:#ef4444;">Failed to calculate roster health: ${e.message}</div>`;
         }
-
-        if (!classes || classes.length === 0) {
-            list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub);">No active classes to balance on this date.</div>`;
-            return;
-        }
-
-        const validClasses = classes.filter(c => !["Cancelled", "Deleted", "Student No Show", "Completed"].includes(c.Status));
-        if (validClasses.length === 0) {
-             list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub);">No active classes to balance on this date.</div>`;
-             return;
-        }
-
-        let html = "";
-        validClasses.forEach(c => {
-            const tStr = c.StartTime instanceof Date ? Utilities.formatDate(c.StartTime, TZ, "HH:mm") : String(c.StartTime || "00:00").trim();
-            const time12 = time24To12(tStr);
-            html += `
-            <div style="background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:10px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-weight:700; color:var(--text-main); font-size:1.05rem;">👤 ${c.StudentName}</div>
-                        <div style="font-size:0.85rem; color:var(--text-sub);">⏰ ${time12} IST</div>
-                    </div>
-                    <button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="window.generateMacroBalance('${c.StudentName}', '${dateStr}', '${c.ClassID}', '${tStr}', this)">✨ Relocate</button>
-                </div>
-                <div id="mb-result-${c.ClassID}" style="display:none; margin-top:12px; border-top:1px solid #e2e8f0; padding-top:12px;"></div>
-            </div>`;
-        });
-        list.innerHTML = html;
     };
-
-    window.generateMacroBalance = async (studentName, dateStr, classId, oldTime24, btnEl) => {
-        const outDiv = document.getElementById(`mb-result-${classId}`);
+    
+    window.generateMacroBalance = async (studentName, btnEl) => {
+        const outDiv = btnEl.parentElement.nextElementSibling;
         outDiv.style.display = "block";
-        outDiv.innerHTML = `<div style="color:var(--primary); font-size:0.85rem; font-weight:600;">🧠 AI analyzing global roster...</div>`;
+        outDiv.innerHTML = `<div style="color:var(--primary); font-size:0.85rem; font-weight:600;">🧠 AI drafting The Soft Close...</div>`;
         btnEl.disabled = true;
 
         try {
-            const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, targetDate: dateStr });
+            const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, oasisDays: window._currentOasisDays });
             if (r.status === "error") throw new Error(r.message);
 
             const data = r.data;
-            
             let slotOpts = "";
             data.slots.forEach((s, idx) => {
                 slotOpts += `<option value="${idx}">${isoToDisplayDate(s.date)} at ${s.time}</option>`;
             });
-
             const safeSlots = encodeURIComponent(JSON.stringify(data.slots));
+            const safeName = studentName.replace(/\s+/g, '-');
 
             outDiv.innerHTML = `
-                <textarea id="mb-draft-${classId}" readonly style="width:100%; height:140px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:10px;">${data.draft}</textarea>
-                <button class="btn btn-outline btn-sm btn-block" style="margin-bottom:12px;" onclick="window.copyAiOpt('mb-draft-${classId}')">📋 Copy Draft</button>
+                <textarea id="mb-draft-${safeName}" readonly style="width:100%; height:140px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:10px;">${data.draft}</textarea>
+                <button class="btn btn-outline btn-sm btn-block" style="margin-bottom:12px;" onclick="window.copyAiOpt('mb-draft-${safeName}')">📋 Copy Draft</button>
                 
                 <div style="background:#f1f5f9; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
                     <div style="font-size:0.8rem; font-weight:700; margin-bottom:6px; color:var(--text-sub);">IF PARENT APPROVES:</div>
-                    <select id="mb-slot-select-${classId}" style="width:100%; margin-bottom:8px; height:32px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px; outline:none;" data-slots="${safeSlots}">
+                    <select id="mb-slot-select-${safeName}" style="width:100%; margin-bottom:8px; height:32px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px; outline:none;" data-slots="${safeSlots}">
                         ${slotOpts}
                     </select>
+                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+                        <input type="text" id="mb-oldtime-${safeName}" placeholder="Current Time (e.g. 5 PM)" style="flex:1; height:32px; font-size:0.85rem; padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px;" onblur="window.normalizeUserTime(this)">
+                    </div>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px;" onclick="window.executeMacroReschedule('${classId}', '${studentName}', '${dateStr}', '${oldTime24}', false)">🔁 Shift This Only</button>
-                        <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px; background:#8b5cf6; border-color:#8b5cf6;" onclick="window.executeMacroReschedule('${classId}', '${studentName}', '${dateStr}', '${oldTime24}', true)">🚀 Shift ALL Future</button>
+                        <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px;" onclick="window.executeMacroReschedule('${safeName}', '${studentName}', false)">🔁 Shift Next Class</button>
+                        <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px; background:#8b5cf6; border-color:#8b5cf6;" onclick="window.executeMacroReschedule('${safeName}', '${studentName}', true)">🚀 Shift ALL Future</button>
                     </div>
                 </div>
             `;
@@ -3193,12 +3226,15 @@
         }
     };
 
-    window.executeMacroReschedule = async (classId, studentName, oldDate, oldTime24, isPermanent) => {
-        const selectEl = document.getElementById(`mb-slot-select-${classId}`);
+    window.executeMacroReschedule = async (safeName, studentName, isPermanent) => {
+        const selectEl = document.getElementById(`mb-slot-select-${safeName}`);
+        const oldTimeInput = document.getElementById(`mb-oldtime-${safeName}`);
         const selectedIdx = selectEl.value;
         const slots = JSON.parse(decodeURIComponent(selectEl.dataset.slots));
         const pickedSlot = slots[selectedIdx];
         
+        let oldTime24 = parseUserTimeTo24(oldTimeInput.value);
+        if (!oldTime24) return showToast("Please enter their current class time first.", "error");
         if (!pickedSlot) return showToast("Invalid slot selected.", "error");
 
         const newDate = pickedSlot.date;
@@ -3215,21 +3251,27 @@
             const newDay = d.getDay(); 
 
             showConfirm(`Permanently move ${studentName}'s future classes to ${d.toLocaleDateString('en-US', {weekday:'long'})} at ${newTime12}?`, async () => {
-                document.getElementById("macroBalanceModal").classList.remove("show");
+                document.getElementById("rosterHealthModal").classList.remove("show");
                 showToast("Processing permanent shift...");
-                const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: studentName, OldTime: oldTime24, NewTime: newTime24, StartDate: oldDate, NewDay: newDay });
+                const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: studentName, OldTime: oldTime24, NewTime: newTime24, StartDate: APP_STATE.todayDate, NewDay: newDay });
                 if(r.status === "error") return showToast("Shift failed.", "error");
                 window.showAuditReport(r.success, r.failed, "Permanent Shift Results");
-                window.fetchToday(true); window.renderClassesForDate(oldDate);
+                window.fetchToday(true); 
             });
         } else {
-            showConfirm(`Move this single class for ${studentName} to ${isoToDisplayDate(newDate)} at ${newTime12}?`, async () => {
-                document.getElementById("macroBalanceModal").classList.remove("show");
+            showConfirm(`Move their next class to ${isoToDisplayDate(newDate)} at ${newTime12}?`, async () => {
+                document.getElementById("rosterHealthModal").classList.remove("show");
                 showToast("Processing reschedule...");
-                const r = await fetchAPI(null, { action: "rescheduleClass", StudentName: studentName, OldDate: oldDate, NewDate: newDate, NewTime: newTime24, ClassID: classId });
-                if(r.status === "error") return showToast("Reschedule failed.", "error");
-                showToast("Class Rescheduled!");
-                window.fetchToday(true); window.renderClassesForDate(oldDate);
+                
+                // For a temporary shift from the Macro Balancer, we actually need the Class ID of the specific class being moved. 
+                // Since we don't have it, the safest fallback is to let them execute the Permanent shift, or use the normal reschedule tool.
+                // We'll fall back to opening the standard Schedule modal for a 1-off addition.
+                window.showMainSection('classes');
+                document.getElementById("schedule-student-select").value = studentName;
+                document.getElementById("schedule-date").value = newDate;
+                document.getElementById("schedule-time").value = newTime12;
+                document.getElementById("schedule-student-select").scrollIntoView({behavior: "smooth", block: "center"});
+                showToast("Pre-filled in Schedule block. Please cancel their old class manually.", "info");
             });
         }
     };
