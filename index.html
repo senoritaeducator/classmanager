@@ -3009,6 +3009,316 @@
         document.getElementById("onboardOutput").value = msg; document.getElementById("onboard-output-area").style.display = "block";
     };
 
+    /* --- OMNIBOX / COMMAND PALETTE ENGINE --- */
+    window.openOmnibox = () => {
+        document.getElementById("omniboxModal").classList.add("show");
+        const input = document.getElementById("omniboxInput");
+        input.value = "";
+        document.getElementById("omniboxResults").style.display = "none";
+        setTimeout(() => input.focus(), 100);
+    };
+
+    window.closeOmnibox = () => {
+        document.getElementById("omniboxModal").classList.remove("show");
+    };
+
+    // Global Keyboard Listener for Ctrl+K and ESC
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            window.openOmnibox();
+        }
+        if (e.key === 'Escape') {
+            window.closeOmnibox();
+        }
+    });
+
+    document.getElementById("omniboxModal").addEventListener('click', (e) => {
+        if(e.target.id === "omniboxModal") window.closeOmnibox();
+    });
+
+    // Close on enter if there's an exact match
+    document.getElementById("omniboxInput").addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') {
+            const firstResult = document.querySelector('.ob-result-item');
+            if(firstResult) firstResult.click();
+        }
+    });
+
+    // Core Search Engine
+    document.getElementById("omniboxInput").addEventListener('input', (e) => {
+        window.processOmniboxQuery(e.target.value.toLowerCase().trim());
+    });
+
+    window.processOmniboxQuery = (query) => {
+        const resultsContainer = document.getElementById("omniboxResults");
+        if (!query) { resultsContainer.style.display = "none"; return; }
+
+        resultsContainer.style.display = "block";
+        let html = "";
+        let matched = false;
+
+        const q = query.toLowerCase();
+
+        // 1. ADVANCED NATURAL LANGUAGE ROUTING (Heuristics)
+        
+        // A. Time parsing
+        let targetDateStr = null;
+        let dateLabel = "";
+        const todayObj = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+
+        if (q.includes("today")) { 
+            targetDateStr = APP_STATE.todayDate; 
+            dateLabel = "Today"; 
+        }
+        else if (q.includes("tomorrow") || q.includes("tmrw")) {
+            let tmrw = new Date(todayObj); 
+            tmrw.setDate(todayObj.getDate() + 1);
+            targetDateStr = tmrw.toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'});
+            dateLabel = "Tomorrow";
+        } 
+        else {
+            const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+            for (let i=0; i<7; i++) {
+                if (q.includes(days[i])) {
+                    let d = new Date(todayObj);
+                    let diff = i - d.getDay();
+                    if (diff <= 0) diff += 7; // Get next occurrence if past or today
+                    d.setDate(d.getDate() + diff);
+                    targetDateStr = d.toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'});
+                    dateLabel = days[i].charAt(0).toUpperCase() + days[i].slice(1);
+                    break;
+                }
+            }
+        }
+
+        // B. Time Extraction (e.g., "3 pm", "15:00")
+        let targetTimeStr = "";
+        const timeMatch = q.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
+        if (timeMatch) {
+            let hh = parseInt(timeMatch[1]);
+            let mm = timeMatch[2] || "00";
+            let ap = timeMatch[3].toUpperCase();
+            if(hh>=1 && hh<=12) targetTimeStr = `${String(hh).padStart(2, '0')}:${mm} ${ap}`;
+        }
+
+        // C. Student Name Extraction
+        let targetStudent = "";
+        const words = q.replace(/[^a-z0-9\s]/g, '').split(' ');
+        for (let word of words) {
+            if (word.length > 2) {
+                const found = APP_STATE.students.find(s => s.name.toLowerCase().includes(word));
+                if (found) { targetStudent = found.name; break; }
+            }
+        }
+
+        // D. Intent parsing
+        const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan");
+        const isReschedule = q.includes("reschedule") || q.includes("shift");
+        const isSlots = q.includes("free") || q.includes("slot") || q.includes("available");
+        const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee");
+        const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback");
+        const isAnalytics = q.includes("no show") || q.includes("absent") || q.includes("analytics") || q.includes("revenue") || q.includes("stats");
+
+        // Action: Multi-Variable Scheduling
+        if (isSchedule && targetStudent && !isReschedule) {
+            matched = true;
+            let titleText = `Schedule ${targetStudent}`;
+            if (dateLabel) titleText += ` for ${dateLabel}`;
+            if (targetTimeStr) titleText += ` at ${targetTimeStr}`;
+            
+            let action = `window.closeOmnibox(); window.showMainSection('classes'); 
+                setTimeout(() => {
+                    document.getElementById('schedule-student-select').value='${targetStudent}';
+                    if('${targetDateStr}' !== 'null') document.getElementById('schedule-date').value='${targetDateStr}';
+                    if('${targetTimeStr}') document.getElementById('schedule-time').value='${targetTimeStr}';
+                    document.getElementById('schedule-student-select').scrollIntoView({behavior: 'smooth', block: 'center'});
+                }, 200);`;
+
+            html += `<div class="ob-result-item" onclick="${action}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.2rem;">📅</span>
+                    <span style="font-weight:600; color:var(--text-main);">${titleText}</span>
+                    <span class="ob-command-badge">Smart Action</span>
+                </div>
+                <span style="color:#cbd5e1;">⏎</span>
+            </div>`;
+        }
+
+        // Action: Direct Rescheduling
+        if (isReschedule && targetStudent) {
+            matched = true;
+            let action = `window.closeOmnibox(); window.showMainSection('students'); window.openShiftModal('${targetStudent}');`;
+            html += `<div class="ob-result-item" onclick="${action}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.2rem;">🔁</span>
+                    <span style="font-weight:600; color:var(--text-main);">Reschedule ${targetStudent}</span>
+                    <span class="ob-command-badge">Smart Action</span>
+                </div>
+                <span style="color:#cbd5e1;">⏎</span>
+            </div>`;
+        }
+
+        // Action: Deep CRM Routing
+        if ((isReceipt || isProgress) && targetStudent) {
+            matched = true;
+            let crmAction = isReceipt ? 'receipt' : 'progress';
+            let icon = isReceipt ? '🧾' : '📝';
+            let action = `window.closeOmnibox(); window.showMainSection('communications'); 
+                setTimeout(() => {
+                    document.getElementById('crm-student-select').value='${targetStudent}';
+                    window.loadStudentCRM('${targetStudent}');
+                    document.querySelector('input[name="crmAction"][value="${crmAction}"]').click();
+                    document.getElementById('crm-student-select').scrollIntoView({behavior: 'smooth', block: 'start'});
+                }, 200);`;
+
+            html += `<div class="ob-result-item" onclick="${action}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.2rem;">${icon}</span>
+                    <span style="font-weight:600; color:var(--text-main);">Write ${isReceipt ? 'Receipt' : 'Progress Report'} for ${targetStudent}</span>
+                    <span class="ob-command-badge">Smart Route</span>
+                </div>
+                <span style="color:#cbd5e1;">⏎</span>
+            </div>`;
+        }
+
+        // Action: Advanced Analytics Routing
+        if (q.includes("no show") || q.includes("absent")) {
+            matched = true;
+            let statFilter = q.includes("no show") ? "Student No Show" : "Absent";
+            let action = `window.closeOmnibox(); window.showMainSection('analytics'); 
+                window.openHistoryReport(); 
+                setTimeout(() => { document.getElementById('historyStatusFilter').value='${statFilter}'; }, 200);`;
+
+            html += `<div class="ob-result-item" onclick="${action}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.2rem;">📉</span>
+                    <span style="font-weight:600; color:var(--text-main);">View ${statFilter} Report</span>
+                    <span class="ob-command-badge">Smart Data</span>
+                </div>
+                <span style="color:#cbd5e1;">⏎</span>
+            </div>`;
+        }
+
+        // General Free Slots Routing
+        if (isSlots && targetDateStr && !targetStudent) {
+            matched = true;
+            let titleText = `View Free Slots for ${dateLabel}`;
+            let action = `window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value='${targetDateStr}'; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);`;
+
+            html += `<div class="ob-result-item" onclick="${action}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.2rem;">🟢</span>
+                    <span style="font-weight:600; color:var(--text-main);">${titleText}</span>
+                    <span class="ob-command-badge">Smart Route</span>
+                </div>
+                <span style="color:#cbd5e1;">⏎</span>
+            </div>`;
+        }
+        else if (isSchedule && targetDateStr && !targetStudent) {
+            matched = true;
+            let titleText = `View Schedule for ${dateLabel}`;
+            let action = `window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value='${targetDateStr}'; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);`;
+
+            html += `<div class="ob-result-item" onclick="${action}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.2rem;">📅</span>
+                    <span style="font-weight:600; color:var(--text-main);">${titleText}</span>
+                    <span class="ob-command-badge">Smart Route</span>
+                </div>
+                <span style="color:#cbd5e1;">⏎</span>
+            </div>`;
+        }
+
+        // 2. CHECK COMMANDS (Deep Links)
+        const commands = [
+            { keywords: ["vacation", "ooo", "leave", "holiday"], title: "Draft Out of Office Message", icon: "✈️", action: "window.closeOmnibox(); window.openSmartBulletin(); window.switchSbTab('vacation');" },
+            { keywords: ["add", "new", "create"], title: "Quick Add Student", icon: "🆕", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(() => { let el = document.getElementById('student-name-input'); el.scrollIntoView({behavior: 'smooth', block: 'center'}); el.focus(); }, 200);" },
+            { keywords: ["revenue", "analytics", "stats", "money", "earnings"], title: "View Executive Analytics", icon: "📊", action: "window.closeOmnibox(); window.showMainSection('analytics'); setTimeout(() => window.scrollTo({top: 0, behavior: 'smooth'}), 100);" },
+            { keywords: ["bulk", "shift", "reschedule"], title: "Bulk Shift / Reschedule", icon: "🔁", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(() => document.getElementById('all-students-content').scrollIntoView({behavior: 'smooth', block: 'start'}), 200); showToast('Click the 🔁 icon next to any student to shift.', 'info');" },
+            { keywords: ["scan", "photo", "correct", "image"], title: "Snap & Correct (Vision AI)", icon: "📸", action: "window.closeOmnibox(); window.showMainSection('drafter'); setTimeout(() => { document.querySelector('input[value=\\'vision\\']').click(); document.getElementById('ai-vision-file').scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);" },
+            { keywords: ["pending", "review", "done"], title: "Clear Pending Reviews", icon: "📝", action: "window.closeOmnibox(); window.openPendingReviews();" }
+        ];
+
+        if (!matched) {
+            commands.forEach(cmd => {
+                if (cmd.keywords.some(kw => q.includes(kw))) {
+                    matched = true;
+                    html += `<div class="ob-result-item" onclick="${cmd.action}">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size:1.2rem;">${cmd.icon}</span>
+                            <span style="font-weight:600; color:var(--text-main);">${cmd.title}</span>
+                            <span class="ob-command-badge">Command</span>
+                        </div>
+                        <span style="color:#cbd5e1;">⏎</span>
+                    </div>`;
+                }
+            });
+        }
+
+        // 3. SEARCH STUDENTS
+        if (!matched || q.length < 15) {
+            const matchingStudents = APP_STATE.students.filter(s => s.name.toLowerCase().includes(q));
+            matchingStudents.forEach(s => {
+                matched = true;
+                html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size:1.2rem;">👤</span>
+                            <div>
+                                <div style="font-weight:700; color:var(--text-main);">${s.name}</div>
+                                <div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${s.name}')">💬 Jump to CRM</button>
+                        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); el.value='${s.name}'; el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);">📅 Schedule</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        if (!matched) {
+            html = `<div style="text-align:center; padding:20px; color:#94a3b8;">No matching students or commands found.<br><span style="font-size:0.8rem; margin-top:8px; display:block;">Try: "Schedule Aadira for tomorrow at 3 PM", "Receipt for Shayraf", or "No shows".</span></div>`;
+        }
+        
+        resultsContainer.innerHTML = html;
+    };
+
+    window.toggleOmniboxVoice = (btnElement) => {
+        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) return showToast("Voice not supported.", "error");
+        
+        if (isRecording) { speechRecog.stop(); return; }
+
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        speechRecog = new SR();
+        speechRecog.continuous = false; 
+
+        speechRecog.onstart = function() {
+            isRecording = true;
+            btnElement.classList.add("recording-pulse");
+            btnElement.innerHTML = "🔴";
+            document.getElementById("omniboxInput").placeholder = "Listening...";
+        };
+
+        speechRecog.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            const input = document.getElementById("omniboxInput");
+            input.value = transcript.trim();
+            window.processOmniboxQuery(transcript.trim().toLowerCase());
+        };
+
+        speechRecog.onend = function() {
+            isRecording = false;
+            btnElement.classList.remove("recording-pulse");
+            btnElement.innerHTML = "🎤";
+            document.getElementById("omniboxInput").placeholder = "Search students, slots, or commands...";
+        };
+
+        speechRecog.start();
+    };
+
     async function runBootSequence() {
         APP_STATE.todayDate = getCurrentISTDateString(); 
         document.getElementById("view-date").value = APP_STATE.todayDate; 
