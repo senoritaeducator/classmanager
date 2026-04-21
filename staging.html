@@ -112,6 +112,7 @@
         .student-col { flex: 1 1 200px; border: 1px solid var(--border); border-radius: var(--radius); background: #f9fafb; display: flex; flex-direction: column; max-height: 450px; }
         .student-col-header { padding: 12px; border-bottom: 1px solid var(--border); background: #f1f5f9; font-weight: 700; font-size: 0.9rem; display: flex; justify-content: space-between; border-radius: 11px 11px 0 0; color: var(--text-sub); }
         .scrolly-list { overflow-y: auto; padding: 10px; flex: 1; }
+        
         .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500; transition: border-color 0.1s; gap: 12px; flex-wrap: wrap; }
         .student-item-row .action-btns { display: flex; gap: 6px; flex-shrink: 0; }
         
@@ -351,6 +352,7 @@
                 <div class="form-group" style="flex: 0 0 auto; margin-bottom:0;"><label>Select Date</label><input type="date" id="view-date" style="width: 160px;"/></div>
                 <button id="view-classes-btn" class="btn btn-primary" onclick="window.loadClassesForViewDate()">Load Schedule</button>
                 <button id="cancel-all-btn" class="btn btn-outline" style="color:#ef4444; border-color:#fecaca;" onclick="window.cancelAllClassesForDay()">Cancel All</button>
+                <button id="balance-day-btn" class="btn btn-outline" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="window.openMacroBalancer()">⚖️ Balance Day</button>
             </div>
             <div class="layout-with-sidebar" style="margin-top:24px; display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
                 <div id="view-classes-output" class="classes-list" style="flex:2; min-width:300px;"></div>
@@ -814,11 +816,11 @@
     </section>
 
     <footer class="footer">
-        <div class="footer-left">Last Updated: April 21, 2026, 04:50 PM IST</div>
+        <div class="footer-left">Last Updated: April 21, 2026, 08:30 PM IST</div>
         <div class="footer-center">
             <div>Advanced Class Manager &copy; 2026</div>
             <div style="margin-top:4px;">Licensed to Senorita</div>
-            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v112.0 PRO (Staging Environment) | Powered by LazifAI</div>
+            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v113.0 PRO (Macro-Balancer Build) | Powered by LazifAI</div>
         </div>
         <div class="footer-right"></div>
     </footer>
@@ -843,6 +845,21 @@
                     <button class="btn btn-outline btn-sm btn-block" style="margin-bottom:12px;" onclick="window.copySmartSlotDraft()">📋 Copy Draft Only</button>
                     <div id="smartSlotButtons" style="display:flex; gap:10px; flex-direction:column;"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="macroBalanceModal" class="modal-backdrop">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title">⚖️ Macro-Balancer</div>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('macroBalanceModal').classList.remove('show')">✕</button>
+            </div>
+            <div class="modal-body" style="background: #f8fafc; padding: 20px;">
+                <div style="font-weight:700; color:var(--text-main); margin-bottom: 8px;">Optimizing Roster For: <span id="macroBalanceDateDisplay" style="color:var(--primary);"></span></div>
+                <div style="font-size:0.85rem; color:var(--text-sub); margin-bottom: 16px;">Select a student below to let AI find the optimal alternate day for their class.</div>
+                <div id="macroBalanceList" style="display:flex; flex-direction:column; gap:12px;">
+                    </div>
             </div>
         </div>
     </div>
@@ -1165,6 +1182,7 @@
 
     let dispatchState = { students: [], template: "", currentIndex: 0 };
     let currentRenameOldName = "";
+    let editingStudentName = "";
 
     /* --- GLOBAL UTILITIES --- */
     window.toggleQuickMenu = (e) => {
@@ -1472,6 +1490,24 @@
         await fetchAPI(null, { action: "updateDriveLink", Link: link });
         showToast("Study Material Link Saved!");
     };
+
+    /* --- TABS & NAVIGATION --- */
+    window.showMainSection = (sec) => { 
+        document.querySelectorAll(".main-tab-btn").forEach(b => b.classList.toggle("active", b.getAttribute("onclick").includes(sec))); 
+        document.querySelectorAll(".section").forEach(s => s.classList.toggle("show", s.id === `section-${sec}`)); 
+        if (sec !== 'onboarding') window.clearOnboarding();
+        if (sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML.trim() === "") { window.resetBulkScheduler(); } 
+        if (sec === 'analytics' && !APP_STATE.analyticsLoaded) { window.loadAnalytics(false); }
+    };
+
+    window.clearOnboarding = () => {
+        const sel = document.getElementById("onboard-student-select"); if(sel) sel.value = "";
+        const typeSel = document.getElementById("onboard-type-select"); if(typeSel) typeSel.value = "new";
+        const out = document.getElementById("onboardOutput"); if(out) out.value = "";
+        const area = document.getElementById("onboard-output-area"); if(area) area.style.display = "none";
+    };
+
+    window.copyOnboarding = () => { navigator.clipboard.writeText(document.getElementById("onboardOutput").value); showToast("Onboarding packet copied!"); window.clearOnboarding(); };
 
     /* --- STUDENTS & LEDGER --- */
     window.toggleAddPersonalFields = () => {
@@ -3070,61 +3106,132 @@
         }, 300);
     };
 
-/* --- TABS & NAVIGATION --- */
-    window.showMainSection = (sec) => { 
-        document.querySelectorAll(".main-tab-btn").forEach(b => b.classList.toggle("active", b.getAttribute("onclick").includes(sec))); 
-        document.querySelectorAll(".section").forEach(s => s.classList.toggle("show", s.id === `section-${sec}`)); 
-        if (sec !== 'onboarding') window.clearOnboarding();
-        if (sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML.trim() === "") { window.resetBulkScheduler(); } 
-        if (sec === 'analytics' && !APP_STATE.analyticsLoaded) { window.loadAnalytics(false); }
-    };
+    /* --- NEW: MACRO-BALANCER (DAY OPTIMIZER) --- */
+    window.openMacroBalancer = async () => {
+        const dateStr = document.getElementById("view-date").value;
+        if (!dateStr) return showToast("Please select a date first.", "error");
 
-    window.clearOnboarding = () => {
-        const sel = document.getElementById("onboard-student-select"); if(sel) sel.value = "";
-        const typeSel = document.getElementById("onboard-type-select"); if(typeSel) typeSel.value = "new";
-        const out = document.getElementById("onboardOutput"); if(out) out.value = "";
-        const area = document.getElementById("onboard-output-area"); if(area) area.style.display = "none";
-    };
+        document.getElementById("macroBalanceDateDisplay").textContent = isoToDisplayDate(dateStr);
+        const list = document.getElementById("macroBalanceList");
+        list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub);">Loading classes...</div>`;
+        document.getElementById("macroBalanceModal").classList.add("show");
 
-    window.copyOnboarding = () => { navigator.clipboard.writeText(document.getElementById("onboardOutput").value); showToast("Onboarding packet copied!"); window.clearOnboarding(); };
-
-    window.generateOnboarding = () => {
-        const name = document.getElementById("onboard-student-select").value; 
-        const packetType = document.getElementById("onboard-type-select").value; 
-        if(!name) return showToast("Select a student", "error");
-        const sObj = APP_STATE.students.find(s => s.name === name); 
-        const isPersonal = sObj && sObj.type === "Personal";
-
-        let msg = "";
-        if (isPersonal) {
-            if (packetType === "new") { 
-                msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package of classes. An automated progress update will be sent as the package nears completion to ensure seamless renewal.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show" and is consumed from the package.\n\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`; 
-            } else { 
-                msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package. Automated updates will be sent as the package nears completion.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show" and is consumed from the package.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`; 
-            }
-        } else {
-            if (packetType === "new") { 
-                msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`; 
-            } else { 
-                msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Last-minute cancellations are strictly reserved for genuine medical emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show."\n🛑 *90-Day Inactivity:* Students who pause or remain inactive for over 90 days without prior formal agreement will have their ongoing enrollment closed to accommodate the waitlist.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`; 
-            }
+        let classes = APP_STATE.cache[dateStr];
+        if (!classes) {
+            const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr });
+            if (res.status !== "error") classes = res.classes || [];
         }
+
+        if (!classes || classes.length === 0) {
+            list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub);">No active classes to balance on this date.</div>`;
+            return;
+        }
+
+        const validClasses = classes.filter(c => !["Cancelled", "Deleted", "Student No Show", "Completed"].includes(c.Status));
+        if (validClasses.length === 0) {
+             list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub);">No active classes to balance on this date.</div>`;
+             return;
+        }
+
+        let html = "";
+        validClasses.forEach(c => {
+            const tStr = c.StartTime instanceof Date ? Utilities.formatDate(c.StartTime, TZ, "HH:mm") : String(c.StartTime || "00:00").trim();
+            const time12 = time24To12(tStr);
+            html += `
+            <div style="background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-weight:700; color:var(--text-main); font-size:1.05rem;">👤 ${c.StudentName}</div>
+                        <div style="font-size:0.85rem; color:var(--text-sub);">⏰ ${time12} IST</div>
+                    </div>
+                    <button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="window.generateMacroBalance('${c.StudentName}', '${dateStr}', '${c.ClassID}', '${tStr}', this)">✨ Relocate</button>
+                </div>
+                <div id="mb-result-${c.ClassID}" style="display:none; margin-top:12px; border-top:1px solid #e2e8f0; padding-top:12px;"></div>
+            </div>`;
+        });
+        list.innerHTML = html;
+    };
+
+    window.generateMacroBalance = async (studentName, dateStr, classId, oldTime24, btnEl) => {
+        const outDiv = document.getElementById(`mb-result-${classId}`);
+        outDiv.style.display = "block";
+        outDiv.innerHTML = `<div style="color:var(--primary); font-size:0.85rem; font-weight:600;">🧠 AI analyzing global roster...</div>`;
+        btnEl.disabled = true;
+
+        try {
+            const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, targetDate: dateStr });
+            if (r.status === "error") throw new Error(r.message);
+
+            const data = r.data;
+            
+            let slotOpts = "";
+            data.slots.forEach((s, idx) => {
+                slotOpts += `<option value="${idx}">${isoToDisplayDate(s.date)} at ${s.time}</option>`;
+            });
+
+            const safeSlots = encodeURIComponent(JSON.stringify(data.slots));
+
+            outDiv.innerHTML = `
+                <textarea id="mb-draft-${classId}" readonly style="width:100%; height:140px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:10px;">${data.draft}</textarea>
+                <button class="btn btn-outline btn-sm btn-block" style="margin-bottom:12px;" onclick="window.copyAiOpt('mb-draft-${classId}')">📋 Copy Draft</button>
+                
+                <div style="background:#f1f5f9; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+                    <div style="font-size:0.8rem; font-weight:700; margin-bottom:6px; color:var(--text-sub);">IF PARENT APPROVES:</div>
+                    <select id="mb-slot-select-${classId}" style="width:100%; margin-bottom:8px; height:32px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px; outline:none;" data-slots="${safeSlots}">
+                        ${slotOpts}
+                    </select>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px;" onclick="window.executeMacroReschedule('${classId}', '${studentName}', '${dateStr}', '${oldTime24}', false)">🔁 Shift This Only</button>
+                        <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px; background:#8b5cf6; border-color:#8b5cf6;" onclick="window.executeMacroReschedule('${classId}', '${studentName}', '${dateStr}', '${oldTime24}', true)">🚀 Shift ALL Future</button>
+                    </div>
+                </div>
+            `;
+        } catch(e) {
+            outDiv.innerHTML = `<div style="color:#ef4444; font-size:0.85rem;">Failed: ${e.message}</div>`;
+        } finally {
+            btnEl.disabled = false;
+        }
+    };
+
+    window.executeMacroReschedule = async (classId, studentName, oldDate, oldTime24, isPermanent) => {
+        const selectEl = document.getElementById(`mb-slot-select-${classId}`);
+        const selectedIdx = selectEl.value;
+        const slots = JSON.parse(decodeURIComponent(selectEl.dataset.slots));
+        const pickedSlot = slots[selectedIdx];
         
-        document.getElementById("onboardOutput").value = msg; 
-        document.getElementById("onboard-output-area").style.display = "block";
-    };
+        if (!pickedSlot) return showToast("Invalid slot selected.", "error");
 
-    /* --- OMNIBOX / COMMAND PALETTE ENGINE --- */
-    window.openOmnibox = () => {
-        document.getElementById("omniboxModal").classList.add("show");
-        const input = document.getElementById("omniboxInput");
-        input.value = "";
-        document.getElementById("omniboxResults").style.display = "none";
-        setTimeout(() => input.focus(), 100);
-    };
+        const newDate = pickedSlot.date;
+        let newTime12 = pickedSlot.time;
+        
+        let dummyInput = { value: newTime12 };
+        window.normalizeUserTime(dummyInput);
+        let newTime24 = parseUserTimeTo24(dummyInput.value);
 
-    window.closeOmnibox = () => {
-        document.getElementById("omniboxModal").classList.remove("show");
+        if (!newTime24) return showToast("Failed to parse time.", "error");
+
+        if (isPermanent) {
+            const d = new Date(newDate);
+            const newDay = d.getDay(); 
+
+            showConfirm(`Permanently move ${studentName}'s future classes to ${d.toLocaleDateString('en-US', {weekday:'long'})} at ${newTime12}?`, async () => {
+                document.getElementById("macroBalanceModal").classList.remove("show");
+                showToast("Processing permanent shift...");
+                const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: studentName, OldTime: oldTime24, NewTime: newTime24, StartDate: oldDate, NewDay: newDay });
+                if(r.status === "error") return showToast("Shift failed.", "error");
+                window.showAuditReport(r.success, r.failed, "Permanent Shift Results");
+                window.fetchToday(true); window.renderClassesForDate(oldDate);
+            });
+        } else {
+            showConfirm(`Move this single class for ${studentName} to ${isoToDisplayDate(newDate)} at ${newTime12}?`, async () => {
+                document.getElementById("macroBalanceModal").classList.remove("show");
+                showToast("Processing reschedule...");
+                const r = await fetchAPI(null, { action: "rescheduleClass", StudentName: studentName, OldDate: oldDate, NewDate: newDate, NewTime: newTime24, ClassID: classId });
+                if(r.status === "error") return showToast("Reschedule failed.", "error");
+                showToast("Class Rescheduled!");
+                window.fetchToday(true); window.renderClassesForDate(oldDate);
+            });
+        }
     };
 
     // Global Keyboard Listener for Ctrl+K and ESC
