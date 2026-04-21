@@ -814,14 +814,38 @@
     </section>
 
     <footer class="footer">
-        <div class="footer-left">Last Updated: April 21, 2026, 01:00 PM IST</div>
+        <div class="footer-left">Last Updated: April 21, 2026, 04:50 PM IST</div>
         <div class="footer-center">
             <div>Advanced Class Manager &copy; 2026</div>
             <div style="margin-top:4px;">Licensed to Senorita</div>
-            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v111.1 PRO (Staging Environment) | Powered by LazifAI</div>
+            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v112.0 PRO (Staging Environment) | Powered by LazifAI</div>
         </div>
         <div class="footer-right"></div>
     </footer>
+
+    <div id="smartSlotModal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">✨ AI Capacity Manager</div>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('smartSlotModal').classList.remove('show')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="smartSlotStudentName" style="font-weight:700; margin-bottom:16px; font-size:1.1rem; color:var(--primary);"></div>
+                <div class="form-group">
+                    <label>Parent Preferences (Optional)</label>
+                    <input type="text" id="smartSlotPrefs" placeholder="e.g., Tuesdays after 5 PM, or Weekends">
+                </div>
+                <button id="btn-smart-slot-gen" class="btn btn-primary btn-block" onclick="window.generateSmartSlots()">🧠 Balance & Find Slots</button>
+                
+                <div id="smartSlotResults" style="display:none; margin-top:20px; border-top:1px solid #e2e8f0; padding-top:16px;">
+                    <label style="color:var(--primary); font-weight:600; display:block; margin-bottom:8px;">AI Draft & Suggested Slots</label>
+                    <textarea id="smartSlotDraft" readonly style="width:100%; height:140px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:10px;"></textarea>
+                    <button class="btn btn-outline btn-sm btn-block" style="margin-bottom:12px;" onclick="window.copySmartSlotDraft()">📋 Copy Draft Only</button>
+                    <div id="smartSlotButtons" style="display:flex; gap:10px; flex-direction:column;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="auditModal" class="modal-backdrop" style="z-index: 3000;">
         <div class="modal" style="max-width: 500px;">
@@ -1509,6 +1533,7 @@
                             <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️</button>
                             <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁</button>
                             <button class="btn btn-soft" style="padding:4px 8px; font-size:0.8rem; line-height:1;" onclick="window.openEdit('${s.name}')" title="Edit Type">✎</button>
+                            <button class="btn btn-outline" style="padding:4px 8px; font-size:0.8rem; line-height:1; border-color:#8b5cf6; color:#8b5cf6;" onclick="window.openSmartSlotModal('${s.name}')" title="AI Capacity Manager">✨</button>
                         </div>
                       </div>`; 
             }); 
@@ -2974,40 +2999,101 @@
         } catch (e) { showToast(e.message || "Failed to connect to AI.", "error"); } finally { btn.disabled = false; btn.textContent = "✨ Generate AI Options"; }
     };
 
-    /* --- TABS, ONBOARDING & BOOT --- */
-    window.showMainSection = (sec) => { 
-        document.querySelectorAll(".main-tab-btn").forEach(b => b.classList.toggle("active", b.getAttribute("onclick").includes(sec))); 
-        document.querySelectorAll(".section").forEach(s => s.classList.toggle("show", s.id === `section-${sec}`)); 
-        if (sec !== 'onboarding') window.clearOnboarding();
-        if (sec === 'bulk' && document.getElementById('bulkRowsContainer').innerHTML.trim() === "") { window.resetBulkScheduler(); } 
-        if (sec === 'analytics' && !APP_STATE.analyticsLoaded) { window.loadAnalytics(false); }
+    /* --- NEW: SMART SLOT (AI CAPACITY MANAGER) --- */
+    window.openSmartSlotModal = (name) => {
+        document.getElementById("smartSlotStudentName").textContent = "Student: " + name;
+        document.getElementById("smartSlotStudentName").dataset.name = name;
+        document.getElementById("smartSlotPrefs").value = "";
+        document.getElementById("smartSlotResults").style.display = "none";
+        document.getElementById("smartSlotModal").classList.add("show");
     };
 
-    window.clearOnboarding = () => {
-        const sel = document.getElementById("onboard-student-select"); if(sel) sel.value = "";
-        const typeSel = document.getElementById("onboard-type-select"); if(typeSel) typeSel.value = "new";
-        const out = document.getElementById("onboardOutput"); if(out) out.value = "";
-        const area = document.getElementById("onboard-output-area"); if(area) area.style.display = "none";
+    window.copySmartSlotDraft = () => {
+        const text = document.getElementById("smartSlotDraft").value;
+        navigator.clipboard.writeText(text);
+        showToast("Draft copied!");
     };
 
-    window.copyOnboarding = () => { navigator.clipboard.writeText(document.getElementById("onboardOutput").value); showToast("Onboarding packet copied!"); window.clearOnboarding(); };
+    window.generateSmartSlots = async () => {
+        const name = document.getElementById("smartSlotStudentName").dataset.name;
+        const prefs = document.getElementById("smartSlotPrefs").value.trim();
+        const btn = document.getElementById("btn-smart-slot-gen");
+        
+        btn.disabled = true;
+        btn.textContent = "🧠 Analyzing Load Matrix...";
+        document.getElementById("smartSlotResults").style.display = "none";
+
+        try {
+            const r = await fetchAPI(null, { action: "getSmartScheduleSuggestions", studentName: name, preferences: prefs });
+            if (r.status === "error") throw new Error(r.message);
+            
+            const data = r.data;
+            document.getElementById("smartSlotDraft").value = data.draft;
+            
+            const btnContainer = document.getElementById("smartSlotButtons");
+            btnContainer.innerHTML = "";
+            
+            if(data.slots && data.slots.length > 0) {
+                data.slots.forEach(slot => {
+                    const btnHtml = document.createElement("button");
+                    btnHtml.className = "btn btn-primary";
+                    btnHtml.innerHTML = `📅 Book ${isoToDisplayDate(slot.date)} at ${slot.time} & Copy`;
+                    btnHtml.onclick = () => window.executeSmartSlotSchedule(name, slot.date, slot.time);
+                    btnContainer.appendChild(btnHtml);
+                });
+            }
+            
+            document.getElementById("smartSlotResults").style.display = "block";
+        } catch(e) {
+            showToast("AI Failed: " + e.message, "error");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "🧠 Balance & Find Slots";
+        }
+    };
+
+    window.executeSmartSlotSchedule = (name, dateStr, timeStr) => {
+        window.copySmartSlotDraft();
+        document.getElementById("smartSlotModal").classList.remove("show");
+        
+        window.showMainSection('classes');
+        setTimeout(() => {
+            document.getElementById("schedule-student-select").value = name;
+            document.getElementById("schedule-date").value = dateStr;
+            
+            const timeInput = document.getElementById("schedule-time");
+            timeInput.value = timeStr;
+            window.normalizeUserTime(timeInput);
+            
+            document.getElementById("schedule-student-select").scrollIntoView({behavior: "smooth", block: "center"});
+            showToast("Draft copied! Just hit 'Schedule Class' to lock it in.", "info");
+        }, 300);
+    };
 
     window.generateOnboarding = () => {
-        const name = document.getElementById("onboard-student-select").value; const packetType = document.getElementById("onboard-type-select").value; 
+        const name = document.getElementById("onboard-student-select").value; 
+        const packetType = document.getElementById("onboard-type-select").value; 
         if(!name) return showToast("Select a student", "error");
-        const sObj = APP_STATE.students.find(s => s.name === name); const isPersonal = sObj && sObj.type === "Personal";
+        const sObj = APP_STATE.students.find(s => s.name === name); 
+        const isPersonal = sObj && sObj.type === "Personal";
 
         let msg = "";
         if (isPersonal) {
-            if (packetType === "new") { msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package of classes. An automated progress update will be sent as the package nears completion to ensure seamless renewal.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show" and is consumed from the package.\n\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`; } 
-            else { msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package. Automated updates will be sent as the package nears completion.\n\n⏱️ *The
-2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show" and is consumed from the package.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`; }
+            if (packetType === "new") { 
+                msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package of classes. An automated progress update will be sent as the package nears completion to ensure seamless renewal.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show" and is consumed from the package.\n\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`; 
+            } else { 
+                msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package. Automated updates will be sent as the package nears completion.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show" and is consumed from the package.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`; 
+            }
         } else {
-            if (packetType === "new") { msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`; } 
-            else { msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Last-minute cancellations are strictly reserved for genuine medical emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show."\n🛑 *90-Day Inactivity:* Students who pause or remain inactive for over 90 days without prior formal agreement will have their ongoing enrollment closed to accommodate the waitlist.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`; }
+            if (packetType === "new") { 
+                msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`; 
+            } else { 
+                msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Last-minute cancellations are strictly reserved for genuine medical emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show."\n🛑 *90-Day Inactivity:* Students who pause or remain inactive for over 90 days without prior formal agreement will have their ongoing enrollment closed to accommodate the waitlist.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`; 
+            }
         }
         
-        document.getElementById("onboardOutput").value = msg; document.getElementById("onboard-output-area").style.display = "block";
+        document.getElementById("onboardOutput").value = msg; 
+        document.getElementById("onboard-output-area").style.display = "block";
     };
 
     /* --- OMNIBOX / COMMAND PALETTE ENGINE --- */
@@ -3119,7 +3205,7 @@
         const isSlots = q.includes("free") || q.includes("slot") || q.includes("available");
         const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee");
         const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback");
-        const isAnalytics = q.includes("no show") || q.includes("analytics") || q.includes("revenue") || q.includes("stats");
+        const isAnalytics = q.includes("no show") || q.includes("absent") || q.includes("analytics") || q.includes("revenue") || q.includes("stats");
 
         // Action: Multi-Variable Scheduling
         if (isSchedule && targetStudent && !isReschedule) {
@@ -3271,6 +3357,7 @@
                                 <div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div>
                             </div>
                         </div>
+                        <button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6; height: 28px; padding: 0 8px;" onclick="event.stopPropagation(); window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${s.name}');">✨ Smart Slot</button>
                     </div>
                     <div style="display:flex; gap:8px;">
                         <button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${s.name}')">💬 Jump to CRM</button>
