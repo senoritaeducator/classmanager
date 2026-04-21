@@ -226,7 +226,7 @@
             </div>
             <div class="converter-wrapper">
                 <div class="converter-box">
-                    <div style="font-size:0.7rem; font-weight:700; color:var(--text-sub); text-transform:uppercase;">Reschedule Helper</div>
+                    <div style="font-size:0.7rem; font-weight:700; color:var(--text-sub); text-transform:uppercase;">Time Zone Converter</div>
                     <input type="date" id="conv-student-date" class="conv-input" style="width: 140px;" onchange="if(window.calcConv) window.calcConv();">
                     <select id="conv-student-zone" class="conv-select" style="min-width: 140px;">
                         <option value="" disabled selected>Select City...</option>
@@ -267,12 +267,12 @@
     </div>
 
     <nav class="main-tabs">
-        <button class="main-tab-btn active" onclick="window.showMainSection('classes')">Manage Classes</button>
-        <button class="main-tab-btn" onclick="window.showMainSection('students')">Manage Students</button>
+        <button class="main-tab-btn active" onclick="window.showMainSection('classes')">Class Planner</button>
+        <button class="main-tab-btn" onclick="window.showMainSection('students')">Student Directory</button>
         <button class="main-tab-btn" onclick="window.showMainSection('communications')">💬 Parent Relations</button>
         <button class="main-tab-btn tab-ai" onclick="window.showMainSection('drafter')">✨ AI Drafter</button>
         <button class="main-tab-btn" onclick="window.showMainSection('analytics')">📊 Analytics</button>
-        <button class="main-tab-btn" onclick="window.showMainSection('bulk')">📑 Bulk Schedule</button>
+        <button class="main-tab-btn" onclick="window.showMainSection('bulk')">Bulk Scheduling</button>
         <button class="main-tab-btn" onclick="window.showMainSection('onboarding')">🚀 Onboarding</button> 
     </nav>
 
@@ -286,7 +286,7 @@
                     <div class="overview-sub" id="stats-students-sub">Active Enrollments</div>
                 </div>
                 <div class="overview-tile">
-                    <div class="overview-title">Today's Load <button id="refresh-today-btn" onclick="window.fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
+                    <div class="overview-title">Today's Plan <button id="refresh-today-btn" onclick="window.fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
                     <div class="overview-main" id="stats-today-main">--</div>
                     <div class="today-classes-list" id="today-classes-list" style="margin-top:8px; max-height:100px; overflow-y:auto;"></div>
                 </div>
@@ -339,7 +339,7 @@
             <div class="layout-with-sidebar" style="margin-top:24px; display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
                 <div id="view-classes-output" class="classes-list" style="flex:2; min-width:300px;"></div>
                 <div id="free-slots-panel" class="side-panel" style="flex:1; min-width:280px; background:#fff; border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:var(--shadow);">
-                    <div class="slot-title" style="font-weight:700; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px;">Free Slots</div>
+                    <div class="slot-title" style="font-weight:700; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px;">Available Slots</div>
                     <div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:12px;">Working Hours: 09:00 AM - 10:00 PM</div>
                     <div id="free-slots-list" style="display:flex; flex-direction:column; gap:6px;"></div>
                 </div>
@@ -377,7 +377,7 @@
                         <div id="manage-students-msg" style="margin-top:10px; font-size: 0.9rem;"></div>
                     </div>
                     <div style="margin-top:24px;">
-                        <h4 style="margin-bottom:12px; font-size:0.9rem; color:#ef4444; font-weight:600;">Danger Zone</h4>
+                        <h4 style="margin-bottom:12px; font-size:0.9rem; color:#ef4444; font-weight:600;">Delete Student</h4>
                         <div class="form-group"><select id="student-delete-select"><option value="">Select student to delete...</option></select></div>
                         <button id="delete-student-btn" class="btn btn-outline btn-block" style="color:#ef4444; border-color:#fecaca;" onclick="window.executeDeleteStudent()">Delete Student</button>
                         <div id="delete-student-msg" style="margin-top:10px; font-size: 0.9rem; text-align: center;"></div>
@@ -798,11 +798,11 @@
     </section>
 
     <footer class="footer">
-        <div class="footer-left">Last Updated: April 20, 2026, 05:00 PM IST</div>
+        <div class="footer-left">Last Updated: April 21, 2026, 01:00 PM IST</div>
         <div class="footer-center">
             <div>Advanced Class Manager &copy; 2026</div>
             <div style="margin-top:4px;">Licensed to Senorita</div>
-            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v111.0 PRO (The Executive Build) | Powered by LazifAI</div>
+            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v111.1 PRO (The Executive Build) | Powered by LazifAI</div>
         </div>
         <div class="footer-right"></div>
     </footer>
@@ -903,11 +903,11 @@
                 <button class="btn btn-outline btn-sm" onclick="document.getElementById('smartBulletinModal').classList.remove('show')">✕</button>
             </div>
             <div style="display:flex; border-bottom:1px solid #e2e8f0; background:#f8fafc; overflow-x:auto;">
-                <button class="sb-tab-btn active" onclick="window.switchSbTab('scout')">🔍 Trial Scout</button>
-                <button class="sb-tab-btn" onclick="window.switchSbTab('fbAlerts')">💬 Feedback Due</button>
+                <button class="sb-tab-btn active" onclick="window.switchSbTab('scout')">🔍 Trial Follow-ups</button>
+                <button class="sb-tab-btn" onclick="window.switchSbTab('fbAlerts')">💬 Send Feedback</button>
                 <button class="sb-tab-btn" onclick="window.switchSbTab('retention')">🛡️ At Risk</button>
                 <button class="sb-tab-btn" onclick="window.switchSbTab('packages')">📦 Renewals</button>
-                <button class="sb-tab-btn" onclick="window.switchSbTab('vacation')">✈️ Vacation</button>
+                <button class="sb-tab-btn" onclick="window.switchSbTab('vacation')">✈️ Out of Office Message</button>
             </div>
             <div class="modal-body" style="padding: 24px; background: #fff; min-height:300px; max-height:60vh;">
                 
@@ -936,7 +936,7 @@
 
                 <div id="sb-vacation" class="sb-content">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                        <span style="font-weight:700; color:var(--text-main);">Vacation Auto-Responder</span>
+                        <span style="font-weight:700; color:var(--text-main);">Out Of Office Notice Drafter</span>
                         <button class="btn btn-soft btn-sm" onclick="window.triggerManualVacationReset()">🔄 Clear</button>
                     </div>
                     <div style="display:flex; gap:16px; margin-bottom:16px;">
@@ -1083,11 +1083,11 @@
 
     <div class="fab-container">
         <div class="fab-menu" id="fab-menu">
-            <div class="fab-item" onclick="window.openSmartBulletin()">🚀 Open Smart Bulletin</div>
-            <div class="fab-item" onclick="window.openAiDrafter()">✨ Draft AI Reply</div>
-            <div class="fab-item" onclick="window.showMainSection('communications'); document.querySelector('input[value=\'progress\']').click(); document.getElementById('crm-student-select').focus(); window.scrollTo(0,0);">💬 Write Progress Report</div>
-            <div class="fab-item" onclick="window.openPendingReviews()">📝 Pending Reviews</div>
-            <div class="fab-item" onclick="window.showMainSection('classes'); window.scrollTo(0, document.getElementById('schedule-class-btn').offsetTop - 200);">📅 Schedule Class</div>
+            <div class="fab-item" onclick="window.openSmartCopyModal('week')">📋 Share Open Slots</div>
+            <div class="fab-item" onclick="window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\'vision\']').click(), 100); window.scrollTo(0,0);">📸 Snap & Correct</div>
+            <div class="fab-item" onclick="window.showMainSection('students'); showToast('Click the 🔁 icon next to any student to shift.', 'info'); window.scrollTo(0,0);">🔁 Bulk Shift Schedule</div>
+            <div class="fab-item" onclick="window.openSmartBulletin(); window.switchSbTab('vacation');">✈️ Out of Office Message</div>
+            <div class="fab-item" onclick="window.showMainSection('students'); document.getElementById('student-name-input').focus(); window.scrollTo(0,0);">🆕 Quick Add Student</div>
         </div>
         <button class="fab-main" id="fab-main" title="Quick Actions" onclick="window.toggleQuickMenu(event)">⚡</button>
     </div>
@@ -2204,7 +2204,7 @@
             if(r.personalEarnings !== undefined) { 
                 document.getElementById("stats-earnings-prepaid").textContent = "₹" + (r.personalEarnings||0).toLocaleString('en-IN'); 
                 document.getElementById("stats-earnings-accrued").textContent = "₹" + (r.cmEarnings||0).toLocaleString('en-IN'); 
-                document.getElementById("stats-earnings-sub").textContent = `${r.personalCount || 0} Personal | ${r.cmCount || 0} CM`;
+                document.getElementById("stats-earnings-sub").textContent = `${r.personalCount || 0} Personal | ${r.cmCount || 0} CM`; 
             } 
         } catch(e) {}
     };
@@ -3022,7 +3022,7 @@
                     if(bootData.earningsRes.personalEarnings !== undefined) { 
                         document.getElementById("stats-earnings-prepaid").textContent = "₹" + (bootData.earningsRes.personalEarnings||0).toLocaleString('en-IN'); 
                         document.getElementById("stats-earnings-accrued").textContent = "₹" + (bootData.earningsRes.cmEarnings||0).toLocaleString('en-IN'); 
-                        document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.personalCount || 0} Personal | ${bootData.earningsRes.cmCount || 0} CM`;
+                        document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.personalCount || 0} Personal | ${bootData.earningsRes.cmCount || 0} CM`; 
                     } 
                 }
                 
