@@ -3053,21 +3053,77 @@
     window.processOmniboxQuery = (query) => {
         const resultsContainer = document.getElementById("omniboxResults");
         if (!query) { resultsContainer.style.display = "none"; return; }
-        
+
         resultsContainer.style.display = "block";
         let html = "";
+        let matched = false;
 
-        // 1. Check for Commands (Deep Links)
+        // 1. ADVANCED NATURAL LANGUAGE ROUTING (Heuristics)
+        const q = query.toLowerCase();
+
+        // Time parsing
+        let targetDateStr = null;
+        let dateLabel = "";
+        const todayObj = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+
+        if (q.includes("today")) { 
+            targetDateStr = APP_STATE.todayDate; 
+            dateLabel = "Today"; 
+        }
+        else if (q.includes("tomorrow") || q.includes("tmrw")) {
+            let tmrw = new Date(todayObj); 
+            tmrw.setDate(todayObj.getDate() + 1);
+            targetDateStr = tmrw.toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'});
+            dateLabel = "Tomorrow";
+        } 
+        else {
+            const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+            for (let i=0; i<7; i++) {
+                if (q.includes(days[i])) {
+                    let d = new Date(todayObj);
+                    let diff = i - d.getDay();
+                    if (diff <= 0) diff += 7; // Get next occurrence if past or today
+                    d.setDate(d.getDate() + diff);
+                    targetDateStr = d.toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'});
+                    dateLabel = days[i].charAt(0).toUpperCase() + days[i].slice(1);
+                    break;
+                }
+            }
+        }
+
+        // Intent parsing
+        const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan");
+        const isSlots = q.includes("free") || q.includes("slot") || q.includes("available");
+
+        if ((isSchedule || isSlots) && targetDateStr) {
+            matched = true;
+            let icon = isSlots ? "🟢" : "📅";
+            let titleText = isSlots ? `View Free Slots for ${dateLabel}` : `View Schedule for ${dateLabel}`;
+            let action = `window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value='${targetDateStr}'; window.loadClassesForViewDate();`;
+
+            html += `<div class="ob-result-item" onclick="${action}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.2rem;">${icon}</span>
+                    <span style="font-weight:600; color:var(--text-main);">${titleText}</span>
+                    <span class="ob-command-badge">Smart Route</span>
+                </div>
+                <span style="color:#cbd5e1;">⏎</span>
+            </div>`;
+        }
+
+        // 2. CHECK COMMANDS (Deep Links)
         const commands = [
             { keywords: ["vacation", "ooo", "leave", "holiday"], title: "Draft Out of Office Message", icon: "✈️", action: "window.closeOmnibox(); window.openSmartBulletin(); window.switchSbTab('vacation');" },
             { keywords: ["add", "new", "create"], title: "Quick Add Student", icon: "🆕", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(()=>document.getElementById('student-name-input').focus(), 300);" },
-            { keywords: ["revenue", "analytics", "stats", "money"], title: "View Executive Analytics", icon: "📊", action: "window.closeOmnibox(); window.showMainSection('analytics');" },
+            { keywords: ["revenue", "analytics", "stats", "money", "earnings"], title: "View Executive Analytics", icon: "📊", action: "window.closeOmnibox(); window.showMainSection('analytics');" },
             { keywords: ["bulk", "shift", "reschedule"], title: "Bulk Shift / Reschedule", icon: "🔁", action: "window.closeOmnibox(); window.showMainSection('students'); showToast('Click the 🔁 icon next to any student to shift.', 'info');" },
-            { keywords: ["scan", "photo", "correct", "image"], title: "Snap & Correct (Vision AI)", icon: "📸", action: "window.closeOmnibox(); window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\\'vision\\']').click(), 100);" }
+            { keywords: ["scan", "photo", "correct", "image"], title: "Snap & Correct (Vision AI)", icon: "📸", action: "window.closeOmnibox(); window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\\'vision\\']').click(), 100);" },
+            { keywords: ["pending", "review", "done"], title: "Clear Pending Reviews", icon: "📝", action: "window.closeOmnibox(); window.openPendingReviews();" }
         ];
 
         commands.forEach(cmd => {
-            if (cmd.keywords.some(kw => kw.includes(query) || query.includes(kw))) {
+            if (cmd.keywords.some(kw => q.includes(kw))) {
+                matched = true;
                 html += `<div class="ob-result-item" onclick="${cmd.action}">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <span style="font-size:1.2rem;">${cmd.icon}</span>
@@ -3079,9 +3135,10 @@
             }
         });
 
-        // 2. Search Students
-        const matchingStudents = APP_STATE.students.filter(s => s.name.toLowerCase().includes(query));
+        // 3. SEARCH STUDENTS
+        const matchingStudents = APP_STATE.students.filter(s => s.name.toLowerCase().includes(q));
         matchingStudents.forEach(s => {
+            matched = true;
             html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:10px;">
@@ -3099,8 +3156,8 @@
             </div>`;
         });
 
-        if (html === "") {
-            html = `<div style="text-align:center; padding:20px; color:#94a3b8;">No matching students or commands found.</div>`;
+        if (!matched) {
+            html = `<div style="text-align:center; padding:20px; color:#94a3b8;">No matching students or commands found.<br><span style="font-size:0.8rem; margin-top:8px; display:block;">Try: "schedule tomorrow", "free slots friday", or a student's name.</span></div>`;
         }
         
         resultsContainer.innerHTML = html;
