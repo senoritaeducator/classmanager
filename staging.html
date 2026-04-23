@@ -2429,14 +2429,17 @@
         if(feedData.length === 0) { list.innerHTML = '<div style="padding:10px;text-align:center;">No slots available</div>'; return; }
         
         feedData.forEach(day => { 
-            const dateFmt = day.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }); 
+            // REQUIREMENT 3 FIX: Inject Full Day of the Week into the UI feed
+            const dayNameShort = day.date.toLocaleDateString('en-GB', { weekday: 'short' });
+            const dateNumFmt = day.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const dateDisplay = `${dayNameShort}, ${dateNumFmt}`; 
             
             if (day.status === 'cancelled') {
-                list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${dateFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${dateFmt}')">📋</button></div><div><div class="slot-pill slot-red">🏝️ All Cancelled</div></div></div>`;
+                list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${dateDisplay}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${dateNumFmt}')">📋</button></div><div><div class="slot-pill slot-red">🏝️ All Cancelled</div></div></div>`;
                 return;
             }
             if (day.status === 'off') {
-                list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${dateFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${dateFmt}')">📋</button></div><div><div class="slot-pill slot-grey">🏖️ Weekly Off</div></div></div>`;
+                list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${dateDisplay}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${dateNumFmt}')">📋</button></div><div><div class="slot-pill slot-grey">🏖️ Weekly Off</div></div></div>`;
                 return;
             }
 
@@ -2452,7 +2455,7 @@
             if(hasAft) blocksHtml += `<div style="margin-bottom:6px;"><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:65px; font-weight:600;">☀️ Afternoon</span> ${aft}</div>`;
             if(hasEve) blocksHtml += `<div><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:65px; font-weight:600;">🌙 Evening</span> ${eve}</div>`;
 
-            list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${dateFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${dateFmt}')">📋</button></div><div>${blocksHtml}</div></div>`; 
+            list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${dateDisplay}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${dateNumFmt}')">📋</button></div><div>${blocksHtml}</div></div>`; 
         }); 
         APP_STATE.feedData = feedData;
     };
@@ -2474,7 +2477,8 @@
         if(target === 'week') text += `📅 *Availability Options*\n\n`;
         
         daysToProcess.forEach(day => {
-            let dayText = `*${day.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}*\n`;
+            // REQUIREMENT 3 FIX: Inject Full Day Name into the copied text
+            let dayText = `*${day.date.toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}*\n`;
             
             if (day.status === 'cancelled') {
                 text += dayText + `🏝️ Fully Booked / Cancelled\n\n`;
@@ -3134,50 +3138,33 @@
     window.openRosterHealth = async () => {
         document.getElementById("rosterHealthModal").classList.add("show");
         const body = document.getElementById("rosterHealthBody");
-        body.innerHTML = '<div style="text-align:center; padding:20px; color:var(--primary);">Analyzing 21-day load distribution...</div>';
-        
+        body.innerHTML = '<div style="text-align:center; padding:20px; color:var(--primary);">Analyzing 21-day true load distribution...</div>';
+
         try {
             const r = await fetchAPI(null, { action: "getRosterHealth" });
             if (r.status === "error") throw new Error();
-            
-            let loadHtml = `<div style="display:flex; justify-content:space-between; margin-bottom:15px; flex-wrap:wrap; gap:10px;">`;
-            for(let day in r.normalizedLoad) {
-                let color = day === r.bottleneck ? '#ef4444' : (r.oasis.includes(day) ? '#10b981' : '#64748b');
-                let bg = day === r.bottleneck ? '#fef2f2' : (r.oasis.includes(day) ? '#f0fdf4' : '#f8fafc');
-                let border = day === r.bottleneck ? '#fecaca' : (r.oasis.includes(day) ? '#bbf7d0' : '#e2e8f0');
-                loadHtml += `<div style="flex:1; min-width:60px; text-align:center; padding:8px 4px; border:1px solid ${border}; background:${bg}; border-radius:6px;">
-                    <div style="font-size:0.7rem; font-weight:700; color:${color};">${day.substring(0,3)}</div>
-                    <div style="font-size:1rem; font-weight:700; color:var(--text-main);">${r.normalizedLoad[day]}</div>
-                </div>`;
-            }
-            loadHtml += `</div>`;
 
             let targetsHtml = r.highImpactTargets.map(t => `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px 12px; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:6px;">
                 <span style="font-weight:600;">${t}</span>
-                <button class="btn btn-primary btn-sm" onclick="window.openSoftCloseModal('${t}')">Relocate</button>
+                <button class="btn btn-primary btn-sm" onclick="window.openSoftCloseModal('${t}')">✨ Relocate</button>
             </div>`).join('');
 
             body.innerHTML = `
-                <div style="margin-bottom:20px;">
-                    <div style="font-weight:700; margin-bottom:8px; color:var(--text-main);">Normalized Week Load (Next 21 Days)</div>
-                    ${loadHtml}
-                </div>
                 <div style="display:flex; gap:15px; margin-bottom:20px;">
                     <div style="flex:1; padding:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px;">
-                        <div style="font-size:0.75rem; font-weight:700; color:#b91c1c; text-transform:uppercase;">🔥 Bottleneck</div>
-                        <div style="font-size:1.2rem; font-weight:700; color:#991b1b;">${r.bottleneck}</div>
+                        <div style="font-size:0.75rem; font-weight:700; color:#b91c1c; text-transform:uppercase;">🚨 The Bottleneck</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#991b1b;">${r.bottleneck} - Avg ${r.bottleneckAvg} classes</div>
                     </div>
                     <div style="flex:1; padding:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;">
-                        <div style="font-size:0.75rem; font-weight:700; color:#166534; text-transform:uppercase;">🌱 Oasis Targets</div>
-                        <div style="font-size:1.2rem; font-weight:700; color:#15803d;">${r.oasis.join(', ')}</div>
+                        <div style="font-size:0.75rem; font-weight:700; color:#166534; text-transform:uppercase;">🟢 The Oasis</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#15803d;">${r.oasis.join(' & ')}</div>
                     </div>
                 </div>
                 <div>
-                    <div style="font-weight:700; margin-bottom:8px; color:var(--text-main);">High-Impact Relocation Targets (From Bottleneck)</div>
+                    <div style="font-weight:700; margin-bottom:8px; color:var(--text-main);">Recurring Students on Bottleneck Day</div>
                     ${targetsHtml || '<div style="color:var(--text-sub); font-size:0.9rem;">No immediate targets.</div>'}
                 </div>
             `;
-
         } catch(e) {
             body.innerHTML = '<div style="color:#ef4444; text-align:center;">Failed to load health metrics.</div>';
         }
@@ -3187,33 +3174,34 @@
         document.getElementById("rosterHealthModal").classList.remove("show");
         document.getElementById("softCloseModal").classList.add("show");
         const body = document.getElementById("softCloseBody");
-        body.innerHTML = '<div style="text-align:center; padding:20px; color:var(--primary);">Generating elite draft & checking oasis slots...</div>';
-        
+        body.innerHTML = '<div style="text-align:center; padding:20px; color:var(--primary);">Generating elite Soft Close draft...</div>';
+
         try {
             const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName });
             if (r.status === "error") throw new Error();
-            
-            let opts = r.oasisDays.map(d => `<option value="${d}">${isoToDisplayDate(d)}</option>`).join('');
+
+            let sDate = r.slots.length > 0 && r.slots[0].date !== "TBD" ? r.slots[0].date : "";
+            let sTime = r.slots.length > 0 && r.slots[0].time !== "TBD" ? time24To12(r.slots[0].time) : "";
 
             body.innerHTML = `
                 <div style="font-weight:700; color:var(--primary); margin-bottom:12px; font-size:1.1rem;">Target: ${studentName}</div>
                 <label style="font-weight:600; font-size:0.85rem; color:var(--text-main);">Executive Relocation Message</label>
-                <textarea id="softCloseDraft" readonly style="width:100%; height:120px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:8px;">${r.draft}</textarea>
+                <textarea id="softCloseDraft" readonly style="width:100%; height:180px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:8px;">${r.draft}</textarea>
                 <div style="text-align:right; margin-bottom:16px;">
-                    <button class="btn btn-outline btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('softCloseDraft').value); showToast('Copied!');">📋 Copy</button>
+                    <button class="btn btn-outline btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('softCloseDraft').value); showToast('Copied!');">📋 Copy Message</button>
                 </div>
 
                 <div class="form-group" style="margin-bottom:12px;">
-                    <label>Target Oasis Date</label>
-                    <select id="softCloseTargetDate" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">${opts}</select>
+                    <label>Target Reschedule Date</label>
+                    <input type="date" id="softCloseTargetDate" value="${sDate}" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">
                 </div>
                 <div class="form-group" style="margin-bottom:20px;">
-                    <label>Target Time</label>
-                    <input type="text" id="softCloseTargetTime" placeholder="hh:mm AM/PM" onblur="window.normalizeUserTime(this)" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">
+                    <label>Target Reschedule Time</label>
+                    <input type="text" id="softCloseTargetTime" value="${sTime}" placeholder="hh:mm AM/PM" onblur="window.normalizeUserTime(this)" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">
                 </div>
 
                 <div style="display:flex; gap:10px; flex-direction:column;">
-                    <button class="btn btn-outline" style="color:#f59e0b; border-color:#fcd34d;" onclick="window.executeSoftCloseShift('${studentName}', false)">🔁 Shift Next Class</button>
+                    <button class="btn btn-outline" style="color:#f59e0b; border-color:#fcd34d;" onclick="window.executeSoftCloseShift('${studentName}', false)">🔁 Shift Next Class Only</button>
                     <button class="btn btn-primary" onclick="window.executeSoftCloseShift('${studentName}', true)">🚀 Shift ALL Future Classes</button>
                 </div>
             `;
