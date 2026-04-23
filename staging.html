@@ -114,7 +114,6 @@
         .scrolly-list { overflow-y: auto; padding: 10px; flex: 1; }
         .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500; transition: border-color 0.1s; gap: 12px; flex-wrap: wrap; }
         
-        /* PHASE 1: UI FIX - Enforce Vertical Stacking for Mobile */
         .student-action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; width: 100%; }
         @media (max-width: 480px) {
             .student-action-btns { grid-template-columns: 1fr; } 
@@ -822,11 +821,11 @@
     </section>
 
     <footer class="footer">
-        <div class="footer-left">Last Updated: April 23, 2026, 11:14 PM IST</div>
+        <div class="footer-left">Last Updated: April 23, 2026, 11:28 PM IST</div>
         <div class="footer-center">
             <div>Advanced Class Manager &copy; 2026</div>
             <div style="margin-top:4px;">Licensed to Senorita</div>
-            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v112.1 PRO (Staging Environment) | Powered by LazifAI</div>
+            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v112.2 PRO (Staging Environment) | Powered by LazifAI</div>
         </div>
         <div class="footer-right"></div>
     </footer>
@@ -1197,6 +1196,8 @@
     let dispatchState = { students: [], template: "", currentIndex: 0 };
     let currentRenameOldName = "";
     let editingStudentName = "";
+    
+    window._currentOasisLoads = {}; // Global cache for Roster Impact Math
 
     /* --- GLOBAL UTILITIES --- */
     window.toggleQuickMenu = (e) => {
@@ -2429,7 +2430,6 @@
         if(feedData.length === 0) { list.innerHTML = '<div style="padding:10px;text-align:center;">No slots available</div>'; return; }
         
         feedData.forEach(day => { 
-            // REQUIREMENT 3 FIX: Inject Full Day of the Week into the UI feed
             const dayNameShort = day.date.toLocaleDateString('en-GB', { weekday: 'short' });
             const dateNumFmt = day.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
             const dateDisplay = `${dayNameShort}, ${dateNumFmt}`; 
@@ -2477,7 +2477,6 @@
         if(target === 'week') text += `📅 *Availability Options*\n\n`;
         
         daysToProcess.forEach(day => {
-            // REQUIREMENT 3 FIX: Inject Full Day Name into the copied text
             let dayText = `*${day.date.toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}*\n`;
             
             if (day.status === 'cancelled') {
@@ -2507,6 +2506,143 @@
         navigator.clipboard.writeText(text.trim());
         document.getElementById("smartCopyModal").classList.remove("show");
         showToast("Filtered Availability Copied!");
+    };
+
+    window.openRosterHealth = async () => {
+        document.getElementById("rosterHealthModal").classList.add("show");
+        const body = document.getElementById("rosterHealthBody");
+        body.innerHTML = '<div style="text-align:center; padding:20px; color:var(--primary);">Analyzing 21-day true load distribution...</div>';
+
+        try {
+            const r = await fetchAPI(null, { action: "getRosterHealth" });
+            if (r.status === "error") throw new Error();
+
+            let targetsHtml = r.highImpactTargets.map(t => `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px 12px; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:6px;">
+                <div>
+                    <span style="font-weight:700;">${t.name}</span>
+                    <span style="font-size:0.8rem; color:var(--text-sub); margin-left:6px;">(${time24To12(t.time)})</span>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="window.openSoftCloseModal('${t.name}', '${t.time}', '${r.bottleneck}', '${r.bottleneckAvg}')">✨ Relocate</button>
+            </div>`).join('');
+
+            body.innerHTML = `
+                <div style="display:flex; gap:15px; margin-bottom:20px;">
+                    <div style="flex:1; padding:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px;">
+                        <div style="font-size:0.75rem; font-weight:700; color:#b91c1c; text-transform:uppercase;">🚨 The Bottleneck</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#991b1b;">${r.bottleneck} - Avg ${r.bottleneckAvg} classes</div>
+                    </div>
+                    <div style="flex:1; padding:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;">
+                        <div style="font-size:0.75rem; font-weight:700; color:#166534; text-transform:uppercase;">🟢 The Oasis</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#15803d;">${r.oasis.join(' & ')}</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-weight:700; margin-bottom:8px; color:var(--text-main);">Recurring Students on Bottleneck Day</div>
+                    ${targetsHtml || '<div style="color:var(--text-sub); font-size:0.9rem;">No immediate targets.</div>'}
+                </div>
+            `;
+        } catch(e) {
+            body.innerHTML = '<div style="color:#ef4444; text-align:center;">Failed to load health metrics.</div>';
+        }
+    };
+
+    window.openSoftCloseModal = async (studentName, originalTime, bottleneckDay, bottleneckAvg) => {
+        document.getElementById("rosterHealthModal").classList.remove("show");
+        document.getElementById("softCloseModal").classList.add("show");
+        const body = document.getElementById("softCloseBody");
+        body.innerHTML = '<div style="text-align:center; padding:20px; color:var(--primary);">Generating elite Soft Close draft...</div>';
+
+        try {
+            const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, originalTime: originalTime, bottleneckDay: bottleneckDay });
+            if (r.status === "error") throw new Error();
+
+            window._currentOasisLoads = r.oasisLoads || {};
+
+            let uniqueDates = [];
+            let optsHtml = "";
+            r.slots.forEach(s => {
+                if(!uniqueDates.find(d => d.date === s.date) && s.date !== "TBD") {
+                    uniqueDates.push(s);
+                    optsHtml += `<option value="${s.date}" data-day="${s.dayName}">${s.dayName}, ${isoToDisplayDate(s.date)}</option>`;
+                }
+            });
+
+            let sDate = uniqueDates.length > 0 ? uniqueDates[0].date : "";
+            let sTime = r.slots.length > 0 && r.slots[0].time !== "TBD" ? time24To12(r.slots[0].time) : "";
+
+            let newBottleneckAvg = (parseFloat(bottleneckAvg) - 0.3).toFixed(1);
+
+            body.innerHTML = `
+                <div style="font-weight:700; color:var(--primary); margin-bottom:12px; font-size:1.1rem;">Target: ${studentName}</div>
+                <label style="font-weight:600; font-size:0.85rem; color:var(--text-main);">Executive Relocation Message</label>
+                <textarea id="softCloseDraft" readonly style="width:100%; height:200px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:8px;">${r.draft}</textarea>
+                <div style="text-align:right; margin-bottom:16px;">
+                    <button class="btn btn-outline btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('softCloseDraft').value); showToast('Copied!');">📋 Copy Message</button>
+                </div>
+
+                <div id="rosterImpactBox" style="margin-bottom:16px; padding:12px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+                     <div style="font-weight:700; font-size:0.8rem; text-transform:uppercase; color:var(--text-sub); margin-bottom:8px;">Projected Roster Impact</div>
+                     <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:0.9rem;">
+                         <span style="color:#b91c1c;">🔴 ${bottleneckDay}:</span>
+                         <span style="font-weight:600;">${bottleneckAvg} ➔ ${newBottleneckAvg} classes/day</span>
+                     </div>
+                     <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                         <span style="color:#15803d;" id="impactOasisLabel">🟢 Oasis Target:</span>
+                         <span style="font-weight:600;" id="impactOasisMath">-- ➔ --</span>
+                     </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label>Target Reschedule Date</label>
+                    <select id="softCloseTargetDate" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1;" onchange="window.updateImpactMath()">${optsHtml || '<option value="">No Slots Found</option>'}</select>
+                </div>
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label>Target Reschedule Time</label>
+                    <input type="text" id="softCloseTargetTime" value="${sTime}" placeholder="hh:mm AM/PM" onblur="window.normalizeUserTime(this)" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">
+                </div>
+
+                <div style="display:flex; gap:10px; flex-direction:column;">
+                    <button class="btn btn-outline" style="color:#f59e0b; border-color:#fcd34d;" onclick="window.executeSoftCloseShift('${studentName}', false)">🔁 Shift Next Class Only</button>
+                    <button class="btn btn-primary" onclick="window.executeSoftCloseShift('${studentName}', true)">🚀 Shift ALL Future Classes</button>
+                </div>
+            `;
+
+            window.updateImpactMath = () => {
+                const sel = document.getElementById("softCloseTargetDate");
+                if(sel.options.length === 0 || !sel.value) return;
+                const opt = sel.options[sel.selectedIndex];
+                const dayName = opt.getAttribute("data-day");
+                const currentLoad = parseFloat(window._currentOasisLoads[dayName] || 0);
+                const newLoad = (currentLoad + 0.3).toFixed(1);
+                
+                document.getElementById("impactOasisLabel").textContent = `🟢 ${dayName}:`;
+                document.getElementById("impactOasisMath").innerHTML = `${currentLoad.toFixed(1)} ➔ <span style="color:#15803d;">${newLoad} classes/day</span>`;
+            };
+            
+            window.updateImpactMath();
+
+        } catch(e) {
+            body.innerHTML = '<div style="color:#ef4444; text-align:center;">Failed to load macro suggestions.</div>';
+        }
+    };
+
+    window.executeSoftCloseShift = (studentName, allFuture) => {
+        document.getElementById("softCloseModal").classList.remove("show");
+        const newDate = document.getElementById("softCloseTargetDate").value;
+        const newTime = document.getElementById("softCloseTargetTime").value;
+        
+        if(!newTime) return showToast("Enter a target time first.", "error");
+
+        if (allFuture) {
+            window.openShiftModal(studentName);
+            document.getElementById("shiftNewTime").value = newTime;
+            showToast("Soft Close: Select original time to complete bulk shift.", "info");
+        } else {
+            window.showMainSection('classes');
+            document.getElementById("view-date").value = APP_STATE.todayDate;
+            window.loadClassesForViewDate();
+            showToast("Find the class on the dashboard and click 'Reschedule' to move it to " + newDate, "info");
+        }
     };
 
     window.openSmartBulletin = () => { 
@@ -2592,7 +2728,6 @@
             outDiv.innerHTML = `<div style="color:#ef4444; font-size:0.85rem;">Failed: ${e.message}</div>`;
         }
     };
-
 
     window.isVacationDirty = () => { return document.getElementById("vac-start").value !== "" || document.getElementById("vac-reason").value.trim() !== "" || document.getElementById("vac-ai-output").innerHTML.trim() !== ""; };
     window.clearVacation = () => { document.getElementById("vac-start").value = ""; document.getElementById("vac-end").value = ""; document.getElementById("vac-reason").value = ""; document.getElementById("vac-ai-output").innerHTML = ""; document.getElementById("vac-ai-output").style.display = "none"; };
@@ -3149,7 +3284,7 @@
                     <span style="font-weight:700;">${t.name}</span>
                     <span style="font-size:0.8rem; color:var(--text-sub); margin-left:6px;">(${time24To12(t.time)})</span>
                 </div>
-                <button class="btn btn-primary btn-sm" onclick="window.openSoftCloseModal('${t.name}', '${t.time}')">✨ Relocate</button>
+                <button class="btn btn-primary btn-sm" onclick="window.openSoftCloseModal('${t.name}', '${t.time}', '${r.bottleneck}', '${r.bottleneckAvg}')">✨ Relocate</button>
             </div>`).join('');
 
             body.innerHTML = `
@@ -3173,30 +3308,55 @@
         }
     };
 
-    window.openSoftCloseModal = async (studentName, originalTime) => {
+    window.openSoftCloseModal = async (studentName, originalTime, bottleneckDay, bottleneckAvg) => {
         document.getElementById("rosterHealthModal").classList.remove("show");
         document.getElementById("softCloseModal").classList.add("show");
         const body = document.getElementById("softCloseBody");
         body.innerHTML = '<div style="text-align:center; padding:20px; color:var(--primary);">Generating elite Soft Close draft...</div>';
 
         try {
-            const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, originalTime: originalTime });
+            const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, originalTime: originalTime, bottleneckDay: bottleneckDay });
             if (r.status === "error") throw new Error();
 
-            let sDate = r.slots.length > 0 && r.slots[0].date !== "TBD" ? r.slots[0].date : "";
+            window._currentOasisLoads = r.oasisLoads || {};
+
+            let uniqueDates = [];
+            let optsHtml = "";
+            r.slots.forEach(s => {
+                if(!uniqueDates.find(d => d.date === s.date) && s.date !== "TBD") {
+                    uniqueDates.push(s);
+                    optsHtml += `<option value="${s.date}" data-day="${s.dayName}">${s.dayName}, ${isoToDisplayDate(s.date)}</option>`;
+                }
+            });
+
+            let sDate = uniqueDates.length > 0 ? uniqueDates[0].date : "";
             let sTime = r.slots.length > 0 && r.slots[0].time !== "TBD" ? time24To12(r.slots[0].time) : "";
+
+            let newBottleneckAvg = (parseFloat(bottleneckAvg) - 0.3).toFixed(1);
 
             body.innerHTML = `
                 <div style="font-weight:700; color:var(--primary); margin-bottom:12px; font-size:1.1rem;">Target: ${studentName}</div>
                 <label style="font-weight:600; font-size:0.85rem; color:var(--text-main);">Executive Relocation Message</label>
-                <textarea id="softCloseDraft" readonly style="width:100%; height:180px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:8px;">${r.draft}</textarea>
+                <textarea id="softCloseDraft" readonly style="width:100%; height:200px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:8px;">${r.draft}</textarea>
                 <div style="text-align:right; margin-bottom:16px;">
                     <button class="btn btn-outline btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('softCloseDraft').value); showToast('Copied!');">📋 Copy Message</button>
                 </div>
 
+                <div id="rosterImpactBox" style="margin-bottom:16px; padding:12px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+                     <div style="font-weight:700; font-size:0.8rem; text-transform:uppercase; color:var(--text-sub); margin-bottom:8px;">Projected Roster Impact</div>
+                     <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:0.9rem;">
+                         <span style="color:#b91c1c;">🔴 ${bottleneckDay}:</span>
+                         <span style="font-weight:600;">${bottleneckAvg} ➔ ${newBottleneckAvg} classes/day</span>
+                     </div>
+                     <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                         <span style="color:#15803d;" id="impactOasisLabel">🟢 Oasis Target:</span>
+                         <span style="font-weight:600;" id="impactOasisMath">-- ➔ --</span>
+                     </div>
+                </div>
+
                 <div class="form-group" style="margin-bottom:12px;">
                     <label>Target Reschedule Date</label>
-                    <input type="date" id="softCloseTargetDate" value="${sDate}" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">
+                    <select id="softCloseTargetDate" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1;" onchange="window.updateImpactMath()">${optsHtml || '<option value="">No Slots Found</option>'}</select>
                 </div>
                 <div class="form-group" style="margin-bottom:20px;">
                     <label>Target Reschedule Time</label>
@@ -3208,6 +3368,20 @@
                     <button class="btn btn-primary" onclick="window.executeSoftCloseShift('${studentName}', true)">🚀 Shift ALL Future Classes</button>
                 </div>
             `;
+            
+            window.updateImpactMath = () => {
+                const sel = document.getElementById("softCloseTargetDate");
+                if(sel.options.length === 0 || !sel.value) return;
+                const opt = sel.options[sel.selectedIndex];
+                const dayName = opt.getAttribute("data-day");
+                const currentLoad = parseFloat(window._currentOasisLoads[dayName] || 0);
+                const newLoad = (currentLoad + 0.3).toFixed(1);
+                
+                document.getElementById("impactOasisLabel").textContent = `🟢 ${dayName}:`;
+                document.getElementById("impactOasisMath").innerHTML = `${currentLoad.toFixed(1)} ➔ <span style="color:#15803d;">${newLoad} classes/day</span>`;
+            };
+            
+            window.updateImpactMath();
 
         } catch(e) {
             body.innerHTML = '<div style="color:#ef4444; text-align:center;">Failed to load macro suggestions.</div>';
