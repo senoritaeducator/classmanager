@@ -1420,7 +1420,7 @@
         try {
             const r = await fetchAPI(null, { action: "getSmartScheduleSuggestions", studentName: name, preferences: prefs }); if (r.status === "error") throw new Error(r.message);
             const data = r.data; document.getElementById("smartSlotDraft").value = data.draft; const btnContainer = document.getElementById("smartSlotButtons"); btnContainer.innerHTML = "";
-            if(data.slots && data.slots.length > 0) { data.slots.forEach(slot => { const btnHtml = document.createElement("button"); btnHtml.className = "btn btn-primary"; btnHtml.innerHTML = `📅 Book ${isoToDisplayDate(slot.date)} at ${slot.time} & Copy`; btnHtml.onclick = () => window.executeSmartSlotSchedule(name, slot.date, slot.time); btnContainer.appendChild(btnHtml); }); }
+            if(data.slots && data.slots.length > 0) { data.slots.forEach(slot => { const btnHtml = document.createElement("button"); btnHtml.className = "btn btn-primary"; btnHtml.innerHTML = `📅 Book ${isoToDisplayDate(slot.date)} at ${time24To12(slot.time)} & Copy`; btnHtml.onclick = () => window.executeSmartSlotSchedule(name, slot.date, slot.time); btnContainer.appendChild(btnHtml); }); }
             document.getElementById("smartSlotResults").style.display = "block";
         } catch(e) { showToast("AI Failed: " + e.message, "error"); } finally { btn.disabled = false; btn.textContent = "🧠 Balance & Find Slots"; }
     };
@@ -1451,7 +1451,7 @@
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                             <div>
                                 <div style="font-weight:700; color:var(--text-main); font-size:1.05rem;">👤 ${plan.studentName}</div>
-                                <div style="font-size:0.85rem; color:var(--text-sub);">Shift from <b>${r.bottleneck} at ${toDisplayTime(plan.oldTime)}</b> ➔ <b>${plan.newDay} at ${toDisplayTime(plan.newTime)}</b></div>
+                                <div style="font-size:0.85rem; color:var(--text-sub);">Shift from <b>${r.bottleneck} at ${time24To12(plan.oldTime)}</b> ➔ <b>${plan.newDay} at ${time24To12(plan.newTime)}</b></div>
                             </div>
                             <button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="window.executeAiSuggestion('${plan.studentName}', '${plan.oldTime}', '${plan.newDate}', '${plan.newTime}', '${plan.newDay}', '${r.bottleneck}', this, ${idx})">✨ Generate Soft Close</button>
                         </div>
@@ -1463,7 +1463,7 @@
             const manualSel = document.getElementById("rh-manual-target-select");
             let opts = '<option value="" disabled selected>Select student from bottleneck day...</option>';
             if(r.targets && r.targets.length > 0) {
-                r.targets.forEach(t => { opts += `<option value="${t.name}" data-time="${t.time}">${t.name} (Current: ${toDisplayTime(t.time)})</option>`; });
+                r.targets.forEach(t => { opts += `<option value="${t.name}" data-time="${t.time}">${t.name} (Current: ${time24To12(t.time)})</option>`; });
             }
             manualSel.innerHTML = opts;
             document.getElementById("rh-manual-result").style.display = "none";
@@ -1522,7 +1522,7 @@
             if (r.status === "error") throw new Error(r.message);
 
             const data = r.data; let slotOpts = ""; 
-            data.slots.forEach((s, idx) => { slotOpts += `<option value="${idx}" data-day="${s.dayName}">${isoToDisplayDate(s.date)} at ${s.time}</option>`; });
+            data.slots.forEach((s, idx) => { slotOpts += `<option value="${idx}" data-day="${s.dayName}">${isoToDisplayDate(s.date)} at ${time24To12(s.time)}</option>`; });
             const safeSlots = encodeURIComponent(JSON.stringify(data.slots)); const safeName = studentName.replace(/\s+/g, '-');
             const safeLoads = encodeURIComponent(JSON.stringify(data.oasisLoads));
 
