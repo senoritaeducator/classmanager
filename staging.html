@@ -114,10 +114,8 @@
         .scrolly-list { overflow-y: auto; padding: 10px; flex: 1; }
         .student-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500; transition: border-color 0.1s; gap: 12px; flex-wrap: wrap; }
         
-        .student-action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; width: 100%; }
-        @media (max-width: 480px) {
-            .student-action-btns { grid-template-columns: 1fr; } 
-        }
+        .student-action-btns, .action-btns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: stretch; margin-top: 8px; width: 100%; }
+        .student-action-btns .btn, .action-btns .btn { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .classes-list { display: flex; flex-direction: column; gap: 16px; }
         .class-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 16px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: transform 0.2s; }
@@ -300,7 +298,7 @@
         <div class="section-card">
             <div class="section-header">
                 <div><span class="section-title">Dashboard Overview</span></div>
-                <button class="btn btn-outline btn-sm" style="border-color:#0f766e; color:#0f766e;" onclick="window.openRosterHealth()">⚖️ Roster Health</button>
+                <button class="btn btn-outline btn-sm" style="border-color:#0f766e; color:#0f766e;" onclick="window.openRosterHealth()">⚖️ Class Schedule Optimiser</button>
             </div>
             <div class="overview-grid">
                 <div class="overview-tile">
@@ -856,7 +854,7 @@
     <div id="rosterHealthModal" class="modal-backdrop">
         <div class="modal" style="max-width: 650px;">
             <div class="modal-header">
-                <div class="modal-title">⚖️ Roster Health Engine</div>
+                <div class="modal-title">⚖️ Class Schedule Optimiser</div>
                 <button class="btn btn-outline btn-sm" onclick="document.getElementById('rosterHealthModal').classList.remove('show')">✕</button>
             </div>
             <div class="modal-body" style="background: #f8fafc; padding: 20px;">
@@ -1419,7 +1417,7 @@
         btn.disabled = true; btn.textContent = "🧠 Analyzing Load Matrix..."; document.getElementById("smartSlotResults").style.display = "none";
         try {
             const r = await fetchAPI(null, { action: "getSmartScheduleSuggestions", studentName: name, preferences: prefs }); if (r.status === "error") throw new Error(r.message);
-            const data = r.data; document.getElementById("smartSlotDraft").value = data.draft; const btnContainer = document.getElementById("smartSlotButtons"); btnContainer.innerHTML = "";
+            const data = r; document.getElementById("smartSlotDraft").value = data.draft; const btnContainer = document.getElementById("smartSlotButtons"); btnContainer.innerHTML = "";
             if(data.slots && data.slots.length > 0) { data.slots.forEach(slot => { const btnHtml = document.createElement("button"); btnHtml.className = "btn btn-primary"; btnHtml.innerHTML = `📅 Book ${isoToDisplayDate(slot.date)} at ${time24To12(slot.time)} & Copy`; btnHtml.onclick = () => window.executeSmartSlotSchedule(name, slot.date, slot.time); btnContainer.appendChild(btnHtml); }); }
             document.getElementById("smartSlotResults").style.display = "block";
         } catch(e) { showToast("AI Failed: " + e.message, "error"); } finally { btn.disabled = false; btn.textContent = "🧠 Balance & Find Slots"; }
@@ -1446,12 +1444,18 @@
             } else { 
                 r.actionPlan.forEach((plan, idx) => { 
                     const safeName = plan.studentName.replace(/\s+/g, '-');
+                    let impactBadge = `<div style="font-size:0.75rem; background:#f1f5f9; padding:4px 8px; border-radius:4px; border:1px solid #cbd5e1; display:inline-block; margin-top:6px;">
+                        <span style="color:#b91c1c;">${r.bottleneck}: ${parseFloat(r.bottleneckAvg).toFixed(1)} ➔ ${(parseFloat(r.bottleneckAvg) - 1).toFixed(1)}</span> | 
+                        <span style="color:#166534;">${plan.newDay}: ${parseFloat(r.normalizedLoad[plan.newDay]).toFixed(1)} ➔ ${(parseFloat(r.normalizedLoad[plan.newDay]) + 1).toFixed(1)}</span>
+                    </div>`;
+
                     aiList.innerHTML += `
-                    <div style="background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom: 12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
                             <div>
                                 <div style="font-weight:700; color:var(--text-main); font-size:1.05rem;">👤 ${plan.studentName}</div>
                                 <div style="font-size:0.85rem; color:var(--text-sub);">Shift from <b>${r.bottleneck} at ${time24To12(plan.oldTime)}</b> ➔ <b>${plan.newDay} at ${time24To12(plan.newTime)}</b></div>
+                                ${impactBadge}
                             </div>
                             <button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="window.executeAiSuggestion('${plan.studentName}', '${plan.oldTime}', '${plan.newDate}', '${plan.newTime}', '${plan.newDay}', '${r.bottleneck}', this, ${idx})">✨ Generate Soft Close</button>
                         </div>
@@ -1468,7 +1472,7 @@
             manualSel.innerHTML = opts;
             document.getElementById("rh-manual-result").style.display = "none";
             document.getElementById("rh-loading").style.display = "none"; document.getElementById("rh-content").style.display = "block";
-        } catch(e) { document.getElementById("rh-loading").innerHTML = `<div style="color:#ef4444;">Failed to calculate roster health: ${e.message}</div>`; }
+        } catch(e) { document.getElementById("rh-loading").innerHTML = `<div style="color:#ef4444;">Failed to calculate Class Schedule Optimiser: ${e.message}</div>`; }
     };
 
     window.executeAiSuggestion = async (studentName, oldTime, newDate, newTime, newDay, bottleneckDay, btnEl, idx) => {
@@ -1480,7 +1484,7 @@
             const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, originalTime: oldTime, bottleneckDay: bottleneckDay, oasisDays: window._currentOasisDays }); 
             if (r.status === "error") throw new Error(r.message);
             
-            const data = r.data; const safeName = studentName.replace(/\s+/g, '-');
+            const data = r; const safeName = studentName.replace(/\s+/g, '-');
             
             let currentBnAvg = parseFloat(window._currentHealthData.bottleneckAvg);
             let currentOasisAvg = parseFloat(data.oasisLoads[newDay] || 0);
@@ -1521,7 +1525,7 @@
             const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, originalTime: oldTime, bottleneckDay: bottleneckDay, oasisDays: window._currentOasisDays }); 
             if (r.status === "error") throw new Error(r.message);
 
-            const data = r.data; let slotOpts = ""; 
+            const data = r; let slotOpts = ""; 
             data.slots.forEach((s, idx) => { slotOpts += `<option value="${idx}" data-day="${s.dayName}">${isoToDisplayDate(s.date)} at ${time24To12(s.time)}</option>`; });
             const safeSlots = encodeURIComponent(JSON.stringify(data.slots)); const safeName = studentName.replace(/\s+/g, '-');
             const safeLoads = encodeURIComponent(JSON.stringify(data.oasisLoads));
