@@ -17,6 +17,7 @@
             --text-main: #1e293b;     
             --text-sub: #64748b;      
             --border: rgba(0,0,0,0.08); 
+            --border-color: rgba(0,0,0,0.08); /* Fallback for prompt instruction */
             --radius: 12px;           
             --shadow: 0 4px 20px rgba(0,0,0,0.03), 0 1px 2px rgba(0,0,0,0.05);
             --shadow-hover: 0 10px 25px rgba(0,0,0,0.06), 0 4px 10px rgba(0,0,0,0.03);
@@ -92,6 +93,9 @@
         .btn-outline:hover { background: #f8fafc; border-color: #94a3b8; }
         .btn-soft:hover { background: #cbd5e1; }
         @media (min-width: 768px) { .btn-primary, .btn-outline, #add-student-btn, #schedule-class-btn { width: auto; } .btn-block { width: 100%; } }
+
+        .action-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; margin-top: 15px; }
+        .action-btns .btn { flex: 1 1 auto; min-width: 130px; white-space: normal; height: auto; text-align: center; }
 
         /* PILL MULTI-SELECT */
         .pill-checkbox { display: none; }
@@ -199,10 +203,8 @@
         .toast-error { background: #ef4444; }
 
         /* FOOTER UPDATES */
-        .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 60px; color: var(--text-sub); font-size: 0.8rem; border-top: 1px solid #e2e8f0; padding: 20px 10px 30px; margin-bottom: 80px; }
-        .footer-left { text-align: left; opacity: 0.7; font-size: 0.75rem; flex: 1; font-weight: 500;}
-        .footer-center { text-align: center; flex: 2; }
-        .footer-right { flex: 1; }
+        .footer { margin-top: 40px; padding: 20px; font-size: 0.85rem; color: var(--text-sub); border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; text-align: center; }
+        @media (max-width: 768px) { .footer { flex-direction: column; justify-content: center; gap: 8px; } .footer > div { width: 100%; } }
 
         .fab-container { position: fixed; bottom: 30px; right: 30px; z-index: 900; }
         .fab-main { width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 4px 15px rgba(51, 65, 85, 0.4); font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
@@ -326,9 +328,9 @@
                         </div>
                     </div>
                     <div class="overview-sub" id="stats-earnings-sub" style="text-align:center; margin-top:8px;">Current Month</div>
-                    <div style="display:flex; gap:8px; margin-top:12px;">
-                        <button id="btn-review-pending" class="btn btn-outline btn-sm" style="flex:1; background:#fff;" onclick="window.openPendingReviews()">Class Status Pending</button>
-                        <button id="btn-history" class="btn btn-outline btn-sm" style="flex:1; background:#fff;" onclick="window.openHistoryReport()">Class Records</button>
+                    <div class="action-btns">
+                        <button id="btn-review-pending" class="btn btn-outline btn-sm" style="background:#fff;" onclick="window.openPendingReviews()">Class Status Pending</button>
+                        <button id="btn-history" class="btn btn-outline btn-sm" style="background:#fff;" onclick="window.openHistoryReport()">Class Records</button>
                     </div>
                 </div>
                 <div class="overview-tile">
@@ -820,15 +822,7 @@
         </div>
     </section>
 
-    <footer class="footer">
-        <div class="footer-left">Last Updated: April 25, 2026, 08:55 PM IST</div>
-        <div class="footer-center">
-            <div>✨ Advanced Class Manager &copy; 2026</div>
-            <div style="margin-top:4px;">Licensed to Senorita</div>
-            <div id="acm-version-info" style="opacity:0.6; margin-top:6px;">v117.0 STAGING (Mega Patch) | Powered by LazifAI</div>
-        </div>
-        <div class="footer-right"></div>
-    </footer>
+    <footer class="footer"><div>Last Updated: <span id="last-updated-time"></span></div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.1 STAGING (UI/UX Patch) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1026,11 +1020,11 @@
         const isPersonal = sObj && sObj.type === "Personal"; 
         let msg = ""; 
         if (packetType === "alignment") {
-            msg = `🔄 *Schedule Alignment:* Consistency is critical for progress. If your availability has changed, resulting in frequent cancellations or no-shows, please raise a 'Teacher Change Request' via your dashboard. This allows you to smoothly transition to an educator who can better accommodate your preferred timings. Please let me know if you need any assistance navigating the dashboard to submit this request.`;
+            msg = `🔄 *Schedule Alignment:* Consistency is critical for progress. If your availability has changed, resulting in frequent cancellations or no-shows, please raise a 'Teacher Change Request' via your dashboard. This allows you to smoothly transition to an educator who can better accommodate your preferred timings. Please let me know if you need any assistance navigating the dashboard to submit this request.\n\nThank you for your continued cooperation!\n\nBest regards,\nSenorita`;
         } else if (isPersonal) { 
-            if (packetType === "new") { msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package of classes. An automated progress update will be sent as the package nears completion to ensure seamless renewal.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show" and is consumed from the package.\n\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`; } else { msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package. Automated updates will be sent as the package nears completion.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show" and is consumed from the package.\n\n🔄 *Schedule Alignment:* Consistency is critical for progress. If your availability has changed, resulting in frequent cancellations or no-shows, please raise a 'Teacher Change Request' via your dashboard. This allows you to smoothly transition to an educator who can better accommodate your preferred timings. Please let me know if you need any assistance navigating the dashboard to submit this request.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`; } 
+            if (packetType === "new") { msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package of classes. An automated progress update will be sent as the package nears completion to ensure seamless renewal.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show" and is consumed from the package.\n\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`; } else { msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package. Automated updates will be sent as the package nears completion.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show" and is consumed from the package.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`; } 
         } else { 
-            if (packetType === "new") { msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`; } else { msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Last-minute cancellations are strictly reserved for genuine medical emergencies.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show."\n\n🛑 *90-Day Inactivity:* Students who pause or remain inactive for over 90 days without prior formal agreement will have their ongoing enrollment closed to accommodate the waitlist.\n\n🔄 *Schedule Alignment:* Consistency is critical for progress. If your availability has changed, resulting in frequent cancellations or no-shows, please raise a 'Teacher Change Request' via your dashboard. This allows you to smoothly transition to an educator who can better accommodate your preferred timings. Please let me know if you need any assistance navigating the dashboard to submit this request.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`; } 
+            if (packetType === "new") { msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class.\n🚨 *Emergencies Only:* Last-minute cancellations (under 2 hours) are strictly reserved for medical or family emergencies.\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show."\n🔁 *Rescheduling:* Reschedules are subject to availability and mutual agreement. A maximum of 2 reschedules are permitted per month.\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`; } else { msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Last-minute cancellations are strictly reserved for genuine medical emergencies.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show."\n\n🛑 *90-Day Inactivity:* Students who pause or remain inactive for over 90 days without prior formal agreement will have their ongoing enrollment closed to accommodate the waitlist.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`; } 
         } 
         document.getElementById("onboardOutput").value = msg; document.getElementById("onboard-output-area").style.display = "block"; 
     };
