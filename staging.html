@@ -228,6 +228,17 @@
         .ob-result-item { padding: 12px; border-radius: 8px; margin-bottom: 6px; background: #fff; border: 1px solid #e2e8f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.1s; }
         .ob-result-item:hover, .ob-result-item.selected { background: #f0f9ff; border-color: #bae6fd; }
         .ob-command-badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; color: #475569; margin-left: 8px; }
+
+        /* Mobile UI & Animation Overrides */
+        @keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .alert-pulse { animation: softPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .btn { display: flex !important; justify-content: center !important; align-items: center !important; text-align: center !important; white-space: normal !important; line-height: 1.2 !important; }
+        input[type="date"], input[type="time"] { min-width: 125px !important; padding-left: 8px !important; padding-right: 8px !important; letter-spacing: -0.5px; }
+        @media (max-width: 768px) {
+            td[data-label]:before { padding-right: 12px; font-weight: 700; }
+            .card-body { padding: 1rem !important; }
+            .quota-dashboard-section h2 { margin-left: 8px; }
+        }
     </style>
 </head>
 <body>
@@ -249,7 +260,7 @@
             <div class="converter-wrapper">
                 <div class="converter-box">
                     <div style="font-size:0.7rem; font-weight:700; color:var(--text-sub); text-transform:uppercase;">Time Zone Converter</div>
-                    <input type="date" id="conv-student-date" class="conv-input" style="width: 140px;" onchange="if(window.calcConv) window.calcConv();">
+                    <input type="date" id="conv-student-date" class="conv-input" style="width: 100%; min-width: 130px;" onchange="if(window.calcConv) window.calcConv();">
                     <select id="conv-student-zone" class="conv-select" style="min-width: 140px;">
                         <option value="" disabled selected>Select City...</option>
                         <optgroup label="Australia & NZ"><option value="Australia/Sydney">Sydney</option><option value="Australia/Adelaide">Adelaide</option><option value="Australia/Perth">Perth</option><option value="Pacific/Auckland">Auckland</option></optgroup>
@@ -710,7 +721,7 @@
                 </div>
             </div>
             
-            <button id="btn-generate-draft" class="btn btn-primary btn-block" onclick="window.generateAIDraft()">✨ Generate AI</button>
+            <button id="btn-generate-draft" class="btn-primary btn-block" onclick="window.generateAIDraft()">✨ Generate AI</button>
             <div id="ai-output-container" style="display:none; margin-top:30px; flex-direction:column; gap:16px;"></div>
         </div>
     </section>
@@ -824,58 +835,7 @@
         </div>
     </section>
 
-    <section id="section-bulk" class="section">
-        <div class="section-card">
-            <div class="section-header"><div><span class="section-title">Bulk Scheduling</span><span class="section-caption">Schedule multiple students for one specific date.</span></div></div>
-            <div class="card-row">
-                <div class="card-column"><div class="form-group"><label>Target Date</label><input type="date" id="bulkDate" /></div></div>
-                <div class="card-column"><div class="form-group"><label>Repeat (Weeks)</label><input type="number" id="bulkRepeatWeeks" value="0" min="0" /></div></div>
-            </div>
-            <hr style="margin:24px 0; border:0; border-top:1px solid #e2e8f0;">
-            <div id="bulkRowsContainer"></div>
-            <div class="inline-actions"><button id="addBulkRowBtn" class="btn btn-soft" onclick="window.addBulkRow()">+ Add Row</button><button id="clearBulkRowsBtn" class="btn btn-outline" onclick="window.clearBulkRows()">Clear All</button></div>
-            <div style="margin-top:24px; display:flex; justify-content:flex-end; gap:12px;">
-                <button class="btn btn-outline" onclick="window.resetBulkScheduler()">Reset</button>
-                <button id="bulkScheduleBtn" class="btn btn-primary" onclick="window.executeBulkSchedule()">Run Bulk Schedule</button>
-            </div>
-        </div>
-    </section>
-
-    <section id="section-onboarding" class="section">
-        <div class="section-card">
-            <div class="section-header">
-                <div><span class="section-title">Student Welcome Kit</span><span class="section-caption">Generate premium welcome packets & SOPs.</span></div>
-                <button class="btn btn-soft btn-sm" onclick="window.clearOnboarding()">🔄 Reset</button>
-            </div>
-            
-            <div class="card-row" style="margin-bottom: 20px;">
-                <div class="card-column" style="max-width: 400px;">
-                    <div class="form-group">
-                        <label>Select Student</label>
-                        <select id="onboard-student-select"><option value="" disabled selected>Select student...</option></select>
-                    </div>
-                </div>
-                <div class="card-column" style="max-width: 400px;">
-                    <div class="form-group">
-                        <label>Packet Type</label>
-                        <select id="onboard-type-select">
-                            <option value="new">🌟 New Student Welcome Packet</option>
-                            <option value="existing">📜 Existing Student Policy Refresh</option>
-                            <option value="alignment">🔄 Schedule Alignment Notice</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <button class="btn btn-primary" onclick="window.generateOnboarding()">Create Welcome Kit</button>
-            <div id="onboard-output-area" style="margin-top:20px; display:none;">
-                <textarea id="onboardOutput" readonly style="width:100%; height:320px; padding:12px; border-radius:8px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:none; font-size:0.9rem;"></textarea>
-                <button class="btn btn-outline" style="margin-top:8px; width:100%; max-width:400px;" onclick="window.copyOnboarding()">📋 Copy Acknowledgment Message</button>
-            </div>
-        </div>
-    </section>
-
-    <footer class="footer"><div>Last Updated: April 26, 2026, 06:45 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.8 STAGING (Visual Quota Indicators) | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: April 27, 2026, 09:00 AM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.9 STAGING (Mobile UI & Search Polish) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1150,7 +1110,7 @@
             
             const stuObj = window.globalStudents ? window.globalStudents.find(x => x.name === c.StudentName) : sObj;
             const isMaxedPS = stuObj && stuObj.type === 'PS' && stuObj.monthCompleted >= (stuObj.monthlyLimit || 4);
-            const quotaBadge = isMaxedPS ? `<span title="Monthly Quota Exceeded" style="cursor: help; margin-right: 6px;">🛑</span>` : '';
+            const quotaBadge = isMaxedPS ? `<span class="alert-pulse" title="Monthly Quota Exceeded" style="cursor: help; margin-right: 6px; font-size: 0.9em;">🔴</span>` : '';
             const quotaOption = isMaxedPS ? `<option value="quota_notice">🛑 Quota Notice</option>` : '';
 
             let defaultMsg = `Hi, this is a reminder regarding the ${term} for ${c.StudentName} scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(c.StartTime)} IST.`; if (sObj && sObj.type === "PS") defaultMsg += `\n\nPlease join using your PlanetSpark class link.`; defaultMsg += `\n\nBest regards,\nSenorita`;
@@ -1728,7 +1688,7 @@
         let targetTimeStr = ""; const timeMatch = q.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i); if (timeMatch) { let hh = parseInt(timeMatch[1]); let mm = timeMatch[2] || "00"; let ap = timeMatch[3].toUpperCase(); if(hh>=1 && hh<=12) targetTimeStr = `${String(hh).padStart(2, '0')}:${mm} ${ap}`; }
         let targetStudent = ""; const words = q.replace(/[^a-z0-9\s]/g, '').split(' '); for (let word of words) { if (word.length > 2) { const found = APP_STATE.students.find(s => s.name.toLowerCase().includes(word)); if (found) { targetStudent = found.name; break; } } }
 
-        const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan"); const isReschedule = q.includes("reschedule") || q.includes("shift"); const isSlots = q.includes("free") || q.includes("slot") || q.includes("available"); const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee"); const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback"); const isAnalytics = q.includes("no show") || q.includes("absent") || q.includes("analytics") || q.includes("revenue") || q.includes("stats");
+        const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan"); const isReschedule = q.includes("reschedule") || q.includes("shift"); const isSlots = q.includes("free") || q.includes("slot") || q.includes("available"); const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee"); const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback"); const isAnalytics = q.includes("no show") || q.includes("absent") || q.includes("analytics") || q.includes("revenue") || q.includes("stats") || q.includes("quota");
 
         if (isSchedule && targetStudent && !isReschedule) {
             matched = true; let titleText = `Schedule ${targetStudent}`; if (dateLabel) titleText += ` for ${dateLabel}`; if (targetTimeStr) titleText += ` at ${targetTimeStr}`;
@@ -1744,10 +1704,21 @@
             let action = `window.closeOmnibox(); window.showMainSection('communications'); setTimeout(() => { document.getElementById('crm-student-select').value='${targetStudent}'; window.loadStudentCRM('${targetStudent}'); document.querySelector('input[name="crmAction"][value="${crmAction}"]').click(); document.getElementById('crm-student-select').scrollIntoView({behavior: 'smooth', block: 'start'}); }, 200);`;
             html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${icon}</span><span style="font-weight:600; color:var(--text-main);">Write ${isReceipt ? 'Receipt' : 'Progress Report'} for ${targetStudent}</span><span class="ob-command-badge">Smart Route</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
-        if (q.includes("no show") || q.includes("absent")) {
-            matched = true; let statFilter = q.includes("no show") ? "Student No Show" : "Absent";
+        if (q.includes("no show") || q.includes("absent") || q.includes("quota reached")) {
+            matched = true; let statFilter = q.includes("no show") ? "Student No Show" : q.includes("absent") ? "Absent" : "Quota Reached";
             let action = `window.closeOmnibox(); window.showMainSection('analytics'); window.openHistoryReport(); setTimeout(() => { document.getElementById('historyStatusFilter').value='${statFilter}'; }, 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📉</span><span style="font-weight:600; color:var(--text-main);">View ${statFilter} Report</span><span class="ob-command-badge">Smart Data</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${statFilter === "Quota Reached" ? "🛑" : "📉"}</span><span style="font-weight:600; color:var(--text-main);">View ${statFilter} Report</span><span class="ob-command-badge">Smart Data</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+        }
+        if (q.includes("quota") || q.includes("exhaust") || q.includes("limit")) {
+            matched = true;
+            const activePS = (window.globalStudents || []).filter(s => String(s.status).toLowerCase() !== 'deleted' && s.type === 'PS' && s.monthCompleted >= (s.monthlyLimit || 4));
+            if (activePS.length > 0) {
+                activePS.forEach(s => {
+                    html += `<div class="ob-result-item" onclick="window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${s.name}');"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;" class="alert-pulse">🔴</span><div><div style="font-weight:600; color:#ef4444;">Quota Exceeded: ${s.name}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.monthCompleted} / ${s.monthlyLimit || 4} Classes Completed</div></div><span class="ob-command-badge" style="background:#fef2f2; color:#ef4444; border:1px solid #fecaca;">Action Required</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+                });
+            } else if (q.includes("exhaust") || q.includes("limit")) {
+                html += `<div class="ob-result-item"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">✅</span><span style="font-weight:600; color:var(--text-main);">No active PS students have exhausted their quota.</span></div></div>`;
+            }
         }
         if (isSlots && targetDateStr && !targetStudent) {
             matched = true; let titleText = `View Free Slots for ${dateLabel}`;
