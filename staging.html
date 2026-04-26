@@ -339,32 +339,7 @@
                 </div>
             </div>
             
-            <div class="quota-dashboard-section" style="margin-top: 24px; margin-bottom: 24px;">
-              <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; color: var(--text-main, #333);">📊 Monthly Quota Tracking</h2>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
-                
-                <div class="card" style="background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                  <h3 style="font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; color: var(--primary, #2563eb); border-bottom: 1px solid #eee; padding-bottom: 4px;">PS Students</h3>
-                  <div id="quota-list-PS" style="max-height: 200px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px;"></div>
-                </div>
-
-                <div class="card" style="background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                  <h3 style="font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; color: var(--primary, #2563eb); border-bottom: 1px solid #eee; padding-bottom: 4px;">CM Students</h3>
-                  <div id="quota-list-CM" style="max-height: 200px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px;"></div>
-                </div>
-
-                <div class="card" style="background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                  <h3 style="font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; color: var(--primary, #2563eb); border-bottom: 1px solid #eee; padding-bottom: 4px;">Personal Students</h3>
-                  <div id="quota-list-Personal" style="max-height: 200px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px;"></div>
-                </div>
-
-                <div class="card" style="background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                  <h3 style="font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; color: var(--primary, #2563eb); border-bottom: 1px solid #eee; padding-bottom: 4px;">Trial Students</h3>
-                  <div id="quota-list-Trial" style="max-height: 200px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px;"></div>
-                </div>
-
-              </div>
-            </div>
+            <div id="smart-quota-alerts" style="display: none; flex-direction: column; gap: 8px; margin-top: 20px; margin-bottom: 10px;"></div>
         </div>
 
         <div class="section-card">
@@ -849,7 +824,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: April 26, 2026, 03:45 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.3 STAGING (UI Grid Fix) | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: April 26, 2026, 04:30 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.4 STAGING (Smart Quota Alerts) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1735,36 +1710,49 @@
     window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 'POST', body: JSON.stringify({Action: "updateStudentData", StudentName: name, MonthlyLimit: parseInt(limit)})}).then(()=> { showToast('Limit updated for ' + name); const globalStudents = APP_STATE.students; const stu = globalStudents.find(x => x.name === name); if(stu) stu.monthlyLimit = parseInt(limit); window.renderQuotas(); }); };
 
 window.renderQuotas = function() {
-    const types = ['PS', 'CM', 'Personal', 'Trial'];
+    const container = document.getElementById('smart-quota-alerts');
+    if(!container) return;
+    container.innerHTML = '';
 
-    types.forEach(type => {
-        const container = document.getElementById('quota-list-' + type);
-        if(!container) return;
-        container.innerHTML = '';
+    // Exception Filter: Only PS students at limit-1 or higher
+    let targets = globalStudents.filter(s => 
+        String(s.status).toLowerCase() !== 'deleted' && 
+        s.type === 'PS' && 
+        s.monthCompleted >= ((s.monthlyLimit || 4) - 1)
+    );
 
-        let targets = globalStudents.filter(s => String(s.status).toLowerCase() !== 'deleted' && s.type === type);
+    if(targets.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
 
-        targets.sort((a,b) => {
-            const ratioA = a.monthCompleted / (a.monthlyLimit || 1);
-            const ratioB = b.monthCompleted / (b.monthlyLimit || 1);
-            return ratioB - ratioA;
-        });
+    container.style.display = 'flex';
 
-        targets.forEach(s => {
-            let colorHex = "#10b981"; // Green
-            if(s.monthCompleted >= s.monthlyLimit) { colorHex = "#ef4444"; } // Red
-            else if(s.monthCompleted === s.monthlyLimit - 1) { colorHex = "#f59e0b"; } // Orange
+    // Sort: Highest ratio first
+    targets.sort((a,b) => {
+        const ratioA = a.monthCompleted / (a.monthlyLimit || 4);
+        const ratioB = b.monthCompleted / (b.monthlyLimit || 4);
+        return ratioB - ratioA;
+    });
 
-            container.innerHTML += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: rgba(0,0,0,0.03); border-radius: 4px; border-left: 4px solid ${colorHex};">
-                <span style="font-size: 0.85rem; font-weight: 500; color: #333;">${s.name}</span>
-                <span style="font-size: 0.85rem; font-weight: bold; color: ${colorHex};">${s.monthCompleted} / ${s.monthlyLimit}</span>
-            </div>`;
-        });
+    let htmlString = `<h3 style="font-size: 0.95rem; font-weight: 700; color: #dc2626; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">⚠️ Action Required: PS Quota Limits</h3>`;
 
-        if(targets.length === 0) {
-            container.innerHTML = `<div style="font-size: 0.8rem; color: #9ca3af; text-align: center; padding: 10px;">No active students</div>`;
-        }
-    });
+    targets.forEach(s => {
+        const limit = s.monthlyLimit || 4;
+        const isCritical = s.monthCompleted >= limit;
+
+        const bgColor = isCritical ? '#fef2f2' : '#fffbeb'; 
+        const borderColor = isCritical ? '#ef4444' : '#f59e0b'; 
+        const textColor = isCritical ? '#991b1b' : '#92400e'; 
+        const icon = isCritical ? '🛑 Limit Reached' : '⚠️ Nearing Limit';
+
+        htmlString += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${bgColor}; border-radius: 8px; border-left: 5px solid ${borderColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <span style="font-size: 0.95rem; font-weight: 600; color: ${textColor};">${s.name} <span style="font-weight: 500; font-size: 0.8rem; margin-left: 8px; opacity: 0.8;">${icon}</span></span>
+            <span style="font-size: 1rem; font-weight: 800; color: ${borderColor};">${s.monthCompleted} / ${limit}</span>
+        </div>`;
+    });
+
+    container.innerHTML = htmlString;
 };
 
     async function runBootSequence() {
@@ -1777,7 +1765,15 @@ window.renderQuotas = function() {
             const bootData = await fetchAPI(null, { action: "bootApp", todayDate: APP_STATE.todayDate, startDate: isoWeekStart });
             if (bootData.status !== "error") {
                 APP_STATE.studyMaterialLink = bootData.studyMaterialLink || "";
-                if (bootData.studentsRes && bootData.studentsRes.students) { APP_STATE.students = bootData.studentsRes.students.sort((a,b) => a.name.localeCompare(b.name)); populateStudentDropdowns(); renderStudents(); document.getElementById("stats-total-students").textContent = APP_STATE.students.length; document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`; }
+                if (bootData.studentsRes && bootData.studentsRes.students) { 
+                    APP_STATE.students = bootData.studentsRes.students.sort((a,b) => a.name.localeCompare(b.name)); 
+                    window.globalStudents = APP_STATE.students;
+                    populateStudentDropdowns(); 
+                    renderStudents(); 
+                    window.renderQuotas();
+                    document.getElementById("stats-total-students").textContent = APP_STATE.students.length; 
+                    document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`; 
+                }
                 if (bootData.classesRes && bootData.classesRes.classes) { APP_STATE.cache[APP_STATE.todayDate] = bootData.classesRes.classes; }
                 if (bootData.weekRes && bootData.weekRes.summary) { APP_STATE.weeklySummary = bootData.weekRes.summary; }
                 updateStats(APP_STATE.todayDate, APP_STATE.cache[APP_STATE.todayDate] || []); window.renderClassesForDate(APP_STATE.todayDate, false, APP_STATE.cache[APP_STATE.todayDate] || []);
