@@ -343,7 +343,8 @@
         </div>
 
         <div class="section-card">
-            <div class="section-header"><div><span class="section-title">Schedule New Class</span></div></div>
+            <div class="section-header">
+                <div><span class="section-title">Schedule New Class</span></div></div>
             <div class="card-row">
                 <div class="card-column"><div class="form-group"><label>Student</label><select id="schedule-student-select"><option value="">Select...</option></select></div></div>
                 <div class="card-column"><div class="form-group"><label>Date</label><input type="date" id="schedule-date" /></div></div>
@@ -874,7 +875,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: April 26, 2026, 05:30 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.7 STAGING (Drafter & Analytics Polish) | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: April 26, 2026, 06:45 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.8 STAGING (Visual Quota Indicators) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1149,11 +1150,12 @@
             
             const stuObj = window.globalStudents ? window.globalStudents.find(x => x.name === c.StudentName) : sObj;
             const isMaxedPS = stuObj && stuObj.type === 'PS' && stuObj.monthCompleted >= (stuObj.monthlyLimit || 4);
+            const quotaBadge = isMaxedPS ? `<span title="Monthly Quota Exceeded" style="cursor: help; margin-right: 6px;">🛑</span>` : '';
             const quotaOption = isMaxedPS ? `<option value="quota_notice">🛑 Quota Notice</option>` : '';
 
             let defaultMsg = `Hi, this is a reminder regarding the ${term} for ${c.StudentName} scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(c.StartTime)} IST.`; if (sObj && sObj.type === "PS") defaultMsg += `\n\nPlease join using your PlanetSpark class link.`; defaultMsg += `\n\nBest regards,\nSenorita`;
             
-            card.innerHTML = `<div class="class-card__row"><div><div class="class-student">👤 ${c.StudentName}</div><div class="meta">📅 ${isoToDisplayDate(c.ClassDate)} • ⏰ ${time24To12(c.StartTime)} IST</div></div>${stat}</div>${notesHtml}<div class="inline-actions"><button class="btn btn-soft btn-sm btn-generate">💬 Message</button><button class="btn btn-outline btn-sm btn-reschedule">🔁 Reschedule</button></div><div class="expand-block generate-area" style="display:none;"><select class="msg-type-select" style="margin-bottom:8px; width:100%; border:1px solid #cbd5e1; border-radius:6px; padding:6px;"><option value="reminder">Class Reminder</option>${quotaOption}</select><div class="msg-preview" style="white-space:pre-wrap;">${defaultMsg}</div><button class="btn btn-primary btn-sm btn-copy" style="margin-top:8px;">Copy</button></div><div class="expand-block resched-area" style="display:none;"><input type="date" class="res-date" value="${dateStr}"><input type="text" class="res-time" value="${time24To12(c.StartTime)}" placeholder="hh:mm AM/PM" onblur="window.normalizeUserTime(this)"><button class="btn btn-primary btn-sm btn-res-submit" style="margin-top:8px;">Save</button></div>`;
+            card.innerHTML = `<div class="class-card__row"><div><div class="class-student">👤 ${quotaBadge}${c.StudentName}</div><div class="meta">📅 ${isoToDisplayDate(c.ClassDate)} • ⏰ ${time24To12(c.StartTime)} IST</div></div>${stat}</div>${notesHtml}<div class="inline-actions"><button class="btn btn-soft btn-sm btn-generate">💬 Message</button><button class="btn btn-outline btn-sm btn-reschedule">🔁 Reschedule</button></div><div class="expand-block generate-area" style="display:none;"><select class="msg-type-select" style="margin-bottom:8px; width:100%; border:1px solid #cbd5e1; border-radius:6px; padding:6px;"><option value="reminder">Class Reminder</option>${quotaOption}</select><div class="msg-preview" style="white-space:pre-wrap;">${defaultMsg}</div><button class="btn btn-primary btn-sm btn-copy" style="margin-top:8px;">Copy</button></div><div class="expand-block resched-area" style="display:none;"><input type="date" class="res-date" value="${dateStr}"><input type="text" class="res-time" value="${time24To12(c.StartTime)}" placeholder="hh:mm AM/PM" onblur="window.normalizeUserTime(this)"><button class="btn btn-primary btn-sm btn-res-submit" style="margin-top:8px;">Save</button></div>`;
             
             card.querySelector(".status-select").onchange = async (e) => { e.target.disabled = true; await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: e.target.value }); e.target.disabled = false; showToast("Status updated"); window.loadEarnings(); window.loadWeekly(); window.renderAvailabilityFeed(); window.renderClassesForDate(dateStr); };
             card.querySelector(".btn-save-notes").onclick = async () => { const btn = card.querySelector(".btn-save-notes"); btn.disabled = true; btn.textContent="⌛"; await fetchAPI(null, { action: "saveClassNotes", ClassID: c.ClassID, Notes: card.querySelector(".card-notes-input").value, NextTopic: card.querySelector(".card-next-topic").value, StudentName: c.StudentName }); btn.textContent="✅"; setTimeout(()=> {btn.textContent="Save"; btn.disabled=false;}, 1000); };
