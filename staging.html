@@ -337,6 +337,7 @@
                     <div class="overview-title">This Week's Class Trend <button id="refresh-week-btn" onclick="window.fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
                     <div class="weekly-strip" id="weekly-strip"></div>
                 </div>
+                <div class="card bg-base-100 shadow-sm border border-base-200"><div class="card-body p-4"><div class="flex justify-between items-center mb-2"><h2 class="card-title text-sm text-text-sub flex items-center gap-1">📊 MONTHLY QUOTAS</h2><select id="quota-filter" class="select select-bordered select-xs" onchange="window.renderQuotas()"><option value="All">All</option><option value="PS" selected>PS Only</option><option value="CM">CM Only</option></select></div><div id="quota-list" class="flex flex-col gap-2 overflow-y-auto" style="max-height: 160px;"></div></div></div>
             </div>
         </div>
 
@@ -822,7 +823,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: <span id="last-updated-time"></span></div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.1 STAGING (UI/UX Patch) | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: April 26, 2026</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.2 STAGING (Quota Widget) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1020,7 +1021,7 @@
         const isPersonal = sObj && sObj.type === "Personal"; 
         let msg = ""; 
         if (packetType === "alignment") {
-            msg = `🔄 *Schedule Alignment:* Consistency is critical for progress. If your availability has changed, resulting in frequent cancellations or no-shows, please raise a 'Teacher Change Request' via your dashboard. This allows you to smoothly transition to an educator who can better accommodate your preferred timings. Please let me know if you need any assistance navigating the dashboard to submit this request.\n\nThank you for your continued cooperation!\n\nBest regards,\nSenorita`;
+            msg = `Dear ${name} / Parents,\n\n🔄 *Schedule Alignment:* Consistency is critical for progress. If your availability has changed, resulting in frequent cancellations or no-shows, please raise a 'Teacher Change Request' via your dashboard. This allows you to smoothly transition to an educator who can better accommodate your preferred timings. Please let me know if you need any assistance navigating the dashboard to submit this request.\n\nThank you for your continued cooperation!\n\nBest regards,\nSenorita`;
         } else if (isPersonal) { 
             if (packetType === "new") { msg = `Dear ${name} / Parents,\n\nWelcome aboard! I am thrilled to begin this learning journey with you. To ensure our sessions run smoothly and ${name} gets the absolute most out of our time together, please review my standard classroom protocols below:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package of classes. An automated progress update will be sent as the package nears completion to ensure seamless renewal.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class is marked as a "No Show" and is consumed from the package.\n\n💻 *Tech Readiness:* Please ensure the student joins with a working microphone, camera turned ON, and is seated in a quiet, distraction-free environment.\n\nPlease reply with a quick "Acknowledged" so we are ready to go!\n\nBest regards,\nSenorita`; } else { msg = `Dear ${name} / Parents,\n\nAs we continue our learning journey, I want to take a brief moment to share a friendly reminder of my standard classroom protocols. This ensures our sessions remain highly productive and your reserved slots are managed efficiently:\n\n📦 *The Package Protocol:* You are enrolled in a prepaid package. Automated updates will be sent as the package nears completion.\n\n⏱️ *The 2-Hour Rule:* Any planned leaves or cancellations must be communicated at least 2 hours prior to the class. Late cancellations without a medical emergency will consume one class from your current package.\n\n⏳ *The 10-Minute Window:* I will wait in the meeting room for 10 minutes. If the student does not join within this window, the class automatically converts to a "No Show" and is consumed from the package.\n\nThank you for your continued cooperation in making ${name}'s classes a success!\n\nBest regards,\nSenorita`; } 
         } else { 
@@ -1034,8 +1035,9 @@
 
     function renderStudents() {
         const buckets = { "Trial": [], "PS": [], "CM": [], "Personal": [] }; APP_STATE.students.forEach(s => { let t = s.type || "PS"; if(!buckets[t]) buckets[t] = []; buckets[t].push(s); });
-        const fill = (id, list, type) => { const el = document.getElementById(id); if(!el) return; document.getElementById("count-"+type.toLowerCase()).textContent = list.length; if(!list.length) { el.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:10px;">None</div>'; return; } let h = ""; list.forEach(s => { let ledgerHtml = ""; if(type === "Personal") { let total = parseInt(s.packageTotal) || 0; let used = parseInt(s.classesUsed) || 0; let bal = parseInt(s.pendingBalance) || 0; if(total > 0) { let pct = Math.min(100, Math.round((used / total) * 100)); let color = pct >= 80 ? '#ef4444' : 'var(--accent)'; let balBadge = bal > 0 ? `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #fecaca; padding:1px 4px; border-radius:4px; background:#fef2f2; margin-left:6px;">₹${bal} Due</span>` : ''; ledgerHtml = `<div style="font-size:0.75rem; color:var(--text-sub); width:100%; margin-top:4px;"><div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span><b>${used}</b> / ${total} Classes</span> ${balBadge}</div><div style="background:#e2e8f0; height:6px; border-radius:3px; width:100%; overflow:hidden;"><div style="background:${color}; height:100%; width:${pct}%;"></div></div></div>`; } } h += `<div class="student-item-row"><div style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span style="font-weight:700; font-size:1rem; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span></div>${ledgerHtml}<div class="student-action-btns"><button class="btn btn-outline btn-sm" onclick="window.openSmartSlotModal('${s.name}')" title="AI Capacity Manager">✨ Slot</button><button class="btn btn-outline btn-sm" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️ Rename</button><button class="btn btn-outline btn-sm" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁 Shift</button><button class="btn btn-outline btn-sm" onclick="window.openEdit('${s.name}')" title="Edit Type">✎ Edit</button></div></div>`; }); el.innerHTML = h; };
+        const fill = (id, list, type) => { const el = document.getElementById(id); if(!el) return; document.getElementById("count-"+type.toLowerCase()).textContent = list.length; if(!list.length) { el.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:10px;">None</div>'; return; } let h = ""; list.forEach(s => { let ledgerHtml = ""; if(type === "Personal") { let total = parseInt(s.packageTotal) || 0; let used = parseInt(s.classesUsed) || 0; let bal = parseInt(s.pendingBalance) || 0; if(total > 0) { let pct = Math.min(100, Math.round((used / total) * 100)); let color = pct >= 80 ? '#ef4444' : 'var(--accent)'; let balBadge = bal > 0 ? `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #fecaca; padding:1px 4px; border-radius:4px; background:#fef2f2; margin-left:6px;">₹${bal} Due</span>` : ''; ledgerHtml = `<div style="font-size:0.75rem; color:var(--text-sub); width:100%; margin-top:4px;"><div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span><b>${used}</b> / ${total} Classes</span> ${balBadge}</div><div style="background:#e2e8f0; height:6px; border-radius:3px; width:100%; overflow:hidden;"><div style="background:${color}; height:100%; width:${pct}%;"></div></div></div>`; } } h += `<div class="student-item-row"><div style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span style="font-weight:700; font-size:1rem; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span></div>${ledgerHtml}<td><input type="number" class="input input-sm input-bordered w-16 text-center" value="${s.monthlyLimit}" onchange="updateMonthlyLimit('${s.name}', this.value)" /></td><div class="student-action-btns"><button class="btn btn-outline btn-sm" onclick="window.openSmartSlotModal('${s.name}')" title="AI Capacity Manager">✨ Slot</button><button class="btn btn-outline btn-sm" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️ Rename</button><button class="btn btn-outline btn-sm" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁 Shift</button><button class="btn btn-outline btn-sm" onclick="window.openEdit('${s.name}')" title="Edit Type">✎ Edit</button></div></div>`; }); el.innerHTML = h; };
         fill("list-trial", buckets["Trial"], "Trial"); fill("list-ps", buckets["PS"], "PS"); fill("list-cm", buckets["CM"], "CM"); fill("list-personal", buckets["Personal"], "Personal");
+        document.querySelectorAll('.student-col-header').forEach(h => { if(!h.innerHTML.includes('<th>Monthly Limit</th>')) h.innerHTML += ' <th>Monthly Limit</th>'; });
     }
 
     function populateStudentDropdowns() {
@@ -1704,6 +1706,35 @@
         speechRecog.start();
     };
 
+    window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 'POST', body: JSON.stringify({Action: "updateStudentData", StudentName: name, MonthlyLimit: parseInt(limit)})}).then(()=> { showToast('Limit updated for ' + name); const globalStudents = APP_STATE.students; const stu = globalStudents.find(x => x.name === name); if(stu) stu.monthlyLimit = parseInt(limit); window.renderQuotas(); }); };
+
+    window.renderQuotas = function() {
+        const filter = document.getElementById('quota-filter').value;
+        const container = document.getElementById('quota-list');
+        if(!container) return;
+        container.innerHTML = '';
+        const globalStudents = APP_STATE.students;
+        let targets = globalStudents.filter(s => String(s.status).toLowerCase() !== 'deleted');
+        if(filter !== 'All') targets = targets.filter(s => s.type === filter);
+        
+        targets.sort((a,b) => {
+            const ratioA = a.monthCompleted / (a.monthlyLimit || 1);
+            const ratioB = b.monthCompleted / (b.monthlyLimit || 1);
+            return ratioB - ratioA;
+        });
+
+        targets.forEach(s => {
+            let colorClass = "text-success"; let bgClass = "bg-success";
+            if(s.monthCompleted >= s.monthlyLimit) { colorClass = "text-error"; bgClass = "bg-error"; }
+            else if(s.monthCompleted === s.monthlyLimit - 1) { colorClass = "text-warning"; bgClass = "bg-warning"; }
+            
+            container.innerHTML += `<div class="flex justify-between items-center p-2 rounded" style="background-color: var(--fallback-b1,oklch(var(--b1))); border-left: 4px solid var(--fallback-${bgClass.split('-')[1]},oklch(var(--${bgClass.split('-')[1]})));">
+                <span class="font-medium text-sm">${s.name}</span>
+                <span class="text-sm font-bold ${colorClass}">${s.monthCompleted} / ${s.monthlyLimit}</span>
+            </div>`;
+        });
+    };
+
     async function runBootSequence() {
         APP_STATE.todayDate = getCurrentISTDateString(); 
         document.getElementById("view-date").value = APP_STATE.todayDate; document.getElementById("schedule-date").value = APP_STATE.todayDate; document.getElementById("bulkDate").value = APP_STATE.todayDate; document.getElementById("conv-student-date").value = APP_STATE.todayDate;
@@ -1720,6 +1751,7 @@
                 updateStats(APP_STATE.todayDate, APP_STATE.cache[APP_STATE.todayDate] || []); window.renderClassesForDate(APP_STATE.todayDate, false, APP_STATE.cache[APP_STATE.todayDate] || []);
                 if (bootData.earningsRes) { if(bootData.earningsRes.personalEarnings !== undefined) { document.getElementById("stats-earnings-prepaid").textContent = "₹" + (bootData.earningsRes.personalEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-accrued").textContent = "₹" + (bootData.earningsRes.cmEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.personalCount || 0} Personal | ${bootData.earningsRes.cmCount || 0} CM`; } }
                 if (bootData.upcomingFeed) { window.renderAvailabilityFeed(bootData.upcomingFeed); }
+                window.renderQuotas();
             }
         } catch(e) {}
         setTimeout(() => { try { window.loadAnalytics(true); } catch(e) {} }, 1000);
