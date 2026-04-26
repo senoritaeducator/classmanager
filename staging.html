@@ -337,7 +337,33 @@
                     <div class="overview-title">This Week's Class Trend <button id="refresh-week-btn" onclick="window.fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
                     <div class="weekly-strip" id="weekly-strip"></div>
                 </div>
-                <div class="card bg-base-100 shadow-sm border border-base-200"><div class="card-body p-4"><div class="flex justify-between items-center mb-2"><h2 class="card-title text-sm text-text-sub flex items-center gap-1">📊 MONTHLY QUOTAS</h2><select id="quota-filter" class="select select-bordered select-xs" onchange="window.renderQuotas()"><option value="All">All</option><option value="PS" selected>PS Only</option><option value="CM">CM Only</option></select></div><div id="quota-list" class="flex flex-col gap-2 overflow-y-auto" style="max-height: 160px;"></div></div></div>
+            </div>
+            
+            <div class="quota-dashboard-section" style="margin-top: 24px; margin-bottom: 24px;">
+              <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; color: var(--text-main, #333);">📊 Monthly Quota Tracking</h2>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                
+                <div class="card" style="background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                  <h3 style="font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; color: var(--primary, #2563eb); border-bottom: 1px solid #eee; padding-bottom: 4px;">PS Students</h3>
+                  <div id="quota-list-PS" style="max-height: 200px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px;"></div>
+                </div>
+
+                <div class="card" style="background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                  <h3 style="font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; color: var(--primary, #2563eb); border-bottom: 1px solid #eee; padding-bottom: 4px;">CM Students</h3>
+                  <div id="quota-list-CM" style="max-height: 200px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px;"></div>
+                </div>
+
+                <div class="card" style="background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                  <h3 style="font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; color: var(--primary, #2563eb); border-bottom: 1px solid #eee; padding-bottom: 4px;">Personal Students</h3>
+                  <div id="quota-list-Personal" style="max-height: 200px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px;"></div>
+                </div>
+
+                <div class="card" style="background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                  <h3 style="font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; color: var(--primary, #2563eb); border-bottom: 1px solid #eee; padding-bottom: 4px;">Trial Students</h3>
+                  <div id="quota-list-Trial" style="max-height: 200px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px;"></div>
+                </div>
+
+              </div>
             </div>
         </div>
 
@@ -823,7 +849,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: April 26, 2026</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.2 STAGING (Quota Widget) | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: April 26, 2026, 03:45 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.3 STAGING (UI Grid Fix) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1708,32 +1734,38 @@
 
     window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 'POST', body: JSON.stringify({Action: "updateStudentData", StudentName: name, MonthlyLimit: parseInt(limit)})}).then(()=> { showToast('Limit updated for ' + name); const globalStudents = APP_STATE.students; const stu = globalStudents.find(x => x.name === name); if(stu) stu.monthlyLimit = parseInt(limit); window.renderQuotas(); }); };
 
-    window.renderQuotas = function() {
-        const filter = document.getElementById('quota-filter').value;
-        const container = document.getElementById('quota-list');
-        if(!container) return;
-        container.innerHTML = '';
-        const globalStudents = APP_STATE.students;
-        let targets = globalStudents.filter(s => String(s.status).toLowerCase() !== 'deleted');
-        if(filter !== 'All') targets = targets.filter(s => s.type === filter);
-        
-        targets.sort((a,b) => {
-            const ratioA = a.monthCompleted / (a.monthlyLimit || 1);
-            const ratioB = b.monthCompleted / (b.monthlyLimit || 1);
-            return ratioB - ratioA;
-        });
+window.renderQuotas = function() {
+    const types = ['PS', 'CM', 'Personal', 'Trial'];
 
-        targets.forEach(s => {
-            let colorClass = "text-success"; let bgClass = "bg-success";
-            if(s.monthCompleted >= s.monthlyLimit) { colorClass = "text-error"; bgClass = "bg-error"; }
-            else if(s.monthCompleted === s.monthlyLimit - 1) { colorClass = "text-warning"; bgClass = "bg-warning"; }
-            
-            container.innerHTML += `<div class="flex justify-between items-center p-2 rounded" style="background-color: var(--fallback-b1,oklch(var(--b1))); border-left: 4px solid var(--fallback-${bgClass.split('-')[1]},oklch(var(--${bgClass.split('-')[1]})));">
-                <span class="font-medium text-sm">${s.name}</span>
-                <span class="text-sm font-bold ${colorClass}">${s.monthCompleted} / ${s.monthlyLimit}</span>
-            </div>`;
-        });
-    };
+    types.forEach(type => {
+        const container = document.getElementById('quota-list-' + type);
+        if(!container) return;
+        container.innerHTML = '';
+
+        let targets = globalStudents.filter(s => String(s.status).toLowerCase() !== 'deleted' && s.type === type);
+
+        targets.sort((a,b) => {
+            const ratioA = a.monthCompleted / (a.monthlyLimit || 1);
+            const ratioB = b.monthCompleted / (b.monthlyLimit || 1);
+            return ratioB - ratioA;
+        });
+
+        targets.forEach(s => {
+            let colorHex = "#10b981"; // Green
+            if(s.monthCompleted >= s.monthlyLimit) { colorHex = "#ef4444"; } // Red
+            else if(s.monthCompleted === s.monthlyLimit - 1) { colorHex = "#f59e0b"; } // Orange
+
+            container.innerHTML += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: rgba(0,0,0,0.03); border-radius: 4px; border-left: 4px solid ${colorHex};">
+                <span style="font-size: 0.85rem; font-weight: 500; color: #333;">${s.name}</span>
+                <span style="font-size: 0.85rem; font-weight: bold; color: ${colorHex};">${s.monthCompleted} / ${s.monthlyLimit}</span>
+            </div>`;
+        });
+
+        if(targets.length === 0) {
+            container.innerHTML = `<div style="font-size: 0.8rem; color: #9ca3af; text-align: center; padding: 10px;">No active students</div>`;
+        }
+    });
+};
 
     async function runBootSequence() {
         APP_STATE.todayDate = getCurrentISTDateString(); 
