@@ -237,7 +237,9 @@
         .btn { display: flex !important; justify-content: center !important; align-items: center !important; text-align: center !important; white-space: normal !important; line-height: 1.2 !important; margin: 0; min-height: 44px; }
         
         /* Fix Add Row / Clear All Overlapping */
-        .flex.gap-2, .flex.gap-4, .card-actions { flex-wrap: wrap !important; gap: 10px !important; }
+        .inline-actions, .flex.gap-2, .flex.gap-4, .card-actions { flex-wrap: wrap !important; gap: 10px !important; }
+        /* Fix Open Bulletin Button Alignment */
+        .smart-bar-action { display: flex !important; justify-content: center !important; align-items: center !important; text-align: center !important; white-space: nowrap !important; }
 
         /* Fix Student Directory Mobile Overlap */
         tr.category-divider td:before, tr.bg-base-200 td:before { display: none !important; content: none !important; }
@@ -847,7 +849,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: April 27, 2026, 09:30 AM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.10 STAGING (Mobile UI Master Fix) | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: April 27, 2026, 11:30 AM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.11 STAGING (Bug Squasher) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -999,13 +1001,8 @@
     document.addEventListener('click', (e) => { const menu = document.getElementById("fab-menu"); if (menu && menu.classList.contains("show") && e.target.id !== "fab-main") { menu.classList.remove("show"); } });
     
     function getCurrentISTDateString() { 
-      const d = new Date(); 
-      const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
-      const formatter = new Intl.DateTimeFormat('en-GB', options);
-      const parts = formatter.formatToParts(d);
-      let y, m, day;
-      parts.forEach(p => { if(p.type === 'year') y = p.value; if(p.type === 'month') m = p.value; if(p.type === 'day') day = p.value; });
-      return `${y}-${m}-${day}`;
+        const d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+        return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
     }
 
     function showToast(message, type = "success") { const container = document.getElementById("toast-container"); const toast = document.createElement("div"); toast.className = `toast ${type === 'error' ? 'toast-error' : type === 'info' ? 'toast-info' : ''}`; toast.innerHTML = `<span>${type==='error'?'⚠️':type==='info'?'ℹ️':'✅'}</span><span>${message}</span>`; container.appendChild(toast); requestAnimationFrame(() => toast.classList.add("show")); setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 300); }, 3000); }
@@ -1193,8 +1190,15 @@ window.renderClassesForDate = async (dateStr, holdBanner = false, preloadedClass
     window.loadAnalytics = async (silent = false) => {
         if(!silent) window.showMainSection('analytics'); if(APP_STATE.isAnalyticsLoading || (silent && APP_STATE.analyticsLoaded)) return; APP_STATE.isAnalyticsLoading = true;
         try {
-            const r = await fetchAPI(null, { action: "getDashboardAnalytics" }); if(r.status === "error" || !r.revenueMatrix) throw new Error("Analytics backend error.");
-            const mkChart = (id, type, labels, data, stackOpts={}) => { const canvas = document.getElementById(id); if(!canvas) return; const ctx = canvas.getContext('2d'); if(charts[id]) charts[id].destroy(); charts[id] = new Chart(ctx, { type: type, data: { labels: labels, datasets: data }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: silent ? 0 : 500 }, plugins: { legend: { display: type!=='bar' && type!=='pie' && type!=='doughnut' } }, scales: stackOpts.scales || { x: { grid: { display: false } }, y: { grid: { display: false }, beginAtZero: true } } } }); };
+            const r = await fetchAPI(null, { action: "getDashboardAnalytics" }); if(r.status === "error") throw new Error("Analytics backend error.");
+            const mkChart = (id, type, labels, data, stackOpts={}) => { 
+                const canvas = document.getElementById(id); if(!canvas) return; 
+                const ctx = canvas.getContext('2d');
+                if(charts[id]) charts[id].destroy(); 
+                let options = { responsive: true, maintainAspectRatio: false, animation: { duration: silent ? 0 : 500 }, plugins: { legend: { display: type!=='bar' } } };
+                if (type !== 'pie' && type !== 'doughnut') { options.scales = stackOpts.scales || { x: { grid: { display: false } }, y: { grid: { display: false }, beginAtZero: true } }; }
+                charts[id] = new Chart(ctx, { type: type, data: { labels: labels, datasets: data }, options: options });
+            };
             if(r.trialStats) { document.getElementById("stat-trials").textContent = r.trialStats.conducted || 0; document.getElementById("stat-conversions").textContent = r.trialStats.conversions || 0; }
             if(r.revenueMatrix) { const revKeys = Object.keys(r.revenueMatrix).reverse(); const cmData = revKeys.map(k => r.revenueMatrix[k].cm); const pData = revKeys.map(k => r.revenueMatrix[k].personal); try { mkChart('chartRevenue', 'bar', revKeys, [ { label: 'CM (₹)', data: cmData, backgroundColor: '#0f766e' }, { label: 'Personal (₹)', data: pData, backgroundColor: '#3b82f6' } ], { scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { display: false } } } }); } catch(err){} }
             const curr = new Date(); const first = curr.getDate() - curr.getDay() + 1; const weekLabels = []; const weekCounts = [];
@@ -1767,10 +1771,11 @@ window.renderClassesForDate = async (dateStr, holdBanner = false, preloadedClass
         APP_STATE.todayDate = getCurrentISTDateString();
         document.getElementById("view-date").value = APP_STATE.todayDate;
         document.getElementById("bulkDate").value = APP_STATE.todayDate;
-        
+
         initClocks();
         await loadStudents();
         await fetchToday(true);
+        window.loadClassesForViewDate(); 
         window.loadEarnings();
         window.renderAvailabilityFeed();
     };
