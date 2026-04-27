@@ -229,15 +229,28 @@
         .ob-result-item:hover, .ob-result-item.selected { background: #f0f9ff; border-color: #bae6fd; }
         .ob-command-badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; color: #475569; margin-left: 8px; }
 
-        /* Mobile UI & Animation Overrides */
+        /* Mobile UI & Button Master Fixes */
         @keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         .alert-pulse { animation: softPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        .btn { display: flex !important; justify-content: center !important; align-items: center !important; text-align: center !important; white-space: normal !important; line-height: 1.2 !important; }
+
+        /* Global Button Alignment & Minimum Tap Targets */
+        .btn { display: flex !important; justify-content: center !important; align-items: center !important; text-align: center !important; white-space: normal !important; line-height: 1.2 !important; margin: 0; min-height: 44px; }
+        
+        /* Fix Add Row / Clear All Overlapping */
+        .flex.gap-2, .flex.gap-4, .card-actions { flex-wrap: wrap !important; gap: 10px !important; }
+
+        /* Fix Student Directory Mobile Overlap */
+        tr.category-divider td:before, tr.bg-base-200 td:before { display: none !important; content: none !important; }
+        tr.category-divider td, tr.bg-base-200 td { text-align: left !important; padding: 12px 16px !important; white-space: normal !important; width: 100% !important; font-size: 1.05rem; }
+
         input[type="date"], input[type="time"] { min-width: 125px !important; padding-left: 8px !important; padding-right: 8px !important; letter-spacing: -0.5px; }
+
         @media (max-width: 768px) {
             td[data-label]:before { padding-right: 12px; font-weight: 700; }
             .card-body { padding: 1rem !important; }
             .quota-dashboard-section h2 { margin-left: 8px; }
+            .quick-actions-container { flex-direction: column !important; width: 100% !important; }
+            .quick-actions-container .btn { width: 100% !important; margin-bottom: 8px; }
         }
     </style>
 </head>
@@ -296,7 +309,7 @@
             <span style="font-size: 1.2rem;">✨</span>
             <span id="smart-bar-content">Smart Operations Hub</span>
         </div>
-        <div class="smart-bar-action">Open Bulletin</div>
+        <div class="smart-bar-action w-full" style="width: 100%; justify-content: center;">Open Bulletin</div>
     </div>
 
     <nav class="main-tabs">
@@ -308,8 +321,7 @@
         <button class="main-tab-btn" onclick="window.showMainSection('bulk')">Bulk Scheduling</button>
         <button class="main-tab-btn" onclick="window.showMainSection('onboarding')">🚀 Student Welcome Kit</button> 
     </nav>
-
-    <section id="section-classes" class="section show">
+<section id="section-classes" class="section show">
         <div class="section-card">
             <div class="section-header">
                 <div><span class="section-title">Dashboard Overview</span></div>
@@ -483,7 +495,7 @@
                                     <input type="checkbox" id="s6" value="Grammar Rules" class="pill-checkbox"><label for="s6" class="pill-label">Grammar Rules</label>
                                     <input type="checkbox" id="s7" value="Reading Comprehension" class="pill-checkbox"><label for="s7" class="pill-label">Reading Comprehension</label>
                                     <input type="checkbox" id="s8" value="Phonics" class="pill-checkbox"><label for="s8" class="pill-label">Phonics</label>
-                                    <input type="checkbox" id="s9" value="Creative Writing" class="pill-checkbox"><label for="s9" class="pill-label">Creative Writing</label>
+                                    <input type="checkbox" id="s9" value="Creative Writing" class="pill-checkbox"><label for="s9" class="pill-checkbox"><label for="s9" class="pill-label">Creative Writing</label>
                                     <input type="checkbox" id="s10" value="Vocabulary Expansion" class="pill-checkbox"><label for="s10" class="pill-label">Vocabulary</label>
                                 </div>
                             </div>
@@ -835,7 +847,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: April 27, 2026, 09:00 AM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.9 STAGING (Mobile UI & Search Polish) | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: April 27, 2026, 09:30 AM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v117.10 STAGING (Mobile UI Master Fix) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -972,7 +984,7 @@
     <div id="omniboxModal" class="modal-backdrop" style="z-index: 4000; align-items: flex-start; padding-top: 10vh;"><div class="modal" style="max-width: 600px; background: transparent; box-shadow: none;"><div style="background: #fff; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--primary);"><div style="display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 1.2rem; color: #64748b; margin-right: 12px;">🔍</span><input type="text" id="omniboxInput" style="flex: 1; border: none; font-size: 1.15rem; outline: none; padding: 4px 0; background: transparent; color: var(--text-main);" placeholder="Search students, slots, or commands..." autocomplete="off"><button type="button" class="mic-btn" id="omniboxMicBtn" onclick="window.toggleOmniboxVoice(this)" style="border:none; background:transparent; font-size:1.2rem; padding: 4px;">🎤</button><div class="omnibox-shortcut" style="margin-left: 12px;">ESC</div></div><div id="omniboxResults" style="max-height: 350px; overflow-y: auto; background: #f8fafc; padding: 12px; display: none;"></div></div></div></div>
 
     <div id="toast-container" class="toast-container"></div>
-    <div class="fab-container"><div class="fab-menu" id="fab-menu"><div class="fab-item" onclick="window.openSmartCopyModal('week')">📋 Share Open Slots</div><div class="fab-item" onclick="window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\\'vision\\']').click(), 100); window.scrollTo(0,0);">📸 Snap & Correct</div><div class="fab-item" onclick="window.showMainSection('students'); showToast('Click the 🔁 icon next to any student to shift.', 'info'); window.scrollTo(0,0);">🔁 Bulk Shift Schedule</div><div class="fab-item" onclick="window.openSmartBulletin(); window.switchSbTab('vacation');">✈️ Out of Office Message</div><div class="fab-item" onclick="window.showMainSection('students'); document.getElementById('student-name-input').focus(); window.scrollTo(0,0);">🆕 Quick Add Student</div></div><button class="fab-main" id="fab-main" title="Quick Actions" onclick="window.toggleQuickMenu(event)">⚡</button></div>
+    <div class="fab-container"><div class="fab-menu quick-actions-container" id="fab-menu"><button class="fab-item btn w-full" style="width: 100%;" onclick="window.openSmartCopyModal('week')">📋 Share Open Slots</button><button class="fab-item btn w-full" style="width: 100%;" onclick="window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\\'vision\\']').click(), 100); window.scrollTo(0,0);">📸 Snap & Correct</button><button class="fab-item btn w-full" style="width: 100%;" onclick="window.showMainSection('students'); showToast('Click the 🔁 icon next to any student to shift.', 'info'); window.scrollTo(0,0);">🔁 Bulk Shift Schedule</button><button class="fab-item btn w-full" style="width: 100%;" onclick="window.openSmartBulletin(); window.switchSbTab('vacation');">✈️ Out of Office Message</button><button class="fab-item btn w-full" style="width: 100%;" onclick="window.showMainSection('students'); document.getElementById('student-name-input').focus(); window.scrollTo(0,0);">🆕 Quick Add Student</button></div><button class="fab-main" id="fab-main" title="Quick Actions" onclick="window.toggleQuickMenu(event)">⚡</button></div>
 </div>
 
 <script>
@@ -1087,11 +1099,7 @@
         if(date === APP_STATE.todayDate) { document.getElementById("stats-today-main").textContent = activeClasses.length ? `${activeClasses.length} classes` : "No classes"; const l = document.getElementById("today-classes-list"); l.innerHTML = ""; activeClasses.forEach(c => { l.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #e2e8f0; font-size:0.85rem;">${time24To12(c.StartTime)} - <b>${c.StudentName}</b></div>`; }); }
         const s = document.getElementById("weekly-strip"); if(s) { s.innerHTML = ""; const base = new Date(APP_STATE.todayDate); base.setDate(base.getDate() - (base.getDay()+6)%7); for(let i=0; i<7; i++) { const d = new Date(base); d.setDate(base.getDate()+i); const iso = d.toISOString().split('T')[0]; let count = (APP_STATE.weeklySummary||{})[iso]; if(iso === date) count = activeClasses.length; const div = document.createElement("div"); div.className = "weekly-day"; if(iso === APP_STATE.todayDate) div.classList.add("today"); if(count > 0) div.classList.add("has-classes"); div.innerHTML = `${d.toLocaleDateString("en-GB",{weekday:"short"})}<br>${count||'-'}`; div.onclick = () => { document.getElementById("view-date").value = iso; window.showMainSection('classes'); window.renderClassesForDate(iso); }; s.appendChild(div); } }
     }
-
-    window.loadClassesForViewDate = function() { window.renderClassesForDate(document.getElementById("view-date").value); }
-    window.cancelAllClassesForDay = async () => { const dateStr = document.getElementById("view-date").value; const activeClasses = (APP_STATE.currentClasses || []).filter(c => c.Status !== "Cancelled" && c.Status !== "Deleted"); if (!activeClasses.length) return showToast("No active classes to cancel.", "error"); showConfirm(`Cancel all ${activeClasses.length} classes for ${isoToDisplayDate(dateStr)}?`, async () => { const btn = document.getElementById("cancel-all-btn"); btn.textContent = "Processing..."; btn.disabled = true; const updates = activeClasses.map(c => ({ ClassID: c.ClassID, Status: "Cancelled", StudentName: c.StudentName })); const r = await fetchAPI(null, { action: "bulkUpdateStatus", updates: updates }); await window.loadEarnings(); await window.loadWeekly(); await window.renderAvailabilityFeed(); window.fetchToday(); window.renderClassesForDate(dateStr, false); btn.textContent = "Cancel All"; btn.disabled = false; if (r.status === "error") return showToast("Failed to cancel classes.", "error"); window.showAuditReport(r.success, r.failed, "Bulk Cancel Report"); }); };
-
-    window.renderClassesForDate = async (dateStr, holdBanner = false, preloadedClasses = null) => {
+window.renderClassesForDate = async (dateStr, holdBanner = false, preloadedClasses = null) => {
         const out = document.getElementById("view-classes-output"); if (!holdBanner) out.innerHTML = '<div style="color:var(--text-sub); text-align:center; padding:20px;">Loading schedule...</div>';
         let classes = preloadedClasses; if (!classes) { const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr }); if(res.status === "error") { out.innerHTML = `<div style="color:#ef4444; text-align:center; padding:20px;">Failed to load.</div>`; return; } classes = res.classes || []; }
         updateStats(dateStr, classes); const dateObj = new Date(dateStr); const isWednesday = dateObj.getDay() === 3; const validClasses = classes.filter(c => c.Status !== "Deleted");
@@ -1688,7 +1696,7 @@
         let targetTimeStr = ""; const timeMatch = q.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i); if (timeMatch) { let hh = parseInt(timeMatch[1]); let mm = timeMatch[2] || "00"; let ap = timeMatch[3].toUpperCase(); if(hh>=1 && hh<=12) targetTimeStr = `${String(hh).padStart(2, '0')}:${mm} ${ap}`; }
         let targetStudent = ""; const words = q.replace(/[^a-z0-9\s]/g, '').split(' '); for (let word of words) { if (word.length > 2) { const found = APP_STATE.students.find(s => s.name.toLowerCase().includes(word)); if (found) { targetStudent = found.name; break; } } }
 
-        const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan"); const isReschedule = q.includes("reschedule") || q.includes("shift"); const isSlots = q.includes("free") || q.includes("slot") || q.includes("available"); const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee"); const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback"); const isAnalytics = q.includes("no show") || q.includes("absent") || q.includes("analytics") || q.includes("revenue") || q.includes("stats") || q.includes("quota");
+        const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan"); const isReschedule = q.includes("reschedule") || q.includes("shift"); const isSlots = q.includes("free") || q.includes("slot") || q.includes("available"); const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee"); const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback"); const isAnalytics = q.includes("no show") || q.includes("absent") || q.includes("analytics") || q.includes("revenue") || q.includes("stats");
 
         if (isSchedule && targetStudent && !isReschedule) {
             matched = true; let titleText = `Schedule ${targetStudent}`; if (dateLabel) titleText += ` for ${dateLabel}`; if (targetTimeStr) titleText += ` at ${targetTimeStr}`;
@@ -1701,158 +1709,71 @@
         }
         if ((isReceipt || isProgress) && targetStudent) {
             matched = true; let crmAction = isReceipt ? 'receipt' : 'progress'; let icon = isReceipt ? '🧾' : '📝';
-            let action = `window.closeOmnibox(); window.showMainSection('communications'); setTimeout(() => { document.getElementById('crm-student-select').value='${targetStudent}'; window.loadStudentCRM('${targetStudent}'); document.querySelector('input[name="crmAction"][value="${crmAction}"]').click(); document.getElementById('crm-student-select').scrollIntoView({behavior: 'smooth', block: 'start'}); }, 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${icon}</span><span style="font-weight:600; color:var(--text-main);">Write ${isReceipt ? 'Receipt' : 'Progress Report'} for ${targetStudent}</span><span class="ob-command-badge">Smart Route</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+            let action = `window.closeOmnibox(); window.showMainSection('communications'); setTimeout(() => { document.getElementById('crm-student-select').value='${targetStudent}'; window.loadStudentCRM('${targetStudent}'); document.querySelector('input[name="crmAction"][value="${crmAction}"]').checked = true; window.toggleCrmView(); }, 200);`;
+            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${icon}</span><span style="font-weight:600; color:var(--text-main);">Draft ${crmAction === 'receipt' ? 'Payment Receipt' : 'Progress Report'} for ${targetStudent}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
-        if (q.includes("no show") || q.includes("absent") || q.includes("quota reached")) {
-            matched = true; let statFilter = q.includes("no show") ? "Student No Show" : q.includes("absent") ? "Absent" : "Quota Reached";
-            let action = `window.closeOmnibox(); window.showMainSection('analytics'); window.openHistoryReport(); setTimeout(() => { document.getElementById('historyStatusFilter').value='${statFilter}'; }, 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${statFilter === "Quota Reached" ? "🛑" : "📉"}</span><span style="font-weight:600; color:var(--text-main);">View ${statFilter} Report</span><span class="ob-command-badge">Smart Data</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
-        }
+        
+        // Global Search Integration: Quota Alerts
         if (q.includes("quota") || q.includes("exhaust") || q.includes("limit")) {
-            matched = true;
-            const activePS = (window.globalStudents || []).filter(s => String(s.status).toLowerCase() !== 'deleted' && s.type === 'PS' && s.monthCompleted >= (s.monthlyLimit || 4));
-            if (activePS.length > 0) {
-                activePS.forEach(s => {
-                    html += `<div class="ob-result-item" onclick="window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${s.name}');"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;" class="alert-pulse">🔴</span><div><div style="font-weight:600; color:#ef4444;">Quota Exceeded: ${s.name}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.monthCompleted} / ${s.monthlyLimit || 4} Classes Completed</div></div><span class="ob-command-badge" style="background:#fef2f2; color:#ef4444; border:1px solid #fecaca;">Action Required</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+            const quotaStudents = APP_STATE.students.filter(s => s.type === 'PS' && s.monthCompleted >= (s.monthlyLimit || 4));
+            if (quotaStudents.length > 0) {
+                matched = true;
+                quotaStudents.forEach(qs => {
+                    let action = `window.closeOmnibox(); window.showMainSection('students'); setTimeout(() => { window.scrollTo(0,0); }, 200);`;
+                    html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;" class="alert-pulse">🔴</span><span style="font-weight:600; color:var(--text-main);">${qs.name} Quota Reached (${qs.monthCompleted}/${qs.monthlyLimit||4})</span><span class="ob-command-badge">Action Needed</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
                 });
-            } else if (q.includes("exhaust") || q.includes("limit")) {
-                html += `<div class="ob-result-item"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">✅</span><span style="font-weight:600; color:var(--text-main);">No active PS students have exhausted their quota.</span></div></div>`;
             }
         }
-        if (isSlots && targetDateStr && !targetStudent) {
-            matched = true; let titleText = `View Free Slots for ${dateLabel}`;
-            let action = `window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value='${targetDateStr}'; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">🟢</span><span style="font-weight:600; color:var(--text-main);">${titleText}</span><span class="ob-command-badge">Smart Route</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
-        } else if (isSchedule && targetDateStr && !targetStudent) {
-            matched = true; let titleText = `View Schedule for ${dateLabel}`;
-            let action = `window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value='${targetDateStr}'; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📅</span><span style="font-weight:600; color:var(--text-main);">${titleText}</span><span class="ob-command-badge">Smart Route</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
-        }
-
-        const commands = [
-            { keywords: ["slot", "slots", "free", "available", "open", "empty", "calendar", "schedule", "book"], title: "View Available Slots (Today)", icon: "🟢", action: "window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value=APP_STATE.todayDate; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);" },
-            { keywords: ["vacation", "ooo", "leave", "holiday", "off", "break", "trip"], title: "Draft Out of Office Message", icon: "✈️", action: "window.closeOmnibox(); window.openSmartBulletin(); window.switchSbTab('vacation');" },
-            { keywords: ["add", "new", "create", "enroll"], title: "Quick Add Student", icon: "🆕", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(() => { let el = document.getElementById('student-name-input'); el.scrollIntoView({behavior: 'smooth', block: 'center'}); el.focus(); }, 200);" },
-            { keywords: ["revenue", "analytics", "stats", "money", "earnings", "dashboard", "report", "graph"], title: "View Executive Analytics", icon: "📊", action: "window.closeOmnibox(); window.showMainSection('analytics'); setTimeout(() => window.scrollTo({top: 0, behavior: 'smooth'}), 100);" },
-            { keywords: ["bulk", "shift", "reschedule", "move", "change"], title: "Bulk Shift / Reschedule", icon: "🔁", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(() => document.getElementById('all-students-content').scrollIntoView({behavior: 'smooth', block: 'start'}), 200); showToast('Click the 🔁 icon next to any student to shift.', 'info');" },
-            { keywords: ["scan", "photo", "correct", "image", "vision", "handwriting", "essay"], title: "Snap & Correct (Vision AI)", icon: "📸", action: "window.closeOmnibox(); window.showMainSection('drafter'); setTimeout(() => { document.querySelector('input[value=\\'vision\\']').click(); document.getElementById('ai-vision-file').scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);" },
-            { keywords: ["pending", "review", "done", "approve", "check"], title: "Clear Pending Reviews", icon: "📝", action: "window.closeOmnibox(); window.openPendingReviews();" }
-        ];
-
-        const queryWords = q.split(/\s+/).filter(word => word.length > 1);
         
-        if (!matched) { 
-            commands.forEach(cmd => { 
-                if (queryWords.some(qw => cmd.keywords.some(kw => kw.includes(qw)))) { 
-                    matched = true; 
-                    html += `<div class="ob-result-item" onclick="${cmd.action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${cmd.icon}</span><span style="font-weight:600; color:var(--text-main);">${cmd.title}</span><span class="ob-command-badge">Command</span></div><span style="color:#cbd5e1;">⏎</span></div>`; 
-                } 
-            }); 
+        if (isAnalytics) {
+            matched = true; let action = `window.closeOmnibox(); window.showMainSection('analytics'); window.loadAnalytics(false);`;
+            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📊</span><span style="font-weight:600; color:var(--text-main);">View Executive Analytics</span><span class="ob-command-badge">Jump</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
 
-        if (!matched || q.length < 15) {
-            const matchingStudents = APP_STATE.students.filter(s => s.name.toLowerCase().includes(q));
-            matchingStudents.forEach(s => {
-                matched = true;
-                html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><div><div style="font-weight:700; color:var(--text-main);">${s.name}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div></div></div><button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6; height: 28px; padding: 0 8px;" onclick="event.stopPropagation(); window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${s.name}');">✨ Smart Slot</button></div><div style="display:flex; gap:8px;"><button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${s.name}')">💬 Jump to CRM</button><button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); el.value='${s.name}'; el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);">📅 Schedule</button></div></div>`;
-            });
+        if (targetStudent && !matched) {
+            matched = true; let action = `window.closeOmnibox(); window.showMainSection('students');`;
+            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><span style="font-weight:600; color:var(--text-main);">View ${targetStudent} in Directory</span><span class="ob-command-badge">Jump</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
-        if (!matched) { html = `<div style="text-align:center; padding:20px; color:#94a3b8;">No matching students or commands found.<br><span style="font-size:0.8rem; margin-top:8px; display:block;">Try: "Schedule Aadira for tomorrow at 3 PM", "Receipt for Shayraf", or "No shows".</span></div>`; }
+        
+        // Global Search Integration: Class Records & Quota Reached Status
+        let historyMatches = [];
+        if (!matched) {
+             Object.values(APP_STATE.cache).forEach(dayClasses => {
+                  dayClasses.forEach(c => {
+                       if (c.StudentName.toLowerCase().includes(q) || c.Status.toLowerCase().includes(q) || (c.Notes && c.Notes.toLowerCase().includes(q))) {
+                             historyMatches.push(c);
+                       }
+                  });
+             });
+             
+             if (historyMatches.length > 0) {
+                 matched = true;
+                 historyMatches.slice(0, 5).forEach(hm => {
+                     let icon = hm.Status === 'Quota Reached' ? '🛑' : '🕒';
+                     let action = `window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value='${hm.ClassDate.substring(0,10)}'; window.loadClassesForViewDate();`;
+                     html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${icon}</span><div style="display:flex; flex-direction:column;"><span style="font-weight:600; color:var(--text-main); font-size:0.9rem;">${hm.StudentName} - ${hm.Status}</span><span style="color:var(--text-sub); font-size:0.75rem;">${isoToDisplayDate(hm.ClassDate.substring(0,10))} at ${time24To12(hm.StartTime)}</span></div></div><span style="color:#cbd5e1;">⏎</span></div>`;
+                 });
+             }
+        }
+
+        if (!matched && q.length > 2) {
+             html = `<div style="padding:16px; text-align:center; color:#94a3b8;">No matches found for "${query}"</div>`;
+        }
+        
         resultsContainer.innerHTML = html;
     };
 
-    window.toggleOmniboxVoice = (btnElement) => {
-        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) return showToast("Voice not supported.", "error");
-        if (isRecording) { speechRecog.stop(); return; }
-        const SR = window.SpeechRecognition || window.webkitSpeechRecognition; speechRecog = new SR(); speechRecog.continuous = false; 
-        speechRecog.onstart = function() { isRecording = true; btnElement.classList.add("recording-pulse"); btnElement.innerHTML = "🔴"; document.getElementById("omniboxInput").placeholder = "Listening..."; };
-        speechRecog.onresult = function(event) { const transcript = event.results[0][0].transcript; const input = document.getElementById("omniboxInput"); input.value = transcript.trim(); window.processOmniboxQuery(transcript.trim().toLowerCase()); };
-        speechRecog.onend = function() { isRecording = false; btnElement.classList.remove("recording-pulse"); btnElement.innerHTML = "🎤"; document.getElementById("omniboxInput").placeholder = "Search students, slots, or commands..."; };
-        speechRecog.start();
+    window.onload = async () => {
+        APP_STATE.todayDate = getCurrentISTDateString();
+        document.getElementById("view-date").value = APP_STATE.todayDate;
+        document.getElementById("bulkDate").value = APP_STATE.todayDate;
+        
+        initClocks();
+        await loadStudents();
+        await fetchToday(true);
+        window.loadEarnings();
+        window.renderAvailabilityFeed();
     };
-
-    window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 'POST', body: JSON.stringify({Action: "updateStudentData", StudentName: name, MonthlyLimit: parseInt(limit)})}).then(()=> { showToast('Limit updated for ' + name); const globalStudents = APP_STATE.students; const stu = globalStudents.find(x => x.name === name); if(stu) stu.monthlyLimit = parseInt(limit); window.renderQuotas(); }); };
-
-window.renderQuotas = function() {
-    const container = document.getElementById('smart-quota-alerts');
-    if(!container) return;
-    container.innerHTML = '';
-
-    let globalClasses = APP_STATE.currentClasses || [];
-    let todayStudentNames = globalClasses.map(c => c.StudentName);
-    let targets = window.globalStudents.filter(s => 
-        String(s.status).toLowerCase() !== 'deleted' && 
-        s.type === 'PS' && 
-        s.monthCompleted >= ((s.monthlyLimit || 4) - 1) &&
-        todayStudentNames.includes(s.name)
-    );
-
-    if(targets.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-
-    container.style.display = 'flex';
-
-    // Sort: Highest ratio first
-    targets.sort((a,b) => {
-        const ratioA = a.monthCompleted / (a.monthlyLimit || 4);
-        const ratioB = b.monthCompleted / (b.monthlyLimit || 4);
-        return ratioB - ratioA;
-    });
-
-    let htmlString = `<h3 style="font-size: 0.95rem; font-weight: 700; color: #dc2626; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">⚠️ Action Required: PS Quota Limits</h3>`;
-
-    targets.forEach(s => {
-        const limit = s.monthlyLimit || 4;
-        const isCritical = s.monthCompleted >= limit;
-
-        const bgColor = isCritical ? '#fef2f2' : '#fffbeb'; 
-        const borderColor = isCritical ? '#ef4444' : '#f59e0b'; 
-        const textColor = isCritical ? '#991b1b' : '#92400e'; 
-        const icon = isCritical ? '🛑 Limit Reached' : '⚠️ Nearing Limit';
-
-        htmlString += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${bgColor}; border-radius: 8px; border-left: 5px solid ${borderColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <span style="font-size: 0.95rem; font-weight: 600; color: ${textColor};">${s.name} <span style="font-weight: 500; font-size: 0.8rem; margin-left: 8px; opacity: 0.8;">${icon}</span></span>
-            <span style="font-size: 1rem; font-weight: 800; color: ${borderColor};">${s.monthCompleted} / ${limit}</span>
-        </div>`;
-    });
-
-    container.innerHTML = htmlString;
-};
-
-    async function runBootSequence() {
-        APP_STATE.todayDate = getCurrentISTDateString(); 
-        document.getElementById("view-date").value = APP_STATE.todayDate; document.getElementById("schedule-date").value = APP_STATE.todayDate; document.getElementById("bulkDate").value = APP_STATE.todayDate; document.getElementById("conv-student-date").value = APP_STATE.todayDate;
-        try { const tzs = Intl.supportedValuesOf('timeZone'); const list = document.getElementById("tz-list"); if (list) { tzs.forEach(tz => list.innerHTML += `<option value="${tz}"></option>`); } window.loadCustomTzs(); } catch(e) { console.error("TZ API not supported in this browser."); }
-        initClocks(); 
-        const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7); const isoWeekStart = d.toISOString().split('T')[0];
-        try {
-            const bootData = await fetchAPI(null, { action: "bootApp", todayDate: APP_STATE.todayDate, startDate: isoWeekStart });
-            if (bootData.status !== "error") {
-                APP_STATE.studyMaterialLink = bootData.studyMaterialLink || "";
-                if (bootData.studentsRes && bootData.studentsRes.students) { 
-                    APP_STATE.students = bootData.studentsRes.students.sort((a,b) => a.name.localeCompare(b.name)); 
-                    window.globalStudents = APP_STATE.students;
-                    populateStudentDropdowns(); 
-                    renderStudents(); 
-                    window.renderQuotas();
-                    document.getElementById("stats-total-students").textContent = APP_STATE.students.length; 
-                    document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`; 
-                }
-                if (bootData.classesRes && bootData.classesRes.classes) { APP_STATE.cache[APP_STATE.todayDate] = bootData.classesRes.classes; }
-                if (bootData.weekRes && bootData.weekRes.summary) { APP_STATE.weeklySummary = bootData.weekRes.summary; }
-                updateStats(APP_STATE.todayDate, APP_STATE.cache[APP_STATE.todayDate] || []); window.renderClassesForDate(APP_STATE.todayDate, false, APP_STATE.cache[APP_STATE.todayDate] || []);
-                if (bootData.earningsRes) { if(bootData.earningsRes.personalEarnings !== undefined) { document.getElementById("stats-earnings-prepaid").textContent = "₹" + (bootData.earningsRes.personalEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-accrued").textContent = "₹" + (bootData.earningsRes.cmEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.personalCount || 0} Personal | ${bootData.earningsRes.cmCount || 0} CM`; } }
-                if (bootData.upcomingFeed) { window.renderAvailabilityFeed(bootData.upcomingFeed); }
-                window.renderQuotas();
-            }
-        } catch(e) {}
-        setTimeout(() => { try { window.loadAnalytics(true); } catch(e) {} }, 1000);
-    }
-    
-    window.onload = runBootSequence;
 </script>
 </body>
 </html>
