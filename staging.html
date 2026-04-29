@@ -239,6 +239,12 @@
             .card-body { padding: 1rem !important; }
             .quota-dashboard-section h2 { margin-left: 8px; }
         }
+
+        /* Fix Add Row / Clear All Overlapping */
+        .inline-actions, .flex.gap-2, .flex.gap-4, .card-actions { flex-wrap: wrap !important; gap: 10px !important; }
+
+        /* Fix Open Bulletin Button Alignment */
+        .smart-bar-action { display: flex !important; justify-content: center !important; align-items: center !important; text-align: center !important; white-space: nowrap !important; }
     </style>
 </head>
 <body>
@@ -412,6 +418,12 @@
                             <input type="number" id="add-custom-price" placeholder="Custom Price" style="flex:1;">
                         </div>
 
+                        <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background: var(--bg-body); border-radius: 6px; border: 1px solid var(--border);">
+                            <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; color: var(--primary); margin-bottom: 0;">
+                                <input type="checkbox" id="new-student-master-roster" checked style="width: 16px; height: 16px; accent-color: var(--accent);"> 
+                                Save initial schedule to Master Roster
+                            </label>
+                        </div>
                         <button id="add-student-btn" class="btn btn-primary btn-block" onclick="window.executeAddStudent()">Add Student</button>
                         <div id="manage-students-msg" style="margin-top:10px; font-size: 0.9rem;"></div>
                     </div>
@@ -980,6 +992,16 @@
     const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
     const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "" };
     
+    async function triggerMasterRosterSave(studentName, dateString, timeString, classType) {
+        try {
+            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const dayOfWeek = days[new Date(dateString).getDay()];
+            const payload = { action: "saveMasterRoster", studentName: studentName, dayOfWeek: dayOfWeek, startTime: timeString, classType: classType };
+            await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify(payload) });
+            console.log(`Master Roster updated for ${studentName} on ${dayOfWeek}`);
+        } catch(e) { console.error("Master Roster Sync Failed", e); }
+    }
+
     let charts = {}; let previousCrmStudent = ""; let previousCrmAction = "progress"; let currentCrmDetails = ""; let currentCrmType = ""; let previousAiType = 'parent';
     let speechRecog = null; let isRecording = false; let dispatchState = { students: [], template: "", currentIndex: 0 }; let currentRenameOldName = ""; let editingStudentName = "";
 
@@ -1115,7 +1137,12 @@
 
             let defaultMsg = `Hi, this is a reminder regarding the ${term} for ${c.StudentName} scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(c.StartTime)} IST.`; if (sObj && sObj.type === "PS") defaultMsg += `\n\nPlease join using your PlanetSpark class link.`; defaultMsg += `\n\nBest regards,\nSenorita`;
             
-            card.innerHTML = `<div class="class-card__row"><div><div class="class-student">👤 ${quotaBadge}${c.StudentName}</div><div class="meta">📅 ${isoToDisplayDate(c.ClassDate)} • ⏰ ${time24To12(c.StartTime)} IST</div></div>${stat}</div>${notesHtml}<div class="inline-actions"><button class="btn btn-soft btn-sm btn-generate">💬 Message</button><button class="btn btn-outline btn-sm btn-reschedule">🔁 Reschedule</button></div><div class="expand-block generate-area" style="display:none;"><select class="msg-type-select" style="margin-bottom:8px; width:100%; border:1px solid #cbd5e1; border-radius:6px; padding:6px;"><option value="reminder">Class Reminder</option>${quotaOption}</select><div class="msg-preview" style="white-space:pre-wrap;">${defaultMsg}</div><button class="btn btn-primary btn-sm btn-copy" style="margin-top:8px;">Copy</button></div><div class="expand-block resched-area" style="display:none;"><input type="date" class="res-date" value="${dateStr}"><input type="text" class="res-time" value="${time24To12(c.StartTime)}" placeholder="hh:mm AM/PM" onblur="window.normalizeUserTime(this)"><button class="btn btn-primary btn-sm btn-res-submit" style="margin-top:8px;">Save</button></div>`;
+            card.innerHTML = `<div class="class-card__row"><div><div class="class-student">👤 ${quotaBadge}${c.StudentName}</div><div class="meta">📅 ${isoToDisplayDate(c.ClassDate)} • ⏰ ${time24To12(c.StartTime)} IST</div></div>${stat}</div>${notesHtml}<div class="inline-actions"><button class="btn btn-soft btn-sm btn-generate">💬 Message</button><button class="btn btn-outline btn-sm btn-reschedule">🔁 Reschedule</button></div><div class="expand-block generate-area" style="display:none;"><select class="msg-type-select" style="margin-bottom:8px; width:100%; border:1px solid #cbd5e1; border-radius:6px; padding:6px;"><option value="reminder">Class Reminder</option>${quotaOption}</select><div class="msg-preview" style="white-space:pre-wrap;">${defaultMsg}</div><button class="btn btn-primary btn-sm btn-copy" style="margin-top:8px;">Copy</button></div><div class="expand-block resched-area" style="display:none;"><input type="date" class="res-date" value="${dateStr}"><input type="text" class="res-time" value="${time24To12(c.StartTime)}" placeholder="hh:mm AM/PM" onblur="window.normalizeUserTime(this)">
+<div style="margin-top: 10px; margin-bottom: 10px; padding: 10px; background: #fff; border-radius: 6px; border: 1px solid #cbd5e1;">
+    <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.85rem; color: var(--primary); margin-bottom: 0;">
+        <input type="checkbox" class="res-master-roster-check" style="width: 16px; height: 16px; accent-color: var(--accent);"> Save as Permanent Shift
+    </label>
+</div><button class="btn btn-primary btn-sm btn-res-submit" style="margin-top:8px;">Save</button></div>`;
             
             card.querySelector(".status-select").onchange = async (e) => { e.target.disabled = true; await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: e.target.value }); e.target.disabled = false; showToast("Status updated"); window.loadEarnings(); window.loadWeekly(); window.renderAvailabilityFeed(); window.renderClassesForDate(dateStr); };
             card.querySelector(".btn-save-notes").onclick = async () => { const btn = card.querySelector(".btn-save-notes"); btn.disabled = true; btn.textContent="⌛"; await fetchAPI(null, { action: "saveClassNotes", ClassID: c.ClassID, Notes: card.querySelector(".card-notes-input").value, NextTopic: card.querySelector(".card-next-topic").value, StudentName: c.StudentName }); btn.textContent="✅"; setTimeout(()=> {btn.textContent="Save"; btn.disabled=false;}, 1000); };
@@ -1157,7 +1184,14 @@
             };
             card.querySelector(".btn-copy").onclick = () => { navigator.clipboard.writeText(preview.innerText); showToast("Copied"); };
             card.querySelector(".btn-reschedule").onclick = () => { const x=card.querySelector(".resched-area"); x.style.display = x.style.display==="none"?"block":"none"; };
-            card.querySelector(".btn-res-submit").onclick = async () => { const nd = card.querySelector(".res-date").value; const nt = parseUserTimeTo24(card.querySelector(".res-time").value); if(!nd || !nt) return showToast("Invalid date/time", "error"); const executeReschedule = async () => { card.innerHTML = '<div style="color:var(--primary); padding:10px;">Rescheduling...</div>'; const r = await fetchAPI(null, { action: "rescheduleClass", StudentName: c.StudentName, OldDate: dateStr, NewDate: nd, NewTime: nt, CalendarEventID: c.CalendarEventID, ClassID: c.ClassID }); if (r.status === "error") { showToast("Failed to reschedule", "error"); window.renderClassesForDate(dateStr); return; } showToast("Rescheduled"); window.renderClassesForDate(dateStr); window.loadWeekly(); }; if(isTimeInPast(nd, nt)) { showConfirm("Warning: Past time.", executeReschedule); } else { executeReschedule(); } };
+            card.querySelector(".btn-res-submit").onclick = async () => { const nd = card.querySelector(".res-date").value; const nt = parseUserTimeTo24(card.querySelector(".res-time").value); if(!nd || !nt) return showToast("Invalid date/time", "error"); const executeReschedule = async () => { card.innerHTML = '<div style="color:var(--primary); padding:10px;">Rescheduling...</div>'; const r = await fetchAPI(null, { action: "rescheduleClass", StudentName: c.StudentName, OldDate: dateStr, NewDate: nd, NewTime: nt, CalendarEventID: c.CalendarEventID, ClassID: c.ClassID }); if (r.status === "error") { showToast("Failed to reschedule", "error"); window.renderClassesForDate(dateStr); return; } showToast("Rescheduled"); 
+const isShiftRosterChecked = card.querySelector(".res-master-roster-check")?.checked;
+if (isShiftRosterChecked) {
+    const sObj = APP_STATE.students.find(s => s.name === c.StudentName);
+    const stuType = sObj ? sObj.type : "PS";
+    triggerMasterRosterSave(c.StudentName, nd, nt, stuType);
+}
+ window.renderClassesForDate(dateStr); window.loadWeekly(); }; if(isTimeInPast(nd, nt)) { showConfirm("Warning: Past time.", executeReschedule); } else { executeReschedule(); } };
             out.appendChild(card);
         });
     }
