@@ -239,10 +239,8 @@
             .card-body { padding: 1rem !important; }
             .quota-dashboard-section h2 { margin-left: 8px; }
         }
-
         /* Fix Add Row / Clear All Overlapping */
         .inline-actions, .flex.gap-2, .flex.gap-4, .card-actions { flex-wrap: wrap !important; gap: 10px !important; }
-
         /* Fix Open Bulletin Button Alignment */
         .smart-bar-action { display: flex !important; justify-content: center !important; align-items: center !important; text-align: center !important; white-space: nowrap !important; }
     </style>
@@ -367,6 +365,7 @@
                 <div class="card-column"><div class="form-group"><label>Date</label><input type="date" id="schedule-date" /></div></div>
                 <div class="card-column"><div class="form-group"><label>Start Time</label><input type="text" id="schedule-time" placeholder="hh:mm AM/PM" onblur="if(window.normalizeUserTime) window.normalizeUserTime(this);" /></div></div>
                 <div class="card-column"><div class="form-group"><label>Repeat (Weeks)</label><select id="schedule-repeat"><option value="0">One-time</option><option value="1">1 Week</option><option value="2">2 Weeks</option><option value="4">4 Weeks</option></select></div></div>
+                <div class="card-column"><div class="form-group" style="display:flex; align-items:flex-end; height:100%;"><label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.85rem; color: var(--primary); padding-bottom: 10px;"><input type="checkbox" id="schedule-master-roster" checked style="width: 16px; height: 16px; accent-color: var(--accent);"> Save to Master Roster</label></div></div>
             </div>
             <div style="margin-top:20px;"><button id="schedule-class-btn" class="btn btn-primary btn-block" onclick="window.executeScheduleClass()">Schedule Class</button><div id="schedule-msg" style="margin-top:10px;"></div></div>
         </div>
@@ -418,12 +417,6 @@
                             <input type="number" id="add-custom-price" placeholder="Custom Price" style="flex:1;">
                         </div>
 
-                        <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background: var(--bg-body); border-radius: 6px; border: 1px solid var(--border);">
-                            <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; color: var(--primary); margin-bottom: 0;">
-                                <input type="checkbox" id="new-student-master-roster" checked style="width: 16px; height: 16px; accent-color: var(--accent);"> 
-                                Save initial schedule to Master Roster
-                            </label>
-                        </div>
                         <button id="add-student-btn" class="btn btn-primary btn-block" onclick="window.executeAddStudent()">Add Student</button>
                         <div id="manage-students-msg" style="margin-top:10px; font-size: 0.9rem;"></div>
                     </div>
@@ -737,7 +730,7 @@
             <div id="ai-output-container" style="display:none; margin-top:30px; flex-direction:column; gap:16px;"></div>
         </div>
     </section>
-    <section id="section-bulk" class="section">
+<section id="section-bulk" class="section">
         <div class="section-card">
             <div class="section-header"><div><span class="section-title">Bulk Scheduling</span><span class="section-caption">Schedule multiple students for one specific date.</span></div></div>
             <div class="card-row">
@@ -847,7 +840,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: April 27, 2026, 09:00 AM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v119 STAGING (Mobile UI & Search Polish) | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: April 27, 2026, 09:00 AM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v119.2 STAGING (Mobile UI & Search Polish) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1142,7 +1135,8 @@
     <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.85rem; color: var(--primary); margin-bottom: 0;">
         <input type="checkbox" class="res-master-roster-check" style="width: 16px; height: 16px; accent-color: var(--accent);"> Save as Permanent Shift
     </label>
-</div><button class="btn btn-primary btn-sm btn-res-submit" style="margin-top:8px;">Save</button></div>`;
+</div>
+<button class="btn btn-primary btn-sm btn-res-submit" style="margin-top:8px;">Save</button></div>`;
             
             card.querySelector(".status-select").onchange = async (e) => { e.target.disabled = true; await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: e.target.value }); e.target.disabled = false; showToast("Status updated"); window.loadEarnings(); window.loadWeekly(); window.renderAvailabilityFeed(); window.renderClassesForDate(dateStr); };
             card.querySelector(".btn-save-notes").onclick = async () => { const btn = card.querySelector(".btn-save-notes"); btn.disabled = true; btn.textContent="⌛"; await fetchAPI(null, { action: "saveClassNotes", ClassID: c.ClassID, Notes: card.querySelector(".card-notes-input").value, NextTopic: card.querySelector(".card-next-topic").value, StudentName: c.StudentName }); btn.textContent="✅"; setTimeout(()=> {btn.textContent="Save"; btn.disabled=false;}, 1000); };
@@ -1184,14 +1178,24 @@
             };
             card.querySelector(".btn-copy").onclick = () => { navigator.clipboard.writeText(preview.innerText); showToast("Copied"); };
             card.querySelector(".btn-reschedule").onclick = () => { const x=card.querySelector(".resched-area"); x.style.display = x.style.display==="none"?"block":"none"; };
-            card.querySelector(".btn-res-submit").onclick = async () => { const nd = card.querySelector(".res-date").value; const nt = parseUserTimeTo24(card.querySelector(".res-time").value); if(!nd || !nt) return showToast("Invalid date/time", "error"); const executeReschedule = async () => { card.innerHTML = '<div style="color:var(--primary); padding:10px;">Rescheduling...</div>'; const r = await fetchAPI(null, { action: "rescheduleClass", StudentName: c.StudentName, OldDate: dateStr, NewDate: nd, NewTime: nt, CalendarEventID: c.CalendarEventID, ClassID: c.ClassID }); if (r.status === "error") { showToast("Failed to reschedule", "error"); window.renderClassesForDate(dateStr); return; } showToast("Rescheduled"); 
-const isShiftRosterChecked = card.querySelector(".res-master-roster-check")?.checked;
-if (isShiftRosterChecked) {
-    const sObj = APP_STATE.students.find(s => s.name === c.StudentName);
-    const stuType = sObj ? sObj.type : "PS";
-    triggerMasterRosterSave(c.StudentName, nd, nt, stuType);
-}
- window.renderClassesForDate(dateStr); window.loadWeekly(); }; if(isTimeInPast(nd, nt)) { showConfirm("Warning: Past time.", executeReschedule); } else { executeReschedule(); } };
+            card.querySelector(".btn-res-submit").onclick = async () => { 
+                const nd = card.querySelector(".res-date").value; 
+                const nt = parseUserTimeTo24(card.querySelector(".res-time").value); 
+                if(!nd || !nt) return showToast("Invalid date/time", "error"); 
+                const isShiftRosterChecked = card.querySelector(".res-master-roster-check")?.checked;
+                const executeReschedule = async () => { 
+                    card.innerHTML = '<div style="color:var(--primary); padding:10px;">Rescheduling...</div>'; 
+                    const r = await fetchAPI(null, { action: "rescheduleClass", StudentName: c.StudentName, OldDate: dateStr, NewDate: nd, NewTime: nt, CalendarEventID: c.CalendarEventID, ClassID: c.ClassID }); 
+                    if (r.status === "error") { showToast("Failed to reschedule", "error"); window.renderClassesForDate(dateStr); return; } 
+                    showToast("Rescheduled"); 
+                    if (isShiftRosterChecked) { 
+                        const sObj = APP_STATE.students.find(s => s.name === c.StudentName); 
+                        triggerMasterRosterSave(c.StudentName, nd, nt, sObj ? sObj.type : "PS"); 
+                    }
+                    window.renderClassesForDate(dateStr); window.loadWeekly(); 
+                }; 
+                if(isTimeInPast(nd, nt)) { showConfirm("Warning: Past time.", executeReschedule); } else { executeReschedule(); } 
+            };
             out.appendChild(card);
         });
     }
@@ -1199,7 +1203,16 @@ if (isShiftRosterChecked) {
     window.executeScheduleClass = async () => { 
         const sT = document.getElementById("schedule-time"); const s = document.getElementById("schedule-student-select").value; const d = document.getElementById("schedule-date").value; const t = parseUserTimeTo24(sT.value); const rep = parseInt(document.getElementById("schedule-repeat").value); 
         if(!s || !d || !t) return showToast("Fill all fields", "error"); let hasPast = false; for(let i=0; i<=rep; i++) { const cd = addDaysUTC(d, i*7); if(isTimeInPast(cd, t)) hasPast = true; } 
-        const executeSchedule = async () => { document.getElementById("schedule-msg").innerHTML = '<div style="color:var(--primary);">Scheduling...</div>'; const btn = document.getElementById("schedule-class-btn"); btn.disabled = true; const tasks = []; for(let i=0; i<=rep; i++) { tasks.push({ s: s, d: addDaysUTC(d, i*7), t: t }); } const r = await fetchAPI(null, { action: "bulkScheduleClasses", tasks: tasks }); btn.disabled = false; document.getElementById("schedule-msg").innerHTML = ''; if (r.status === "error") return showToast("Scheduling failed.", "error"); window.showAuditReport(r.success, r.failed, "Scheduling Report"); window.loadWeekly(); window.fetchToday(); window.renderAvailabilityFeed(); document.getElementById("schedule-student-select").value = ""; sT.value = ""; }; 
+        const executeSchedule = async () => { 
+            document.getElementById("schedule-msg").innerHTML = '<div style="color:var(--primary);">Scheduling...</div>'; const btn = document.getElementById("schedule-class-btn"); btn.disabled = true; const tasks = []; for(let i=0; i<=rep; i++) { tasks.push({ s: s, d: addDaysUTC(d, i*7), t: t }); } 
+            const r = await fetchAPI(null, { action: "bulkScheduleClasses", tasks: tasks }); 
+            const isRosterChecked = document.getElementById("schedule-master-roster")?.checked;
+            if (isRosterChecked && r.status !== "error") {
+                const stuType = APP_STATE.students.find(x => x.name === s)?.type || "PS";
+                triggerMasterRosterSave(s, d, t, stuType);
+            }
+            btn.disabled = false; document.getElementById("schedule-msg").innerHTML = ''; if (r.status === "error") return showToast("Scheduling failed.", "error"); window.showAuditReport(r.success, r.failed, "Scheduling Report"); window.loadWeekly(); window.fetchToday(); window.renderAvailabilityFeed(); document.getElementById("schedule-student-select").value = ""; sT.value = ""; 
+        }; 
         if(hasPast) { showConfirm("Warning: Past time detected. Proceed?", executeSchedule); } else { executeSchedule(); }
     };
 
