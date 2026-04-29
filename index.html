@@ -306,7 +306,7 @@
         <button class="main-tab-btn tab-ai" onclick="window.showMainSection('drafter')">✨ AI Drafter</button>
         <button class="main-tab-btn" onclick="window.showMainSection('analytics')">📊 Analytics</button>
         <button class="main-tab-btn" onclick="window.showMainSection('bulk')">Bulk Scheduling</button>
-        <button class="main-tab-btn" onclick="window.showMainSection('onboarding')">🚀 Student Welcome Kit</button> 
+        <button class="main-tab-btn" onclick="window.showMainSection('onboarding')">🚀 Student Kit</button> 
     </nav>
 
     <section id="section-classes" class="section show">
@@ -745,7 +745,7 @@
     <section id="section-onboarding" class="section">
         <div class="section-card">
             <div class="section-header">
-                <div><span class="section-title">Student Welcome Kit</span><span class="section-caption">Generate premium welcome packets & SOPs.</span></div>
+                <div><span class="section-title">Student Kit</span><span class="section-caption">Generate premium welcome packets & SOPs.</span></div>
                 <button class="btn btn-soft btn-sm" onclick="window.clearOnboarding()">🔄 Reset</button>
             </div>
             
@@ -760,7 +760,7 @@
                     <div class="form-group">
                         <label>Packet Type</label>
                         <select id="onboard-type-select">
-                            <option value="new">🌟 New Student Welcome Packet</option>
+                            <option value="new">🌟 New Student Welcome Kit</option>
                             <option value="existing">📜 Existing Student Policy Refresh</option>
                             <option value="alignment">🔄 Schedule Alignment Notice</option>
                         </select>
@@ -768,7 +768,7 @@
                 </div>
             </div>
             
-            <button class="btn btn-primary" onclick="window.generateOnboarding()">Create Welcome Kit</button>
+            <button class="btn btn-primary" onclick="window.generateOnboarding()">Create Kit</button>
             <div id="onboard-output-area" style="margin-top:20px; display:none;">
                 <textarea id="onboardOutput" readonly style="width:100%; height:320px; padding:12px; border-radius:8px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:none; font-size:0.9rem;"></textarea>
                 <button class="btn btn-outline" style="margin-top:8px; width:100%; max-width:400px;" onclick="window.copyOnboarding()">📋 Copy Acknowledgment Message</button>
