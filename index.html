@@ -1127,7 +1127,7 @@
                 let selectedMessageType = e.target.value;
                 let draftText = defaultMsg;
                 if (selectedMessageType === 'quota_notice') {
-                    draftText = `Dear ${c.StudentName} / Parents,\n\nI was reviewing today's schedule and noticed that ${c.StudentName} has already successfully completed their allocated classes for this calendar month! 🎉\n\nTo ensure our package alignment stays perfectly on track, we will skip today's session and resume our standard schedule starting the first week of next month.\n\nThank you for your continued cooperation!\n\nBest regards,\nSenorita`;
+                    draftText = `Dear ${c.StudentName} / Parents,\n\nJust a quick heads-up that ${c.StudentName} has finished their class quota for this calendar month.\n\nWe will take a pause for today and jump back into our regular routine starting next month.\n\nThank you for your continued cooperation!\n\nBest regards,\nSenorita`;
                 }
                 preview.innerHTML = draftText;
             };
