@@ -780,7 +780,7 @@
         </div>
     </section>
 <section id="section-analytics" class="section">
-        <div class="section-card">
+<div class="section-card">
             <div class="section-header"><div><span class="section-title">Executive Analytics</span></div><button class="btn btn-soft btn-sm" onclick="window.loadAnalytics(false)">Refresh Data</button></div>
             
             <div class="chart-grid">
@@ -1223,11 +1223,235 @@ async function fetchToday(force=false) { const cls = await fetchAPI(null, { acti
             btn.disabled = false; document.getElementById("schedule-msg").innerHTML = ''; 
             if (r.status === "error") return showToast("Scheduling failed.", "error"); 
             if (rosterWarning) { r.failed = r.failed || []; r.failed.unshift(rosterWarning); }
-            window.showAuditReport(r.success, r.failed, "Scheduling Report"); window.loadWeekly(); window.fetchToday(); window.renderAvailabilityFeed(); document.getElementById("schedule-student-select").value = ""; sT.value = "";
+            window.showAuditReport(r.success, r.failed, "Scheduling Report"); window.loadWeekly(); window.fetchToday(); window.renderAvailabilityFeed(); document.getElementById("schedule-student-select").value = ""; sT.value = ""; 
         }; 
         if(hasPast) { showConfirm("Warning: Past time detected. Proceed?", executeSchedule); } else { executeSchedule(); }
     };
-/* --- AI DRAFTER & DISPATCH --- */
+
+    window.resetBulkScheduler = () => { document.getElementById("bulkRowsContainer").innerHTML = ""; window.addBulkRow(); window.addBulkRow(); };
+window.addBulkRow = () => { const d = document.createElement("div"); d.className = "bulk-row"; let opts = ""; APP_STATE.students.forEach(s => { opts += `<option value="${s.name}">${s.name}</option>`; }); d.innerHTML = `<select class="bulk-student">${opts}</select><input type="text" class="bulk-time" placeholder="hh:mm AM/PM" onblur="window.normalizeUserTime(this)"><button class="btn btn-outline btn-sm" onclick="this.parentElement.remove()">✕</button>`; document.getElementById("bulkRowsContainer").appendChild(d); };
+    window.clearBulkRows = () => { document.getElementById("bulkRowsContainer").innerHTML = ""; };
+    window.executeBulkSchedule = async () => { const rows = document.querySelectorAll(".bulk-row"); const d = document.getElementById("bulkDate").value; const rep = parseInt(document.getElementById("bulkRepeatWeeks").value); if(!rows.length || !d) return; let initialTasks = []; rows.forEach(r => { const s = r.querySelector(".bulk-student").value; const t = parseUserTimeTo24(r.querySelector(".bulk-time").value); if(s && t) initialTasks.push({s,t}); }); if(!initialTasks.length) return showToast("No valid rows", "error"); let hasPast = false; for(let task of initialTasks) { if(isTimeInPast(d, task.t)) hasPast = true; } const executeBulk = async () => { const btn = document.getElementById("bulkScheduleBtn"); btn.disabled = true; btn.textContent = "Processing..."; let allTasks = []; for(let task of initialTasks) { for(let i=0; i<=rep; i++) { allTasks.push({ s: task.s, d: addDaysUTC(d, i*7), t: task.t }); } } const r = await fetchAPI(null, { action: "bulkScheduleClasses", tasks: allTasks }); btn.disabled = false; btn.textContent = "Run Bulk Schedule"; if (r.status === "error") return showToast("Error executing bulk schedule.", "error"); window.showAuditReport(r.success, r.failed, "Bulk Schedule Results"); window.loadWeekly(); window.fetchToday(); window.renderAvailabilityFeed(); window.resetBulkScheduler(); }; if(hasPast) { showConfirm(`Warning: Past times. Schedule starting ${isoToDisplayDate(d)}?`, executeBulk); } else { showConfirm(`Schedule starting ${isoToDisplayDate(d)}?`, executeBulk); } };
+
+    window.openCopyWeekModal = () => { document.getElementById("copySourceDate").value = APP_STATE.todayDate; document.getElementById("copyTargetDate").value = addDaysUTC(APP_STATE.todayDate, 7); const radios = document.getElementsByName('copyMode'); Array.from(radios).forEach(r => r.addEventListener('change', (e) => { const val = e.target.value; const isDay = val === 'day'; const isRoster = val === 'roster'; document.getElementById("copySourceDate").parentElement.style.display = isRoster ? 'none' : 'block'; document.getElementById("copySourceLabel").textContent = isDay ? "Source Date" : "Source Week (Pick date)"; document.getElementById("copyTargetLabel").textContent = isDay ? "Target Date" : "Target Week Start (Mon)"; })); document.getElementById("copySourceDate").onchange = function() { if(document.querySelector('input[name="copyMode"]:checked').value === 'week') { const d = new Date(this.value); const day = d.getDay(); const diff = d.getDate() - day + (day == 0 ? -6 : 1); const mon = new Date(d.setDate(diff)).toISOString().split('T')[0]; if(mon !== this.value) { this.value = mon; showToast("Snapped to Monday", "info"); } } }; document.getElementById("copyWeekModal").classList.add("show"); document.getElementById("copyWeekBtn").onclick = async () => { const s = document.getElementById("copySourceDate").value; const t = document.getElementById("copyTargetDate").value; const m = document.querySelector('input[name="copyMode"]:checked').value; if((m !== 'roster' && !s) || !t) return showToast("Select dates", "error"); const btn = document.getElementById("copyWeekBtn"); btn.textContent = "Processing..."; btn.disabled = true; let r; if (m === 'roster') { r = await fetchAPI(null, { action: "generateFromMasterRoster", targetStartDate: t }); } else { r = await fetchAPI(null, { action: "copySchedule", sourceDate: s, targetDate: t, mode: m }); } document.getElementById("copyWeekModal").classList.remove("show"); btn.textContent = "Execute Copy"; btn.disabled = false; if(r.status === "error") return showToast(r.message || "Copy failed", "error"); window.showAuditReport(r.success, r.failed, m === 'roster' ? "Roster Generation Results" : "Copy Schedule Results"); window.fetchToday(); window.renderAvailabilityFeed(); }; };
+window.openPendingReviews = () => { document.getElementById("pendingReviewModal").classList.add("show"); document.getElementById("pendingReviewList").innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>'; fetchAPI(null, { action: "getPendingReviews" }).then(r => { const l = document.getElementById("pendingReviewList"); l.innerHTML = ""; if(!r.pending || !r.pending.length) { l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">No pending reviews.</div>'; return; } r.pending.forEach(p => { l.innerHTML += `<div style="background:#fff; border:1px solid #e2e8f0; padding:10px; margin-bottom:8px; border-radius:8px; font-size:0.9rem;"><div style="font-weight:700; margin-bottom:4px;">${p.StudentName}</div><div style="color:var(--text-sub); margin-bottom:8px;">${isoToDisplayDate(p.ClassDate)} ${time24To12(p.StartTime)}</div><select class="status-select" style="width:100%;" onchange="window.updatePendingStatus('${p.ClassID}', this.value, this)"><option disabled selected>Select Action</option><option value="Completed">✅ Done</option><option value="Student No Show">⚠️ No Show</option><option value="Absent">📉 Absent</option><option value="Cancelled">❌ Cancel</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Pause</option><option value="Quota Reached">🛑 Quota Reached</option></select></div>`; }); }); };
+    window.updatePendingStatus = async (id, status, el) => { el.disabled = true; let originalText = el.options[el.selectedIndex].text; el.options[el.selectedIndex].text = "Saving..."; const r = await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status }); if (r.status === "error") { el.disabled = false; el.options[el.selectedIndex].text = originalText; return showToast("Failed to update status.", "error"); } el.parentElement.remove(); showToast("Status updated"); window.loadEarnings(); window.fetchToday(true); };
+
+    window.openHistoryReport = () => { document.getElementById("historyModal").classList.add("show"); const nowIST = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); const isoStart = nowIST.getFullYear() + '-' + String(nowIST.getMonth()+1).padStart(2,'0') + '-01'; document.getElementById("historyStartDate").value = isoStart; document.getElementById("historyEndDate").value = APP_STATE.todayDate || new Date().toISOString().split('T')[0]; document.getElementById("historyGenBtn").onclick = async () => { const sd = document.getElementById("historyStartDate").value; const ed = document.getElementById("historyEndDate").value; const tf = document.getElementById("historyTypeFilter").value; const sf = document.getElementById("historyStatusFilter").value; const btn = document.getElementById("historyGenBtn"); btn.disabled = true; btn.textContent = "Crunching Data..."; try { const r = await fetchAPI(null, { action: "getHistoryReport", startDate: sd, endDate: ed, typeFilter: tf, statusFilter: sf }); let osHtml = `<div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">`; let copyText = `📊 *Data Report* (${isoToDisplayDate(sd)} to ${isoToDisplayDate(ed)})\nFilter: ${tf} | Status: ${sf}\n\n*Total Classes:* ${r.totalClasses}\n*Total Earnings:* ₹${(r.earnings||0).toLocaleString('en-IN')}\n\n*Breakdown:*\n`; if(r.orgStats) { ['PS', 'CM', 'Personal', 'Trial'].forEach(org => { let stats = r.orgStats[org]; if(stats && Object.keys(stats).length > 0) { osHtml += `<div style="flex:1; min-width:120px; background:#f1f5f9; border:1px solid #e2e8f0; padding:12px; border-radius:8px; font-size:0.85rem;"><div style="font-weight:700; color:var(--primary); margin-bottom:8px; border-bottom:1px solid #cbd5e1; padding-bottom:4px;">${org}</div>`; for(let stat in stats) { osHtml += `<div style="display:flex; justify-content:space-between;"><span>${stat}</span> <b>${stats[stat]}</b></div>`; } osHtml += `</div>`; } }); } osHtml += `</div>`; document.getElementById("histOrgBreakdown").innerHTML = osHtml; const tb = document.getElementById("histTableBody"); tb.innerHTML = ""; const s = Object.entries(r.breakdown||{}).sort((a,b)=>b[1]-a[1]); if(!s.length) { tb.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No records found.</td></tr>"; copyText += "No records found.\n"; } else { s.forEach(([n,c]) => { tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px;">${n}</td><td style="padding:8px; font-weight:700;">${c}</td></tr>`; copyText += `• ${n}: ${c}\n`; }); } APP_STATE.lastHistoryCopyText = copyText.trim(); document.getElementById("historyResult").style.display = "block"; } catch(e) { console.error(e); showToast("Failed to generate report.", "error"); } finally { btn.disabled = false; btn.textContent = "Generate Report"; } }; };
+    window.copyHistoryData = () => { if(APP_STATE.lastHistoryCopyText) { navigator.clipboard.writeText(APP_STATE.lastHistoryCopyText); showToast("Report data copied!"); } else { showToast("No data to copy.", "error"); } };
+
+    window.loadEarnings = async () => { try { const r = await fetchAPI(null, { action: "getMonthlyEarnings" }); if(!r || r.status === "error") return; if(r.personalEarnings !== undefined) { document.getElementById("stats-earnings-prepaid").textContent = "₹" + (r.personalEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-accrued").textContent = "₹" + (r.cmEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-sub").textContent = `${r.personalCount || 0} Personal | ${r.cmCount || 0} CM`; } } catch(e) {} };
+    window.loadAnalytics = async (silent = false) => {
+        if(!silent) window.showMainSection('analytics'); if(APP_STATE.isAnalyticsLoading || (silent && APP_STATE.analyticsLoaded)) return; APP_STATE.isAnalyticsLoading = true;
+        try {
+            const r = await fetchAPI(null, { action: "getDashboardAnalytics" }); if(r.status === "error" || !r.revenueMatrix) throw new Error("Analytics backend error.");
+            const mkChart = (id, type, labels, data, stackOpts={}) => { const canvas = document.getElementById(id); if(!canvas) return; const ctx = canvas.getContext('2d'); if(charts[id]) charts[id].destroy(); charts[id] = new Chart(ctx, { type: type, data: { labels: labels, datasets: data }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: silent ? 0 : 500 }, plugins: { legend: { display: type!=='bar' && type!=='pie' && type!=='doughnut' } }, scales: stackOpts.scales || { x: { grid: { display: false } }, y: { grid: { display: false }, beginAtZero: true } } } }); };
+            if(r.trialStats) { document.getElementById("stat-trials").textContent = r.trialStats.conducted || 0; document.getElementById("stat-conversions").textContent = r.trialStats.conversions || 0; }
+            if(r.revenueMatrix) { const revKeys = Object.keys(r.revenueMatrix).reverse(); const cmData = revKeys.map(k => r.revenueMatrix[k].cm); const pData = revKeys.map(k => r.revenueMatrix[k].personal); try { mkChart('chartRevenue', 'bar', revKeys, [ { label: 'CM (₹)', data: cmData, backgroundColor: '#0f766e' }, { label: 'Personal (₹)', data: pData, backgroundColor: '#3b82f6' } ], { scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { display: false } } } }); } catch(err){} }
+            const curr = new Date(); const first = curr.getDate() - curr.getDay() + 1; const weekLabels = []; const weekCounts = [];
+            for (let i = 0; i < 7; i++) { let day = new Date(curr.setDate(first + i)); let key = day.toLocaleDateString("en-US", { month: 'short', day: '2-digit' }); weekLabels.push(day.toLocaleDateString("en-US", { weekday: 'short' })); weekCounts.push(r.workload[key] || 0); }
+            try { mkChart('chartWorkload', 'bar', weekLabels, [{ label: 'Utilized', data: weekCounts, backgroundColor: '#334155' }, { label: 'Available', data: weekCounts.map(k => Math.max(0, 13 - k)), backgroundColor: '#10b981' }], { scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { display: false }, min: 0, max: 13 } } }); } catch(err){}
+            const opsSelect = document.getElementById("opsMonthSelect");
+            window.updateOpsChart = (month) => { const data = r.operations[month] || {}; const opsKeys = Object.keys(data); const opsVals = Object.values(data); const lg = document.getElementById("opsLegend"); if(lg) { lg.innerHTML = ""; opsKeys.forEach((k, i) => { lg.innerHTML += `<div style="display:grid; grid-template-columns: 1fr auto; gap:8px; margin-bottom:6px; align-items:center;"><span style="color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${k}">${k}</span><b style="color:var(--text-main);">${opsVals[i]}</b></div>`; }); if (opsKeys.length === 0) lg.innerHTML = "<div style='color:#94a3b8; font-size:0.8rem;'>No data</div>"; } const opsColors = opsKeys.map(k => { const l=k.toLowerCase(); return l.includes('completed')?'#0f766e':l.includes('no show')?'#ef4444':l.includes('absent')?'#64748b':l.includes('glitch')?'#f97316':l.includes('cancelled')?'#f59e0b':l.includes('paused')?'#8b5cf6':l.includes('scheduled')?'#3b82f6':'#cbd5e1'; }); document.getElementById("opsChartHelp").textContent = `Status breakdown for ${month}.`; try { mkChart('chartOps', 'pie', opsKeys, [{ data: opsVals, backgroundColor: opsColors }], { scales: { x:{display:false}, y:{display:false} } }); } catch(err){} };
+            if(opsSelect) { opsSelect.innerHTML = ""; const mKeys = Object.keys(r.operations); [...mKeys].reverse().forEach(m => opsSelect.innerHTML += `<option value="${m}">${m}</option>`); opsSelect.onchange = (e) => window.updateOpsChart(e.target.value); if(mKeys.length > 0) window.updateOpsChart(mKeys[mKeys.length-1]); }
+            if (r.upcomingFeed) window.renderAvailabilityFeed(r.upcomingFeed); APP_STATE.analyticsLoaded = true;
+        } catch(e) {} finally { APP_STATE.isAnalyticsLoading = false; }
+    };
+
+    window.renderAvailabilityFeed = async (feedDataMap) => {
+        const list = document.getElementById("avail-feed-list"); if(!list) return;
+        if (!feedDataMap) { list.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8;">Refreshing feed...</div>'; try { const r = await fetchAPI(null, { action: "getUpcomingFeed" }); if (r.status === "error" || !r.upcomingFeed) return; feedDataMap = r.upcomingFeed; } catch (e) { return; } }
+        const feedData = []; const today = new Date();
+        const dayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        for(let i=0; i<7; i++) {
+            const d = new Date(today); d.setDate(today.getDate() + i); 
+            const dateStr = d.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }); const isToday = (dateStr === APP_STATE.todayDate); 
+            let currentHour = -1; if(isToday) currentHour = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})).getHours();
+            const classes = feedDataMap[dateStr] || []; const isWednesday = d.getDay() === 3; const validClasses = classes;
+            
+            let displayFmt = `${dayNamesShort[d.getDay()]}, ${d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+
+            if (validClasses.length > 0 && validClasses.every(c => c.Status === "Cancelled")) { feedData.push({ date: d, displayFmt: displayFmt, status: 'cancelled' }); continue; }
+            if (isWednesday && validClasses.filter(c => c.Status !== "Cancelled").length === 0) { feedData.push({ date: d, displayFmt: displayFmt, status: 'off' }); continue; }
+            let slots = []; for(let h=9; h<22; h++) slots.push({ h: h, status: (isToday && h <= currentHour) ? 'expired' : 'free' });
+            classes.forEach(c => { let st = String(c.StartTime || "00:00").trim(); let parts = st.split(':'); let hh = parseInt(parts[0]) || 0; slots.forEach(slot => { if (slot.h === hh) { if(BLOCKED_STATUSES.includes(c.Status)) slot.status = 'busy'; else if(["Paused", "Absent", "System Glitch"].includes(c.Status) && slot.status !== 'expired' && slot.status !== 'busy') slot.status = 'temp'; } }); });
+            const avail = slots.filter(s => s.status !== 'busy'); if(avail.length > 0) feedData.push({ date: d, displayFmt: displayFmt, slots: avail, status: 'active' });
+        }
+        list.innerHTML = ""; if(feedData.length === 0) { list.innerHTML = '<div style="padding:10px;text-align:center;">No slots available</div>'; return; }
+        feedData.forEach(day => { 
+            if (day.status === 'cancelled') { list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${day.displayFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${day.displayFmt}')">📋</button></div><div><div class="slot-pill slot-red">🏝️ All Cancelled</div></div></div>`; return; }
+            if (day.status === 'off') { list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${day.displayFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${day.displayFmt}')">📋</button></div><div><div class="slot-pill slot-grey">🏖️ Weekly Off</div></div></div>`; return; }
+            let morn="", aft="", eve=""; let hasMorn=false, hasAft=false, hasEve=false;
+            day.slots.forEach(s => { let pill = `<div class="slot-pill ${s.status === 'expired' ? 'slot-red' : s.status === 'temp' ? 'slot-yellow' : 'slot-green'}">${String(s.h%12||12).padStart(2, '0')}:00 ${s.h<12?'AM':'PM'}</div>`; if(s.h < 12) { morn += pill; hasMorn=true; } else if(s.h < 17) { aft += pill; hasAft=true; } else { eve += pill; hasEve=true; } });
+            let blocksHtml = "";
+            if(hasMorn) blocksHtml += `<div style="margin-bottom:6px;"><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:65px; font-weight:600;">🌅 Morning</span> ${morn}</div>`;
+            if(hasAft) blocksHtml += `<div style="margin-bottom:6px;"><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:65px; font-weight:600;">☀️ Afternoon</span> ${aft}</div>`;
+            if(hasEve) blocksHtml += `<div><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:65px; font-weight:600;">🌙 Evening</span> ${eve}</div>`;
+            list.innerHTML += `<div class="avail-row"><div class="avail-date-row"><span style="font-weight:700;">${day.displayFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${day.displayFmt}')">📋</button></div><div>${blocksHtml}</div></div>`; 
+        }); 
+        APP_STATE.feedData = feedData;
+    };
+
+    window.openSmartCopyModal = (target = 'week') => { document.getElementById("scDateTarget").value = target; document.getElementById("smartCopyModal").classList.add("show"); };
+    window.executeSmartCopy = () => {
+        const target = document.getElementById("scDateTarget").value; const incMorn = document.getElementById("scMorn").checked; const incAft = document.getElementById("scAft").checked; const incEve = document.getElementById("scEve").checked;
+        let text = ""; let daysToProcess = target === 'week' ? APP_STATE.feedData : APP_STATE.feedData.filter(d => d.displayFmt === target);
+        if(target === 'week') text += `📅 *Availability Options*\n\n`;
+        daysToProcess.forEach(day => {
+            let dayText = `*${day.displayFmt}*\n`;
+            if (day.status === 'cancelled') { text += dayText + `🏝️ Fully Booked / Cancelled\n\n`; return; }
+            if (day.status === 'off') { text += dayText + `🏖️ Scheduled Weekly Off\n\n`; return; }
+            let addedSlots = false;
+            day.slots.forEach(s => { if(s.status === 'expired') return; if((s.h < 12 && incMorn) || (s.h >= 12 && s.h < 17 && incAft) || (s.h >= 17 && incEve)) { const t1 = `${String(s.h%12||12).padStart(2, '0')}:00 ${s.h<12?'AM':'PM'}`, t2 = `${String((s.h+1)%12||12).padStart(2, '0')}:00 ${s.h+1<12?'AM':'PM'}`; dayText += `${s.status === 'temp' ? '🟡' : '🟢'} ${t1} - ${t2}${s.status === 'temp' ? ' (Temporarily Available)' : ''}\n`; addedSlots = true; } });
+            if(addedSlots) text += dayText + `\n`;
+        });
+        if(!text.trim() || text === `📅 *Availability Options*\n\n`) return showToast("No slots found for this filter.", "error");
+        text += `Let me know which slot works best.\n\nBest regards,\nSenorita`; navigator.clipboard.writeText(text.trim()); document.getElementById("smartCopyModal").classList.remove("show"); showToast("Filtered Availability Copied!");
+    };
+
+    window.openSmartBulletin = () => { document.getElementById("smartBulletinModal").classList.add("show"); window.renderTrialScout(); window.renderBulletinAlerts(); window.renderPackageAlerts(); };
+    window.updateSmartBarText = async () => { 
+        const barText = document.getElementById("smart-bar-content"); if(!barText) return; 
+        let trials = APP_STATE.students.filter(s => s.type === "Trial").length; let targets = APP_STATE.students.filter(s => s.type === "Personal" && parseInt(s.packageTotal) > 0 && (parseInt(s.classesUsed) || 0) / parseInt(s.packageTotal) >= 0.8);
+        barText.innerHTML = "Smart Operations Hub"; 
+        if (targets.length > 0) barText.innerHTML = `📦 ${targets.length} Package Alert${targets.length > 1 ? 's' : ''} Active`; else if (trials > 0) barText.innerHTML = `⚠️ ${trials} Trial${trials > 1 ? 's' : ''} awaiting conversion`; 
+        try { const res = await fetchAPI(null, { action: "getRetentionAlerts" }); if (res.alerts && res.alerts.length > 0) barText.innerHTML = `📉 ${res.alerts.length} Flight Risk${res.alerts.length > 1 ? 's' : ''} &nbsp;|&nbsp; 📦 ${targets.length} Renewals`; else if (res.feedbackAlerts && res.feedbackAlerts.length > 0) barText.innerHTML = `💬 ${res.feedbackAlerts.length} Reports Due &nbsp;|&nbsp; 📦 ${targets.length} Renewals`; } catch(e) {} 
+    };
+
+    window.renderPackageAlerts = () => {
+        const list = document.getElementById("sb-packages-list"); const targets = APP_STATE.students.filter(s => s.type === "Personal" && parseInt(s.packageTotal) > 0); let alertsHtml = "";
+        targets.forEach(s => { let total = parseInt(s.packageTotal); let used = parseInt(s.classesUsed) || 0; let bal = parseInt(s.pendingBalance) || 0;
+            if ((used / total) >= 0.8) { let isDebt = bal > 0; let icon = isDebt ? "🚨" : "🔄"; let title = isDebt ? `Installment Due: ₹${bal}` : `Package Exhausted (Renewal)`; let bg = isDebt ? "#fff1f2" : "#f0f9ff"; let border = isDebt ? "#ffe4e6" : "#bae6fd"; let textCol = isDebt ? "#e11d48" : "#0284c7";
+                alertsHtml += `<div style="background:${bg}; border:1px solid ${border}; padding:12px; border-radius:8px; margin-bottom:8px;"><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;"><div><div style="font-weight:700; color:${textCol}; font-size:0.95rem; margin-bottom:2px;">${icon} ${title}</div><div style="font-size:0.85rem; color:var(--text-main);"><b>${s.name}</b> (${used}/${total} Classes Used)</div></div><button class="btn btn-primary btn-sm" onclick="window.generatePackageAI('${s.name}', ${used}, ${total}, ${bal})">Draft Notice</button></div><div id="pkg-ai-out-${s.name.replace(/\s+/g,'-')}" style="display:none; margin-top:12px;"></div></div>`;
+            }
+        });
+        if(alertsHtml === "") alertsHtml = `<div style="text-align:center; padding:30px; background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0; color:#166534;">✅ All clear! No upcoming renewals or pending installments.</div>`; list.innerHTML = alertsHtml;
+    };
+
+    window.generatePackageAI = async (name, used, total, bal) => {
+        const outDiv = document.getElementById(`pkg-ai-out-${name.replace(/\s+/g,'-')}`); outDiv.style.display = "block"; outDiv.innerHTML = `<div style="color:var(--primary); font-size:0.85rem;">✨ Generating AI Notice...</div>`;
+        try {
+            const r = await fetchAPI(null, { action: "generateAIDraft", draftType: "package_alert", studentName: name, used: used, total: total, balance: bal }); if (r.status === "error") throw new Error(r.message);
+            let rawText = r.draft.replace(/\x60\x60\x60json/gi, '').replace(/\x60\x60\x60/gi, '').trim(); let options; try { options = JSON.parse(rawText); if(options.options) options = options.options; if(!Array.isArray(options)) options = [options]; } catch(e) { throw new Error("Invalid AI format."); }
+            let opt = options[0]; outDiv.innerHTML = `<textarea id="txt-${name.replace(/\s+/g,'-')}" readonly style="width:100%; min-height:120px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; font-family:inherit; resize:vertical; font-size:0.85rem; color:#1e293b; line-height:1.5;">${opt.text}</textarea><div style="display:flex; justify-content:flex-end; margin-top:8px;"><button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('txt-${name.replace(/\s+/g,'-')}')">📋 Copy Message</button></div>`;
+        } catch(e) { outDiv.innerHTML = `<div style="color:#ef4444; font-size:0.85rem;">Failed: ${e.message}</div>`; }
+    };
+
+    window.isVacationDirty = () => { return document.getElementById("vac-start").value !== "" || document.getElementById("vac-reason").value.trim() !== "" || document.getElementById("vac-ai-output").innerHTML.trim() !== ""; };
+    window.clearVacation = () => { document.getElementById("vac-start").value = ""; document.getElementById("vac-end").value = ""; document.getElementById("vac-reason").value = ""; document.getElementById("vac-ai-output").innerHTML = ""; document.getElementById("vac-ai-output").style.display = "none"; };
+    window.triggerManualVacationReset = () => { if(window.isVacationDirty()) { showConfirm("Clear all vacation inputs?", window.clearVacation); } else { window.clearVacation(); } };
+    window.switchSbTab = (tab) => { const currentIsVac = document.querySelector(`.sb-tab-btn[onclick*="vacation"]`).classList.contains("active"); if (currentIsVac && tab !== 'vacation' && window.isVacationDirty()) { showConfirm("You have unsaved vacation details. Switch tabs and clear?", () => { window.clearVacation(); window.executeTabSwitch(tab); }); } else { window.executeTabSwitch(tab); } };
+    window.executeTabSwitch = (tab) => { document.querySelectorAll(".sb-tab-btn").forEach(b => b.classList.remove("active")); document.querySelector(`.sb-tab-btn[onclick*="${tab}"]`).classList.add("active"); document.querySelectorAll(".sb-content").forEach(c => c.classList.remove("show")); document.getElementById(`sb-${tab}`).classList.add("show"); };
+
+    window.renderTrialScout = () => { const trials = APP_STATE.students.filter(s => s.type === "Trial"); const list = document.getElementById("sb-scout-list"); if(trials.length === 0) { list.innerHTML = `<div style="text-align:center; padding:30px; background:#f8fafc; border-radius:8px; color:var(--text-sub);">🎉 No active Trial students!</div>`; return; } let html = ""; trials.forEach(t => { html += `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:12px 16px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:8px;"><div style="font-weight:700; font-size:1rem;">👤 ${t.name}</div><div style="display:flex; gap:8px;"><button class="btn btn-outline btn-sm" onclick="window.convertTrial('${t.name}', 'PS')">Make PS</button><button class="btn btn-primary btn-sm" onclick="window.convertTrial('${t.name}', 'CM')">Make CM</button></div></div>`; }); list.innerHTML = html; };
+    window.convertTrial = async (name, newType) => { document.getElementById("sb-scout-list").innerHTML = `<div style="text-align:center; padding:20px; color:var(--primary);">Converting ${name}...</div>`; await fetchAPI(null, { action: "updateStudentData", StudentName: name, NewType: newType }); showToast(`${name} converted to ${newType}!`); await window.loadStudents(); window.renderTrialScout(); };
+    
+    window.renderBulletinAlerts = async () => { 
+        const fbList = document.getElementById("sb-fbAlerts-list");
+        try { const res = await fetchAPI(null, { action: "getRetentionAlerts" }); if(res.status === "error") throw new Error(res.message); const rAlerts = res.alerts || []; const fbAlerts = res.feedbackAlerts || []; APP_STATE.lastAlerts = rAlerts;
+            if (rAlerts.length > 0) { window.runRiskScan(false); } else { document.getElementById("sb-retention-list").innerHTML = `<div style="text-align:center; padding:30px; background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0; color:#166534;">✅ All clear! No active flight risks detected by AI.</div>`; }
+            if(fbAlerts.length === 0) fbList.innerHTML = `<div style="text-align:center; padding:30px; background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0; color:#166534;">✅ All clear! Everyone is updated.</div>`;
+            else { let html = ""; fbAlerts.forEach(a => html += `<div class="risk-row" style="background:#fff7ed; border-color:#fed7aa;"><div><div style="font-weight:700; color:#c2410c;">💬 ${a.student}</div><div style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">Last Feedback: ${a.lastDate === 'Never' ? 'Never' : isoToDisplayDate(a.lastDate)}</div></div><button class="btn btn-soft btn-sm" onclick="window.jumpToCRM('${a.student}')">Write Now</button></div>`); fbList.innerHTML = html; }
+        } catch(e) { document.getElementById("sb-retention-list").innerHTML = `<div style="text-align:center; color:#ef4444;">Failed to load alerts.</div>`; fbList.innerHTML = `<div style="text-align:center; color:#ef4444;">Failed to load alerts.</div>`; } 
+    };
+
+    window.runRiskScan = async (force = false) => {
+        const container = document.getElementById("sb-retention-list");
+        if (!force) { const cachedDate = localStorage.getItem('acm_ai_risk_date'); const cachedData = localStorage.getItem('acm_ai_risk_data'); if (cachedDate === APP_STATE.todayDate && cachedData) { window.renderRiskHtml(JSON.parse(cachedData)); return; } }
+        container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--primary); font-weight:600;">🧠 AI analyzing risk patterns...</div>`;
+        try {
+            const r = await fetchAPI(null, { action: "generateAIDraft", draftType: "risk_scan", context: JSON.stringify(APP_STATE.lastAlerts) }); if (r.status === "error") throw new Error(r.message);
+            let rawText = r.draft.replace(/\x60\x60\x60json/gi, '').replace(/\x60\x60\x60/gi, '').trim(); let risks; try { risks = JSON.parse(rawText); } catch(jsonE) { let jsonMatch = rawText.match(/\[[\s\S]*\]/); if (jsonMatch) risks = JSON.parse(jsonMatch[0]); else throw new Error("Invalid AI format."); }
+            localStorage.setItem('acm_ai_risk_date', APP_STATE.todayDate); localStorage.setItem('acm_ai_risk_data', JSON.stringify(risks)); window.renderRiskHtml(risks);
+        } catch(e) { container.innerHTML = `<div style="color:#ef4444; text-align:center;">${e.message || "AI Scan failed."} Click refresh to try again.</div>`; }
+    };
+
+    window.renderRiskHtml = (risks) => {
+        risks.sort((a,b) => { const order = { 'High': 1, 'Medium': 2, 'Low': 3 }; return (order[a.riskLevel] || 4) - (order[b.riskLevel] || 4); }); let html = "";
+        risks.forEach(risk => { let badge = risk.riskLevel === 'High' ? '🔴 High Risk' : risk.riskLevel === 'Medium' ? '🟡 Med Risk' : '🟢 Low Risk'; let border = risk.riskLevel === 'High' ? '#fecaca' : risk.riskLevel === 'Medium' ? '#fde047' : '#bbf7d0'; let bg = risk.riskLevel === 'High' ? '#fef2f2' : risk.riskLevel === 'Medium' ? '#fef9c3' : '#f0fdf4';
+            html += `<div style="background:${bg}; border:1px solid ${border}; padding:12px; border-radius:8px; margin-bottom:8px;"><div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">${badge} : ${risk.student}</div><div style="font-size:0.85rem; color:var(--text-main); margin-bottom:4px;"><b>AI Diagnosis:</b> ${risk.diagnosis}</div><div style="font-size:0.85rem; color:var(--accent);"><b>Action Plan:</b> ${risk.recommendation}</div></div>`;
+        }); document.getElementById("sb-retention-list").innerHTML = html;
+    };
+
+    window.jumpToCRM = (studentName) => { document.getElementById("smartBulletinModal").classList.remove('show'); document.getElementById("crm-student-select").value = studentName; previousCrmStudent = studentName; window.showMainSection('communications'); window.loadStudentCRM(studentName); };
+    
+    window.generateVacationAI = async () => {
+        const start = document.getElementById("vac-start").value, end = document.getElementById("vac-end").value; const type = document.querySelector('input[name="vacLeaveType"]:checked').value; const reason = document.getElementById("vac-reason").value.trim();
+        if(!start || !end) return showToast("Select dates.", "error"); const btn = document.getElementById("btn-gen-vacation"); btn.disabled = true; btn.textContent = "✨ Generating Notice...";
+        try {
+            const r = await fetchAPI(null, { action: "generateAIDraft", draftType: "vacation", startDate: start, endDate: end, leaveType: type, context: reason }); if (r.status === "error") throw new Error(r.message);
+            let rawText = r.draft.replace(/\x60\x60\x60json/gi, '').replace(/\x60\x60\x60/gi, '').trim(); let options; try { options = JSON.parse(rawText); if(options.options) options = options.options; if(!Array.isArray(options)) options = [options]; } catch(jsonE) { let jsonMatch = rawText.match(/\[[\s\S]*\]/); if (jsonMatch) options = JSON.parse(jsonMatch[0]); else throw new Error("Invalid AI format."); }
+            let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Generated Vacation Notice</label>`;
+            options.forEach((opt, idx) => { let recBadge = opt.is_recommended ? `<div style="display:inline-block; background:#fef08a; color:#854d0e; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:700; margin-left:12px; border:1px solid #fde047; transform: translateY(-2px);">🌟 Recommended</div>` : ''; let borderStyle = opt.is_recommended ? `border: 2px solid #8b5cf6; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);` : `border: 1px solid #cbd5e1;`; let bgStyle = opt.is_recommended ? `background: #faf5ff;` : `background: #f8fafc;`;
+                html += `<div style="${bgStyle} border-radius:10px; padding:16px; margin-bottom:12px; ${borderStyle}"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;"><div style="font-weight:700; color:var(--primary); font-size:1rem; display:flex; align-items:center;">${opt.title} ${recBadge}</div><button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('vac-opt-${idx}')">📋 Copy</button></div><textarea id="vac-opt-${idx}" readonly style="width:100%; min-height:100px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${opt.text}</textarea></div>`;
+            }); document.getElementById("vac-ai-output").innerHTML = html; document.getElementById("vac-ai-output").style.display = "flex";
+        } catch(e) { showToast(e.message || "Failed to generate notice.", "error"); } finally { btn.disabled = false; btn.textContent = "✨ Generate AI Notice"; }
+    };
+
+    /* --- CRM LOGIC --- */
+    window.isCrmDirty = () => { return document.getElementById("crmOutput").value.trim() !== ""; };
+    window.clearCrmForm = (hard = false) => {
+        document.querySelectorAll('.pill-checkbox').forEach(cb => cb.checked = false); document.getElementById("fbTopic").value = ""; document.getElementById("fbHwInput1").value = ""; document.getElementById("ptmDiscussed").value = ""; document.getElementById("ptmImprove").value = ""; document.getElementById("ptmAction").value = ""; document.getElementById("demoOtherStrengths").value = ""; document.getElementById("demoOtherImprovements").value = ""; document.getElementById("crmOutput").value = ""; 
+        document.getElementById("receiptAmount").value = ""; document.getElementById("receiptDate").value = ""; document.getElementById("receiptPlan").value = ""; document.getElementById("receiptClasses").value = ""; document.getElementById("receiptStart").value = ""; document.getElementById("receiptNextDue").value = ""; document.getElementById("crm-output-area").style.display = "none";
+        if (hard) { document.getElementById("crm-student-select").value = ""; document.getElementById("crm-action-area").style.display = "none"; document.getElementById("crm-history-list").innerHTML = `<div style="color:#94a3b8; text-align:center; padding:20px; font-size:0.85rem;">Select a student to view past feedback & PTM summaries.</div>`; APP_STATE.currentCrmStudent = null; }
+    };
+    window.triggerManualCrmReset = () => { if(window.isCrmDirty()) { showConfirm("Clear all inputs and discard current draft?", () => { window.clearCrmForm(true); }); } else { window.clearCrmForm(true); } };
+    window.handleCrmStudentChange = (e) => { const targetStudent = e.target.value; if(window.isCrmDirty()) { showConfirm("You have an unsaved draft. Switching students will discard it. Proceed?", () => { window.clearCrmForm(false); previousCrmStudent = targetStudent; window.loadStudentCRM(targetStudent); }, () => { e.target.value = previousCrmStudent; }); } else { previousCrmStudent = targetStudent; window.loadStudentCRM(targetStudent); } };
+    window.handleCrmActionChange = (e) => { const targetAction = e.target.value; if(window.isCrmDirty()) { showConfirm("You have an unsaved draft. Switching categories will discard it. Proceed?", () => { window.clearCrmForm(false); previousCrmAction = targetAction; window.toggleCrmView(); }, () => { document.querySelector(`input[name="crmAction"][value="${previousCrmAction}"]`).checked = true; }); } else { previousCrmAction = targetAction; window.toggleCrmView(); } };
+    
+    window.refreshCrmHistory = async (name) => {
+        const list = document.getElementById("crm-history-list"); const r = await fetchAPI(null, { action: "getStudentHistory", StudentName: name }); if(r.status === "error") return;
+        list.innerHTML = ""; if(!r.history || r.history.length === 0) { list.innerHTML = `<div style="color:#94a3b8; text-align:center; padding:20px; font-size:0.85rem;">No historical records found for ${name}.</div>`; return; }
+        r.history.forEach(h => { const dateStr = isoToDisplayDate(h.date.substring(0,10)); const icon = h.type === "PTM Invite" ? "📅" : h.type === "Progress Report" ? "📝" : h.type === "Demo Feedback" ? "🌟" : h.type === "Payment Receipt" ? "🧾" : "📊"; const borderCol = h.type === "PTM Invite" ? "#3b82f6" : h.type === "Progress Report" ? "#10b981" : h.type === "Demo Feedback" ? "#8b5cf6" : h.type === "Payment Receipt" ? "#14b8a6" : "#f59e0b"; list.innerHTML += `<div class="history-card" style="border-left-color: ${borderCol};"><div class="history-card-header"><span class="history-card-type">${icon} ${h.type}</span><span>${dateStr}</span></div><div style="font-size:0.85rem; color:var(--text-main); margin-bottom:4px;"><b>Details:</b> ${h.details}</div><div style="font-size:0.8rem; color:var(--text-sub); max-height:40px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-style:italic;">"${h.message}"</div></div>`; });
+    };
+
+    window.loadStudentCRM = async (name) => { APP_STATE.currentCrmStudent = name; document.getElementById("crm-action-area").style.display = "block"; window.clearCrmForm(false); document.getElementById("crm-history-list").innerHTML = `<div style="text-align:center; padding:20px; color:#94a3b8;">Fetching history...</div>`; window.refreshCrmHistory(name); };
+    window.toggleCrmView = () => { const val = document.querySelector('input[name="crmAction"]:checked').value; document.getElementById("crm-view-progress").style.display = val === 'progress' ? 'block' : 'none'; document.getElementById("crm-view-demoFeedback").style.display = val === 'demoFeedback' ? 'block' : 'none'; document.getElementById("crm-view-ptmPost").style.display = val === 'ptmPost' ? 'block' : 'none'; document.getElementById("crm-view-ptmInvite").style.display = val === 'ptmInvite' ? 'block' : 'none'; document.getElementById("crm-view-receipt").style.display = val === 'receipt' ? 'block' : 'none'; document.getElementById("crmToneGroup").style.display = (val === 'progress' || val === 'ptmPost' || val === 'demoFeedback') ? 'block' : 'none'; };
+    window.toggleHwInputs = (val) => { const input = document.getElementById("fbHwInput1"); if(val === "Specific Topic") { input.style.display = "block"; input.placeholder = "e.g. Chapter 4 or Page 22"; } else if(val === "External Resource") { input.style.display = "block"; input.placeholder = "Paste Drive/Google Link here..."; } else { input.style.display = "none"; } };
+
+    window.executePtmSchedule = async () => {
+        if(!APP_STATE.currentCrmStudent) return showToast("Select a student", "error");
+        const m = document.getElementById("ptmInviteMonth").value; const d = document.getElementById("ptmInviteDate").value; const tObj = document.getElementById("ptmInviteTime"); window.normalizeUserTime(tObj); const t = parseUserTimeTo24(tObj.value); if(!d || !t) return showToast("Select Date and Time", "error");
+        const btn = document.querySelector("#crm-view-ptmInvite button"); btn.disabled = true; btn.textContent = "Scheduling...";
+        const r = await fetchAPI(null, { action: "schedulePTM", StudentName: APP_STATE.currentCrmStudent, PTMMonth: m, PTMDate: d, PTMTime: t });
+        if (r.status === "error") { btn.disabled = false; btn.textContent = "📅 Schedule Event & Generate Draft"; return showToast("Failed to schedule event.", "error"); }
+        const msg = `Hi Parents,\n\nA meeting is requested for ${APP_STATE.currentCrmStudent}'s ${m} review.\n\nI have scheduled a tentative slot for *${isoToDisplayDate(d)}* at *${time24To12(t)} IST*.\n\nPlease respond back with confirmation or a reschedule time. Reschedule will depend on availability.\n\nLooking forward to speaking with you!\n\nBest regards,\nSenorita`;
+        document.getElementById("crmOutput").value = msg; document.getElementById("crm-output-area").style.display = "block"; currentCrmDetails = `Scheduled for ${isoToDisplayDate(d)} (${m})`; currentCrmType = "PTM Invite"; btn.disabled = false; btn.textContent = "📅 Schedule Event & Generate Draft"; showToast("Event Scheduled! Draft ready.");
+    };
+
+    window.generateCRMMessage = async (type) => {
+        if(!APP_STATE.currentCrmStudent) return showToast("Select a student", "error");
+        let payload = { action: "generateCrmDraft", crmType: type, studentName: APP_STATE.currentCrmStudent, tone: document.getElementById("crmTone").value };
+        const btn = document.querySelector(`#crm-view-${type} button`); btn.disabled = true; btn.textContent = "✨ Generating AI Draft...";
+
+        if (type === 'progress') {
+            payload.vibe = document.getElementById("fbVibe").value; payload.topic = document.getElementById("fbTopic").value.trim() || "General curriculum"; const hwStrat = document.getElementById("fbHwStrategy").value; const hwInput = document.getElementById("fbHwInput1").value.trim(); 
+            let strengths = []; document.querySelectorAll('#crm-view-progress .pill-checkbox:checked').forEach(cb => strengths.push(cb.value)); payload.strengths = strengths.length > 0 ? strengths.join(", ") : "overall class participation";
+            if(hwStrat === "Specific Topic" && hwInput) payload.hw = `Focus on: ${hwInput}`; else if(hwStrat === "External Resource" && hwInput) payload.hw = `Complete resource: ${hwInput}`; else payload.hw = "Spend 15 minutes revising recent classwork.";
+            currentCrmDetails = `Strengths: ${payload.strengths}`; currentCrmType = 'Progress Report';
+        } else if (type === 'demoFeedback') {
+            payload.leadPotential = document.getElementById("demoLeadPotential").value; payload.parentInterest = document.getElementById("demoParentVibe").value;
+            let strengths = []; document.querySelectorAll('#crm-view-demoFeedback input[id^="ds"]:checked').forEach(cb => strengths.push(cb.value)); payload.strengths = strengths.length > 0 ? strengths.join(", ") : "Good general participation"; payload.otherStrengths = document.getElementById("demoOtherStrengths").value.trim();
+            let improvements = []; document.querySelectorAll('#crm-view-demoFeedback input[id^="di"]:checked').forEach(cb => improvements.push(cb.value)); payload.improvements = improvements.length > 0 ? improvements.join(", ") : "General fluency"; payload.otherImprovements = document.getElementById("demoOtherImprovements").value.trim();
+            if(!payload.strengths && !payload.otherStrengths) { btn.disabled = false; btn.textContent = "✨ Generate Handover Brief"; return showToast("Select at least one strength", "error"); }
+            currentCrmDetails = `${payload.leadPotential.split(' ')[0]} Lead | Vibe: ${payload.parentInterest.substring(0,20)}...`; currentCrmType = 'Demo Feedback';
+        } else if (type === 'ptmPost') {
+            payload.discussed = document.getElementById("ptmDiscussed").value.trim(); payload.improve = document.getElementById("ptmImprove").value.trim(); payload.plan = document.getElementById("ptmAction").value.trim();
+            if(!payload.discussed) { btn.disabled = false; btn.textContent = "✨ Generate AI Draft"; return showToast("Enter discussed points", "error"); }
+            currentCrmDetails = `Discussed: ${payload.discussed.substring(0,30)}...`; currentCrmType = 'PTM Summary';
+        } else if (type === 'receipt') {
+            payload.amount = document.getElementById("receiptAmount").value; payload.paymentDate = document.getElementById("receiptDate").value; payload.plan = document.getElementById("receiptPlan").value; payload.classes = document.getElementById("receiptClasses").value; payload.startDate = document.getElementById("receiptStart").value; payload.nextDue = document.getElementById("receiptNextDue").value;
+            if(!payload.amount || !payload.paymentDate || !payload.classes) { btn.disabled = false; btn.textContent = "✨ Generate Receipt Draft"; return showToast("Fill amount, date, and classes", "error"); }
+            if (payload.paymentDate) payload.paymentDate = isoToDisplayDate(payload.paymentDate); if (payload.startDate) payload.startDate = isoToDisplayDate(payload.startDate); if (payload.nextDue && payload.nextDue !== "NA" && payload.nextDue.match(/^\d{4}-\d{2}-\d{2}$/)) { payload.nextDue = isoToDisplayDate(payload.nextDue); }
+            currentCrmDetails = `Payment: ₹${payload.amount} for ${payload.classes} classes`; currentCrmType = 'Payment Receipt';
+        }
+        try { const r = await fetchAPI(null, payload); if(r.status === "error") throw new Error(r.message); document.getElementById("crmOutput").value = r.draft; document.getElementById("crm-output-area").style.display = "block"; } catch(e) { showToast(e.message || "Failed to generate AI Draft.", "error"); } finally { btn.disabled = false; if(type === 'demoFeedback') btn.textContent = "✨ Generate Handover Brief"; else if (type === 'receipt') btn.textContent = "✨ Generate Receipt Draft"; else btn.textContent = "✨ Generate AI Draft"; }
+    };
+
+    window.copyCrmMessage = () => { navigator.clipboard.writeText(document.getElementById("crmOutput").value); showToast("Message copied!"); };
+    window.saveCrmDraft = async () => { const msg = document.getElementById("crmOutput").value; if(!msg || !APP_STATE.currentCrmStudent) return; const btn = document.getElementById("btn-save-crm"); btn.disabled = true; btn.textContent = "Saving..."; const r = await fetchAPI(null, { action: "saveFeedback", StudentName: APP_STATE.currentCrmStudent, ReportType: currentCrmType, Details: currentCrmDetails, Message: msg }); if(r.status === "error") { btn.disabled = false; btn.textContent = "💾 Save to History"; return showToast("Failed to save.", "error"); } window.refreshCrmHistory(APP_STATE.currentCrmStudent); showToast("✅ Saved to History!"); window.clearCrmForm(false); btn.disabled = false; btn.textContent = "💾 Save to History"; };
+
+    /* --- AI DRAFTER & DISPATCH --- */
     window.isAiDirty = () => { return document.getElementById("ai-draft-context").value.trim() !== "" || document.getElementById("ai-output-container").innerHTML.trim() !== ""; };
     window.triggerManualAiReset = () => { if(window.isAiDirty()) { showConfirm("Clear context and discard generated options?", () => { window.clearAiDrafter(); }); } else { window.clearAiDrafter(); } };
     window.handleAiTypeChange = (e) => { const targetType = e.target.value; if (window.isAiDirty()) { showConfirm("Switching categories will clear your current notes and generated options. Proceed?", () => { window.clearAiDrafter(); previousAiType = targetType; window.toggleAiOptions(); }, () => { document.querySelector(`input[name="draftType"][value="${previousAiType}"]`).checked = true; }); } else { previousAiType = targetType; window.toggleAiOptions(); } };
@@ -1282,7 +1506,225 @@ async function fetchToday(force=false) { const cls = await fetchAPI(null, { acti
         if (type === "forge") {
             const topic = document.getElementById("ai-forge-topic").value.trim(); const grade = document.getElementById("ai-forge-grade").value.trim(); const region = document.getElementById("ai-forge-region").value.trim(); let outputs = [];
             document.querySelectorAll('#ai-forge-inputs .pill-checkbox:checked').forEach(cb => outputs.push(cb.value));
-            if (!topic) returnI encountered an error doing what you asked. Could you try again?
+            if (!topic) return showToast("Enter a Topic.", "error"); if (outputs.length === 0) return showToast("Select at least one output type.", "error");
+            btn.disabled = true; btn.textContent = "✨ Forging Content...";
+            try {
+                const r = await fetchAPI(null, { action: "generateContentForge", topic: topic, grade: grade, region: region, outputTypes: outputs });
+                if (r.status === "error") throw new Error(r.message);
+                let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Forged Academic Content</label><div style="background: #f8fafc; border-radius:10px; padding:16px; border: 1px solid #cbd5e1;"><div style="display:flex; justify-content:flex-end; margin-bottom:10px;"><button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('ai-opt-forge')">📋 Copy Lesson</button></div><textarea id="ai-opt-forge" readonly style="width:100%; min-height:300px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${r.draft}</textarea></div>`;
+                document.getElementById("ai-output-container").innerHTML = html; document.getElementById("ai-output-container").style.display = "flex"; document.getElementById("ai-output-container").scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch(e) { showToast(e.message || "Failed to generate content.", "error"); } finally { btn.disabled = false; btn.textContent = "✨ Generate Options"; }
+            return;
+        }
+        
+        try {
+            const r = await fetchAPI(null, { action: "generateAIDraft", context: context, draftType: type, platform: platform, studentNames: studentNames, occasion: occasion, recipientRole: recipientRole });
+            if (r.status === "error") throw new Error(r.message);
+            let rawText = r.draft.replace(/\x60\x60\x60json/gi, '').replace(/\x60\x60\x60/gi, '').trim(); let options;
+            try { options = JSON.parse(rawText); if(options.options) options = options.options; if(!Array.isArray(options)) options = [options]; } catch(jsonE) { let jsonMatch = rawText.match(/\[[\s\S]*\]/); if (jsonMatch) options = JSON.parse(jsonMatch[0]); else throw new Error("Invalid AI format returned."); }
+            let headerText = options.length > 1 ? "Generated AI Options" : "Generated AI Draft"; let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">${headerText}</label>`;
+            
+            options.forEach((opt, idx) => {
+                let recBadge = opt.is_recommended ? `<div style="display:inline-block; background:#fef08a; color:#854d0e; padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:700; margin-left:12px; border:1px solid #fde047; transform: translateY(-2px);">🌟 Recommended</div>` : '';
+                let borderStyle = opt.is_recommended ? `border: 2px solid #8b5cf6; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);` : `border: 1px solid #cbd5e1;`; let bgStyle = opt.is_recommended ? `background: #faf5ff;` : `background: #f8fafc;`;
+                let batchBtnHtml = studentNames.length > 0 ? `<button class="btn btn-primary btn-sm" style="background:#8b5cf6; border-color:#8b5cf6;" onclick="window.startBatchDispatch('ai-opt-${idx}')">🚀 Dispatch (${studentNames.length})</button>` : '';
+                let strategyHtml = opt.strategy ? `<div style="margin-top:12px; padding:12px; background:#fff7ed; border-left:4px solid #f97316; border-radius:6px; font-size:0.85rem; color:#9a3412;"><div style="font-weight:800; margin-bottom:6px; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.5px;">🛡️ Internal Mentor Strategy (Do Not Send)</div><div style="line-height:1.5;">${opt.strategy.replace(/\n/g, '<br>')}</div></div>` : '';
+                html += `<div style="${bgStyle} border-radius:10px; padding:16px; margin-bottom:12px; ${borderStyle}"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;"><div style="font-weight:700; color:var(--primary); font-size:1rem; display:flex; align-items:center;">${opt.title} ${recBadge}</div><div style="display:flex; gap:8px;">${batchBtnHtml}<button class="btn btn-outline btn-sm" onclick="window.copyAiOpt('ai-opt-${idx}')">📋 Copy</button></div></div><textarea id="ai-opt-${idx}" style="width:100%; min-height:100px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${opt.text}</textarea>${strategyHtml}</div>`;
+            });
+            document.getElementById("ai-output-container").innerHTML = html; document.getElementById("ai-output-container").style.display = "flex"; document.getElementById("ai-output-container").scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (e) { showToast(e.message || "Failed to connect to AI.", "error"); } finally { btn.disabled = false; btn.textContent = "✨ Generate AI Options"; }
+    };
+
+    /* --- SMART SLOT (INDIVIDUAL AI BALANCER) --- */
+    window.openSmartSlotModal = (name) => {
+        document.getElementById("smartSlotStudentName").textContent = "Student: " + name; document.getElementById("smartSlotStudentName").dataset.name = name; document.getElementById("smartSlotPrefs").value = ""; document.getElementById("smartSlotResults").style.display = "none"; document.getElementById("smartSlotModal").classList.add("show");
+    };
+    window.copySmartSlotDraft = () => { const text = document.getElementById("smartSlotDraft").value; navigator.clipboard.writeText(text); showToast("Draft copied!"); };
+    window.generateSmartSlots = async () => {
+        const name = document.getElementById("smartSlotStudentName").dataset.name; const prefs = document.getElementById("smartSlotPrefs").value.trim(); const btn = document.getElementById("btn-smart-slot-gen");
+        btn.disabled = true; btn.textContent = "🧠 Analyzing Load Matrix..."; document.getElementById("smartSlotResults").style.display = "none";
+        try {
+            const r = await fetchAPI(null, { action: "getSmartScheduleSuggestions", studentName: name, preferences: prefs }); if (r.status === "error") throw new Error(r.message);
+            const data = r; document.getElementById("smartSlotDraft").value = data.draft; const btnContainer = document.getElementById("smartSlotButtons"); btnContainer.innerHTML = "";
+            if(data.slots && data.slots.length > 0) { data.slots.forEach(slot => { const btnHtml = document.createElement("button"); btnHtml.className = "btn btn-primary"; btnHtml.innerHTML = `📅 Book ${isoToDisplayDate(slot.date)} at ${time24To12(slot.time)} & Copy`; btnHtml.onclick = () => window.executeSmartSlotSchedule(name, slot.date, slot.time); btnContainer.appendChild(btnHtml); }); }
+            document.getElementById("smartSlotResults").style.display = "block";
+        } catch(e) { showToast("AI Failed: " + e.message, "error"); } finally { btn.disabled = false; btn.textContent = "🧠 Balance & Find Slots"; }
+    };
+    window.executeSmartSlotSchedule = (name, dateStr, timeStr) => {
+        window.copySmartSlotDraft(); document.getElementById("smartSlotModal").classList.remove("show"); window.showMainSection('classes');
+        setTimeout(() => { document.getElementById("schedule-student-select").value = name; document.getElementById("schedule-date").value = dateStr; const timeInput = document.getElementById("schedule-time"); timeInput.value = timeStr; window.normalizeUserTime(timeInput); document.getElementById("schedule-student-select").scrollIntoView({behavior: "smooth", block: "center"}); showToast("Draft copied! Just hit 'Schedule Class' to lock it in.", "info"); }, 300);
+    };
+
+    /* --- ROSTER HEALTH ENGINE (HYBRID MACRO-BALANCER) --- */
+    window.openRosterHealth = async () => {
+        document.getElementById("rosterHealthModal").classList.add("show"); document.getElementById("rh-loading").style.display = "block"; document.getElementById("rh-content").style.display = "none";
+        try {
+            const r = await fetchAPI(null, { action: "getRosterHealth" }); if (r.status === "error") throw new Error(r.message);
+            window._currentOasisDays = r.oasis; window._currentHealthData = r;
+            
+            document.getElementById("rh-bottleneck-day").textContent = r.bottleneck; 
+            document.getElementById("rh-bottleneck-avg").textContent = r.bottleneckAvg + " classes / avg"; 
+            document.getElementById("rh-oasis-days").textContent = r.oasis.join(" & ");
+            
+            const aiList = document.getElementById("rh-ai-suggestions-list"); aiList.innerHTML = "";
+            if (!r.actionPlan || r.actionPlan.length === 0) { 
+                aiList.innerHTML = "<div style='color:var(--text-sub); text-align:center; padding:10px; background:#fff; border:1px solid #cbd5e1; border-radius:8px;'>No optimal automated moves found. Use manual override.</div>"; 
+            } else { 
+                r.actionPlan.forEach((plan, idx) => { 
+                    const safeName = plan.studentName.replace(/\s+/g, '-');
+                    let impactBadge = `<div style="font-size:0.75rem; background:#f1f5f9; padding:4px 8px; border-radius:4px; border:1px solid #cbd5e1; display:inline-block; margin-top:6px;">
+                        <span style="color:#b91c1c;">[Bottleneck]: ${r.bottleneckAvg} ➔ ${(r.bottleneckAvg - 1).toFixed(1)}</span> | 
+                        <span style="color:#166534;">[Oasis]: ${r.normalizedLoad[plan.newDay]} ➔ ${(parseFloat(r.normalizedLoad[plan.newDay]) + 1).toFixed(1)}</span>
+                    </div>`;
+
+                    aiList.innerHTML += `
+                    <div style="background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom: 12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <div style="font-weight:700; color:var(--text-main); font-size:1.05rem;">👤 ${plan.studentName}</div>
+                                <div style="font-size:0.85rem; color:var(--text-sub);">Shift from <b>${r.bottleneck} at ${time24To12(plan.oldTime)}</b> ➔ <b>${plan.newDay} at ${time24To12(plan.newTime)}</b></div>
+                                ${impactBadge}
+                            </div>
+                            <button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="window.executeAiSuggestion('${plan.studentName}', '${plan.oldTime}', '${plan.newDate}', '${plan.newTime}', '${plan.newDay}', '${r.bottleneck}', this, ${idx})">✨ Generate Soft Close</button>
+                        </div>
+                        <div id="rh-ai-result-${idx}" style="display:none; margin-top:12px; border-top:1px solid #e2e8f0; padding-top:12px;"></div>
+                    </div>`; 
+                }); 
+            }
+
+            const manualSel = document.getElementById("rh-manual-target-select");
+            let opts = '<option value="" disabled selected>Select student from bottleneck day...</option>';
+            if(r.targets && r.targets.length > 0) {
+                r.targets.forEach(t => { opts += `<option value="${t.name}" data-time="${t.time}">${t.name} (Current: ${time24To12(t.time)})</option>`; });
+            }
+            manualSel.innerHTML = opts;
+            document.getElementById("rh-manual-result").style.display = "none";
+            document.getElementById("rh-loading").style.display = "none"; document.getElementById("rh-content").style.display = "block";
+        } catch(e) { document.getElementById("rh-loading").innerHTML = `<div style="color:#ef4444;">Failed to calculate Class Schedule Optimiser: ${e.message}</div>`; }
+    };
+
+    window.executeAiSuggestion = async (studentName, oldTime, newDate, newTime, newDay, bottleneckDay, btnEl, idx) => {
+        const outDiv = document.getElementById(`rh-ai-result-${idx}`);
+        outDiv.style.display = "block"; outDiv.innerHTML = `<div style="color:var(--primary); font-size:0.85rem; font-weight:600;">🧠 Drafting Uncompromised Quality message...</div>`;
+        btnEl.disabled = true;
+        
+        try {
+            const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, originalTime: oldTime, bottleneckDay: bottleneckDay, oasisDays: window._currentOasisDays }); 
+            if (r.status === "error") throw new Error(r.message);
+            
+            const data = r; const safeName = studentName.replace(/\s+/g, '-');
+            
+            let currentBnAvg = parseFloat(window._currentHealthData.bottleneckAvg);
+            let currentOasisAvg = parseFloat(data.oasisLoads[newDay] || 0);
+
+            outDiv.innerHTML = `
+                <textarea id="ai-mb-draft-${safeName}" readonly style="width:100%; height:160px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:10px;">${data.draft}</textarea>
+                <button class="btn btn-outline btn-sm btn-block" style="margin-bottom:12px;" onclick="window.copyAiOpt('ai-mb-draft-${safeName}')">📋 Copy Draft</button>
+                
+                <div style="background:#f1f5f9; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+                    <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--primary); margin-bottom:6px;">📊 Projected Roster Impact</div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:12px; background:#fff; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">
+                        <span style="color:#b91c1c;">🔴 <b>${bottleneckDay}:</b> ${currentBnAvg.toFixed(1)} ➔ ${(currentBnAvg - 1).toFixed(1)} classes</span>
+                        <span style="color:#166534;">🟢 <b>${newDay}:</b> ${currentOasisAvg.toFixed(1)} ➔ ${(currentOasisAvg + 1).toFixed(1)} classes</span>
+                    </div>
+
+                    <div style="font-size:0.8rem; font-weight:700; margin-bottom:6px; color:var(--text-sub);">IF PARENT APPROVES:</div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px;" onclick="window.executeMacroReschedule('${studentName}', '${oldTime}', '${newDate}', '${newTime}', '${newDay}', false)">🔁 Shift Next Class</button>
+                        <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px; background:#8b5cf6; border-color:#8b5cf6;" onclick="window.executeMacroReschedule('${studentName}', '${oldTime}', '${newDate}', '${newTime}', '${newDay}', true)">🚀 Shift ALL Future</button>
+                    </div>
+                </div>`;
+        } catch(e) { outDiv.innerHTML = `<div style="color:#ef4444; font-size:0.85rem;">Failed: ${e.message}</div>`; } finally { btnEl.disabled = false; }
+    };
+
+    window.triggerManualRelocate = async (btnEl) => {
+        const sel = document.getElementById("rh-manual-target-select");
+        const studentName = sel.value;
+        if(!studentName) return showToast("Select a student first.", "error");
+        
+        const oldTime = sel.options[sel.selectedIndex].dataset.time;
+        const bottleneckDay = window._currentHealthData.bottleneck;
+        const outDiv = document.getElementById("rh-manual-result");
+        
+        outDiv.style.display = "block"; outDiv.innerHTML = `<div style="color:var(--primary); font-size:0.85rem; font-weight:600;">🧠 AI drafting manual options...</div>`;
+        btnEl.disabled = true;
+
+        try {
+            const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, originalTime: oldTime, bottleneckDay: bottleneckDay, oasisDays: window._currentOasisDays }); 
+            if (r.status === "error") throw new Error(r.message);
+
+            const data = r; let slotOpts = ""; 
+            data.slots.forEach((s, idx) => { slotOpts += `<option value="${idx}" data-day="${s.dayName}">${isoToDisplayDate(s.date)} at ${time24To12(s.time)}</option>`; });
+            const safeSlots = encodeURIComponent(JSON.stringify(data.slots)); const safeName = studentName.replace(/\s+/g, '-');
+            const safeLoads = encodeURIComponent(JSON.stringify(data.oasisLoads));
+
+            let currentBnAvg = parseFloat(window._currentHealthData.bottleneckAvg);
+            let initialOasisDay = data.slots[0] ? data.slots[0].dayName : "TBD";
+            let initialOasisAvg = parseFloat(data.oasisLoads[initialOasisDay] || 0);
+
+            outDiv.innerHTML = `
+                <textarea id="man-mb-draft-${safeName}" readonly style="width:100%; height:160px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:10px;">${data.draft}</textarea>
+                <button class="btn btn-outline btn-sm btn-block" style="margin-bottom:12px;" onclick="window.copyAiOpt('man-mb-draft-${safeName}')">📋 Copy Draft</button>
+                
+                <div style="background:#f1f5f9; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+                    <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--primary); margin-bottom:6px;">📊 Projected Roster Impact</div>
+                    <div id="man-impact-box" style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:12px; background:#fff; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">
+                        <span style="color:#b91c1c;">🔴 <b>${bottleneckDay}:</b> ${currentBnAvg.toFixed(1)} ➔ ${(currentBnAvg - 1).toFixed(1)} classes</span>
+                        <span style="color:#166534;" id="man-oasis-impact">🟢 <b>${initialOasisDay}:</b> ${initialOasisAvg.toFixed(1)} ➔ ${(initialOasisAvg + 1).toFixed(1)} classes</span>
+                    </div>
+
+                    <div style="font-size:0.8rem; font-weight:700; margin-bottom:6px; color:var(--text-sub);">IF PARENT APPROVES:</div>
+                    <select id="man-slot-select" style="width:100%; margin-bottom:8px; height:32px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px; outline:none;" onchange="window.updateManualImpact(this, '${safeLoads}')">
+                        ${slotOpts}
+                    </select>
+                    
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px;" onclick="window.executeManualReschedule('${studentName}', '${oldTime}', '${safeSlots}', false)">🔁 Shift Next Class</button>
+                        <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px; background:#8b5cf6; border-color:#8b5cf6;" onclick="window.executeManualReschedule('${studentName}', '${oldTime}', '${safeSlots}', true)">🚀 Shift ALL Future</button>
+                    </div>
+                </div>
+            `;
+        } catch(e) { outDiv.innerHTML = `<div style="color:#ef4444; font-size:0.85rem;">Failed: ${e.message}</div>`; } finally { btnEl.disabled = false; }
+    };
+
+    window.updateManualImpact = (selEl, safeLoads) => {
+        const loads = JSON.parse(decodeURIComponent(safeLoads));
+        const dayName = selEl.options[selEl.selectedIndex].dataset.day;
+        let avg = parseFloat(loads[dayName] || 0);
+        document.getElementById("man-oasis-impact").innerHTML = `🟢 <b>${dayName}:</b> ${avg.toFixed(1)} ➔ ${(avg + 1).toFixed(1)} classes`;
+    };
+
+    window.executeManualReschedule = async (studentName, oldTime24, safeSlots, isPermanent) => {
+        const selEl = document.getElementById("man-slot-select");
+        const slots = JSON.parse(decodeURIComponent(safeSlots));
+        const pickedSlot = slots[selEl.value];
+        if(!pickedSlot) return showToast("Invalid slot.", "error");
+
+        let dummyInput = { value: pickedSlot.time }; window.normalizeUserTime(dummyInput); 
+        let newTime24 = parseUserTimeTo24(dummyInput.value); 
+        if (!newTime24) return showToast("Failed to parse time.", "error");
+
+        window.executeMacroReschedule(studentName, oldTime24, pickedSlot.date, pickedSlot.time, pickedSlot.dayName, isPermanent);
+    };
+
+    window.executeMacroReschedule = async (studentName, oldTime24, newDate, newTime12, newDayName, isPermanent) => {
+        let dummyInput = { value: newTime12 }; window.normalizeUserTime(dummyInput); 
+        let newTime24 = parseUserTimeTo24(dummyInput.value);
+
+        if (isPermanent) {
+            const d = new Date(newDate); const newDayNum = d.getDay(); 
+            showConfirm(`Permanently move ${studentName}'s future classes to ${newDayName}s at ${newTime12}?`, async () => {
+                document.getElementById("rosterHealthModal").classList.remove("show"); showToast("Processing permanent shift...");
+                const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: studentName, OldTime: oldTime24, NewTime: newTime24, StartDate: APP_STATE.todayDate, NewDay: newDayNum });
+                if(r.status === "error") return showToast("Shift failed.", "error"); window.showAuditReport(r.success, r.failed, "Permanent Shift Results"); window.fetchToday(true); 
+            });
+        } else {
+            showConfirm(`Move their next class to ${isoToDisplayDate(newDate)} at ${newTime12}?`, async () => {
+                document.getElementById("rosterHealthModal").classList.remove("show"); showToast("Processing reschedule...");
+                window.showMainSection('classes'); document.getElementById("schedule-student-select").value = studentName; document.getElementById("schedule-date").value = newDate; document.getElementById("schedule-time").value = newTime12; document.getElementById("schedule-student-select").scrollIntoView({behavior: "smooth", block: "center"}); showToast("Pre-filled in Schedule block. Please cancel their old class manually.", "info");
+            });
+        }
+    };
 /* --- OMNIBOX / COMMAND PALETTE ENGINE --- */
     window.openOmnibox = () => { document.getElementById("omniboxModal").classList.add("show"); const input = document.getElementById("omniboxInput"); input.value = ""; document.getElementById("omniboxResults").style.display = "none"; setTimeout(() => input.focus(), 100); };
     window.closeOmnibox = () => { document.getElementById("omniboxModal").classList.remove("show"); };
