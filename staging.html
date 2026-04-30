@@ -251,8 +251,8 @@
     <header class="top-bar">
         <div class="brand-block">
             <div>
-                <div class="brand-title" style="color: #ea580c;"><span style="font-size:1.5rem;">🚧</span> ✨ Advanced Class Manager</div>
-                <div class="brand-sub" style="color: #ea580c; font-weight: 700;">AI-Powered Scheduling, CRM & Revenue System (Staging Environment)</div>
+                <div class="brand-title" style="color: #0284c7;"><span style="font-size:1.5rem;">🚧</span> ✨ Advanced Class Manager</div>
+                <div class="brand-sub" style="color: #0284c7; font-weight: 700;">AI-Powered Scheduling, CRM & Revenue System (Staging Environment)</div>
             </div>
             
             <div class="omnibox-trigger" onclick="window.openOmnibox()" title="Search or Command (Ctrl+K)">
@@ -312,8 +312,7 @@
         <button class="main-tab-btn" onclick="window.showMainSection('bulk')">Bulk Scheduling</button>
         <button class="main-tab-btn" onclick="window.showMainSection('onboarding')">🚀 Student Kit</button> 
     </nav>
-
-    <section id="section-classes" class="section show">
+<section id="section-classes" class="section show">
         <div class="section-card">
             <div class="section-header">
                 <div><span class="section-title">Dashboard Overview</span></div>
@@ -411,10 +410,10 @@
                             <label class="radio-label"><input type="radio" name="studentType" value="Personal" onchange="window.toggleAddPersonalFields()"> Personal</label>
                         </div>
                         
-                        <div id="add-personal-fields" style="display:none; gap:10px; margin-bottom:16px;">
-                            <input type="number" id="add-pkg-total" placeholder="Pkg Size (e.g. 15)" style="flex:1;">
-                            <input type="number" id="add-pending-balance" placeholder="Pending Bal (₹)" style="flex:1;">
-                            <input type="number" id="add-custom-price" placeholder="Custom Price" style="flex:1;">
+                        <div id="add-personal-fields" style="display:none; flex-wrap: wrap; gap:10px; margin-bottom:16px;">
+                            <div style="flex: 1 1 30%; min-width: 130px;"><input type="number" id="add-pkg-total" placeholder="Pkg Size (e.g. 15)"></div>
+                            <div style="flex: 1 1 30%; min-width: 130px;"><input type="number" id="add-pending-balance" placeholder="Pending Bal (₹)"></div>
+                            <div style="flex: 1 1 30%; min-width: 130px;"><input type="number" id="add-custom-price" placeholder="Custom Price"></div>
                         </div>
 
                         <button id="add-student-btn" class="btn btn-primary btn-block" onclick="window.executeAddStudent()">Add Student</button>
@@ -726,7 +725,7 @@
                 </div>
             </div>
             
-            <button id="btn-generate-draft" class="btn-primary btn-block" onclick="window.generateAIDraft()">✨ Generate AI</button>
+            <button id="btn-generate-draft" class="btn btn-primary btn-block" onclick="window.generateAIDraft()">✨ Generate Message</button>
             <div id="ai-output-container" style="display:none; margin-top:30px; flex-direction:column; gap:16px;"></div>
         </div>
     </section>
@@ -839,8 +838,7 @@
             </div>
         </div>
     </section>
-
-    <footer class="footer"><div>Last Updated: April 27, 2026, 09:00 AM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v119.3 STAGING (Mobile UI & Search Polish) | Powered by LazifAI</div></footer>
+<footer class="footer"><div>Last Updated: April 27, 2026, 09:00 AM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v119.4 STAGING (Mobile UI & Search Polish) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -994,8 +992,10 @@
                 payload.oldDayOfWeek = days[new Date(oldDateString).getDay()];
                 payload.oldStartTime = oldTimeString;
             }
-            await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify(payload) });
-            console.log(`Master Roster updated for ${studentName} on ${dayOfWeek}`);
+            const req = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify(payload) });
+            const res = await req.json();
+            if (res.status === "warning") { showToast(res.message, "error"); }
+            else { console.log(`Master Roster updated for ${studentName} on ${dayOfWeek}`); }
         } catch(e) { console.error("Master Roster Sync Failed", e); }
     }
 
@@ -1068,7 +1068,7 @@
         const buckets = { "Trial": [], "PS": [], "CM": [], "Personal": [] }; APP_STATE.students.forEach(s => { let t = s.type || "PS"; if(!buckets[t]) buckets[t] = []; buckets[t].push(s); });
         const fill = (id, list, type) => { const el = document.getElementById(id); if(!el) return; document.getElementById("count-"+type.toLowerCase()).textContent = list.length; if(!list.length) { el.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:10px;">None</div>'; return; } let h = ""; list.forEach(s => { let ledgerHtml = ""; if(type === "Personal") { let total = parseInt(s.packageTotal) || 0; let used = parseInt(s.classesUsed) || 0; let bal = parseInt(s.pendingBalance) || 0; if(total > 0) { let pct = Math.min(100, Math.round((used / total) * 100)); let color = pct >= 80 ? '#ef4444' : 'var(--accent)'; let balBadge = bal > 0 ? `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #fecaca; padding:1px 4px; border-radius:4px; background:#fef2f2; margin-left:6px;">₹${bal} Due</span>` : ''; ledgerHtml = `<div style="font-size:0.75rem; color:var(--text-sub); width:100%; margin-top:4px;"><div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span><b>${used}</b> / ${total} Classes</span> ${balBadge}</div><div style="background:#e2e8f0; height:6px; border-radius:3px; width:100%; overflow:hidden;"><div style="background:${color}; height:100%; width:${pct}%;"></div></div></div>`; } } h += `<div class="student-item-row"><div style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span style="font-weight:700; font-size:1rem; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span></div>${ledgerHtml}<td><input type="number" class="input input-sm input-bordered w-16 text-center" value="${s.monthlyLimit}" onchange="updateMonthlyLimit('${s.name}', this.value)" /></td><div class="student-action-btns"><button class="btn btn-outline btn-sm" onclick="window.openSmartSlotModal('${s.name}')" title="AI Capacity Manager">✨ Slot</button><button class="btn btn-outline btn-sm" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️ Rename</button><button class="btn btn-outline btn-sm" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁 Shift</button><button class="btn btn-outline btn-sm" onclick="window.openEdit('${s.name}')" title="Edit Type">✎ Edit</button></div></div>`; }); el.innerHTML = h; };
         fill("list-trial", buckets["Trial"], "Trial"); fill("list-ps", buckets["PS"], "PS"); fill("list-cm", buckets["CM"], "CM"); fill("list-personal", buckets["Personal"], "Personal");
-        document.querySelectorAll('.student-col-header').forEach(h => { if(!h.innerHTML.includes('<th>Monthly Limit</th>')) h.innerHTML += ' <th>Monthly Limit</th>'; });
+        document.querySelectorAll('.student-col-header').forEach(h => { if(!h.innerHTML.includes('Monthly Limit')) h.innerHTML += ' <span style="font-size:0.75rem; font-weight:normal; color:var(--text-sub);">Monthly Limit</span>'; });
     }
 
     function populateStudentDropdowns() {
@@ -1097,8 +1097,7 @@
     window.openEdit = (name) => { editingStudentName = name; const s = APP_STATE.students.find(x => x.name === name); document.getElementById("editStudentNameDisplay").textContent = name; document.getElementById("editStudentTypeSelect").value = s.type; const personalFields = document.getElementById('edit-personal-fields'); if(s.type === 'Personal') { personalFields.style.display = 'flex'; document.getElementById('edit-pkg-total').value = s.packageTotal || ""; document.getElementById('edit-custom-price').value = s.customPrice || ""; document.getElementById('edit-pending-balance').value = s.pendingBalance || ""; } else { personalFields.style.display = 'none'; } document.getElementById("editStudentModal").classList.add("show"); document.getElementById("editStudentSaveBtn").onclick = async () => { const nt = document.getElementById("editStudentTypeSelect").value; let payload = { action: "updateStudentData", StudentName: name, NewType: nt }; if(nt === "Personal") { payload.PackageTotal = document.getElementById("edit-pkg-total").value; payload.CustomPrice = document.getElementById("edit-custom-price").value; payload.PendingBalance = document.getElementById("edit-pending-balance").value; } const btn = document.getElementById("editStudentSaveBtn"); btn.textContent = "Saving..."; await fetchAPI(null, payload); btn.textContent = "Save Changes"; document.getElementById("editStudentModal").classList.remove("show"); showToast("Updated"); await window.loadStudents(); }; };
     window.scrubStudentData = async () => { showConfirm(`Convert all future classes for ${editingStudentName} to Personal and remove PS Meet Links?`, async () => { document.getElementById("editStudentModal").classList.remove("show"); showToast("Scrubbing classes..."); const r = await fetchAPI(null, { action: "scrubPersonalStudent", StudentName: editingStudentName }); showToast(`Scrubbed ${r.count} future classes!`); }); };
     window.openShiftModal = (name) => { document.getElementById("shiftStudentNameDisplay").textContent = "Shift: " + name; document.getElementById("shiftStartDate").value = APP_STATE.todayDate; document.getElementById("shiftNewDay").value = ""; document.getElementById("shiftModal").classList.add("show"); document.getElementById("shiftSaveBtn").onclick = async () => { const ot = parseUserTimeTo24(document.getElementById("shiftOldTime").value); const nt = parseUserTimeTo24(document.getElementById("shiftNewTime").value); const sd = document.getElementById("shiftStartDate").value; const nd = document.getElementById("shiftNewDay").value; if(!ot || !nt || !sd) return showToast("Invalid inputs", "error"); const btn = document.getElementById("shiftSaveBtn"); btn.textContent = "Processing..."; btn.disabled = true; const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: name, OldTime: ot, NewTime: nt, StartDate: sd, NewDay: nd }); document.getElementById("shiftModal").classList.remove("show"); btn.textContent = "Shift All Future Classes"; btn.disabled = false; if (r.status === "error") return showToast("Failed to shift classes.", "error"); window.showAuditReport(r.success, r.failed, "Bulk Shift Results"); window.fetchToday(); }; };
-
-    async function fetchToday(force=false) { const cls = await fetchAPI(null, { action: "getClasses", selectedDate: APP_STATE.todayDate }); if(cls.status === "error") return showToast("Failed to load today's classes.", "error"); APP_STATE.cache[APP_STATE.todayDate] = cls.classes || []; if(force) loadWeekly(); updateStats(APP_STATE.todayDate, cls.classes || []); }
+async function fetchToday(force=false) { const cls = await fetchAPI(null, { action: "getClasses", selectedDate: APP_STATE.todayDate }); if(cls.status === "error") return showToast("Failed to load today's classes.", "error"); APP_STATE.cache[APP_STATE.todayDate] = cls.classes || []; if(force) loadWeekly(); updateStats(APP_STATE.todayDate, cls.classes || []); }
     async function loadWeekly() { const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7); const iso = d.toISOString().split('T')[0]; const r = await fetchAPI(null, { action: "getWeekSummary", startDate: iso }); if(r.status === "error") return; APP_STATE.weeklySummary = r.summary || {}; updateStats(APP_STATE.todayDate, APP_STATE.currentClasses); setTimeout(() => { const todayEl = document.querySelector('.weekly-day.today'); if(todayEl) todayEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }, 800); }
 
     function updateStats(date, classes) {
@@ -1479,7 +1478,7 @@ window.openPendingReviews = () => { document.getElementById("pendingReviewModal"
                 if (r.status === "error") throw new Error(r.message);
                 let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Creative Rewrite</label><div style="background: #f8fafc; border-radius:10px; padding:16px; border: 1px solid #cbd5e1;"><div style="display:flex; justify-content:flex-end; margin-bottom:10px;"><button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('ai-opt-vision')">📋 Copy Draft</button></div><textarea id="ai-opt-vision" readonly style="width:100%; min-height:200px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical;">${r.draft}</textarea></div>`;
                 document.getElementById("ai-output-container").innerHTML = html; document.getElementById("ai-output-container").style.display = "flex"; document.getElementById("ai-output-container").scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } catch(e) { showToast("Failed to process images.", "error"); } finally { btn.disabled = false; btn.textContent = "✨ Generate AI"; }
+            } catch(e) { showToast("Failed to process images.", "error"); } finally { btn.disabled = false; btn.textContent = "✨ Generate Message"; }
             return;
         }
 
