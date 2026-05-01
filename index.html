@@ -305,6 +305,7 @@
         <button class="main-tab-btn" onclick="window.showMainSection('communications')">💬 Parent Relations</button>
         <button class="main-tab-btn tab-ai" onclick="window.showMainSection('drafter')">✨ AI Drafter</button>
         <button class="main-tab-btn" onclick="window.showMainSection('analytics')">📊 Analytics</button>
+	<button class="main-tab-btn" onclick="window.showMainSection('bulk')">Bulk Scheduling</button>
         <button class="main-tab-btn" onclick="window.showMainSection('onboarding')">🚀 Student Kit</button> 
     </nav>
 
@@ -833,7 +834,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: May 01, 2026, 08:30 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v120.5 PROD | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: May 01, 2026, 05:15 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v120.2 PROD | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -978,11 +979,6 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcn
     const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
     const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "" };
     
-    /* --- CENTRALIZED STATUS ENGINE --- */
-    function normalizeStatus(status) { return String(status || "").toLowerCase().replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim(); }
-    function isSlotBlocked(status) { return ["scheduled", "completed", "cancelled", "student no show", "no show", "system glitch"].includes(normalizeStatus(status)); }
-    function isSlotAvailable(status) { return ["absent", "paused", "class limit reached"].includes(normalizeStatus(status)); }
-
     let charts = {}; let previousCrmStudent = ""; let previousCrmAction = "progress"; let currentCrmDetails = ""; let currentCrmType = ""; let previousAiType = 'parent';
     let speechRecog = null; let isRecording = false; let dispatchState = { students: [], template: "", currentIndex: 0 }; let currentRenameOldName = ""; let editingStudentName = "";
 
@@ -1086,7 +1082,7 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcn
     async function loadWeekly() { const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7); const iso = d.toISOString().split('T')[0]; const r = await fetchAPI(null, { action: "getWeekSummary", startDate: iso }); if(r.status === "error") return; APP_STATE.weeklySummary = r.summary || {}; updateStats(APP_STATE.todayDate, APP_STATE.currentClasses); setTimeout(() => { const todayEl = document.querySelector('.weekly-day.today'); if(todayEl) todayEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }, 800); }
 
     function updateStats(date, classes) {
-        APP_STATE.currentClasses = classes; const activeClasses = classes.filter(c => { let n = normalizeStatus(c.Status); return n === 'scheduled' || n === 'completed'; });
+        APP_STATE.currentClasses = classes; const activeClasses = classes.filter(c => !["Paused", "Absent", "Cancelled", "Student No Show", "Deleted", "Class Limit Reached"].includes(c.Status));
         if(date === APP_STATE.todayDate) { document.getElementById("stats-today-main").textContent = activeClasses.length ? `${activeClasses.length} classes` : "No classes"; const l = document.getElementById("today-classes-list"); l.innerHTML = ""; activeClasses.forEach(c => { l.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #e2e8f0; font-size:0.85rem;">${time24To12(c.StartTime)} - <b>${c.StudentName}</b></div>`; }); }
         const s = document.getElementById("weekly-strip"); if(s) { s.innerHTML = ""; const base = new Date(APP_STATE.todayDate); base.setDate(base.getDate() - (base.getDay()+6)%7); for(let i=0; i<7; i++) { const d = new Date(base); d.setDate(base.getDate()+i); const iso = d.toISOString().split('T')[0]; let count = (APP_STATE.weeklySummary||{})[iso]; if(iso === date) count = activeClasses.length; const div = document.createElement("div"); div.className = "weekly-day"; if(iso === APP_STATE.todayDate) div.classList.add("today"); if(count > 0) div.classList.add("has-classes"); div.innerHTML = `${d.toLocaleDateString("en-GB",{weekday:"short"})}<br>${count||'-'}`; div.onclick = () => { document.getElementById("view-date").value = iso; window.showMainSection('classes'); window.renderClassesForDate(iso); }; s.appendChild(div); } }
     }
@@ -1215,10 +1211,10 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcn
             
             let displayFmt = `${dayNamesShort[d.getDay()]}, ${d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
 
-            if (validClasses.length > 0 && validClasses.every(c => normalizeStatus(c.Status) === "cancelled")) { feedData.push({ date: d, displayFmt: displayFmt, status: 'cancelled' }); continue; }
+            if (validClasses.length > 0 && validClasses.every(c => c.Status === "Cancelled")) { feedData.push({ date: d, displayFmt: displayFmt, status: 'cancelled' }); continue; }
             if (isWednesday && validClasses.filter(c => c.Status !== "Cancelled").length === 0) { feedData.push({ date: d, displayFmt: displayFmt, status: 'off' }); continue; }
             let slots = []; for(let h=9; h<22; h++) slots.push({ h: h, status: (isToday && h <= currentHour) ? 'expired' : 'free' });
-            classes.forEach(c => { let st = String(c.StartTime || "00:00").trim(); let parts = st.split(':'); let hh = parseInt(parts[0]) || 0; slots.forEach(slot => { if (slot.h === hh) { if(isSlotBlocked(c.Status)) slot.status = 'busy'; else if(isSlotAvailable(c.Status) && slot.status !== 'expired' && slot.status !== 'busy') slot.status = 'temp'; } }); });
+            classes.forEach(c => { let st = String(c.StartTime || "00:00").trim(); let parts = st.split(':'); let hh = parseInt(parts[0]) || 0; slots.forEach(slot => { if (slot.h === hh) { if(BLOCKED_STATUSES.includes(c.Status)) slot.status = 'busy'; else if(["Paused", "Absent", "System Glitch", "Class Limit Reached"].includes(c.Status) && slot.status !== 'expired' && slot.status !== 'busy') slot.status = 'temp'; } }); });
             const avail = slots.filter(s => s.status !== 'busy'); if(avail.length > 0) feedData.push({ date: d, displayFmt: displayFmt, slots: avail, status: 'active' });
         }
         list.innerHTML = ""; if(feedData.length === 0) { list.innerHTML = '<div style="padding:10px;text-align:center;">No slots available</div>'; return; }
@@ -1781,7 +1777,7 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcn
                     let matchText = ""; let icon = "📝";
                     if (c.Notes && c.Notes.toLowerCase().includes(q)) { matchText = `📝 Note Match: ${c.Notes}`; icon = "📝"; }
                     else if (c.NextTopic && c.NextTopic.toLowerCase().includes(q)) { matchText = `📚 Topic Match: ${c.NextTopic}`; icon = "📚"; }
-                    else if (c.Status && normalizeStatus(c.Status).includes(q)) { matchText = `📌 Status Match: ${c.Status}`; icon = "📌"; }
+                    else if (c.Status && c.Status.toLowerCase().includes(q)) { matchText = `📌 Status Match: ${c.Status}`; icon = "📌"; }
 
                     if (matchText) {
                         matched = true;
