@@ -834,7 +834,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: April 27, 2026, 09:00 AM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v120.0 PROD (Mobile UI & Search Polish) | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: April 27, 2026, 09:00 AM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v120.1 PROD (Mobile UI & Search Polish) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -973,7 +973,6 @@
     <div id="toast-container" class="toast-container"></div>
     <div class="fab-container"><div class="fab-menu" id="fab-menu"><div class="fab-item" onclick="window.openSmartCopyModal('week')">📋 Share Open Slots</div><div class="fab-item" onclick="window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\\'vision\\']').click(), 100); window.scrollTo(0,0);">📸 Snap & Correct</div><div class="fab-item" onclick="window.showMainSection('students'); showToast('Click the 🔁 icon next to any student to shift.', 'info'); window.scrollTo(0,0);">🔁 Bulk Shift Schedule</div><div class="fab-item" onclick="window.openSmartBulletin(); window.switchSbTab('vacation');">✈️ Out of Office Message</div><div class="fab-item" onclick="window.showMainSection('students'); document.getElementById('student-name-input').focus(); window.scrollTo(0,0);">🆕 Quick Add Student</div></div><button class="fab-main" id="fab-main" title="Quick Actions" onclick="window.toggleQuickMenu(event)">⚡</button></div>
 </div>
-
 <script>
 const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcnNovhrSOIObYUJZg9fIPoG1IuojN9t5lnnATcX5rhsWagfixg/exec";
     const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
@@ -1082,7 +1081,7 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcn
     async function loadWeekly() { const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7); const iso = d.toISOString().split('T')[0]; const r = await fetchAPI(null, { action: "getWeekSummary", startDate: iso }); if(r.status === "error") return; APP_STATE.weeklySummary = r.summary || {}; updateStats(APP_STATE.todayDate, APP_STATE.currentClasses); setTimeout(() => { const todayEl = document.querySelector('.weekly-day.today'); if(todayEl) todayEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }, 800); }
 
     function updateStats(date, classes) {
-        APP_STATE.currentClasses = classes; const activeClasses = classes.filter(c => !["Paused", "Absent", "Cancelled", "Student No Show", "Deleted"].includes(c.Status));
+        APP_STATE.currentClasses = classes; const activeClasses = classes.filter(c => !["Paused", "Absent", "Cancelled", "Student No Show", "Deleted", "Class Limit Reached"].includes(c.Status));
         if(date === APP_STATE.todayDate) { document.getElementById("stats-today-main").textContent = activeClasses.length ? `${activeClasses.length} classes` : "No classes"; const l = document.getElementById("today-classes-list"); l.innerHTML = ""; activeClasses.forEach(c => { l.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #e2e8f0; font-size:0.85rem;">${time24To12(c.StartTime)} - <b>${c.StudentName}</b></div>`; }); }
         const s = document.getElementById("weekly-strip"); if(s) { s.innerHTML = ""; const base = new Date(APP_STATE.todayDate); base.setDate(base.getDate() - (base.getDay()+6)%7); for(let i=0; i<7; i++) { const d = new Date(base); d.setDate(base.getDate()+i); const iso = d.toISOString().split('T')[0]; let count = (APP_STATE.weeklySummary||{})[iso]; if(iso === date) count = activeClasses.length; const div = document.createElement("div"); div.className = "weekly-day"; if(iso === APP_STATE.todayDate) div.classList.add("today"); if(count > 0) div.classList.add("has-classes"); div.innerHTML = `${d.toLocaleDateString("en-GB",{weekday:"short"})}<br>${count||'-'}`; div.onclick = () => { document.getElementById("view-date").value = iso; window.showMainSection('classes'); window.renderClassesForDate(iso); }; s.appendChild(div); } }
     }
@@ -1214,7 +1213,7 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcn
             if (validClasses.length > 0 && validClasses.every(c => c.Status === "Cancelled")) { feedData.push({ date: d, displayFmt: displayFmt, status: 'cancelled' }); continue; }
             if (isWednesday && validClasses.filter(c => c.Status !== "Cancelled").length === 0) { feedData.push({ date: d, displayFmt: displayFmt, status: 'off' }); continue; }
             let slots = []; for(let h=9; h<22; h++) slots.push({ h: h, status: (isToday && h <= currentHour) ? 'expired' : 'free' });
-            classes.forEach(c => { let st = String(c.StartTime || "00:00").trim(); let parts = st.split(':'); let hh = parseInt(parts[0]) || 0; slots.forEach(slot => { if (slot.h === hh) { if(BLOCKED_STATUSES.includes(c.Status)) slot.status = 'busy'; else if(["Paused", "Absent", "System Glitch"].includes(c.Status) && slot.status !== 'expired' && slot.status !== 'busy') slot.status = 'temp'; } }); });
+            classes.forEach(c => { let st = String(c.StartTime || "00:00").trim(); let parts = st.split(':'); let hh = parseInt(parts[0]) || 0; slots.forEach(slot => { if (slot.h === hh) { if(BLOCKED_STATUSES.includes(c.Status)) slot.status = 'busy'; else if(["Paused", "Absent", "System Glitch", "Class Limit Reached"].includes(c.Status) && slot.status !== 'expired' && slot.status !== 'busy') slot.status = 'temp'; } }); });
             const avail = slots.filter(s => s.status !== 'busy'); if(avail.length > 0) feedData.push({ date: d, displayFmt: displayFmt, slots: avail, status: 'active' });
         }
         list.innerHTML = ""; if(feedData.length === 0) { list.innerHTML = '<div style="padding:10px;text-align:center;">No slots available</div>'; return; }
@@ -1751,11 +1750,27 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcn
         }
 
         if (!matched || q.length < 15) {
-            const matchingStudents = APP_STATE.students.filter(s => s.name.toLowerCase().includes(q));
+            const matchingStudents = APP_STATE.students.filter(s => s.name.toLowerCase().includes(q) || (s.phone && String(s.phone).toLowerCase().includes(q)));
             matchingStudents.forEach(s => {
                 matched = true;
                 html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><div><div style="font-weight:700; color:var(--text-main);">${s.name}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div></div></div><button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6; height: 28px; padding: 0 8px;" onclick="event.stopPropagation(); window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${s.name}');">✨ Smart Slot</button></div><div style="display:flex; gap:8px;"><button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${s.name}')">💬 Jump to CRM</button><button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); el.value='${s.name}'; el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);">📅 Schedule</button></div></div>`;
             });
+
+            for (const [dateStr, classesArr] of Object.entries(APP_STATE.cache)) {
+                classesArr.forEach(c => {
+                    if (
+                        (c.Notes && c.Notes.toLowerCase().includes(q)) ||
+                        (c.NextTopic && c.NextTopic.toLowerCase().includes(q)) ||
+                        (c.Status && c.Status.toLowerCase().includes(q))
+                    ) {
+                        matched = true;
+                        let action = `window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value='${dateStr}'; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);`;
+                        let snippet = (c.Notes && c.Notes.toLowerCase().includes(q)) ? c.Notes : ((c.NextTopic && c.NextTopic.toLowerCase().includes(q)) ? c.NextTopic : c.Status);
+                        if(snippet.length > 40) snippet = snippet.substring(0, 40) + '...';
+                        html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📝</span><div><div style="font-weight:700; color:var(--text-main);">${c.StudentName}</div><div style="font-size:0.75rem; color:var(--text-sub);">🗓️ ${isoToDisplayDate(dateStr)} • Match: "${snippet}"</div></div><span class="ob-command-badge">Record</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+                    }
+                });
+            }
         }
         if (!matched) { html = `<div style="text-align:center; padding:20px; color:#94a3b8;">No matching students or commands found.<br><span style="font-size:0.8rem; margin-top:8px; display:block;">Try: "Schedule Aadira for tomorrow at 3 PM", "Receipt for Shayraf", or "No shows".</span></div>`; }
         resultsContainer.innerHTML = html;
