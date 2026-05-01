@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>✨ Advanced Class Manager</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>🚧 ✨ ACM STG 120.0</title>
+    <script src="[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)"></script>
     
     <style>
         /* --- THEME: MIDNIGHT EXECUTIVE --- */
@@ -329,22 +329,24 @@
                     <div class="today-classes-list" id="today-classes-list" style="margin-top:8px; max-height:100px; overflow-y:auto;"></div>
                 </div>
                 <div class="overview-tile financial-tile">
-                    <div class="overview-title" style="color:var(--text-main);">💰 Revenue Overview <button id="refresh-earnings-btn" onclick="window.loadEarnings()" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
-                    <div style="display:flex; justify-content:space-between; margin-top:8px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
-                        <div>
-                            <div style="font-size:1.4rem; font-weight:700; color:#15803d;" id="stats-earnings-prepaid">₹0</div>
-                            <div style="font-size:0.7rem; font-weight:600; color:#166534; text-transform:uppercase;">🟢 Prepaid (Personal)</div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:1.4rem; font-weight:700; color:#0369a1;" id="stats-earnings-accrued">₹0</div>
-                            <div style="font-size:0.7rem; font-weight:600; color:#0284c7; text-transform:uppercase;">⏳ Accrued (CM)</div>
-                        </div>
-                    </div>
-                    <div class="overview-sub" id="stats-earnings-sub" style="text-align:center; margin-top:8px;">Current Month</div>
-                    <div class="action-btns">
-                        <button id="btn-review-pending" class="btn btn-outline" style="background:#fff; flex: 1 1 auto; min-width: 130px; min-height: 44px; padding: 10px 14px; border-width: 2px; font-weight: 600; border-radius: 8px; white-space: normal; text-align: center;" onclick="window.openPendingReviews()">Class Status Pending</button>
-                        <button id="btn-history" class="btn btn-outline" style="background:#fff; flex: 1 1 auto; min-width: 130px; min-height: 44px; padding: 10px 14px; border-width: 2px; font-weight: 600; border-radius: 8px; white-space: normal; text-align: center;" onclick="window.openHistoryReport()">Class Records</button>
-                    </div>
+<div class="overview-title" style="color:var(--text-main);">💰 Revenue Overview <button id="refresh-earnings-btn" onclick="window.loadEarnings()" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
+<div style="display:flex; justify-content:space-between; margin-top:8px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+    <div>
+        <div style="font-size:1.4rem; font-weight:700; color:#15803d;" id="stats-earnings-prepaid">₹0</div>
+        <div style="font-size:0.7rem; font-weight:600; color:#166534; text-transform:uppercase;">🟢 Active Pkgs</div>
+        <div style="font-size:0.75rem; color:#ef4444; font-weight:600; margin-top:2px;" id="stats-earnings-bal">Dues: ₹0</div>
+    </div>
+    <div style="text-align:right;">
+        <div style="font-size:1.4rem; font-weight:700; color:#0369a1;" id="stats-earnings-accrued">₹0</div>
+        <div style="font-size:0.7rem; font-weight:600; color:#0284c7; text-transform:uppercase;">⏳ Accrued (CM)</div>
+        <div style="font-size:0.75rem; color:var(--text-sub); margin-top:2px;">Current Month</div>
+    </div>
+</div>
+<div class="overview-sub" id="stats-earnings-sub" style="text-align:center; margin-top:8px;">--</div>
+<div class="action-btns">
+    <button id="btn-review-pending" class="btn btn-outline" style="background:#fff; flex: 1 1 auto; min-width: 130px; min-height: 44px; padding: 10px 14px; border-width: 2px; font-weight: 600; border-radius: 8px; white-space: normal; text-align: center;" onclick="window.openPendingReviews()">Class Status Pending</button>
+    <button id="btn-history" class="btn btn-outline" style="background:#fff; flex: 1 1 auto; min-width: 130px; min-height: 44px; padding: 10px 14px; border-width: 2px; font-weight: 600; border-radius: 8px; white-space: normal; text-align: center;" onclick="window.openHistoryReport()">Class Records</button>
+</div>
                 </div>
                 <div class="overview-tile">
                     <div class="overview-title">This Week's Class Trend <button id="refresh-week-btn" onclick="window.fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
@@ -821,7 +823,7 @@
             </div>
         </div>
     </section>
-<footer class="footer"><div>Last Updated: April 30, 2026, 09:00 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v119.6 STAGING (Roster Engine) | Powered by LazifAI</div></footer>
+<footer class="footer"><div>Last Updated: April 30, 2026, 09:00 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v120.0 STAGING (Roster Engine Locked) | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -955,16 +957,16 @@
     <div id="historyModal" class="modal-backdrop"><div class="modal" style="max-width: 600px;"><div class="modal-header"><div class="modal-title">Advanced Data Report</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('historyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group" style="display:flex; gap:10px; margin-bottom:12px;"><div style="flex:1;"><label>Start Date</label><input type="date" id="historyStartDate"></div><div style="flex:1;"><label>End Date</label><input type="date" id="historyEndDate"></div></div><div class="form-group" style="display:flex; gap:10px; margin-bottom:16px;"><div style="flex:1;"><label>Org Filter</label><select id="historyTypeFilter"><option value="All">All Orgs</option><option value="CM">CM</option><option value="PS">PS</option><option value="Personal">Personal</option><option value="Trial">Trial</option></select></div><div style="flex:1;"><label>Status Filter</label><select id="historyStatusFilter"><option value="All">All Statuses</option><option value="Completed">Completed</option><option value="Student No Show">No Show</option><option value="Absent">Absent</option><option value="Cancelled">Cancelled</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div></div><button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button><div id="historyResult" style="display:none; margin-top:20px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;"><span style="font-weight:700; color:var(--primary);">Report Summary</span><button class="btn btn-outline btn-sm" onclick="window.copyHistoryData()">📋 Copy Data</button></div><div id="histOrgBreakdown"></div><table style="width:100%; text-align:left; border-collapse:collapse; margin-top:10px; font-size:0.9rem;"><thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead><tbody id="histTableBody"></tbody></table></div></div></div></div>
     <div id="smartCopyModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Select Shifts to Copy</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('smartCopyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group"><label class="radio-label"><input type="checkbox" id="scMorn" checked> 🌅 Morning (Before 12 PM)</label><label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scAft" checked> ☀️ Afternoon (12 PM - 5 PM)</label><label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scEve" checked> 🌙 Evening (5 PM Onwards)</label></div><input type="hidden" id="scDateTarget"></div><div class="modal-footer"><button class="btn btn-primary" onclick="window.executeSmartCopy()">📋 Copy Selected</button></div></div></div>
 
+    <div id="rosterSetModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Master Roster Setup</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('rosterSetModal').classList.remove('show')">✕</button></div><div class="modal-body"><div id="rosterSetStudentName" style="font-weight:700; margin-bottom:16px; font-size:1.1rem; color:var(--primary);"></div><p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;">Define the permanent weekly schedule for this student. This is used by the Copy Schedule feature.</p><div id="rosterSlotsContainer"></div><button class="btn btn-soft btn-sm" style="margin-top:10px;" onclick="window.addRosterSlot()">+ Add Day/Time</button></div><div class="modal-footer"><button class="btn btn-outline" onclick="document.getElementById('rosterSetModal').classList.remove('show')">Cancel</button><button id="rosterSaveBtn" class="btn btn-primary" onclick="window.saveRoster()">Save to Roster</button></div></div></div>
     <div id="omniboxModal" class="modal-backdrop" style="z-index: 4000; align-items: flex-start; padding-top: 10vh;"><div class="modal" style="max-width: 600px; background: transparent; box-shadow: none;"><div style="background: #fff; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--primary);"><div style="display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 1.2rem; color: #64748b; margin-right: 12px;">🔍</span><input type="text" id="omniboxInput" style="flex: 1; border: none; font-size: 1.15rem; outline: none; padding: 4px 0; background: transparent; color: var(--text-main);" placeholder="Search students, slots, or commands..." autocomplete="off"><button type="button" class="mic-btn" id="omniboxMicBtn" onclick="window.toggleOmniboxVoice(this)" style="border:none; background:transparent; font-size:1.2rem; padding: 4px;">🎤</button><div class="omnibox-shortcut" style="margin-left: 12px;">ESC</div></div><div id="omniboxResults" style="max-height: 350px; overflow-y: auto; background: #f8fafc; padding: 12px; display: none;"></div></div></div></div>
-
-    <div id="toast-container" class="toast-container"></div>
+<div id="toast-container" class="toast-container"></div>
     <div class="fab-container"><div class="fab-menu" id="fab-menu"><div class="fab-item" onclick="window.openSmartCopyModal('week')">📋 Share Open Slots</div><div class="fab-item" onclick="window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\\'vision\\']').click(), 100); window.scrollTo(0,0);">📸 Snap & Correct</div><div class="fab-item" onclick="window.showMainSection('students'); showToast('Click the 🔁 icon next to any student to shift.', 'info'); window.scrollTo(0,0);">🔁 Bulk Shift Schedule</div><div class="fab-item" onclick="window.openSmartBulletin(); window.switchSbTab('vacation');">✈️ Out of Office Message</div><div class="fab-item" onclick="window.showMainSection('students'); document.getElementById('student-name-input').focus(); window.scrollTo(0,0);">🆕 Quick Add Student</div></div><button class="fab-main" id="fab-main" title="Quick Actions" onclick="window.toggleQuickMenu(event)">⚡</button></div>
 </div>
 
 <script>
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzAMPOuj9s-oSBAccdUl09QeKj8EX4BMz31PQmvm-rJ6BqSY3Le2nXsAIsdtiJqyCzzjQ/exec";
+    const GAS_API_URL = "[https://script.google.com/macros/s/AKfycbzAMPOuj9s-oSBAccdUl09QeKj8EX4BMz31PQmvm-rJ6BqSY3Le2nXsAIsdtiJqyCzzjQ/exec](https://script.google.com/macros/s/AKfycbzAMPOuj9s-oSBAccdUl09QeKj8EX4BMz31PQmvm-rJ6BqSY3Le2nXsAIsdtiJqyCzzjQ/exec)";
     const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
-    const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "" };
+    const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "", roster: [] };
     
     async function triggerMasterRosterSave(studentName, dateString, timeString, classType, oldDateString = null, oldTimeString = null) {
         try {
@@ -1047,7 +1049,7 @@
 
     function renderStudents() {
         const buckets = { "Trial": [], "PS": [], "CM": [], "Personal": [] }; APP_STATE.students.forEach(s => { let t = s.type || "PS"; if(!buckets[t]) buckets[t] = []; buckets[t].push(s); });
-        const fill = (id, list, type) => { const el = document.getElementById(id); if(!el) return; document.getElementById("count-"+type.toLowerCase()).textContent = list.length; if(!list.length) { el.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:10px;">None</div>'; return; } let h = ""; list.forEach(s => { let ledgerHtml = ""; if(type === "Personal") { let total = parseInt(s.packageTotal) || 0; let used = parseInt(s.classesUsed) || 0; let bal = parseInt(s.pendingBalance) || 0; if(total > 0) { let pct = Math.min(100, Math.round((used / total) * 100)); let color = pct >= 80 ? '#ef4444' : 'var(--accent)'; let balBadge = bal > 0 ? `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #fecaca; padding:1px 4px; border-radius:4px; background:#fef2f2; margin-left:6px;">₹${bal} Due</span>` : ''; ledgerHtml = `<div style="font-size:0.75rem; color:var(--text-sub); width:100%; margin-top:4px;"><div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span><b>${used}</b> / ${total} Classes</span> ${balBadge}</div><div style="background:#e2e8f0; height:6px; border-radius:3px; width:100%; overflow:hidden;"><div style="background:${color}; height:100%; width:${pct}%;"></div></div></div>`; } } h += `<div class="student-item-row"><div style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span style="font-weight:700; font-size:1rem; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span></div>${ledgerHtml}<td><input type="number" class="input input-sm input-bordered w-16 text-center" value="${s.monthlyLimit}" onchange="updateMonthlyLimit('${s.name}', this.value)" /></td><div class="student-action-btns"><button class="btn btn-outline btn-sm" onclick="window.openSmartSlotModal('${s.name}')" title="AI Capacity Manager">✨ Slot</button><button class="btn btn-outline btn-sm" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️ Rename</button><button class="btn btn-outline btn-sm" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁 Shift</button><button class="btn btn-outline btn-sm" onclick="window.openEdit('${s.name}')" title="Edit Type">✎ Edit</button></div></div>`; }); el.innerHTML = h; };
+        const fill = (id, list, type) => { const el = document.getElementById(id); if(!el) return; document.getElementById("count-"+type.toLowerCase()).textContent = list.length; if(!list.length) { el.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:10px;">None</div>'; return; } let h = ""; list.forEach(s => { let ledgerHtml = ""; if(type === "Personal") { let total = parseInt(s.packageTotal) || 0; let used = parseInt(s.classesUsed) || 0; let bal = parseInt(s.pendingBalance) || 0; if(total > 0) { let pct = Math.min(100, Math.round((used / total) * 100)); let color = pct >= 80 ? '#ef4444' : 'var(--accent)'; let balBadge = bal > 0 ? `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #fecaca; padding:1px 4px; border-radius:4px; background:#fef2f2; margin-left:6px;">₹${bal} Due</span>` : ''; ledgerHtml = `<div style="font-size:0.75rem; color:var(--text-sub); width:100%; margin-top:4px;"><div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span><b>${used}</b> / ${total} Classes</span> ${balBadge}</div><div style="background:#e2e8f0; height:6px; border-radius:3px; width:100%; overflow:hidden;"><div style="background:${color}; height:100%; width:${pct}%;"></div></div></div>`; } } h += `<div class="student-item-row"><div style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span style="font-weight:700; font-size:1rem; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span></div>${ledgerHtml}<td><input type="number" class="input input-sm input-bordered w-16 text-center" value="${s.monthlyLimit}" onchange="updateMonthlyLimit('${s.name}', this.value)" /></td><div class="student-action-btns"><button class="btn btn-outline btn-sm" onclick="window.openSmartSlotModal('${s.name}')" title="AI Capacity Manager">✨ Slot</button><button class="btn btn-outline btn-sm" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️ Rename</button><button class="btn btn-outline btn-sm" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁 Shift</button><button class="btn btn-outline btn-sm" onclick="window.openRosterModal('${s.name}')" title="Set Permanent Schedule">📅 Roster</button><button class="btn btn-outline btn-sm" onclick="window.openEdit('${s.name}')" title="Edit Type">✎ Edit</button></div></div>`; }); el.innerHTML = h; };
         fill("list-trial", buckets["Trial"], "Trial"); fill("list-ps", buckets["PS"], "PS"); fill("list-cm", buckets["CM"], "CM"); fill("list-personal", buckets["Personal"], "Personal");
         document.querySelectorAll('.student-col-header').forEach(h => { if(!h.innerHTML.includes('Monthly Limit')) h.innerHTML += ' <span style="font-size:0.75rem; font-weight:normal; color:var(--text-sub);">Monthly Limit</span>'; });
     }
@@ -1209,14 +1211,62 @@ async function fetchToday(force=false) { const cls = await fetchAPI(null, { acti
         }; 
         if(hasPast) { showConfirm("Warning: Past time detected. Proceed?", executeSchedule); } else { executeSchedule(); }
     };
-window.openCopyWeekModal = () => { document.getElementById("copySourceDate").value = APP_STATE.todayDate; document.getElementById("copyTargetDate").value = addDaysUTC(APP_STATE.todayDate, 7); const radios = document.getElementsByName('copyMode'); Array.from(radios).forEach(r => r.addEventListener('change', (e) => { const val = e.target.value; const isDay = val === 'day'; const isRoster = val === 'roster'; document.getElementById("copySourceDate").parentElement.style.display = isRoster ? 'none' : 'block'; document.getElementById("copySourceLabel").textContent = isDay ? "Source Date" : "Source Week (Pick date)"; document.getElementById("copyTargetLabel").textContent = isDay ? "Target Date" : "Target Week Start (Mon)"; })); document.getElementById("copySourceDate").onchange = function() { if(document.querySelector('input[name="copyMode"]:checked').value === 'week') { const d = new Date(this.value); const day = d.getDay(); const diff = d.getDate() - day + (day == 0 ? -6 : 1); const mon = new Date(d.setDate(diff)).toISOString().split('T')[0]; if(mon !== this.value) { this.value = mon; showToast("Snapped to Monday", "info"); } } }; document.getElementById("copyWeekModal").classList.add("show"); document.getElementById("copyWeekBtn").onclick = async () => { const s = document.getElementById("copySourceDate").value; const t = document.getElementById("copyTargetDate").value; const m = document.querySelector('input[name="copyMode"]:checked').value; if((m !== 'roster' && !s) || !t) return showToast("Select dates", "error"); const btn = document.getElementById("copyWeekBtn"); btn.textContent = "Processing..."; btn.disabled = true; let r; if (m === 'roster') { r = await fetchAPI(null, { action: "generateFromMasterRoster", targetStartDate: t }); } else { r = await fetchAPI(null, { action: "copySchedule", sourceDate: s, targetDate: t, mode: m }); } document.getElementById("copyWeekModal").classList.remove("show"); btn.textContent = "Execute Copy"; btn.disabled = false; if(r.status === "error") return showToast(r.message || "Copy failed", "error"); window.showAuditReport(r.success, r.failed, m === 'roster' ? "Roster Generation Results" : "Copy Schedule Results"); window.fetchToday(); window.renderAvailabilityFeed(); }; };
+window.openCopyWeekModal = () => { document.getElementById("copySourceDate").value = APP_STATE.todayDate; document.getElementById("copyTargetDate").value = addDaysUTC(APP_STATE.todayDate, 7); const radios = document.getElementsByName('copyMode'); Array.from(radios).forEach(r => r.addEventListener('change', (e) => { const val = e.target.value; const isDay = val === 'day'; const isRoster = val === 'roster'; document.getElementById("copySourceDate").parentElement.style.display = isRoster ? 'none' : 'block'; document.getElementById("copySourceLabel").textContent = isDay ? "Source Date" : "Source Week (Pick date)"; document.getElementById("copyTargetLabel").textContent = isDay ? "Target Date" : "Target Week Start (Mon)"; })); document.getElementById("copySourceDate").onchange = function() { if(document.querySelector('input[name="copyMode"]:checked').value === 'week') { const d = new Date(this.value); const day = d.getDay(); const diff = d.getDate() - day + (day == 0 ? -6 : 1); const mon = new Date(d.setDate(diff)).toISOString().split('T')[0]; if(mon !== this.value) { this.value = mon; showToast("Snapped to Monday", "info"); } } }; document.getElementById("copyWeekModal").classList.add("show"); document.getElementById("copyWeekBtn").onclick = async () => { const s = document.getElementById("copySourceDate").value; const t = document.getElementById("copyTargetDate").value; const m = document.querySelector('input[name="copyMode"]:checked').value; if((m !== 'roster' && !s) || !t) return showToast("Select dates", "error"); const btn = document.getElementById("copyWeekBtn"); btn.textContent = "Processing..."; btn.disabled = true; const r = await fetchAPI(null, { action: "copySchedule", sourceDate: s, targetDate: t, mode: m }); document.getElementById("copyWeekModal").classList.remove("show"); btn.textContent = "Execute Copy"; btn.disabled = false; if(r.status === "error") return showToast(r.message || "Copy failed", "error"); window.showAuditReport(r.success, r.failed, m === 'roster' ? "Roster Generation Results" : "Copy Schedule Results"); window.fetchToday(); window.renderAvailabilityFeed(); }; };
 window.openPendingReviews = () => { document.getElementById("pendingReviewModal").classList.add("show"); document.getElementById("pendingReviewList").innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>'; fetchAPI(null, { action: "getPendingReviews" }).then(r => { const l = document.getElementById("pendingReviewList"); l.innerHTML = ""; if(!r.pending || !r.pending.length) { l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">No pending reviews.</div>'; return; } r.pending.forEach(p => { l.innerHTML += `<div style="background:#fff; border:1px solid #e2e8f0; padding:10px; margin-bottom:8px; border-radius:8px; font-size:0.9rem;"><div style="font-weight:700; margin-bottom:4px;">${p.StudentName}</div><div style="color:var(--text-sub); margin-bottom:8px;">${isoToDisplayDate(p.ClassDate)} ${time24To12(p.StartTime)}</div><select class="status-select" style="width:100%;" onchange="window.updatePendingStatus('${p.ClassID}', this.value, this)"><option disabled selected>Select Action</option><option value="Completed">✅ Done</option><option value="Student No Show">⚠️ No Show</option><option value="Absent">📉 Absent</option><option value="Cancelled">❌ Cancel</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Pause</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div>`; }); }); };
     window.updatePendingStatus = async (id, status, el) => { el.disabled = true; let originalText = el.options[el.selectedIndex].text; el.options[el.selectedIndex].text = "Saving..."; const r = await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status }); if (r.status === "error") { el.disabled = false; el.options[el.selectedIndex].text = originalText; return showToast("Failed to update status.", "error"); } el.parentElement.remove(); showToast("Status updated"); window.loadEarnings(); window.fetchToday(true); };
 
     window.openHistoryReport = () => { document.getElementById("historyModal").classList.add("show"); const nowIST = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); const isoStart = nowIST.getFullYear() + '-' + String(nowIST.getMonth()+1).padStart(2,'0') + '-01'; document.getElementById("historyStartDate").value = isoStart; document.getElementById("historyEndDate").value = APP_STATE.todayDate || new Date().toISOString().split('T')[0]; document.getElementById("historyGenBtn").onclick = async () => { const sd = document.getElementById("historyStartDate").value; const ed = document.getElementById("historyEndDate").value; const tf = document.getElementById("historyTypeFilter").value; const sf = document.getElementById("historyStatusFilter").value; const btn = document.getElementById("historyGenBtn"); btn.disabled = true; btn.textContent = "Crunching Data..."; try { const r = await fetchAPI(null, { action: "getHistoryReport", startDate: sd, endDate: ed, typeFilter: tf, statusFilter: sf }); let osHtml = `<div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">`; let copyText = `📊 *Data Report* (${isoToDisplayDate(sd)} to ${isoToDisplayDate(ed)})\nFilter: ${tf} | Status: ${sf}\n\n*Total Classes:* ${r.totalClasses}\n*Total Earnings:* ₹${(r.earnings||0).toLocaleString('en-IN')}\n\n*Breakdown:*\n`; if(r.orgStats) { ['PS', 'CM', 'Personal', 'Trial'].forEach(org => { let stats = r.orgStats[org]; if(stats && Object.keys(stats).length > 0) { osHtml += `<div style="flex:1; min-width:120px; background:#f1f5f9; border:1px solid #e2e8f0; padding:12px; border-radius:8px; font-size:0.85rem;"><div style="font-weight:700; color:var(--primary); margin-bottom:8px; border-bottom:1px solid #cbd5e1; padding-bottom:4px;">${org}</div>`; for(let stat in stats) { osHtml += `<div style="display:flex; justify-content:space-between;"><span>${stat}</span> <b>${stats[stat]}</b></div>`; } osHtml += `</div>`; } }); } osHtml += `</div>`; document.getElementById("histOrgBreakdown").innerHTML = osHtml; const tb = document.getElementById("histTableBody"); tb.innerHTML = ""; const s = Object.entries(r.breakdown||{}).sort((a,b)=>b[1]-a[1]); if(!s.length) { tb.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No records found.</td></tr>"; copyText += "No records found.\n"; } else { s.forEach(([n,c]) => { tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px;">${n}</td><td style="padding:8px; font-weight:700;">${c}</td></tr>`; copyText += `• ${n}: ${c}\n`; }); } APP_STATE.lastHistoryCopyText = copyText.trim(); document.getElementById("historyResult").style.display = "block"; } catch(e) { console.error(e); showToast("Failed to generate report.", "error"); } finally { btn.disabled = false; btn.textContent = "Generate Report"; } }; };
     window.copyHistoryData = () => { if(APP_STATE.lastHistoryCopyText) { navigator.clipboard.writeText(APP_STATE.lastHistoryCopyText); showToast("Report data copied!"); } else { showToast("No data to copy.", "error"); } };
 
-    window.loadEarnings = async () => { try { const r = await fetchAPI(null, { action: "getMonthlyEarnings" }); if(!r || r.status === "error") return; if(r.personalEarnings !== undefined) { document.getElementById("stats-earnings-prepaid").textContent = "₹" + (r.personalEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-accrued").textContent = "₹" + (r.cmEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-sub").textContent = `${r.personalCount || 0} Personal | ${r.cmCount || 0} CM`; } } catch(e) {} };
+    window.loadEarnings = async () => { 
+      try { 
+        const r = await fetchAPI(null, { action: "getMonthlyEarnings" }); 
+        if(!r || r.status === "error") return; 
+        if(r.personalEarnings !== undefined) { 
+          document.getElementById("stats-earnings-prepaid").textContent = "₹" + (r.personalEarnings||0).toLocaleString('en-IN'); 
+          document.getElementById("stats-earnings-accrued").textContent = "₹" + (r.cmEarnings||0).toLocaleString('en-IN'); 
+          document.getElementById("stats-earnings-bal").textContent = "Dues: ₹" + (r.personalBalance||0).toLocaleString('en-IN'); 
+          document.getElementById("stats-earnings-sub").textContent = `${r.personalCount || 0} Personal Pkgs | ${r.cmCount || 0} CM Classes`; 
+        } 
+      } catch(e) {} 
+    };
+
+    window.openRosterModal = (name) => {
+      document.getElementById("rosterSetStudentName").textContent = name;
+      const container = document.getElementById("rosterSlotsContainer");
+      container.innerHTML = "";
+      let existing = (APP_STATE.roster || []).filter(r => r.studentname === name);
+      if(existing.length > 0) { existing.forEach(r => window.addRosterSlot(r.dayofweek, r.starttime)); } else { window.addRosterSlot(); }
+      document.getElementById("rosterSetModal").classList.add("show");
+    };
+
+    window.addRosterSlot = (day = "Monday", time = "") => {
+      const d = document.createElement("div"); d.style.display = "flex"; d.style.gap = "10px"; d.style.marginBottom = "10px";
+      d.innerHTML = `
+        <select class="roster-day" style="flex:1; border:1px solid #cbd5e1; border-radius:6px; padding:6px; height: 38px;">
+          <option value="Monday" ${day==='Monday'?'selected':''}>Monday</option><option value="Tuesday" ${day==='Tuesday'?'selected':''}>Tuesday</option><option value="Wednesday" ${day==='Wednesday'?'selected':''}>Wednesday</option><option value="Thursday" ${day==='Thursday'?'selected':''}>Thursday</option><option value="Friday" ${day==='Friday'?'selected':''}>Friday</option><option value="Saturday" ${day==='Saturday'?'selected':''}>Saturday</option><option value="Sunday" ${day==='Sunday'?'selected':''}>Sunday</option>
+        </select>
+        <input type="text" class="roster-time" style="flex:1; border:1px solid #cbd5e1; border-radius:6px; padding:6px; height: 38px;" placeholder="hh:mm AM/PM" value="${time ? time24To12(time) : ''}" onblur="window.normalizeUserTime(this)">
+        <button class="btn btn-outline btn-sm" onclick="this.parentElement.remove()">✕</button>`;
+      document.getElementById("rosterSlotsContainer").appendChild(d);
+    };
+
+    window.saveRoster = async () => {
+      const name = document.getElementById("rosterSetStudentName").textContent;
+      const rows = document.querySelectorAll("#rosterSlotsContainer > div");
+      let slots = [];
+      rows.forEach(r => {
+         let day = r.querySelector(".roster-day").value;
+         let time = parseUserTimeTo24(r.querySelector(".roster-time").value);
+         if(day && time) slots.push({day: day, time: time});
+      });
+      const btn = document.getElementById("rosterSaveBtn"); btn.textContent = "Saving..."; btn.disabled = true;
+      await fetchAPI(null, {action: "overwriteMasterRoster", StudentName: name, slots: slots});
+      APP_STATE.roster = (APP_STATE.roster || []).filter(r => r.studentname !== name);
+      slots.forEach(s => APP_STATE.roster.push({studentname: name, dayofweek: s.day, starttime: s.time}));
+      btn.textContent = "Save to Roster"; btn.disabled = false; document.getElementById("rosterSetModal").classList.remove("show"); showToast("Master Roster Updated!");
+    };
+
     window.loadAnalytics = async (silent = false) => {
         if(!silent) window.showMainSection('analytics'); if(APP_STATE.isAnalyticsLoading || (silent && APP_STATE.analyticsLoaded)) return; APP_STATE.isAnalyticsLoading = true;
         try {
@@ -1444,7 +1494,7 @@ window.openPendingReviews = () => { document.getElementById("pendingReviewModal"
     window.dispatchNext = () => { if (dispatchState.currentIndex < dispatchState.students.length - 1) { dispatchState.currentIndex++; window.renderDispatchCard(); } else { showToast("You've reached the end of the batch."); } };
     window.dispatchPrev = () => { if (dispatchState.currentIndex > 0) { dispatchState.currentIndex--; window.renderDispatchCard(); } };
     window.dispatchCopy = () => { const el = document.getElementById("dispatch-message-text"); el.select(); navigator.clipboard.writeText(el.value); showToast("Message copied!"); };
-    window.dispatchWhatsApp = () => { const s = dispatchState.students[dispatchState.currentIndex]; const msg = document.getElementById("dispatch-message-text").value; let phone = s.phone || ""; phone = phone.replace(/\D/g, ''); if (!phone) return showToast(`No phone number recorded for ${s.name}. Please use copy.`, "error"); if (phone.length === 10) phone = "91" + phone; window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank'); };
+    window.dispatchWhatsApp = () => { const s = dispatchState.students[dispatchState.currentIndex]; const msg = document.getElementById("dispatch-message-text").value; let phone = s.phone || ""; phone = phone.replace(/\D/g, ''); if (!phone) return showToast(`No phone number recorded for ${s.name}. Please use copy.`, "error"); if (phone.length === 10) phone = "91" + phone; window.open(`[https://wa.me/$](https://wa.me/$){phone}?text=${encodeURIComponent(msg)}`, '_blank'); };
     window.copyAiOpt = (id) => { const el = document.getElementById(id); el.select(); navigator.clipboard.writeText(el.value); showToast("Copied to clipboard!"); };
     window.openAiDrafter = () => { window.showMainSection('drafter'); if (previousAiType !== 'parent') { document.querySelector('input[name="draftType"][value="parent"]').click(); } document.getElementById('ai-draft-context').focus(); window.scrollTo(0,0); };
 
@@ -1866,6 +1916,7 @@ window.renderQuotas = function() {
             const bootData = await fetchAPI(null, { action: "bootApp", todayDate: APP_STATE.todayDate, startDate: isoWeekStart });
             if (bootData.status !== "error") {
                 APP_STATE.studyMaterialLink = bootData.studyMaterialLink || "";
+                APP_STATE.roster = bootData.rosterRes || [];
                 if (bootData.studentsRes && bootData.studentsRes.students) { 
                     APP_STATE.students = bootData.studentsRes.students.sort((a,b) => a.name.localeCompare(b.name)); 
                     window.globalStudents = APP_STATE.students;
@@ -1878,7 +1929,14 @@ window.renderQuotas = function() {
                 if (bootData.classesRes && bootData.classesRes.classes) { APP_STATE.cache[APP_STATE.todayDate] = bootData.classesRes.classes; }
                 if (bootData.weekRes && bootData.weekRes.summary) { APP_STATE.weeklySummary = bootData.weekRes.summary; }
                 updateStats(APP_STATE.todayDate, APP_STATE.cache[APP_STATE.todayDate] || []); window.renderClassesForDate(APP_STATE.todayDate, false, APP_STATE.cache[APP_STATE.todayDate] || []);
-                if (bootData.earningsRes) { if(bootData.earningsRes.personalEarnings !== undefined) { document.getElementById("stats-earnings-prepaid").textContent = "₹" + (bootData.earningsRes.personalEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-accrued").textContent = "₹" + (bootData.earningsRes.cmEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.personalCount || 0} Personal | ${bootData.earningsRes.cmCount || 0} CM`; } }
+                if (bootData.earningsRes) { 
+                  if(bootData.earningsRes.personalEarnings !== undefined) { 
+                    document.getElementById("stats-earnings-prepaid").textContent = "₹" + (bootData.earningsRes.personalEarnings||0).toLocaleString('en-IN'); 
+                    document.getElementById("stats-earnings-accrued").textContent = "₹" + (bootData.earningsRes.cmEarnings||0).toLocaleString('en-IN'); 
+                    document.getElementById("stats-earnings-bal").textContent = "Dues: ₹" + (bootData.earningsRes.personalBalance||0).toLocaleString('en-IN'); 
+                    document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.personalCount || 0} Personal Pkgs | ${bootData.earningsRes.cmCount || 0} CM Classes`; 
+                  } 
+                }
                 if (bootData.upcomingFeed) { window.renderAvailabilityFeed(bootData.upcomingFeed); }
                 window.renderQuotas();
             }
