@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>🚧 ✨ ACM STG 120.1</title>
-    <script src="[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)"></script>
+    <title>✨ Advanced Class Manager</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         /* --- THEME: MIDNIGHT EXECUTIVE --- */
@@ -823,7 +823,7 @@
             </div>
         </div>
     </section>
-<footer class="footer"><div>Last Updated: April 30, 2026, 09:00 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v120.1 STAGING (Hotfix) | Powered by LazifAI</div></footer>
+<footer class="footer"><div>Last Updated: April 30, 2026, 09:00 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v120.2 STAGING | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -964,7 +964,7 @@
 </div>
 
 <script>
-    const GAS_API_URL = "[https://script.google.com/macros/s/AKfycbzAMPOuj9s-oSBAccdUl09QeKj8EX4BMz31PQmvm-rJ6BqSY3Le2nXsAIsdtiJqyCzzjQ/exec](https://script.google.com/macros/s/AKfycbzAMPOuj9s-oSBAccdUl09QeKj8EX4BMz31PQmvm-rJ6BqSY3Le2nXsAIsdtiJqyCzzjQ/exec)";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzAMPOuj9s-oSBAccdUl09QeKj8EX4BMz31PQmvm-rJ6BqSY3Le2nXsAIsdtiJqyCzzjQ/exec";
     const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
     const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "", roster: [] };
     
@@ -1494,7 +1494,15 @@ window.openPendingReviews = () => { document.getElementById("pendingReviewModal"
     window.dispatchNext = () => { if (dispatchState.currentIndex < dispatchState.students.length - 1) { dispatchState.currentIndex++; window.renderDispatchCard(); } else { showToast("You've reached the end of the batch."); } };
     window.dispatchPrev = () => { if (dispatchState.currentIndex > 0) { dispatchState.currentIndex--; window.renderDispatchCard(); } };
     window.dispatchCopy = () => { const el = document.getElementById("dispatch-message-text"); el.select(); navigator.clipboard.writeText(el.value); showToast("Message copied!"); };
-    window.dispatchWhatsApp = () => { const s = dispatchState.students[dispatchState.currentIndex]; const msg = document.getElementById("dispatch-message-text").value; let phone = s.phone || ""; phone = phone.replace(/\D/g, ''); if (!phone) return showToast(`No phone number recorded for ${s.name}. Please use copy.`, "error"); if (phone.length === 10) phone = "91" + phone; window.open(`[https://wa.me/$](https://wa.me/$){phone}?text=${encodeURIComponent(msg)}`, '_blank'); };
+    window.dispatchWhatsApp = () => { 
+      const s = dispatchState.students[dispatchState.currentIndex]; 
+      const msg = document.getElementById("dispatch-message-text").value; 
+      let phone = s.phone || ""; phone = phone.replace(/\D/g, ''); 
+      if (!phone) return showToast(`No phone number recorded for ${s.name}. Please use copy.`, "error"); 
+      if (phone.length === 10) phone = "91" + phone; 
+      const base = atob("aHR0cHM6Ly93YS5tZS8=");
+      window.open(`${base}${phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
+    };
     window.copyAiOpt = (id) => { const el = document.getElementById(id); el.select(); navigator.clipboard.writeText(el.value); showToast("Copied to clipboard!"); };
     window.openAiDrafter = () => { window.showMainSection('drafter'); if (previousAiType !== 'parent') { document.querySelector('input[name="draftType"][value="parent"]').click(); } document.getElementById('ai-draft-context').focus(); window.scrollTo(0,0); };
 
