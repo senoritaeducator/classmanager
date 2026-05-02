@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>✨ ACM STG 120.5</title>
+    <title>✨ ACM STG 120.12</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -294,8 +294,7 @@
             </div>
         </div>
     </header>
-
-    <div class="smart-bar" onclick="window.openSmartBulletin()" title="Shortcut: Alt + S">
+<div class="smart-bar" onclick="window.openSmartBulletin()" title="Shortcut: Alt + S">
         <div class="smart-bar-text">
             <span style="font-size: 1.2rem;">✨</span>
             <span id="smart-bar-content">Smart Operations Hub</span>
@@ -322,6 +321,7 @@
                     <div class="overview-title">Students <button id="refresh-students-overview-btn" onclick="window.loadStudents()" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
                     <div class="overview-main" id="stats-total-students">--</div>
                     <div class="overview-sub" id="stats-students-sub">Active Enrollments</div>
+                    <div id="dashboard-personal-progress" style="margin-top: 15px; display: none; flex-direction: column; gap: 2px; max-height: 160px; overflow-y: auto; padding-right: 4px;"></div>
                 </div>
                 <div class="overview-tile">
                     <div class="overview-title">Today's Plan <button id="refresh-today-btn" onclick="window.fetchToday(true)" style="background:none; border:none; color:inherit; cursor:pointer;">⟳</button></div>
@@ -438,8 +438,7 @@
             </div>
         </div>
     </section>
-
-    <section id="section-communications" class="section">
+<section id="section-communications" class="section">
         <div class="section-card" style="padding-bottom: 0;">
             <div class="section-header" style="margin-bottom: 0; border-bottom: none;">
                 <div><span class="section-title">Communications Hub</span><span class="section-caption">Progress Reports, Demos & PTM Scheduling</span></div>
@@ -822,7 +821,7 @@
             </div>
         </div>
     </section>
-<footer class="footer"><div>Last Updated: May 02, 2026, 01:00 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v120.5 STAGING | Powered by LazifAI</div></footer>
+<footer class="footer"><div>Last Updated: May 02, 2026, 01:00 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v120.12 STAGING | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -961,7 +960,6 @@
 <div id="toast-container" class="toast-container"></div>
     <div class="fab-container"><div class="fab-menu" id="fab-menu"><div class="fab-item" onclick="window.openSmartCopyModal('week')">📋 Share Open Slots</div><div class="fab-item" onclick="window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\\'vision\\']').click(), 100); window.scrollTo(0,0);">📸 Snap & Correct</div><div class="fab-item" onclick="window.showMainSection('students'); showToast('Click the 🔁 icon next to any student to shift.', 'info'); window.scrollTo(0,0);">🔁 Bulk Shift Schedule</div><div class="fab-item" onclick="window.openSmartBulletin(); window.switchSbTab('vacation');">✈️ Out of Office Message</div><div class="fab-item" onclick="window.showMainSection('students'); document.getElementById('student-name-input').focus(); window.scrollTo(0,0);">🆕 Quick Add Student</div></div><button class="fab-main" id="fab-main" title="Quick Actions" onclick="window.toggleQuickMenu(event)">⚡</button></div>
 </div>
-
 <script>
     const _RAW_API = "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6QU1QT3VqOXMtb1NCQWNjZFVsMDlRZUtqOEVYNEJNejMxUFFtdm0tcko2QnFTWTNMZTJuWHNBSXNkdGlKcXlDenpqUS9leGVj";
     const GAS_API_URL = atob(_RAW_API);
@@ -1049,7 +1047,10 @@
 
     function renderStudents() {
         const buckets = { "Trial": [], "PS": [], "CM": [], "Personal": [] }; APP_STATE.students.forEach(s => { let t = s.type || "PS"; if(!buckets[t]) buckets[t] = []; buckets[t].push(s); });
-        const fill = (id, list, type) => { const el = document.getElementById(id); if(!el) return; document.getElementById("count-"+type.toLowerCase()).textContent = list.length; if(!list.length) { el.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:10px;">None</div>'; return; } let h = ""; list.forEach(s => { let ledgerHtml = ""; if(type === "Personal") { let total = parseInt(s.packageTotal) || 0; let used = parseInt(s.classesUsed) || 0; let bal = parseInt(s.pendingBalance) || 0; if(total > 0) { let pct = Math.min(100, Math.round((used / total) * 100)); let color = pct >= 80 ? '#ef4444' : 'var(--accent)'; let balBadge = bal > 0 ? `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #fecaca; padding:1px 4px; border-radius:4px; background:#fef2f2; margin-left:6px;">₹${bal} Due</span>` : ''; ledgerHtml = `<div style="font-size:0.75rem; color:var(--text-sub); width:100%; margin-top:4px;"><div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span><b>${used}</b> / ${total} Classes</span> ${balBadge}</div><div style="background:#e2e8f0; height:6px; border-radius:3px; width:100%; overflow:hidden;"><div style="background:${color}; height:100%; width:${pct}%;"></div></div></div>`; } } h += `<div class="student-item-row"><div style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span style="font-weight:700; font-size:1rem; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span></div>${ledgerHtml}<td><input type="number" class="input input-sm input-bordered w-16 text-center" value="${s.monthlyLimit}" onchange="updateMonthlyLimit('${s.name}', this.value)" /></td><div class="student-action-btns"><button class="btn btn-outline btn-sm" onclick="window.openSmartSlotModal('${s.name}')" title="AI Capacity Manager">✨ Slot</button><button class="btn btn-outline btn-sm" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️ Rename</button><button class="btn btn-outline btn-sm" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁 Shift</button><button class="btn btn-outline btn-sm" onclick="window.openRosterModal('${s.name}')" title="Set Permanent Schedule">📅 Roster</button><button class="btn btn-outline btn-sm" onclick="window.openEdit('${s.name}')" title="Edit Type">✎ Edit</button></div></div>`; }); el.innerHTML = h; };
+        const fill = (id, list, type) => { const el = document.getElementById(id); if(!el) return; document.getElementById("count-"+type.toLowerCase()).textContent = list.length; if(!list.length) { el.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:10px;">None</div>'; return; } let h = ""; list.forEach(s => { let ledgerHtml = ""; if(type === "Personal") { let total = parseInt(s.packageTotal) || 0; let used = parseInt(s.classesUsed) || 0; let bal = parseInt(s.pendingBalance) || 0; if(total > 0) { let pct = Math.min(100, Math.round((used / total) * 100)); let color = pct >= 80 ? '#ef4444' : 'var(--accent)'; let balBadge = bal > 0 ? `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #fecaca; padding:1px 4px; border-radius:4px; background:#fef2f2; margin-left:6px;">₹${bal} Due</span>` : ''; ledgerHtml = `<div style="font-size:0.75rem; color:var(--text-sub); width:100%; margin-top:4px;"><div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span><b>${used}</b> / ${total} Classes</span> ${balBadge}</div><div style="background:#e2e8f0; height:6px; border-radius:3px; width:100%; overflow:hidden;"><div style="background:${color}; height:100%; width:${pct}%;"></div></div></div>`; } } 
+        let limitHtml = type === "Personal" ? "" : `<div style="display:flex; align-items:center; justify-content:space-between; width:100%; margin-top:8px;"><span style="font-size:0.8rem; color:var(--text-sub);">Monthly Limit</span><input type="number" style="width: 50px; padding: 4px; height: 28px; font-size: 0.85rem;" value="${s.monthlyLimit || 4}" onchange="window.updateMonthlyLimit('${s.name}', this.value)" /></div>`;
+        h += `<div class="student-item-row"><div style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span style="font-weight:700; font-size:1rem; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span></div>${ledgerHtml}${limitHtml}<div class="student-action-btns"><button class="btn btn-outline btn-sm" onclick="window.openSmartSlotModal('${s.name}')" title="AI Capacity Manager">✨ Slot</button><button class="btn btn-outline btn-sm" onclick="window.promptRenameStudent('${s.name}')" title="Rename Student">🏷️ Rename</button><button class="btn btn-outline btn-sm" onclick="window.openShiftModal('${s.name}')" title="Bulk Shift">🔁 Shift</button><button class="btn btn-outline btn-sm" onclick="window.openRosterModal('${s.name}')" title="Set Permanent Schedule">📅 Roster</button><button class="btn btn-outline btn-sm" onclick="window.openEdit('${s.name}')" title="Edit Type">✎ Edit</button></div></div>`; 
+        }); el.innerHTML = h; };
         fill("list-trial", buckets["Trial"], "Trial"); fill("list-ps", buckets["PS"], "PS"); fill("list-cm", buckets["CM"], "CM"); fill("list-personal", buckets["Personal"], "Personal");
         document.querySelectorAll('.student-col-header').forEach(h => { if(!h.innerHTML.includes('Monthly Limit')) h.innerHTML += ' <span style="font-size:0.75rem; font-weight:normal; color:var(--text-sub);">Monthly Limit</span>'; });
     }
@@ -1062,10 +1063,45 @@
         const pillsContainer = document.getElementById("ai-student-pills"); if (pillsContainer) { let pillsHtml = ""; APP_STATE.students.forEach((s, i) => { pillsHtml += `<input type="checkbox" id="aud-${i}" value="${s.name}" class="pill-checkbox"><label for="aud-${i}" class="pill-label">${s.name}</label>`; }); pillsContainer.innerHTML = pillsHtml; }
     }
 
+    window.renderDashboardPersonalProgress = () => {
+        const container = document.getElementById("dashboard-personal-progress");
+        if (!container) return;
+        const personalStudents = APP_STATE.students.filter(s => s.type === "Personal");
+        if (personalStudents.length === 0) { 
+            container.style.display = "none"; 
+            return; 
+        }
+        container.style.display = "flex";
+        let html = `<div style="font-size:0.75rem; font-weight:800; color:var(--primary); text-transform:uppercase; border-bottom:2px solid #e2e8f0; padding-bottom:4px; margin-bottom:8px; letter-spacing: 0.5px;">⭐ Personal Progress</div>`;
+        let hasData = false;
+        personalStudents.forEach(s => {
+            let total = parseInt(s.packageTotal) || 0; 
+            let used = parseInt(s.classesUsed) || 0; 
+            let bal = parseInt(s.pendingBalance) || 0; 
+            if(total > 0 || used > 0) {
+                hasData = true;
+                let pct = total > 0 ? Math.min(100, Math.round((used / total) * 100)) : 0; 
+                let color = pct >= 80 ? '#ef4444' : 'var(--accent)'; 
+                let balBadge = bal > 0 ? `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #fecaca; padding:1px 4px; border-radius:4px; background:#fef2f2; margin-left:6px; font-weight:600;">₹${bal} Due</span>` : ''; 
+                html += `<div style="font-size:0.75rem; color:var(--text-sub); width:100%; margin-bottom: 8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:110px;" title="${s.name}">${s.name}</span>
+                        <div style="display:flex; align-items:center;"><span><b>${used}</b> / ${total}</span>${balBadge}</div>
+                    </div>
+                    <div style="background:#e2e8f0; height:6px; border-radius:3px; width:100%; overflow:hidden;"><div style="background:${color}; height:100%; width:${pct}%;"></div></div>
+                </div>`;
+            }
+        });
+        if(!hasData) container.style.display = "none";
+        else container.innerHTML = html;
+    };
+
     async function loadStudents() {
         const r = await fetchAPI(null, { action: "getAllStudents" }); if(r.status === "error") { return showToast("Failed to load students.", "error"); }
         APP_STATE.students = (r.students || []).sort((a, b) => a.name.localeCompare(b.name)); populateStudentDropdowns();
-        document.getElementById("stats-total-students").textContent = APP_STATE.students.length; document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`;
+        document.getElementById("stats-total-students").textContent = APP_STATE.students.length; 
+        document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`;
+        window.renderDashboardPersonalProgress();
         renderStudents(); window.updateSmartBarText(); 
     }
 
@@ -1932,6 +1968,7 @@ window.renderClassLimits = function() {
                     window.renderClassLimits();
                     document.getElementById("stats-total-students").textContent = APP_STATE.students.length; 
                     document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`; 
+                    window.renderDashboardPersonalProgress();
                 }
                 if (bootData.classesRes && bootData.classesRes.classes) { APP_STATE.cache[APP_STATE.todayDate] = bootData.classesRes.classes; }
                 if (bootData.weekRes && bootData.weekRes.summary) { APP_STATE.weeklySummary = bootData.weekRes.summary; }
