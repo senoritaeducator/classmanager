@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>✨ ACM STG 120.12</title>
+    <title>✨ ACM STG 121.0</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -821,7 +821,7 @@
             </div>
         </div>
     </section>
-<footer class="footer"><div>Last Updated: May 02, 2026, 01:00 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v120.12 STAGING | Powered by LazifAI</div></footer>
+<footer class="footer"><div>Last Updated: May 02, 2026, 01:00 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v121.0 STAGING | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1114,7 +1114,7 @@
     window.executeAddStudent = async () => { const name = document.getElementById("student-name-input").value.trim(); const type = document.querySelector("input[name='studentType']:checked").value; if(!name) return showToast("Enter name", "error"); let payload = { action: "addStudent", StudentName: name, Type: type }; if(type === "Personal") { payload.PackageTotal = document.getElementById("add-pkg-total").value; payload.CustomPrice = document.getElementById("add-custom-price").value; payload.PendingBalance = document.getElementById("add-pending-balance").value; } document.getElementById("manage-students-msg").innerHTML = '<div style="color:var(--primary);">Adding...</div>'; const r = await fetchAPI(null, payload); document.getElementById("manage-students-msg").innerHTML = ''; if (r.status !== "error") showToast("Student added successfully!"); await window.loadStudents(); document.getElementById("student-name-input").value = ""; };
     window.openEdit = (name) => { editingStudentName = name; const s = APP_STATE.students.find(x => x.name === name); document.getElementById("editStudentNameDisplay").textContent = name; document.getElementById("editStudentTypeSelect").value = s.type; const personalFields = document.getElementById('edit-personal-fields'); if(s.type === 'Personal') { personalFields.style.display = 'flex'; document.getElementById('edit-pkg-total').value = s.packageTotal || ""; document.getElementById('edit-custom-price').value = s.customPrice || ""; document.getElementById('edit-pending-balance').value = s.pendingBalance || ""; } else { personalFields.style.display = 'none'; } document.getElementById("editStudentModal").classList.add("show"); document.getElementById("editStudentSaveBtn").onclick = async () => { const nt = document.getElementById("editStudentTypeSelect").value; let payload = { action: "updateStudentData", StudentName: name, NewType: nt }; if(nt === "Personal") { payload.PackageTotal = document.getElementById("edit-pkg-total").value; payload.CustomPrice = document.getElementById("edit-custom-price").value; payload.PendingBalance = document.getElementById("edit-pending-balance").value; } const btn = document.getElementById("editStudentSaveBtn"); btn.textContent = "Saving..."; await fetchAPI(null, payload); btn.textContent = "Save Changes"; document.getElementById("editStudentModal").classList.remove("show"); showToast("Updated"); await window.loadStudents(); }; };
     window.scrubStudentData = async () => { showConfirm(`Convert all future classes for ${editingStudentName} to Personal and remove PS Meet Links?`, async () => { document.getElementById("editStudentModal").classList.remove("show"); showToast("Scrubbing classes..."); const r = await fetchAPI(null, { action: "scrubPersonalStudent", StudentName: editingStudentName }); showToast(`Scrubbed ${r.count} future classes!`); }); };
-    window.openShiftModal = (name) => { document.getElementById("shiftStudentNameDisplay").textContent = "Shift: " + name; document.getElementById("shiftStartDate").value = APP_STATE.todayDate; document.getElementById("shiftNewDay").value = ""; document.getElementById("shiftModal").classList.add("show"); document.getElementById("shiftSaveBtn").onclick = async () => { const ot = parseUserTimeTo24(document.getElementById("shiftOldTime").value); const nt = parseUserTimeTo24(document.getElementById("shiftNewTime").value); const sd = document.getElementById("shiftStartDate").value; const nd = document.getElementById("shiftNewDay").value; if(!ot || !nt || !sd) return showToast("Invalid inputs", "error"); const btn = document.getElementById("shiftSaveBtn"); btn.textContent = "Processing..."; btn.disabled = true; const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: name, OldTime: ot, NewTime: nt, StartDate: sd, NewDay: nd }); document.getElementById("shiftModal").classList.remove("show"); btn.textContent = "Shift All Future Classes"; btn.disabled = false; if (r.status === "error") return showToast("Failed to shift classes.", "error"); window.showAuditReport(r.success, r.failed, "Bulk Shift Results"); window.fetchToday(); }; };
+    window.openShiftModal = (name) => { document.getElementById("shiftStudentNameDisplay").textContent = "Shift: " + name; document.getElementById("shiftStartDate").value = APP_STATE.todayDate; document.getElementById("shiftNewDay").value = ""; document.getElementById("shiftModal").classList.add("show"); document.getElementById("shiftSaveBtn").onclick = async () => { const ot = parseUserTimeTo24(document.getElementById("shiftOldTime").value); const nt = parseUserTimeTo24(document.getElementById("shiftNewTime").value); const sd = document.getElementById("shiftStartDate").value; const nd = document.getElementById("shiftNewDay").value; if(!ot || !nt || !sd) return showToast("Invalid inputs", "error"); const btn = document.getElementById("shiftSaveBtn"); btn.textContent = "Processing..."; btn.disabled = true; const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: name, OldTime: ot, NewTime: nt, StartDate: sd, NewDay: nd }); document.getElementById("shiftModal").classList.remove("show"); btn.textContent = "Shift All Future Classes"; btn.disabled = false; if (r.status === "error") return showError(r.message || "Shift failed."); window.showAuditReport(r.success, r.failed, "Bulk Shift Results"); window.fetchToday(); }; };
 async function fetchToday(force=false) { const cls = await fetchAPI(null, { action: "getClasses", selectedDate: APP_STATE.todayDate }); if(cls.status === "error") return showToast("Failed to load today's classes.", "error"); APP_STATE.cache[APP_STATE.todayDate] = cls.classes || []; if(force) loadWeekly(); updateStats(APP_STATE.todayDate, cls.classes || []); }
     async function loadWeekly() { const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7); const iso = d.toISOString().split('T')[0]; const r = await fetchAPI(null, { action: "getWeekSummary", startDate: iso }); if(r.status === "error") return; APP_STATE.weeklySummary = r.summary || {}; updateStats(APP_STATE.todayDate, APP_STATE.currentClasses); setTimeout(() => { const todayEl = document.querySelector('.weekly-day.today'); if(todayEl) todayEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }, 800); }
 
@@ -1207,7 +1207,7 @@ async function fetchToday(force=false) { const cls = await fetchAPI(null, { acti
                 const executeReschedule = async () => { 
                     card.innerHTML = '<div style="color:var(--primary); padding:10px;">Rescheduling...</div>'; 
                     const r = await fetchAPI(null, { action: "rescheduleClass", StudentName: c.StudentName, OldDate: dateStr, NewDate: nd, NewTime: nt, CalendarEventID: c.CalendarEventID, ClassID: c.ClassID }); 
-                    if (r.status === "error") { showToast("Failed to reschedule", "error"); window.renderClassesForDate(dateStr); return; } 
+                    if (r.status === "error") { showError(r.message || "Failed to reschedule"); window.renderClassesForDate(dateStr); return; } 
                     let rosterWarning = null;
                     if (isShiftRosterChecked) { 
                         const sObj = APP_STATE.students.find(s => s.name === c.StudentName); 
@@ -1241,7 +1241,7 @@ async function fetchToday(force=false) { const cls = await fetchAPI(null, { acti
                 if (rosRes && rosRes.status === "warning") rosterWarning = "Master Roster Warning: " + rosRes.message;
             }
             btn.disabled = false; document.getElementById("schedule-msg").innerHTML = ''; 
-            if (r.status === "error") return showToast("Scheduling failed.", "error"); 
+            if (r.status === "error") return showError(r.message || "Scheduling failed."); 
             if (rosterWarning) { r.failed = r.failed || []; r.failed.unshift(rosterWarning); }
             window.showAuditReport(r.success, r.failed, "Scheduling Report"); window.loadWeekly(); window.fetchToday(); window.renderAvailabilityFeed(); document.getElementById("schedule-student-select").value = ""; sT.value = ""; 
         }; 
@@ -1785,7 +1785,8 @@ window.openPendingReviews = () => { document.getElementById("pendingReviewModal"
             showConfirm(`Permanently move ${studentName}'s future classes to ${newDayName}s at ${newTime12}?`, async () => {
                 document.getElementById("rosterHealthModal").classList.remove("show"); showToast("Processing permanent shift...");
                 const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: studentName, OldTime: oldTime24, NewTime: newTime24, StartDate: APP_STATE.todayDate, NewDay: newDayNum });
-                if(r.status === "error") return showToast("Shift failed.", "error"); window.showAuditReport(r.success, r.failed, "Permanent Shift Results"); window.fetchToday(true); 
+                if(r.status === "error") return showError(r.message || "Shift failed."); 
+                window.showAuditReport(r.success, r.failed, "Permanent Shift Results"); window.fetchToday(true); 
             });
         } else {
             showConfirm(`Move their next class to ${isoToDisplayDate(newDate)} at ${newTime12}?`, async () => {
