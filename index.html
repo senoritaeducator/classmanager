@@ -106,6 +106,10 @@
         .quick-actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px; }
         .quick-actions-grid .btn { max-width: 100%; width: 100%; }
 
+        /* Global UI & Cross Buttons Fix */
+        .close { width: 30px !important; height: 30px !important; line-height: 1 !important; padding: 0 !important; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; text-align: center; }
+        .btn-bulletin, .roster-stats { text-align: center; display: flex; justify-content: center; align-items: center; }
+
         /* PILL MULTI-SELECT */
         .pill-checkbox { display: none; }
         .pill-label { display: inline-block; padding: 6px 14px; border-radius: 20px; border: 1px solid #cbd5e1; cursor: pointer; font-size: 0.85rem; margin: 4px; background: #fff; color: var(--text-main); transition: all 0.2s; user-select: none; }
@@ -249,6 +253,38 @@
 
         #confirmModal { z-index: 99999 !important; }
         #system-popup-modal { z-index: 99999 !important; }
+
+        /* --- THE MOBILE LAYOUT MASTER PATCH --- */
+        @media (max-width: 768px) {
+            /* Fix Header Crushing */
+            .section-header { flex-direction: column !important; align-items: stretch !important; gap: 10px; }
+            .section-header > div:first-child { text-align: center; margin-bottom: 4px; }
+            .section-header .btn { width: 100% !important; margin: 0 !important; }
+
+            /* Fix Student Card Button Bloat (Swipeable Ribbon) */
+            .student-card .btn-group, .student-card div[style*="display:flex"][style*="gap"] { 
+                flex-wrap: nowrap !important; 
+                overflow-x: auto !important; 
+                padding-bottom: 8px; 
+                -webkit-overflow-scrolling: touch;
+            }
+            .student-card .btn { white-space: nowrap; flex-shrink: 0; }
+
+            /* Fix Crushed Inputs vs Giant Buttons (Daily Ops & CRM) */
+            .action-row { flex-wrap: wrap !important; }
+            input[type="text"], select, textarea { min-width: 0 !important; width: 100% !important; }
+
+            /* Fix Daily Classes Grid (Note input top, buttons bottom) */
+            .class-action-grid { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 6px !important; margin-top: 8px; }
+            .class-note-input { grid-column: span 3 !important; margin-bottom: 6px; }
+
+            /* Modal Claustrophobia */
+            .modal-content { max-height: calc(100svh - 80px) !important; padding: 16px !important; }
+
+            /* AI Suggestion Cards - Force Buttons to Bottom */
+            .ai-suggestion-card > div:last-child { justify-content: stretch !important; }
+            .ai-suggestion-card > div:last-child .btn { width: 100% !important; }
+        }
     </style>
 </head>
 <body>
@@ -883,7 +919,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v124.8 HOTFIX | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v125 PROD | Powered by LazifAI</div></footer>
 
     <!-- MODALS -->
 
@@ -930,7 +966,7 @@
 
                     <div style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">
                         <div style="flex:1; background:#fef2f2; border:1px solid #fecaca; padding:16px; border-radius:10px;">
-                            <div style="font-size:0.8rem; font-weight:700; color:#b91c1c; text-transform:uppercase; margin-bottom:4px;">🚨 Current Selection</div>
+                            <div style="font-size:0.8rem; font-weight:700; color:#b91c1c; text-transform:uppercase; margin-bottom:4px;">🚨 Peak Load Day</div>
                             <div id="rh-bottleneck-day" style="font-size:1.4rem; font-weight:800; color:#991b1b;">--</div>
                             <div id="rh-bottleneck-avg" style="font-size:0.85rem; color:#b91c1c; margin-top:2px;">-- classes / avg</div>
                         </div>
@@ -1137,9 +1173,20 @@
     </div>
 
     <div id="toast-container" class="toast-container"></div>
-    <div class="fab-container"><div class="fab-menu" id="fab-menu"><div class="fab-item" onclick="window.openSmartCopyModal('week')">📋 Share Open Slots</div><div class="fab-item" onclick="window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\\'vision\\']').click(), 100); window.scrollTo(0,0);">📸 Snap & Correct</div><div class="fab-item" onclick="window.showMainSection('students'); showToast('Click the 🗓️ icon next to any student to shift.', 'info'); window.scrollTo(0,0);">🔁 Bulk Shift Schedule</div><div class="fab-item" onclick="window.openSmartBulletin(); window.switchSbTab('vacation');">✈️ Out of Office Message</div><div class="fab-item" onclick="window.showMainSection('students'); document.getElementById('student-name-input').focus(); window.scrollTo(0,0);">🆕 Quick Add Student</div></div><button class="fab-main" id="fab-main" title="Quick Actions" onclick="window.toggleQuickMenu(event)">⚡</button></div>
+    <div class="fab-container">
+        <div class="fab-menu" id="fab-menu">
+            <div class="fab-item" onclick="window.showMainSection('students'); document.getElementById('student-name-input').focus(); window.scrollTo(0,0);">🆕 Quick Add Student</div>
+            <div class="fab-item" onclick="window.openSmartCopyModal('week')">📋 Share Open Slots</div>
+            <div class="fab-item" onclick="window.showMainSection('drafter'); setTimeout(()=>document.querySelector('input[value=\\'vision\\']').click(), 100); window.scrollTo(0,0);">📸 Snap & Correct</div>
+            <div class="fab-item" onclick="window.openSmartBulletin(); window.switchSbTab('vacation');">✈️ Out of Office</div>
+            <div class="fab-item" onclick="window.showMainSection('students'); showToast('Click the 🗓️ icon next to any student to shift.', 'info'); window.scrollTo(0,0);">🔁 Bulk Shift</div>
+        </div>
+        <button class="fab-main" id="fab-main" title="Quick Actions" onclick="window.toggleQuickMenu(event)">⚡</button>
+    </div>
 </div>
 <script>
+    const esc = str => String(str).replace(/[&<>'"]/g, tag => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[tag]));
+
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcnNovhrSOIObYUJZg9fIPoG1IuojN9t5lnnATcX5rhsWagfixg/exec";
     const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
     const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "", roster: [], editingStudentName: null };
@@ -1409,7 +1456,7 @@
     function renderStudents() {
         const buckets = { "Trial": [], "PS": [], "CM": [], "Personal": [] }; APP_STATE.students.forEach(s => { let t = s.type || "PS"; if(!buckets[t]) buckets[t] = []; buckets[t].push(s); });
         const fill = (id, list, type) => { const el = document.getElementById(id); if(!el) return; document.getElementById("count-"+type.toLowerCase()).textContent = list.length; if(!list.length) { el.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:10px;">None</div>'; return; } let h = ""; list.forEach(s => { let ledgerHtml = ""; if(type === "Personal") { let total = parseInt(s.packageTotal) || 0; let used = parseInt(s.classesUsed) || 0; let bal = parseInt(s.pendingBalance) || 0; if(total > 0) { let pct = Math.min(100, Math.round((used / total) * 100)); let color = pct >= 80 ? '#ef4444' : 'var(--accent)'; let balBadge = bal > 0 ? `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #fecaca; padding:1px 4px; border-radius:4px; background:#fef2f2; margin-left:6px;">₹${bal} Due</span>` : ''; ledgerHtml = `<div style="font-size:0.75rem; color:var(--text-sub); width:100%; margin-top:4px;"><div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span><b>${used}</b> / ${total} Classes</span> ${balBadge}</div><div style="background:#e2e8f0; height:6px; border-radius:3px; width:100%; overflow:hidden;"><div style="background:${color}; height:100%; width:${pct}%;"></div></div></div>`; } } 
-        let limitHtml = type === "Personal" ? "" : `<div style="display:flex; align-items:center; justify-content:space-between; width:100%; margin-top:8px;"><span style="font-size:0.8rem; color:var(--text-sub);">Class Limit</span><input type="number" style="width: 50px; padding: 4px; height: 28px; font-size: 0.85rem;" value="${s.monthlyLimit || 4}" onchange="window.updateMonthlyLimit('${s.name}', this.value)" /></div>`;
+        let limitHtml = type === "Personal" ? "" : `<div style="display:flex; align-items:center; justify-content:space-between; width:100%; margin-top:8px;"><span style="font-size:0.8rem; color:var(--text-sub);">Class Limit</span><input type="number" style="width: 50px; padding: 4px; height: 28px; font-size: 0.85rem;" value="${s.monthlyLimit || 4}" onchange="window.updateMonthlyLimit('${esc(s.name)}', this.value)" /></div>`;
         
         let rosterInfo = APP_STATE.roster.filter(r => r.studentname === s.name);
         let rosterHtml = '';
@@ -1420,7 +1467,7 @@
             rosterHtml = `<div style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">📅 Class Schedule: Not Set</div>`;
         }
 
-        h += `<div class="student-item-row"><div style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span style="font-weight:700; font-size:1rem; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${s.name}</span></div>${ledgerHtml}${limitHtml}${rosterHtml}<div class="student-action-btns"><button class="btn btn-outline btn-sm" onclick="window.openSmartSlotModal('${s.name}')">✨ Find Slots</button><button class="btn btn-outline btn-sm" onclick="window.openProfileModal('${s.name}', 'rename')">🏷️ Rename</button><button class="btn btn-outline btn-sm" onclick="window.openProfileModal('${s.name}', 'edit')">✎ Edit Type</button><button class="btn btn-outline btn-sm" onclick="window.openSchedulingModal('${s.name}', 'shift')">🔁 Shift</button><button class="btn btn-outline btn-sm" onclick="window.openSchedulingModal('${s.name}', 'roster')">📅 Roster</button></div></div>`; 
+        h += `<div class="student-item-row"><div style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span style="font-weight:700; font-size:1rem; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${esc(s.name)}</span></div>${ledgerHtml}${limitHtml}${rosterHtml}<div class="student-action-btns"><button class="btn btn-outline btn-sm" onclick="window.openSmartSlotModal('${esc(s.name)}')">✨ Find Slots</button><button class="btn btn-outline btn-sm" onclick="window.openProfileModal('${esc(s.name)}', 'rename')">🏷️ Rename</button><button class="btn btn-outline btn-sm" onclick="window.openProfileModal('${esc(s.name)}', 'edit')">✎ Edit Type</button><button class="btn btn-outline btn-sm" onclick="window.openSchedulingModal('${esc(s.name)}', 'shift')">🔁 Shift</button><button class="btn btn-outline btn-sm" onclick="window.openSchedulingModal('${esc(s.name)}', 'roster')">📅 Roster</button></div></div>`; 
         }); el.innerHTML = h; };
         fill("list-trial", buckets["Trial"], "Trial"); fill("list-ps", buckets["PS"], "PS"); fill("list-cm", buckets["CM"], "CM"); fill("list-personal", buckets["Personal"], "Personal");
         document.querySelectorAll('.student-col-header').forEach(h => { if(!h.innerHTML.includes('Class Limit')) h.innerHTML += ' <span style="font-size:0.75rem; font-weight:normal; color:var(--text-sub);">Class Limit</span>'; });
@@ -1429,9 +1476,9 @@
     function populateStudentDropdowns() {
         const delSel = document.getElementById("student-delete-select"); const schSel = document.getElementById("schedule-student-select"); const crmSel = document.getElementById("crm-student-select"); const obSel = document.getElementById("onboard-student-select"); const manualRelSel = document.getElementById("rh-manual-target-select");
         let opts = '<option value="">Select student...</option>'; let optsDisabled = '<option value="" disabled selected>Select active student...</option>';
-        APP_STATE.students.forEach(s => { const o = `<option value="${s.name}">${s.name}</option>`; opts += o; optsDisabled += o; });
+        APP_STATE.students.forEach(s => { const o = `<option value="${esc(s.name)}">${esc(s.name)}</option>`; opts += o; optsDisabled += o; });
         if(delSel) delSel.innerHTML = opts; if(schSel) schSel.innerHTML = opts; if(crmSel) crmSel.innerHTML = optsDisabled; if(obSel) obSel.innerHTML = optsDisabled; if(manualRelSel) manualRelSel.innerHTML = optsDisabled;
-        const pillsContainer = document.getElementById("ai-student-pills"); if (pillsContainer) { let pillsHtml = ""; APP_STATE.students.forEach((s, i) => { pillsHtml += `<input type="checkbox" id="aud-${i}" value="${s.name}" class="pill-checkbox"><label for="aud-${i}" class="pill-label">${s.name}</label>`; }); pillsContainer.innerHTML = pillsHtml; }
+        const pillsContainer = document.getElementById("ai-student-pills"); if (pillsContainer) { let pillsHtml = ""; APP_STATE.students.forEach((s, i) => { pillsHtml += `<input type="checkbox" id="aud-${i}" value="${esc(s.name)}" class="pill-checkbox"><label for="aud-${i}" class="pill-label">${esc(s.name)}</label>`; }); pillsContainer.innerHTML = pillsHtml; }
     }
 
     window.renderDashboardPersonalProgress = () => {
@@ -1456,7 +1503,7 @@
                 let balBadge = bal > 0 ? `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #fecaca; padding:1px 4px; border-radius:4px; background:#fef2f2; margin-left:6px; font-weight:600;">₹${bal} Due</span>` : ''; 
                 html += `<div style="font-size:0.75rem; color:var(--text-sub); width:100%; margin-bottom: 8px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                        <span style="font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:110px;" title="${s.name}">${s.name}</span>
+                        <span style="font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:110px;" title="${esc(s.name)}">${esc(s.name)}</span>
                         <div style="display:flex; align-items:center;"><span><b>${used}</b> / ${total}</span>${balBadge}</div>
                     </div>
                     <div style="background:#e2e8f0; height:6px; border-radius:3px; width:100%; overflow:hidden;"><div style="background:${color}; height:100%; width:${pct}%;"></div></div>
@@ -1488,7 +1535,7 @@
 
     function updateStats(date, classes) {
         APP_STATE.currentClasses = classes; const activeClasses = classes.filter(c => !["Paused", "Absent", "Cancelled", "Student No Show", "Deleted", "Class Limit Reached"].includes(c.Status));
-        if(date === APP_STATE.todayDate) { document.getElementById("stats-today-main").textContent = activeClasses.length ? `${activeClasses.length} classes` : "No classes"; const l = document.getElementById("today-classes-list"); l.innerHTML = ""; activeClasses.forEach(c => { l.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #e2e8f0; font-size:0.85rem;">${time24To12(parseBackendTime(c.StartTime))} - <b>${c.StudentName}</b></div>`; }); }
+        if(date === APP_STATE.todayDate) { document.getElementById("stats-today-main").textContent = activeClasses.length ? `${activeClasses.length} classes` : "No classes"; const l = document.getElementById("today-classes-list"); l.innerHTML = ""; activeClasses.forEach(c => { l.innerHTML += `<div style="padding:6px 0; border-bottom:1px solid #e2e8f0; font-size:0.85rem;">${time24To12(parseBackendTime(c.StartTime))} - <b>${esc(c.StudentName)}</b></div>`; }); }
         const s = document.getElementById("weekly-strip"); if(s) { s.innerHTML = ""; const base = new Date(APP_STATE.todayDate); base.setDate(base.getDate() - (base.getDay()+6)%7); for(let i=0; i<7; i++) { const d = new Date(base); d.setDate(base.getDate()+i); const iso = d.toISOString().split('T')[0]; let count = (APP_STATE.weeklySummary||{})[iso]; if(iso === date) count = activeClasses.length; const div = document.createElement("div"); div.className = "weekly-day"; if(iso === APP_STATE.todayDate) div.classList.add("today"); if(count > 0) div.classList.add("has-classes"); div.innerHTML = `${d.toLocaleDateString("en-GB",{weekday:"short"})}<br>${count||'-'}`; div.onclick = () => { document.getElementById("view-date").value = iso; window.showMainSection('classes'); window.renderClassesForDate(iso); }; s.appendChild(div); } }
     }
 
@@ -1509,7 +1556,16 @@
         classes.forEach(c => {
             const card = document.createElement("div"); card.className = "class-card"; if (c.Status === "Cancelled") card.classList.add("cancelled-card"); if (c.Status === "System Glitch") card.classList.add("glitch-card"); 
             let stat = `<div><select class="status-select" data-id="${c.ClassID}"><option value="Scheduled" ${c.Status==='Scheduled'?'selected':''}>📅 Scheduled</option><option value="Completed" ${c.Status==='Completed'?'selected':''}>✅ Completed</option><option value="Student No Show" ${c.Status==='Student No Show'?'selected':''}>⚠️ No Show</option><option value="Absent" ${c.Status==='Absent'?'selected':''}>📉 Absent</option><option value="Cancelled" ${c.Status==='Cancelled'?'selected':''}>❌ Cancelled</option><option value="System Glitch" ${c.Status==='System Glitch'?'selected':''}>💻 System Glitch</option><option value="Rescheduled" ${c.Status==='Rescheduled'?'selected':''}>🔁 Rescheduled</option><option value="Paused" ${c.Status==='Paused'?'selected':''}>⏸ Paused</option><option value="Class Limit Reached" ${c.Status === 'Class Limit Reached' ? 'selected' : ''}>🛑 Class Limit Reached</option></select></div>`;
-            let notesHtml = `<div class="notes-area"><input type="text" class="card-notes-input" placeholder="Save session notes..." value="${c.Notes}"><input type="text" class="card-next-topic" placeholder="Next Topic (Syncs to Calendar)..."><button class="btn btn-primary btn-sm btn-save-notes">Save</button></div>`;
+            
+            let notesHtml = `
+            <input type="text" class="card-notes-input class-note-input form-control" placeholder="Save session notes..." value="${esc(c.Notes)}">
+            <input type="text" class="card-next-topic class-note-input form-control" placeholder="Next Topic (Syncs to Calendar)...">
+            <div class="class-action-grid">
+                <button class="btn btn-soft btn-sm btn-generate">💬 Message</button>
+                <button class="btn btn-outline btn-sm btn-reschedule">🔁 Reschedule</button>
+                <button class="btn btn-primary btn-sm btn-save-notes">💾 Save</button>
+            </div>`;
+
             const sObj = APP_STATE.students.find(s => s.name === c.StudentName); const isTrial = sObj && sObj.type === "Trial"; const term = isTrial ? "Trial Class" : "English class"; 
             
             const stuObj = window.globalStudents ? window.globalStudents.find(x => x.name === c.StudentName) : sObj;
@@ -1518,11 +1574,11 @@
             const limitOption = isMaxedPS ? `<option value="class_limit_notice">🛑 Class Limit Notice</option>` : '';
 
             let parsedTime = parseBackendTime(c.StartTime);
-            let defaultMsg = `Hi, this is a reminder regarding the ${term} for ${c.StudentName} scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(parsedTime)} IST.`; if (sObj && sObj.type === "PS") defaultMsg += `\n\nPlease join using your PlanetSpark class link.`; defaultMsg += `\n\nBest regards,\nSenorita`;
+            let defaultMsg = `Hi, this is a reminder regarding the ${term} for ${esc(c.StudentName)} scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(parsedTime)} IST.`; if (sObj && sObj.type === "PS") defaultMsg += `\n\nPlease join using your PlanetSpark class link.`; defaultMsg += `\n\nBest regards,\nSenorita`;
             
             const dayAbbr = getDayAbbr(c.ClassDate);
 
-            card.innerHTML = `<div class="class-card__row"><div><div class="class-student">👤 ${limitBadge}${c.StudentName}</div><div class="meta">📅 ${dayAbbr}, ${isoToDisplayDate(c.ClassDate)} • ⏰ ${time24To12(parsedTime)} IST</div></div>${stat}</div>${notesHtml}<div class="inline-actions"><button class="btn btn-soft btn-sm btn-generate">💬 Message</button><button class="btn btn-outline btn-sm btn-reschedule">🔁 Reschedule</button></div><div class="expand-block generate-area" style="display:none;"><select class="msg-type-select" style="margin-bottom:8px; width:100%; border:1px solid #cbd5e1; border-radius:6px; padding:6px;"><option value="reminder">Class Reminder</option>${limitOption}</select><div class="msg-preview" style="white-space:pre-wrap;">${defaultMsg}</div><button class="btn btn-primary btn-sm btn-copy" style="margin-top:8px;">Copy</button></div><div class="expand-block resched-area" style="display:none;"><input type="date" class="res-date" value="${dateStr}"><input type="text" class="res-time" value="${time24To12(parsedTime)}" placeholder="hh:mm AM/PM" onblur="window.normalizeUserTime(this)">
+            card.innerHTML = `<div class="class-card__row"><div><div class="class-student">👤 ${limitBadge}${esc(c.StudentName)}</div><div class="meta">📅 ${dayAbbr}, ${isoToDisplayDate(c.ClassDate)} • ⏰ ${time24To12(parsedTime)} IST</div></div>${stat}</div>${notesHtml}<div class="expand-block generate-area" style="display:none;"><select class="msg-type-select" style="margin-bottom:8px; width:100%; border:1px solid #cbd5e1; border-radius:6px; padding:6px;"><option value="reminder">Class Reminder</option>${limitOption}</select><div class="msg-preview" style="white-space:pre-wrap;">${defaultMsg}</div><button class="btn btn-primary btn-sm btn-copy" style="margin-top:8px;">Copy</button></div><div class="expand-block resched-area" style="display:none;"><input type="date" class="res-date" value="${dateStr}"><input type="text" class="res-time" value="${time24To12(parsedTime)}" placeholder="hh:mm AM/PM" onblur="window.normalizeUserTime(this)">
 <div style="margin-top: 10px; margin-bottom: 10px; padding: 10px; background: #fff; border-radius: 6px; border: 1px solid #cbd5e1;">
     <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.85rem; color: var(--primary); margin-bottom: 0;">
         <input type="checkbox" class="res-master-roster-check" style="width: 16px; height: 16px; accent-color: var(--accent);"> Save as Permanent Shift
@@ -1563,7 +1619,7 @@
                 let selectedMessageType = e.target.value;
                 let draftText = defaultMsg;
                 if (selectedMessageType === 'class_limit_notice') {
-                    draftText = `Dear ${c.StudentName} / Parents,\n\nJust a quick heads-up that ${c.StudentName} has finished their class limit for this calendar month.\n\nWe will take a pause for today and jump back into our regular routine starting next month.\n\nThank you for your continued cooperation!\n\nBest regards,\nSenorita`;
+                    draftText = `Dear ${esc(c.StudentName)} / Parents,\n\nJust a quick heads-up that ${esc(c.StudentName)} has finished their class limit for this calendar month.\n\nWe will take a pause for today and jump back into our regular routine starting next month.\n\nThank you for your continued cooperation!\n\nBest regards,\nSenorita`;
                 }
                 preview.innerHTML = draftText;
             };
@@ -1609,7 +1665,7 @@
                         if (rosRes && rosRes.status === "warning") rosterWarning = "Master Roster Warning: " + rosRes.message;
                     }
                     if (rosterWarning) {
-                        window.showAuditReport([`Successfully rescheduled ${c.StudentName}`], [rosterWarning], "Reschedule Report");
+                        window.showAuditReport([`Successfully rescheduled ${esc(c.StudentName)}`], [rosterWarning], "Reschedule Report");
                     } else {
                         window.showSystemPopup("System Update", "Rescheduled successfully!");
                     }
@@ -1700,7 +1756,7 @@
         } catch(e) { window.showSystemPopup("System Error", "Failed: " + e.message); }
     };
 
-    window.openPendingReviews = () => { document.getElementById("pendingReviewModal").classList.add("show"); document.getElementById("pendingReviewList").innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>'; fetchAPI(null, { action: "getPendingReviews" }).then(r => { const l = document.getElementById("pendingReviewList"); l.innerHTML = ""; if(!r.pending || !r.pending.length) { l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">No pending reviews.</div>'; return; } r.pending.forEach(p => { l.innerHTML += `<div style="background:#fff; border:1px solid #e2e8f0; padding:10px; margin-bottom:8px; border-radius:8px; font-size:0.9rem;"><div style="font-weight:700; margin-bottom:4px;">${p.StudentName}</div><div style="color:var(--text-sub); margin-bottom:8px;">${isoToDisplayDate(p.ClassDate)} ${time24To12(parseBackendTime(p.StartTime))}</div><select class="status-select" style="width:100%;" onchange="window.updatePendingStatus('${p.ClassID}', this.value, this)"><option disabled selected>Select Action</option><option value="Completed">✅ Done</option><option value="Student No Show">⚠️ No Show</option><option value="Absent">📉 Absent</option><option value="Cancelled">❌ Cancel</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Pause</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div>`; }); }); };
+    window.openPendingReviews = () => { document.getElementById("pendingReviewModal").classList.add("show"); document.getElementById("pendingReviewList").innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>'; fetchAPI(null, { action: "getPendingReviews" }).then(r => { const l = document.getElementById("pendingReviewList"); l.innerHTML = ""; if(!r.pending || !r.pending.length) { l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">No pending reviews.</div>'; return; } r.pending.forEach(p => { l.innerHTML += `<div style="background:#fff; border:1px solid #e2e8f0; padding:10px; margin-bottom:8px; border-radius:8px; font-size:0.9rem;"><div style="font-weight:700; margin-bottom:4px;">${esc(p.StudentName)}</div><div style="color:var(--text-sub); margin-bottom:8px;">${isoToDisplayDate(p.ClassDate)} ${time24To12(parseBackendTime(p.StartTime))}</div><select class="status-select" style="width:100%;" onchange="window.updatePendingStatus('${p.ClassID}', this.value, this)"><option disabled selected>Select Action</option><option value="Completed">✅ Done</option><option value="Student No Show">⚠️ No Show</option><option value="Absent">📉 Absent</option><option value="Cancelled">❌ Cancel</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Pause</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div>`; }); }); };
     window.updatePendingStatus = async (id, status, el) => { 
         el.disabled = true; let originalText = el.options[el.selectedIndex].text; el.options[el.selectedIndex].text = "Saving..."; 
         const r = await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status }); 
@@ -1712,7 +1768,7 @@
         window.triggerDebouncedRefresh(APP_STATE.todayDate); 
     };
 
-    window.openHistoryReport = () => { document.getElementById("historyModal").classList.add("show"); const nowIST = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); const isoStart = nowIST.getFullYear() + '-' + String(nowIST.getMonth()+1).padStart(2,'0') + '-01'; document.getElementById("historyStartDate").value = isoStart; document.getElementById("historyEndDate").value = APP_STATE.todayDate || new Date().toISOString().split('T')[0]; document.getElementById("historyGenBtn").onclick = async () => { const sd = document.getElementById("historyStartDate").value; const ed = document.getElementById("historyEndDate").value; const tf = document.getElementById("historyTypeFilter").value; const sf = document.getElementById("historyStatusFilter").value; const btn = document.getElementById("historyGenBtn"); btn.disabled = true; btn.textContent = "Crunching Data..."; try { const r = await fetchAPI(null, { action: "getHistoryReport", startDate: sd, endDate: ed, typeFilter: tf, statusFilter: sf }); let osHtml = `<div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">`; let copyText = `📊 *Data Report* (${isoToDisplayDate(sd)} to ${isoToDisplayDate(ed)})\nFilter: ${tf} | Status: ${sf}\n\n*Total Classes:* ${r.totalClasses}\n*Total Earnings:* ₹${(r.earnings||0).toLocaleString('en-IN')}\n\n*Breakdown:*\n`; if(r.orgStats) { ['PS', 'CM', 'Personal', 'Trial'].forEach(org => { let stats = r.orgStats[org]; if(stats && Object.keys(stats).length > 0) { osHtml += `<div style="flex:1; min-width:120px; background:#f1f5f9; border:1px solid #e2e8f0; padding:12px; border-radius:8px; font-size:0.85rem;"><div style="font-weight:700; color:var(--primary); margin-bottom:8px; border-bottom:1px solid #cbd5e1; padding-bottom:4px;">${org}</div>`; for(let stat in stats) { osHtml += `<div style="display:flex; justify-content:space-between;"><span>${stat}</span> <b>${stats[stat]}</b></div>`; } osHtml += `</div>`; } }); } osHtml += `</div>`; document.getElementById("histOrgBreakdown").innerHTML = osHtml; const tb = document.getElementById("histTableBody"); tb.innerHTML = ""; const s = Object.entries(r.breakdown||{}).sort((a,b)=>b[1]-a[1]); if(!s.length) { tb.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No records found.</td></tr>"; copyText += "No records found.\n"; } else { s.forEach(([n,c]) => { tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px;">${n}</td><td style="padding:8px; font-weight:700;">${c}</td></tr>`; copyText += `• ${n}: ${c}\n`; }); } APP_STATE.lastHistoryCopyText = copyText.trim(); document.getElementById("historyResult").style.display = "block"; } catch(e) { console.error(e); window.showSystemPopup("System Error", "Failed to generate report."); } finally { btn.disabled = false; btn.textContent = "Generate Report"; } }; };
+    window.openHistoryReport = () => { document.getElementById("historyModal").classList.add("show"); const nowIST = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); const isoStart = nowIST.getFullYear() + '-' + String(nowIST.getMonth()+1).padStart(2,'0') + '-01'; document.getElementById("historyStartDate").value = isoStart; document.getElementById("historyEndDate").value = APP_STATE.todayDate || new Date().toISOString().split('T')[0]; document.getElementById("historyGenBtn").onclick = async () => { const sd = document.getElementById("historyStartDate").value; const ed = document.getElementById("historyEndDate").value; const tf = document.getElementById("historyTypeFilter").value; const sf = document.getElementById("historyStatusFilter").value; const btn = document.getElementById("historyGenBtn"); btn.disabled = true; btn.textContent = "Crunching Data..."; try { const r = await fetchAPI(null, { action: "getHistoryReport", startDate: sd, endDate: ed, typeFilter: tf, statusFilter: sf }); let osHtml = `<div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">`; let copyText = `📊 *Data Report* (${isoToDisplayDate(sd)} to ${isoToDisplayDate(ed)})\nFilter: ${tf} | Status: ${sf}\n\n*Total Classes:* ${r.totalClasses}\n*Total Earnings:* ₹${(r.earnings||0).toLocaleString('en-IN')}\n\n*Breakdown:*\n`; if(r.orgStats) { ['PS', 'CM', 'Personal', 'Trial'].forEach(org => { let stats = r.orgStats[org]; if(stats && Object.keys(stats).length > 0) { osHtml += `<div style="flex:1; min-width:120px; background:#f1f5f9; border:1px solid #e2e8f0; padding:12px; border-radius:8px; font-size:0.85rem;"><div style="font-weight:700; color:var(--primary); margin-bottom:8px; border-bottom:1px solid #cbd5e1; padding-bottom:4px;">${org}</div>`; for(let stat in stats) { osHtml += `<div style="display:flex; justify-content:space-between;"><span>${stat}</span> <b>${stats[stat]}</b></div>`; } osHtml += `</div>`; } }); } osHtml += `</div>`; document.getElementById("histOrgBreakdown").innerHTML = osHtml; const tb = document.getElementById("histTableBody"); tb.innerHTML = ""; const s = Object.entries(r.breakdown||{}).sort((a,b)=>b[1]-a[1]); if(!s.length) { tb.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No records found.</td></tr>"; copyText += "No records found.\n"; } else { s.forEach(([n,c]) => { tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px;">${esc(n)}</td><td style="padding:8px; font-weight:700;">${c}</td></tr>`; copyText += `• ${n}: ${c}\n`; }); } APP_STATE.lastHistoryCopyText = copyText.trim(); document.getElementById("historyResult").style.display = "block"; } catch(e) { console.error(e); window.showSystemPopup("System Error", "Failed to generate report."); } finally { btn.disabled = false; btn.textContent = "Generate Report"; } }; };
     window.copyHistoryData = () => { if(APP_STATE.lastHistoryCopyText) { navigator.clipboard.writeText(APP_STATE.lastHistoryCopyText); window.showSystemPopup("System Update", "Report data copied!"); } else { window.showSystemPopup("System Error", "No data to copy."); } };
 
     window.loadEarnings = async () => { 
@@ -1755,7 +1811,7 @@
 
                     html += `<div style="background:${bgCol}; color:${textCol}; border:1px solid ${borderCol}; padding:8px 6px; border-radius:6px; font-size:0.8rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                         <div style="font-weight:800; margin-bottom:2px; font-size:0.75rem;">${t12}</div>
-                        <div style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${s.studentname}">${s.studentname}</div>
+                        <div style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${esc(s.studentname)}">${esc(s.studentname)}</div>
                     </div>`;
                 });
             }
@@ -1910,7 +1966,7 @@
         const list = document.getElementById("sb-packages-list"); const targets = APP_STATE.students.filter(s => s.type === "Personal" && parseInt(s.packageTotal) > 0); let alertsHtml = "";
         targets.forEach(s => { let total = parseInt(s.packageTotal); let used = parseInt(s.classesUsed) || 0; let bal = parseInt(s.pendingBalance) || 0;
             if ((used / total) >= 0.8) { let isDebt = bal > 0; let icon = isDebt ? "🚨" : "🔄"; let title = isDebt ? `Installment Due: ₹${bal}` : `Package Exhausted (Renewal)`; let bg = isDebt ? "#fff1f2" : "#f0f9ff"; let border = isDebt ? "#ffe4e6" : "#bae6fd"; let textCol = isDebt ? "#e11d48" : "#0284c7";
-                alertsHtml += `<div style="background:${bg}; border:1px solid ${border}; padding:12px; border-radius:8px; margin-bottom:8px;"><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;"><div><div style="font-weight:700; color:${textCol}; font-size:0.95rem; margin-bottom:2px;">${icon} ${title}</div><div style="font-size:0.85rem; color:var(--text-main);"><b>${s.name}</b> (${used}/${total} Classes Used)</div></div><button class="btn btn-primary btn-sm" onclick="window.generatePackageAI('${s.name}', ${used}, ${total}, ${bal})">Draft Notice</button></div><div id="pkg-ai-out-${s.name.replace(/\s+/g,'-')}" style="display:none; margin-top:12px;"></div></div>`;
+                alertsHtml += `<div style="background:${bg}; border:1px solid ${border}; padding:12px; border-radius:8px; margin-bottom:8px;"><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;"><div><div style="font-weight:700; color:${textCol}; font-size:0.95rem; margin-bottom:2px;">${icon} ${title}</div><div style="font-size:0.85rem; color:var(--text-main);"><b>${esc(s.name)}</b> (${used}/${total} Classes Used)</div></div><button class="btn btn-primary btn-sm" onclick="window.generatePackageAI('${esc(s.name)}', ${used}, ${total}, ${bal})">Draft Notice</button></div><div id="pkg-ai-out-${s.name.replace(/\s+/g,'-')}" style="display:none; margin-top:12px;"></div></div>`;
             }
         });
         if(alertsHtml === "") alertsHtml = `<div style="text-align:center; padding:30px; background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0; color:#166534;">✅ All clear! No upcoming renewals or pending installments.</div>`; list.innerHTML = alertsHtml;
@@ -1931,7 +1987,7 @@
     window.switchSbTab = (tab) => { const currentIsVac = document.querySelector(`.sb-tab-btn[onclick*="vacation"]`).classList.contains("active"); if (currentIsVac && tab !== 'vacation' && window.isVacationDirty()) { showConfirm("You have unsaved vacation details. Switch tabs and clear?", () => { window.clearVacation(); window.executeTabSwitch(tab); }); } else { window.executeTabSwitch(tab); } };
     window.executeTabSwitch = (tab) => { document.querySelectorAll(".sb-tab-btn").forEach(b => b.classList.remove("active")); document.querySelector(`.sb-tab-btn[onclick*="${tab}"]`).classList.add("active"); document.querySelectorAll(".sb-content").forEach(c => c.classList.remove("show")); document.getElementById(`sb-${tab}`).classList.add("show"); };
 
-    window.renderTrialScout = () => { const trials = APP_STATE.students.filter(s => s.type === "Trial"); const list = document.getElementById("sb-scout-list"); if(trials.length === 0) { list.innerHTML = `<div style="text-align:center; padding:30px; background:#f8fafc; border-radius:8px; color:var(--text-sub);">🎉 No active Trial students!</div>`; return; } let html = ""; trials.forEach(t => { html += `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:12px 16px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:8px;"><div style="font-weight:700; font-size:1rem;">👤 ${t.name}</div><div style="display:flex; gap:8px;"><button class="btn btn-outline btn-sm" onclick="window.convertTrial('${t.name}', 'PS')">Make PS</button><button class="btn btn-primary btn-sm" onclick="window.convertTrial('${t.name}', 'CM')">Make CM</button></div></div>`; }); list.innerHTML = html; };
+    window.renderTrialScout = () => { const trials = APP_STATE.students.filter(s => s.type === "Trial"); const list = document.getElementById("sb-scout-list"); if(trials.length === 0) { list.innerHTML = `<div style="text-align:center; padding:30px; background:#f8fafc; border-radius:8px; color:var(--text-sub);">🎉 No active Trial students!</div>`; return; } let html = ""; trials.forEach(t => { html += `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:12px 16px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:8px;"><div style="font-weight:700; font-size:1rem;">👤 ${esc(t.name)}</div><div style="display:flex; gap:8px;"><button class="btn btn-outline btn-sm" onclick="window.convertTrial('${esc(t.name)}', 'PS')">Make PS</button><button class="btn btn-primary btn-sm" onclick="window.convertTrial('${esc(t.name)}', 'CM')">Make CM</button></div></div>`; }); list.innerHTML = html; };
     window.convertTrial = async (name, newType) => { document.getElementById("sb-scout-list").innerHTML = `<div style="text-align:center; padding:20px; color:var(--primary);">Converting ${name}...</div>`; await fetchAPI(null, { action: "updateStudentData", StudentName: name, NewType: newType }); window.showSystemPopup("System Update", `${name} converted to ${newType}!`); await window.loadStudents(); window.renderTrialScout(); };
     
     window.renderBulletinAlerts = async () => { 
@@ -1939,7 +1995,7 @@
         try { const res = await fetchAPI(null, { action: "getRetentionAlerts" }); if(res.status === "error") throw new Error(res.message); const rAlerts = res.alerts || []; const fbAlerts = res.feedbackAlerts || []; APP_STATE.lastAlerts = rAlerts;
             if (rAlerts.length > 0) { window.runRiskScan(false); } else { document.getElementById("sb-retention-list").innerHTML = `<div style="text-align:center; padding:30px; background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0; color:#166534;">✅ All clear! No active flight risks detected by AI.</div>`; }
             if(fbAlerts.length === 0) fbList.innerHTML = `<div style="text-align:center; padding:30px; background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0; color:#166534;">✅ All clear! Everyone is updated.</div>`;
-            else { let html = ""; fbAlerts.forEach(a => html += `<div class="risk-row" style="background:#fff7ed; border-color:#fed7aa;"><div><div style="font-weight:700; color:#c2410c;">💬 ${a.student}</div><div style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">Last Feedback: ${a.lastDate === 'Never' ? 'Never' : isoToDisplayDate(a.lastDate)}</div></div><button class="btn btn-soft btn-sm" onclick="window.jumpToCRM('${a.student}')">Write Now</button></div>`); fbList.innerHTML = html; }
+            else { let html = ""; fbAlerts.forEach(a => html += `<div class="risk-row" style="background:#fff7ed; border-color:#fed7aa;"><div><div style="font-weight:700; color:#c2410c;">💬 ${esc(a.student)}</div><div style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">Last Feedback: ${a.lastDate === 'Never' ? 'Never' : isoToDisplayDate(a.lastDate)}</div></div><button class="btn btn-soft btn-sm" onclick="window.jumpToCRM('${esc(a.student)}')">Write Now</button></div>`); fbList.innerHTML = html; }
         } catch(e) { document.getElementById("sb-retention-list").innerHTML = `<div style="text-align:center; color:#ef4444;">Failed to load alerts.</div>`; fbList.innerHTML = `<div style="text-align:center; color:#ef4444;">Failed to load alerts.</div>`; } 
     };
 
@@ -1957,7 +2013,7 @@
     window.renderRiskHtml = (risks) => {
         risks.sort((a,b) => { const order = { 'High': 1, 'Medium': 2, 'Low': 3 }; return (order[a.riskLevel] || 4) - (order[b.riskLevel] || 4); }); let html = "";
         risks.forEach(risk => { let badge = risk.riskLevel === 'High' ? '🔴 High Risk' : risk.riskLevel === 'Medium' ? '🟡 Med Risk' : '🟢 Low Risk'; let border = risk.riskLevel === 'High' ? '#fecaca' : risk.riskLevel === 'Medium' ? '#fde047' : '#bbf7d0'; let bg = risk.riskLevel === 'High' ? '#fef2f2' : risk.riskLevel === 'Medium' ? '#fef9c3' : '#f0fdf4';
-            html += `<div style="background:${bg}; border:1px solid ${border}; padding:12px; border-radius:8px; margin-bottom:8px;"><div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">${badge} : ${risk.student}</div><div style="font-size:0.85rem; color:var(--text-main); margin-bottom:4px;"><b>AI Diagnosis:</b> ${risk.diagnosis}</div><div style="font-size:0.85rem; color:var(--accent);"><b>Action Plan:</b> ${risk.recommendation}</div></div>`;
+            html += `<div style="background:${bg}; border:1px solid ${border}; padding:12px; border-radius:8px; margin-bottom:8px;"><div style="font-weight:700; font-size:0.9rem; margin-bottom:4px;">${badge} : ${esc(risk.student)}</div><div style="font-size:0.85rem; color:var(--text-main); margin-bottom:4px;"><b>AI Diagnosis:</b> ${esc(risk.diagnosis)}</div><div style="font-size:0.85rem; color:var(--accent);"><b>Action Plan:</b> ${esc(risk.recommendation)}</div></div>`;
         }); document.getElementById("sb-retention-list").innerHTML = html;
     };
 
@@ -1989,8 +2045,8 @@
     
     window.refreshCrmHistory = async (name) => {
         const list = document.getElementById("crm-history-list"); const r = await fetchAPI(null, { action: "getStudentHistory", StudentName: name }); if(r.status === "error") return;
-        list.innerHTML = ""; if(!r.history || r.history.length === 0) { list.innerHTML = `<div style="color:#94a3b8; text-align:center; padding:20px; font-size:0.85rem;">No historical records found for ${name}.</div>`; return; }
-        r.history.forEach(h => { const dateStr = isoToDisplayDate(h.date.substring(0,10)); const icon = h.type === "PTM Invite" ? "📅" : h.type === "Progress Report" ? "📝" : h.type === "Demo Feedback" ? "🌟" : h.type === "Payment Receipt" ? "🧾" : "📊"; const borderCol = h.type === "PTM Invite" ? "#3b82f6" : h.type === "Progress Report" ? "#10b981" : h.type === "Demo Feedback" ? "#8b5cf6" : h.type === "Payment Receipt" ? "#14b8a6" : "#f59e0b"; list.innerHTML += `<div class="history-card" style="border-left-color: ${borderCol};"><div class="history-card-header"><span class="history-card-type">${icon} ${h.type}</span><span>${dateStr}</span></div><div style="font-size:0.85rem; color:var(--text-main); margin-bottom:4px;"><b>Details:</b> ${h.details}</div><div style="font-size:0.8rem; color:var(--text-sub); max-height:40px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-style:italic;">"${h.message}"</div></div>`; });
+        list.innerHTML = ""; if(!r.history || r.history.length === 0) { list.innerHTML = `<div style="color:#94a3b8; text-align:center; padding:20px; font-size:0.85rem;">No historical records found for ${esc(name)}.</div>`; return; }
+        r.history.forEach(h => { const dateStr = isoToDisplayDate(h.date.substring(0,10)); const icon = h.type === "PTM Invite" ? "📅" : h.type === "Progress Report" ? "📝" : h.type === "Demo Feedback" ? "🌟" : h.type === "Payment Receipt" ? "🧾" : "📊"; const borderCol = h.type === "PTM Invite" ? "#3b82f6" : h.type === "Progress Report" ? "#10b981" : h.type === "Demo Feedback" ? "#8b5cf6" : h.type === "Payment Receipt" ? "#14b8a6" : "#f59e0b"; list.innerHTML += `<div class="history-card" style="border-left-color: ${borderCol};"><div class="history-card-header"><span class="history-card-type">${icon} ${h.type}</span><span>${dateStr}</span></div><div style="font-size:0.85rem; color:var(--text-main); margin-bottom:4px;"><b>Details:</b> ${esc(h.details)}</div><div style="font-size:0.8rem; color:var(--text-sub); max-height:40px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-style:italic;">"${esc(h.message)}"</div></div>`; });
     };
 
     window.loadStudentCRM = async (name) => { APP_STATE.currentCrmStudent = name; document.getElementById("crm-action-area").style.display = "block"; window.clearCrmForm(false); document.getElementById("crm-history-list").innerHTML = `<div style="text-align:center; padding:20px; color:#94a3b8;">Fetching history...</div>`; window.refreshCrmHistory(name); };
@@ -2191,8 +2247,8 @@
             filteredPlan.forEach((plan, idx) => { 
                 const safeName = plan.studentName.replace(/\s+/g, '-');
                 let impactBadge = `<div style="font-size:0.75rem; background:#f1f5f9; padding:4px 8px; border-radius:4px; border:1px solid #cbd5e1; display:inline-block; margin-top:6px;">
-                    <span style="color:#b91c1c;">[Bottleneck]: ${dayObj.avg} ➔ ${(parseFloat(dayObj.avg) - 1).toFixed(1)}</span> | 
-                    <span style="color:#166534;">[Oasis]: ${r.normalizedLoad[plan.newDay]} ➔ ${(parseFloat(r.normalizedLoad[plan.newDay]) + 1).toFixed(1)}</span>
+                    <span style="color:#b91c1c;">[Peak Load Day]: ${dayObj.avg} ➔ ${(parseFloat(dayObj.avg) - 1).toFixed(1)}</span> | 
+                    <span style="color:#166534;">[Available Capacity Days]: ${r.normalizedLoad[plan.newDay]} ➔ ${(parseFloat(r.normalizedLoad[plan.newDay]) + 1).toFixed(1)}</span>
                 </div>`;
 
                 aiList.innerHTML += `
@@ -2209,10 +2265,10 @@
         }
 
         const manualSel = document.getElementById("rh-manual-target-select");
-        let opts = '<option value="" disabled selected>Select student from bottleneck day...</option>';
+        let opts = '<option value="" disabled selected>Select student from peak load day...</option>';
         let targets = r.allTargetsMap[selectedDay] || [];
         if(targets.length > 0) {
-            targets.forEach(t => { opts += `<option value="${t.name}" data-time="${t.time}">${t.name} (Current: ${time24To12(t.time)})</option>`; });
+            targets.forEach(t => { opts += `<option value="${esc(t.name)}" data-time="${t.time}">${esc(t.name)} (Current: ${time24To12(t.time)})</option>`; });
         }
         manualSel.innerHTML = opts;
         document.getElementById("rh-manual-result").style.display = "none";
@@ -2330,7 +2386,7 @@
 
         if (isPermanent) {
             const d = new Date(newDate); const newDayNum = d.getDay(); 
-            showConfirm(`Permanently move ${studentName}'s future classes to ${newDayName}s at ${newTime12}?`, async () => {
+            showConfirm(`Permanently move ${esc(studentName)}'s future classes to ${newDayName}s at ${newTime12}?`, async () => {
                 document.getElementById("rosterHealthModal").classList.remove("show"); window.showSystemPopup("System Update", "Processing permanent shift...");
                 const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: studentName, OldTime: oldTime24, NewTime: newTime24, StartDate: APP_STATE.todayDate, NewDay: newDayNum });
                 if(r.status === "error") return window.showSystemPopup("System Error", r.message || "Shift failed."); 
@@ -2367,18 +2423,18 @@
         const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan"); const isReschedule = q.includes("reschedule") || q.includes("shift"); const isSlots = q.includes("free") || q.includes("slot") || q.includes("available"); const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee"); const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback"); const isAnalytics = q.includes("no show") || q.includes("absent") || q.includes("analytics") || q.includes("revenue") || q.includes("stats") || q.includes("limit");
 
         if (isSchedule && targetStudent && !isReschedule) {
-            matched = true; let titleText = `Schedule ${targetStudent}`; if (dateLabel) titleText += ` for ${dateLabel}`; if (targetTimeStr) titleText += ` at ${targetTimeStr}`;
-            let action = `window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { document.getElementById('schedule-student-select').value='${targetStudent}'; if('${targetDateStr}' !== 'null') document.getElementById('schedule-date').value='${targetDateStr}'; if('${targetTimeStr}') document.getElementById('schedule-time').value='${targetTimeStr}'; document.getElementById('schedule-student-select').scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);`;
+            matched = true; let titleText = `Schedule ${esc(targetStudent)}`; if (dateLabel) titleText += ` for ${dateLabel}`; if (targetTimeStr) titleText += ` at ${targetTimeStr}`;
+            let action = `window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { document.getElementById('schedule-student-select').value='${esc(targetStudent)}'; if('${targetDateStr}' !== 'null') document.getElementById('schedule-date').value='${targetDateStr}'; if('${targetTimeStr}') document.getElementById('schedule-time').value='${targetTimeStr}'; document.getElementById('schedule-student-select').scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);`;
             html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📅</span><span style="font-weight:600; color:var(--text-main);">${titleText}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
         if (isReschedule && targetStudent) {
-            matched = true; let action = `window.closeOmnibox(); window.showMainSection('students'); window.openSchedulingModal('${targetStudent}');`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">🔁</span><span style="font-weight:600; color:var(--text-main);">Reschedule ${targetStudent}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+            matched = true; let action = `window.closeOmnibox(); window.showMainSection('students'); window.openSchedulingModal('${esc(targetStudent)}');`;
+            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">🔁</span><span style="font-weight:600; color:var(--text-main);">Reschedule ${esc(targetStudent)}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
         if ((isReceipt || isProgress) && targetStudent) {
             matched = true; let crmAction = isReceipt ? 'receipt' : 'progress'; let icon = isReceipt ? '🧾' : '📝';
-            let action = `window.closeOmnibox(); window.showMainSection('communications'); setTimeout(() => { document.getElementById('crm-student-select').value='${targetStudent}'; window.loadStudentCRM('${targetStudent}'); document.querySelector('input[name="crmAction"][value="${crmAction}"]').click(); document.getElementById('crm-student-select').scrollIntoView({behavior: 'smooth', block: 'start'}); }, 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${icon}</span><span style="font-weight:600; color:var(--text-main);">Write ${isReceipt ? 'Receipt' : 'Progress Report'} for ${targetStudent}</span><span class="ob-command-badge">Smart Route</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+            let action = `window.closeOmnibox(); window.showMainSection('communications'); setTimeout(() => { document.getElementById('crm-student-select').value='${esc(targetStudent)}'; window.loadStudentCRM('${esc(targetStudent)}'); document.querySelector('input[name="crmAction"][value="${crmAction}"]').click(); document.getElementById('crm-student-select').scrollIntoView({behavior: 'smooth', block: 'start'}); }, 200);`;
+            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${icon}</span><span style="font-weight:600; color:var(--text-main);">Write ${isReceipt ? 'Receipt' : 'Progress Report'} for ${esc(targetStudent)}</span><span class="ob-command-badge">Smart Route</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
         if (q.includes("no show") || q.includes("absent") || q.includes("class limit reached") || q.includes("glitch")) {
             matched = true; let statFilter = q.includes("no show") ? "Student No Show" : q.includes("absent") ? "Absent" : q.includes("glitch") ? "System Glitch" : "Class Limit Reached";
@@ -2390,7 +2446,7 @@
             const activePS = (window.globalStudents || []).filter(s => String(s.status).toLowerCase() !== 'deleted' && s.type === 'PS' && s.monthCompleted >= (s.monthlyLimit || 4));
             if (activePS.length > 0) {
                 activePS.forEach(s => {
-                    html += `<div class="ob-result-item" onclick="window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${s.name}');"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;" class="alert-pulse">🔴</span><div><div style="font-weight:600; color:#ef4444;">Limit Exceeded: ${s.name}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.monthCompleted} / ${s.monthlyLimit || 4} Classes Completed</div></div><span class="ob-command-badge" style="background:#fef2f2; color:#ef4444; border:1px solid #fecaca;">Action Required</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+                    html += `<div class="ob-result-item" onclick="window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${esc(s.name)}');"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;" class="alert-pulse">🔴</span><div><div style="font-weight:600; color:#ef4444;">Limit Exceeded: ${esc(s.name)}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.monthCompleted} / ${s.monthlyLimit || 4} Classes Completed</div></div><span class="ob-command-badge" style="background:#fef2f2; color:#ef4444; border:1px solid #fecaca;">Action Required</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
                 });
             } else {
                 html += `<div class="ob-result-item"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">✅</span><span style="font-weight:600; color:var(--text-main);">No active PS students have exhausted their limit.</span></div></div>`;
@@ -2431,7 +2487,7 @@
             const matchingStudents = APP_STATE.students.filter(s => s.name.toLowerCase().includes(q));
             matchingStudents.forEach(s => {
                 matched = true;
-                html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><div><div style="font-weight:700; color:var(--text-main);">${s.name}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div></div></div><button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6; height: 28px; padding: 0 8px;" onclick="event.stopPropagation(); window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${s.name}');">✨ Find Slots</button></div><div style="display:flex; gap:8px;"><button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${s.name}')">💬 Jump to CRM</button><button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); el.value='${s.name}'; el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);">📅 Schedule</button></div></div>`;
+                html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><div><div style="font-weight:700; color:var(--text-main);">${esc(s.name)}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div></div></div><button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6; height: 28px; padding: 0 8px;" onclick="event.stopPropagation(); window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${esc(s.name)}');">✨ Find Slots</button></div><div style="display:flex; gap:8px;"><button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${esc(s.name)}')">💬 Jump to CRM</button><button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); el.value='${esc(s.name)}'; el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);">📅 Schedule</button></div></div>`;
             });
         }
         if (!matched) { html = `<div style="text-align:center; padding:20px; color:#94a3b8;">No matching students or commands found.<br><span style="font-size:0.8rem; margin-top:8px; display:block;">Try: "Schedule Aadira for tomorrow at 3 PM", "Receipt for Shayraf", or "No shows".</span></div>`; }
@@ -2489,7 +2545,7 @@ window.renderClassLimits = function() {
         const icon = isCritical ? '🛑 Limit Reached' : '⚠️ Nearing Limit';
 
         htmlString += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${bgColor}; border-radius: 8px; border-left: 5px solid ${borderColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <span style="font-size: 0.95rem; font-weight: 600; color: ${textColor};">${s.name} <span style="font-weight: 500; font-size: 0.8rem; margin-left: 8px; opacity: 0.8;">${icon}</span></span>
+            <span style="font-size: 0.95rem; font-weight: 600; color: ${textColor};">${esc(s.name)} <span style="font-weight: 500; font-size: 0.8rem; margin-left: 8px; opacity: 0.8;">${icon}</span></span>
             <span style="font-size: 1rem; font-weight: 800; color: ${borderColor};">${s.monthCompleted} / ${limit}</span>
         </div>`;
     });
