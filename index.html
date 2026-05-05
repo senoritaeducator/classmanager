@@ -382,6 +382,102 @@
                 flex-shrink: 0 !important;
                 margin: 0 !important;
             }
+
+            /* --- MOBILE HOTFIXES V126.2 --- */
+
+            /* 1. Copy Schedule Radio Buttons (2 on line 1, 3rd on line 2) */
+            #copyWeekModal .modal-body > div[style*="display:flex"] {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 10px !important;
+                flex-direction: row !important;
+            }
+            #copyWeekModal .modal-body > div[style*="display:flex"] > *:nth-child(3) {
+                grid-column: span 2 !important;
+            }
+
+            /* 2. Modal Cross (X) Buttons - Absolute Position Nuclear Fix */
+            .modal-content .close, 
+            .modal-content .modal-close-btn,
+            .modal-header .close {
+                width: 28px !important; 
+                height: 28px !important; 
+                max-width: 28px !important;
+                min-width: 28px !important;
+                line-height: 26px !important; 
+                font-size: 20px !important; 
+                padding: 0 !important; 
+                display: flex !important; 
+                justify-content: center !important; 
+                align-items: center !important; 
+                position: absolute !important;
+                top: 12px !important;
+                right: 12px !important;
+                box-sizing: border-box !important;
+                margin: 0 !important;
+            }
+
+            /* 3 & 4. Danger Zone & Comm Hub - Strict Flex Nowrap */
+            .danger-zone,
+            #section-communications .section-card > div:first-child {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            .danger-zone select,
+            #section-communications .section-card > div:first-child select {
+                flex: 1 1 auto !important;
+                width: 100% !important;
+                height: 42px !important;
+                margin: 0 !important;
+            }
+            .danger-zone button,
+            #section-communications .section-card > div:first-child button {
+                flex: 0 0 auto !important;
+                width: auto !important;
+                height: 42px !important;
+                padding: 0 16px !important;
+                margin: 0 !important;
+                white-space: nowrap !important;
+            }
+
+            /* 5. Comm Hub Right-Align Bug Fix */
+            #section-communications .section-card {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: flex-start !important; /* Resets from flex-end */
+                text-align: left !important;
+            }
+            #section-communications .section-card textarea,
+            #section-communications .section-card p,
+            #section-communications .section-card div {
+                text-align: left !important;
+                width: 100% !important;
+            }
+            #section-communications .section-card > .btn-primary {
+                align-self: center !important; /* Keeps draft button centered */
+                width: 100% !important;
+                margin-top: 12px !important;
+            }
+
+            /* 6. Smart Availability "Copy All" Button */
+            #section-analytics .section-header {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+            }
+            #section-analytics .section-header .btn {
+                flex: 0 0 auto !important;
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                padding: 6px 14px !important;
+                margin: 0 !important;
+            }
         }
     </style>
 <body>
@@ -1016,7 +1112,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v126.1 PROD | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v126.2 PROD | Powered by LazifAI</div></footer>
 
     <!-- MODALS -->
 
