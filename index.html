@@ -302,182 +302,89 @@
             .desktop-actions-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 6px !important; justify-content: stretch !important; }
             .desktop-actions-row .btn { width: 100% !important; padding: 6px 2px !important; font-size: 0.75rem !important; }
 
-            /* --- MOBILE HOTFIXES V126.1 --- */
+           /* --- MOBILE HOTFIXES V126.3 (TARGETED) --- */
 
-            /* 1. Modal Close Buttons (Cross) - Strict limits */
-            .close, .modal-close-btn { 
-                width: 28px !important; 
-                height: 28px !important; 
-                line-height: 28px !important; 
-                font-size: 20px !important; 
-                padding: 0 !important; 
-                display: flex !important; 
-                justify-content: center !important; 
-                align-items: center !important; 
-            }
+           /* 1. Modal Cross (X) Buttons - Exact targeting by onclick attribute */
+           .modal-header button[onclick*="remove('show')"] {
+               width: 28px !important; 
+               height: 28px !important; 
+               max-width: 28px !important;
+               min-width: 28px !important;
+               line-height: 26px !important; 
+               font-size: 16px !important; 
+               padding: 0 !important; 
+               display: flex !important; 
+               justify-content: center !important; 
+               align-items: center !important; 
+               position: absolute !important;
+               top: 16px !important;
+               right: 16px !important;
+               background: transparent !important;
+               border: 1px solid #cbd5e1 !important;
+           }
 
-            /* 2. Danger Zone - Same line, proportional size */
-            .danger-zone {
-                display: grid !important;
-                grid-template-columns: 1fr auto !important;
-                gap: 8px !important;
-                align-items: center !important;
-            }
-            .danger-zone select {
-                width: 100% !important;
-                height: 42px !important;
-                margin: 0 !important;
-            }
-            .danger-zone button {
-                width: auto !important;
-                height: 42px !important;
-                margin: 0 !important;
-                padding: 0 16px !important;
-                white-space: nowrap !important;
-                font-size: 0.85rem !important;
-            }
+           /* 2. Danger Zone - Target Exact IDs to stop flexbox bloat */
+           #student-delete-select { 
+               width: 100% !important; 
+               flex: 1 1 auto !important; 
+               min-width: 120px !important; 
+               height: 42px !important; 
+           }
+           button[onclick="window.executeDeleteStudent()"] { 
+               width: auto !important; 
+               flex: 0 0 auto !important; 
+               padding: 0 16px !important; 
+               height: 42px !important; 
+           }
 
-            /* 3. Communication Hub - Same line, proportional size */
-            #section-communications .section-card { 
-                display: grid !important; 
-                grid-template-columns: 1fr auto !important; 
-                gap: 8px !important; 
-                align-items: start !important;
-            }
-            #section-communications .section-card > div:first-child { 
-                grid-column: 1 !important; 
-                margin-bottom: 8px !important;
-            }
-            #section-communications .section-card > div:first-child select {
-                height: 42px !important;
-                width: 100% !important;
-            }
-            #section-communications .section-card > .btn-primary { 
-                grid-column: 2 !important; 
-                width: auto !important; 
-                height: 42px !important; 
-                margin: 0 !important; 
-                padding: 0 16px !important; 
-                font-size: 0.85rem !important;
-                white-space: nowrap !important;
-            }
-            #section-communications .section-card > textarea { 
-                grid-column: 1 / -1 !important; 
-                margin-top: 4px !important;
-            }
+           /* 3. Communication Hub - Target Exact IDs */
+           #crm-student-select { 
+               width: 100% !important; 
+               flex: 1 1 auto !important; 
+               min-width: 120px !important; 
+               height: 42px !important; 
+           }
+           button[onclick="window.triggerManualCrmReset()"] { 
+               width: auto !important; 
+               flex: 0 0 auto !important; 
+               padding: 0 16px !important; 
+               height: 42px !important; 
+           }
 
-            /* 4. Copy All & Copy Buttons - Stop expansion */
-            #section-analytics .section-header {
-                flex-direction: row !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-            }
-            #section-analytics .section-header .btn, 
-            .avail-date-row .btn {
-                width: auto !important;
-                max-width: max-content !important;
-                padding: 6px 14px !important;
-                font-size: 0.8rem !important;
-                height: auto !important;
-                flex-shrink: 0 !important;
-                margin: 0 !important;
-            }
+           /* 4. Fix Comm Hub Right-Align Bug (Resetting the flex directions) */
+           #section-communications .section-card > .form-group {
+               flex-wrap: nowrap !important;
+               align-items: flex-end !important;
+           }
+           #crm-action-area {
+               text-align: left !important;
+           }
 
-            /* --- MOBILE HOTFIXES V126.2 --- */
+           /* 5. Smart Availability "Copy All" Button - Target exact class */
+           .avail-header {
+               display: flex !important;
+               flex-direction: row !important;
+               flex-wrap: nowrap !important;
+               justify-content: space-between !important;
+               align-items: center !important;
+           }
+           .avail-header button {
+               width: auto !important;
+               flex: 0 0 auto !important;
+               padding: 4px 12px !important;
+               height: 32px !important;
+               margin: 0 !important;
+           }
 
-            /* 1. Copy Schedule Radio Buttons (2 on line 1, 3rd on line 2) */
-            #copyWeekModal .modal-body > div[style*="display:flex"] {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 10px !important;
-                flex-direction: row !important;
-            }
-            #copyWeekModal .modal-body > div[style*="display:flex"] > *:nth-child(3) {
-                grid-column: span 2 !important;
-            }
-
-            /* 2. Modal Cross (X) Buttons - Absolute Position Nuclear Fix */
-            .modal-content .close, 
-            .modal-content .modal-close-btn,
-            .modal-header .close {
-                width: 28px !important; 
-                height: 28px !important; 
-                max-width: 28px !important;
-                min-width: 28px !important;
-                line-height: 26px !important; 
-                font-size: 20px !important; 
-                padding: 0 !important; 
-                display: flex !important; 
-                justify-content: center !important; 
-                align-items: center !important; 
-                position: absolute !important;
-                top: 12px !important;
-                right: 12px !important;
-                box-sizing: border-box !important;
-                margin: 0 !important;
-            }
-
-            /* 3 & 4. Danger Zone & Comm Hub - Strict Flex Nowrap */
-            .danger-zone,
-            #section-communications .section-card > div:first-child {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: nowrap !important;
-                align-items: center !important;
-                gap: 8px !important;
-            }
-            .danger-zone select,
-            #section-communications .section-card > div:first-child select {
-                flex: 1 1 auto !important;
-                width: 100% !important;
-                height: 42px !important;
-                margin: 0 !important;
-            }
-            .danger-zone button,
-            #section-communications .section-card > div:first-child button {
-                flex: 0 0 auto !important;
-                width: auto !important;
-                height: 42px !important;
-                padding: 0 16px !important;
-                margin: 0 !important;
-                white-space: nowrap !important;
-            }
-
-            /* 5. Comm Hub Right-Align Bug Fix */
-            #section-communications .section-card {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: flex-start !important; /* Resets from flex-end */
-                text-align: left !important;
-            }
-            #section-communications .section-card textarea,
-            #section-communications .section-card p,
-            #section-communications .section-card div {
-                text-align: left !important;
-                width: 100% !important;
-            }
-            #section-communications .section-card > .btn-primary {
-                align-self: center !important; /* Keeps draft button centered */
-                width: 100% !important;
-                margin-top: 12px !important;
-            }
-
-            /* 6. Smart Availability "Copy All" Button */
-            #section-analytics .section-header {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: nowrap !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-            }
-            #section-analytics .section-header .btn {
-                flex: 0 0 auto !important;
-                width: auto !important;
-                min-width: 0 !important;
-                max-width: none !important;
-                padding: 6px 14px !important;
-                margin: 0 !important;
-            }
+           /* 6. Copy Schedule Radio Buttons - Grid split */
+           #copyWeekModal .modal-body > div:first-child {
+               display: grid !important;
+               grid-template-columns: 1fr 1fr !important;
+               gap: 10px !important;
+           }
+           #copyWeekModal .modal-body > div:first-child > label:nth-child(3) {
+               grid-column: span 2 !important;
+           }
         }
     </style>
 <body>
@@ -1106,15 +1013,12 @@
             </div>
             <div style="overflow-x: auto; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
                 <div id="timetable-container" style="min-width: 700px;">
-                    <!-- JS window.renderTimetable() will populate this grid with colorful, school-style CSS -->
-                </div>
+                    </div>
             </div>
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v126.2 PROD | Powered by LazifAI</div></footer>
-
-    <!-- MODALS -->
+    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v126.3 PROD | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1249,7 +1153,6 @@
     <div id="errorModal" class="modal-backdrop"><div class="modal"><div class="modal-header" style="border-left: 5px solid #ef4444;"><div class="modal-title" style="color:#ef4444;">System Alert</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('errorModal').classList.remove('show')">✕</button></div><div class="modal-body"><p id="errorText"></p></div><div class="modal-footer"><button class="btn btn-primary" onclick="document.getElementById('errorModal').classList.remove('show')">Acknowledge</button></div></div></div>
     <div id="reportModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Status Report</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('reportModal').classList.remove('show')">✕</button></div><div class="modal-body"><p id="reportText" style="white-space:pre-wrap;"></p></div><div class="modal-footer"><button class="btn btn-primary" onclick="document.getElementById('reportModal').classList.remove('show')">Close</button></div></div></div>
     
-    <!-- UNIFIED STUDENT PROFILE MODAL -->
     <div id="profileModal" class="modal-backdrop">
         <div class="modal">
             <div class="modal-header">
@@ -1292,7 +1195,6 @@
         </div>
     </div>
 
-    <!-- UNIFIED SCHEDULING MODAL -->
     <div id="schedulingModal" class="modal-backdrop">
         <div class="modal">
             <div class="modal-header">
@@ -1354,7 +1256,6 @@
 
     <div id="omniboxModal" class="modal-backdrop" style="z-index: 4000; align-items: flex-start; padding-top: 10vh;"><div class="modal" style="max-width: 600px; background: transparent; box-shadow: none;"><div style="background: #fff; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--primary);"><div style="display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 1.2rem; color: #64748b; margin-right: 12px;">🔍</span><input type="text" id="omniboxInput" style="flex: 1; border: none; font-size: 1.15rem; outline: none; padding: 4px 0; background: transparent; color: var(--text-main);" placeholder="Search students, slots, or commands..." autocomplete="off"><button type="button" class="mic-btn" id="omniboxMicBtn" onclick="window.toggleOmniboxVoice(this)" style="border:none; background:transparent; font-size:1.2rem; padding: 4px;">🎤</button><div class="omnibox-shortcut" style="margin-left: 12px;">ESC</div></div><div id="omniboxResults" style="max-height: 350px; overflow-y: auto; background: #f8fafc; padding: 12px; display: none;"></div></div></div></div>
 
-    <!-- NEW SYSTEM POPUP MODAL -->
     <div id="system-popup-modal" class="modal-backdrop" style="z-index: 99999 !important;">
         <div class="modal">
             <div class="modal-content" style="padding: 24px; max-width: 400px; text-align: center; margin: auto;">
