@@ -107,7 +107,18 @@
         .quick-actions-grid .btn { max-width: 100%; width: 100%; }
 
         /* Global UI & Cross Buttons Fix */
-        .close { width: 30px !important; height: 30px !important; line-height: 1 !important; padding: 0 !important; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; text-align: center; }
+        .close, .modal-close-btn { 
+            width: 32px !important; 
+            height: 32px !important; 
+            line-height: 32px !important; 
+            padding: 0 !important; 
+            display: flex !important; 
+            justify-content: center !important; 
+            align-items: center !important; 
+            font-size: 24px !important; 
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
         .btn-bulletin, .roster-stats { text-align: center; display: flex; justify-content: center; align-items: center; }
 
         /* PILL MULTI-SELECT */
@@ -256,12 +267,23 @@
 
         /* --- THE MOBILE LAYOUT MASTER PATCH --- */
         @media (max-width: 768px) {
-            /* Fix Header Crushing */
+            /* 1. Header Column Stacking */
             .section-header { flex-direction: column !important; align-items: stretch !important; gap: 10px; }
             .section-header > div:first-child { text-align: center; margin-bottom: 4px; }
             .section-header .btn { width: 100% !important; margin: 0 !important; }
 
-            /* Fix Student Card Button Bloat (Swipeable Ribbon) */
+            /* 2. Stop Flexbox Wars in Modals (Stack Dropdowns and Buttons) */
+            #copyWeekModal .modal-body > div, 
+            #loadMonthModal .modal-body,
+            .modal-body div[style*="display:flex"] {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+            }
+            .modal-body select, .modal-body input { width: 100% !important; max-width: 100% !important; }
+            .modal-body .btn { width: 100% !important; max-width: 100% !important; height: auto !important; padding: 10px !important; }
+
+            /* 3. Student Card Swipeable Ribbon */
             .student-card .btn-group, .student-card div[style*="display:flex"][style*="gap"] { 
                 flex-wrap: nowrap !important; 
                 overflow-x: auto !important; 
@@ -270,23 +292,98 @@
             }
             .student-card .btn { white-space: nowrap; flex-shrink: 0; }
 
-            /* Fix Crushed Inputs vs Giant Buttons (Daily Ops & CRM) */
-            .action-row { flex-wrap: wrap !important; }
-            input[type="text"], select, textarea { min-width: 0 !important; width: 100% !important; }
+            /* 4. Smart Availability Feed Header */
+            .avail-date-row { align-items: center !important; }
+            .avail-date-row .btn { width: auto !important; max-width: max-content !important; padding: 4px 10px !important; height: auto !important; }
 
-            /* Fix Daily Classes Grid (Note input top, buttons bottom) */
-            .class-action-grid { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 6px !important; margin-top: 8px; }
-            .class-note-input { grid-column: span 3 !important; margin-bottom: 6px; }
+            /* 5. Daily Ops Mobile Grid (Stack Inputs, Grid Buttons) */
+            .desktop-notes-row { flex-direction: column !important; gap: 6px !important; }
+            .desktop-notes-row input { width: 100% !important; }
+            .desktop-actions-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 6px !important; justify-content: stretch !important; }
+            .desktop-actions-row .btn { width: 100% !important; padding: 6px 2px !important; font-size: 0.75rem !important; }
 
-            /* Modal Claustrophobia */
-            .modal-content { max-height: calc(100svh - 80px) !important; padding: 16px !important; }
+            /* --- MOBILE HOTFIXES V126.1 --- */
 
-            /* AI Suggestion Cards - Force Buttons to Bottom */
-            .ai-suggestion-card > div:last-child { justify-content: stretch !important; }
-            .ai-suggestion-card > div:last-child .btn { width: 100% !important; }
+            /* 1. Modal Close Buttons (Cross) - Strict limits */
+            .close, .modal-close-btn { 
+                width: 28px !important; 
+                height: 28px !important; 
+                line-height: 28px !important; 
+                font-size: 20px !important; 
+                padding: 0 !important; 
+                display: flex !important; 
+                justify-content: center !important; 
+                align-items: center !important; 
+            }
+
+            /* 2. Danger Zone - Same line, proportional size */
+            .danger-zone {
+                display: grid !important;
+                grid-template-columns: 1fr auto !important;
+                gap: 8px !important;
+                align-items: center !important;
+            }
+            .danger-zone select {
+                width: 100% !important;
+                height: 42px !important;
+                margin: 0 !important;
+            }
+            .danger-zone button {
+                width: auto !important;
+                height: 42px !important;
+                margin: 0 !important;
+                padding: 0 16px !important;
+                white-space: nowrap !important;
+                font-size: 0.85rem !important;
+            }
+
+            /* 3. Communication Hub - Same line, proportional size */
+            #section-communications .section-card { 
+                display: grid !important; 
+                grid-template-columns: 1fr auto !important; 
+                gap: 8px !important; 
+                align-items: start !important;
+            }
+            #section-communications .section-card > div:first-child { 
+                grid-column: 1 !important; 
+                margin-bottom: 8px !important;
+            }
+            #section-communications .section-card > div:first-child select {
+                height: 42px !important;
+                width: 100% !important;
+            }
+            #section-communications .section-card > .btn-primary { 
+                grid-column: 2 !important; 
+                width: auto !important; 
+                height: 42px !important; 
+                margin: 0 !important; 
+                padding: 0 16px !important; 
+                font-size: 0.85rem !important;
+                white-space: nowrap !important;
+            }
+            #section-communications .section-card > textarea { 
+                grid-column: 1 / -1 !important; 
+                margin-top: 4px !important;
+            }
+
+            /* 4. Copy All & Copy Buttons - Stop expansion */
+            #section-analytics .section-header {
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+            }
+            #section-analytics .section-header .btn, 
+            .avail-date-row .btn {
+                width: auto !important;
+                max-width: max-content !important;
+                padding: 6px 14px !important;
+                font-size: 0.8rem !important;
+                height: auto !important;
+                flex-shrink: 0 !important;
+                margin: 0 !important;
+            }
         }
     </style>
-</head>
 <body>
 
 <div class="container">
@@ -636,7 +733,7 @@
                                 <div id="demo-improvements-pills">
                                     <input type="checkbox" id="di1" value="Grammar Accuracy" class="pill-checkbox"><label for="di1" class="pill-label">Grammar Accuracy</label>
                                     <input type="checkbox" id="di2" value="Sentence Construction" class="pill-checkbox"><label for="di2" class="pill-label">Sentence Construction</label>
-                                    <input type="checkbox" id="di3" value="Voice Modulation" class="pill-checkbox"><label for="di3" class="pill-label">Voice Modulation</label>
+                                    <input type="checkbox" id="di3" value="Voice Modulation" class="pill-checkbox"><label for="di3" class="pill-checkbox"><label for="di3" class="pill-label">Voice Modulation</label>
                                     <input type="checkbox" id="di4" value="Body Language/Gestures" class="pill-checkbox"><label for="di4" class="pill-label">Body Language/Gestures</label>
                                     <input type="checkbox" id="di5" value="Hesitation / Pauses" class="pill-checkbox"><label for="di5" class="pill-label">Hesitation / Pauses</label>
                                     <input type="checkbox" id="di6" value="Eye Contact" class="pill-checkbox"><label for="di6" class="pill-label">Eye Contact</label>
@@ -919,7 +1016,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v125 PROD | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v126.1 PROD | Powered by LazifAI</div></footer>
 
     <!-- MODALS -->
 
@@ -927,7 +1024,7 @@
         <div class="modal">
             <div class="modal-header">
                 <div class="modal-title">✨ AI Capacity Manager</div>
-                <button class="btn btn-outline btn-sm" onclick="document.getElementById('smartSlotModal').classList.remove('show')">✕</button>
+                <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('smartSlotModal').classList.remove('show')">✕</button>
             </div>
             <div class="modal-body">
                 <div id="smartSlotStudentName" style="font-weight:700; margin-bottom:16px; font-size:1.1rem; color:var(--primary);"></div>
@@ -951,7 +1048,7 @@
         <div class="modal" style="max-width: 650px;">
             <div class="modal-header">
                 <div class="modal-title">⚖️ Class Schedule Optimiser</div>
-                <button class="btn btn-outline btn-sm" onclick="document.getElementById('rosterHealthModal').classList.remove('show')">✕</button>
+                <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('rosterHealthModal').classList.remove('show')">✕</button>
             </div>
             <div class="modal-body" style="background: #f8fafc; padding: 20px;">
                 <div id="rh-loading" style="text-align:center; padding:30px; color:var(--primary); font-weight:600;">
@@ -1001,7 +1098,7 @@
         <div class="modal" style="max-width: 500px;">
             <div class="modal-header">
                 <div class="modal-title" id="auditModalTitle">📋 Execution Report</div>
-                <button class="btn btn-outline btn-sm" onclick="document.getElementById('auditModal').classList.remove('show')">✕</button>
+                <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('auditModal').classList.remove('show')">✕</button>
             </div>
             <div class="modal-body" id="auditModalBody" style="max-height: 60vh; overflow-y: auto; background: #f8fafc;"></div>
             <div class="modal-footer"><button class="btn btn-primary" onclick="document.getElementById('auditModal').classList.remove('show')">Acknowledge</button></div>
@@ -1012,7 +1109,7 @@
         <div class="modal" style="max-width: 500px;">
             <div class="modal-header" style="border-left: 5px solid #8b5cf6;">
                 <div class="modal-title">🚀 Batch Dispatch (<span id="dispatch-progress" style="color:#8b5cf6;">1 of X</span>)</div>
-                <button class="btn btn-outline btn-sm" onclick="document.getElementById('dispatchModal').classList.remove('show')">✕</button>
+                <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('dispatchModal').classList.remove('show')">✕</button>
             </div>
             <div class="modal-body">
                 <div style="font-weight:700; margin-bottom:12px; color:var(--text-main); font-size:1.05rem;">Message for: <span id="dispatch-student-name" style="color:var(--primary);"></span></div>
@@ -1025,13 +1122,13 @@
         </div>
     </div>
 
-    <div id="driveLinkModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Update Study Material Link</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('driveLinkModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group"><label>Google Drive Folder URL</label><input type="text" id="driveLinkInput" placeholder="Paste link here..."></div></div><div class="modal-footer"><button class="btn btn-primary" onclick="window.saveDriveLink()">Save Link</button></div></div></div>
+    <div id="driveLinkModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Update Study Material Link</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('driveLinkModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group"><label>Google Drive Folder URL</label><input type="text" id="driveLinkInput" placeholder="Paste link here..."></div></div><div class="modal-footer"><button class="btn btn-primary" onclick="window.saveDriveLink()">Save Link</button></div></div></div>
     
-    <div id="customTzModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Add Custom City</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('customTzModal').classList.remove('show')">✕</button></div><div class="modal-body"><p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;">Type a city or country to find its timezone (e.g., "Toronto" for America/Toronto).</p><div class="form-group"><input type="text" id="customTzSearch" list="tz-list" placeholder="Search standard timezones..." autocomplete="off"><datalist id="tz-list"></datalist></div></div><div class="modal-footer"><button class="btn btn-outline" onclick="document.getElementById('customTzModal').classList.remove('show')">Cancel</button><button class="btn btn-primary" onclick="window.saveCustomTz()">Save & Select</button></div></div></div>
+    <div id="customTzModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Add Custom City</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('customTzModal').classList.remove('show')">✕</button></div><div class="modal-body"><p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;">Type a city or country to find its timezone (e.g., "Toronto" for America/Toronto).</p><div class="form-group"><input type="text" id="customTzSearch" list="tz-list" placeholder="Search standard timezones..." autocomplete="off"><datalist id="tz-list"></datalist></div></div><div class="modal-footer"><button class="btn btn-outline" onclick="document.getElementById('customTzModal').classList.remove('show')">Cancel</button><button class="btn btn-primary" onclick="window.saveCustomTz()">Save & Select</button></div></div></div>
     
     <div id="smartBulletinModal" class="modal-backdrop">
         <div class="modal" style="max-width: 550px;">
-            <div class="modal-header"><div class="modal-title" style="display:flex; align-items:center; gap:8px;"><span>✨</span> Smart Bulletin</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('smartBulletinModal').classList.remove('show')">✕</button></div>
+            <div class="modal-header"><div class="modal-title" style="display:flex; align-items:center; gap:8px;"><span>✨</span> Smart Bulletin</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('smartBulletinModal').classList.remove('show')">✕</button></div>
             <div style="display:flex; border-bottom:1px solid #e2e8f0; background:#f8fafc; overflow-x:auto;">
                 <button class="sb-tab-btn active" onclick="window.switchSbTab('scout')">🔍 Trial Follow-ups</button>
                 <button class="sb-tab-btn" onclick="window.switchSbTab('fbAlerts')">💬 Send Feedback</button>
@@ -1053,15 +1150,15 @@
         <div class="modal"><div class="modal-header"><div class="modal-title">Confirm Action</div></div><div class="modal-body"><p id="confirmText">Are you sure?</p></div><div class="modal-footer"><button id="confirmNo" class="btn btn-outline" onclick="document.getElementById('confirmModal').classList.remove('show')">Cancel</button><button id="confirmYes" class="btn btn-primary">Proceed</button></div></div>
     </div>
     
-    <div id="errorModal" class="modal-backdrop"><div class="modal"><div class="modal-header" style="border-left: 5px solid #ef4444;"><div class="modal-title" style="color:#ef4444;">System Alert</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('errorModal').classList.remove('show')">✕</button></div><div class="modal-body"><p id="errorText"></p></div><div class="modal-footer"><button class="btn btn-primary" onclick="document.getElementById('errorModal').classList.remove('show')">Acknowledge</button></div></div></div>
-    <div id="reportModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Status Report</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('reportModal').classList.remove('show')">✕</button></div><div class="modal-body"><p id="reportText" style="white-space:pre-wrap;"></p></div><div class="modal-footer"><button class="btn btn-primary" onclick="document.getElementById('reportModal').classList.remove('show')">Close</button></div></div></div>
+    <div id="errorModal" class="modal-backdrop"><div class="modal"><div class="modal-header" style="border-left: 5px solid #ef4444;"><div class="modal-title" style="color:#ef4444;">System Alert</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('errorModal').classList.remove('show')">✕</button></div><div class="modal-body"><p id="errorText"></p></div><div class="modal-footer"><button class="btn btn-primary" onclick="document.getElementById('errorModal').classList.remove('show')">Acknowledge</button></div></div></div>
+    <div id="reportModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Status Report</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('reportModal').classList.remove('show')">✕</button></div><div class="modal-body"><p id="reportText" style="white-space:pre-wrap;"></p></div><div class="modal-footer"><button class="btn btn-primary" onclick="document.getElementById('reportModal').classList.remove('show')">Close</button></div></div></div>
     
     <!-- UNIFIED STUDENT PROFILE MODAL -->
     <div id="profileModal" class="modal-backdrop">
         <div class="modal">
             <div class="modal-header">
                 <div class="modal-title">👤 Student Profile</div>
-                <button class="btn btn-outline btn-sm" onclick="document.getElementById('profileModal').classList.remove('show')">✕</button>
+                <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('profileModal').classList.remove('show')">✕</button>
             </div>
             <div class="modal-body">
                 <div id="profileStudentNameDisplay" style="font-weight:700; margin-bottom:16px; font-size:1.1rem; color:var(--primary);"></div>
@@ -1104,7 +1201,7 @@
         <div class="modal">
             <div class="modal-header">
                 <div class="modal-title">🗓️ Scheduling</div>
-                <button class="btn btn-outline btn-sm" onclick="document.getElementById('schedulingModal').classList.remove('show')">✕</button>
+                <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('schedulingModal').classList.remove('show')">✕</button>
             </div>
             <div class="modal-body" style="background: #f8fafc;">
                 <div id="schedStudentNameDisplay" style="font-weight:700; margin-bottom:16px; font-size:1.1rem; color:var(--primary);"></div>
@@ -1138,7 +1235,7 @@
         <div class="modal">
             <div class="modal-header">
                 <div class="modal-title">Copy Schedule</div>
-                <button class="btn btn-outline btn-sm" onclick="document.getElementById('copyWeekModal').classList.remove('show')">✕</button>
+                <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('copyWeekModal').classList.remove('show')">✕</button>
             </div>
             <div class="modal-body">
                 <div style="display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap;">
@@ -1155,9 +1252,9 @@
         </div>
     </div>
     
-    <div id="pendingReviewModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Class Status Pending</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('pendingReviewModal').classList.remove('show')">✕</button></div><div class="modal-body" style="max-height:60vh; overflow-y:auto; background:#f8fafc; padding:10px;" id="pendingReviewList"></div><div class="modal-footer" style="justify-content:space-between;"><span style="font-size:0.8rem; color:var(--text-sub);">Select status to clear item</span><button class="btn btn-soft btn-sm" onclick="document.getElementById('pendingReviewModal').classList.remove('show')">Close</button></div></div></div>
-    <div id="historyModal" class="modal-backdrop"><div class="modal" style="max-width: 600px;"><div class="modal-header"><div class="modal-title">Advanced Data Report</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('historyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group" style="display:flex; gap:10px; margin-bottom:12px;"><div style="flex:1;"><label>Start Date</label><input type="date" id="historyStartDate"></div><div style="flex:1;"><label>End Date</label><input type="date" id="historyEndDate"></div></div><div class="form-group" style="display:flex; gap:10px; margin-bottom:16px;"><div style="flex:1;"><label>Org Filter</label><select id="historyTypeFilter"><option value="All">All Orgs</option><option value="CM">CM</option><option value="PS">PS</option><option value="Personal">Personal</option><option value="Trial">Trial</option></select></div><div style="flex:1;"><label>Status Filter</label><select id="historyStatusFilter"><option value="All">All Statuses</option><option value="Completed">Completed</option><option value="Student No Show">No Show</option><option value="Absent">Absent</option><option value="Cancelled">Cancelled</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Paused</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div></div><button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button><div id="historyResult" style="display:none; margin-top:20px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;"><span style="font-weight:700; color:var(--primary);">Report Summary</span><button class="btn btn-outline btn-sm" onclick="window.copyHistoryData()">📋 Copy Data</button></div><div id="histOrgBreakdown"></div><table style="width:100%; text-align:left; border-collapse:collapse; margin-top:10px; font-size:0.9rem;"><thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead><tbody id="histTableBody"></tbody></table></div></div></div></div>
-    <div id="smartCopyModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Select Shifts to Copy</div><button class="btn btn-outline btn-sm" onclick="document.getElementById('smartCopyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group"><label class="radio-label"><input type="checkbox" id="scMorn" checked> 🌅 Morning (Before 12 PM)</label><label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scAft" checked> ☀️ Afternoon (12 PM - 5 PM)</label><label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scEve" checked> 🌙 Evening (5 PM Onwards)</label></div><input type="hidden" id="scDateTarget"></div><div class="modal-footer"><button class="btn btn-primary" onclick="window.executeSmartCopy()">📋 Copy Selected</button></div></div></div>
+    <div id="pendingReviewModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Class Status Pending</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('pendingReviewModal').classList.remove('show')">✕</button></div><div class="modal-body" style="max-height:60vh; overflow-y:auto; background:#f8fafc; padding:10px;" id="pendingReviewList"></div><div class="modal-footer" style="justify-content:space-between;"><span style="font-size:0.8rem; color:var(--text-sub);">Select status to clear item</span><button class="btn btn-soft btn-sm" onclick="document.getElementById('pendingReviewModal').classList.remove('show')">Close</button></div></div></div>
+    <div id="historyModal" class="modal-backdrop"><div class="modal" style="max-width: 600px;"><div class="modal-header"><div class="modal-title">Advanced Data Report</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('historyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group" style="display:flex; gap:10px; margin-bottom:12px;"><div style="flex:1;"><label>Start Date</label><input type="date" id="historyStartDate"></div><div style="flex:1;"><label>End Date</label><input type="date" id="historyEndDate"></div></div><div class="form-group" style="display:flex; gap:10px; margin-bottom:16px;"><div style="flex:1;"><label>Org Filter</label><select id="historyTypeFilter"><option value="All">All Orgs</option><option value="CM">CM</option><option value="PS">PS</option><option value="Personal">Personal</option><option value="Trial">Trial</option></select></div><div style="flex:1;"><label>Status Filter</label><select id="historyStatusFilter"><option value="All">All Statuses</option><option value="Completed">Completed</option><option value="Student No Show">No Show</option><option value="Absent">Absent</option><option value="Cancelled">Cancelled</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Paused</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div></div><button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button><div id="historyResult" style="display:none; margin-top:20px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;"><span style="font-weight:700; color:var(--primary);">Report Summary</span><button class="btn btn-outline btn-sm" onclick="window.copyHistoryData()">📋 Copy Data</button></div><div id="histOrgBreakdown"></div><table style="width:100%; text-align:left; border-collapse:collapse; margin-top:10px; font-size:0.9rem;"><thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead><tbody id="histTableBody"></tbody></table></div></div></div></div>
+    <div id="smartCopyModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Select Shifts to Copy</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('smartCopyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group"><label class="radio-label"><input type="checkbox" id="scMorn" checked> 🌅 Morning (Before 12 PM)</label><label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scAft" checked> ☀️ Afternoon (12 PM - 5 PM)</label><label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scEve" checked> 🌙 Evening (5 PM Onwards)</label></div><input type="hidden" id="scDateTarget"></div><div class="modal-footer"><button class="btn btn-primary" onclick="window.executeSmartCopy()">📋 Copy Selected</button></div></div></div>
 
     <div id="omniboxModal" class="modal-backdrop" style="z-index: 4000; align-items: flex-start; padding-top: 10vh;"><div class="modal" style="max-width: 600px; background: transparent; box-shadow: none;"><div style="background: #fff; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--primary);"><div style="display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 1.2rem; color: #64748b; margin-right: 12px;">🔍</span><input type="text" id="omniboxInput" style="flex: 1; border: none; font-size: 1.15rem; outline: none; padding: 4px 0; background: transparent; color: var(--text-main);" placeholder="Search students, slots, or commands..." autocomplete="off"><button type="button" class="mic-btn" id="omniboxMicBtn" onclick="window.toggleOmniboxVoice(this)" style="border:none; background:transparent; font-size:1.2rem; padding: 4px;">🎤</button><div class="omnibox-shortcut" style="margin-left: 12px;">ESC</div></div><div id="omniboxResults" style="max-height: 350px; overflow-y: auto; background: #f8fafc; padding: 12px; display: none;"></div></div></div></div>
 
@@ -1558,9 +1655,11 @@
             let stat = `<div><select class="status-select" data-id="${c.ClassID}"><option value="Scheduled" ${c.Status==='Scheduled'?'selected':''}>📅 Scheduled</option><option value="Completed" ${c.Status==='Completed'?'selected':''}>✅ Completed</option><option value="Student No Show" ${c.Status==='Student No Show'?'selected':''}>⚠️ No Show</option><option value="Absent" ${c.Status==='Absent'?'selected':''}>📉 Absent</option><option value="Cancelled" ${c.Status==='Cancelled'?'selected':''}>❌ Cancelled</option><option value="System Glitch" ${c.Status==='System Glitch'?'selected':''}>💻 System Glitch</option><option value="Rescheduled" ${c.Status==='Rescheduled'?'selected':''}>🔁 Rescheduled</option><option value="Paused" ${c.Status==='Paused'?'selected':''}>⏸ Paused</option><option value="Class Limit Reached" ${c.Status === 'Class Limit Reached' ? 'selected' : ''}>🛑 Class Limit Reached</option></select></div>`;
             
             let notesHtml = `
-            <input type="text" class="card-notes-input class-note-input form-control" placeholder="Save session notes..." value="${esc(c.Notes)}">
-            <input type="text" class="card-next-topic class-note-input form-control" placeholder="Next Topic (Syncs to Calendar)...">
-            <div class="class-action-grid">
+            <div class="desktop-notes-row" style="display:flex; gap:10px; margin-top:12px; margin-bottom:8px;">
+                <input type="text" class="card-notes-input form-control" id="notes-${c.ClassID}" placeholder="Save session notes..." value="${esc(c.Notes || '')}" style="flex:1;">
+                <input type="text" class="card-next-topic form-control" id="topic-${c.ClassID}" placeholder="Next Topic (Syncs to Calendar)..." value="" style="flex:1;">
+            </div>
+            <div class="desktop-actions-row" style="display:flex; justify-content:flex-end; gap:10px;">
                 <button class="btn btn-soft btn-sm btn-generate">💬 Message</button>
                 <button class="btn btn-outline btn-sm btn-reschedule">🔁 Reschedule</button>
                 <button class="btn btn-primary btn-sm btn-save-notes">💾 Save</button>
