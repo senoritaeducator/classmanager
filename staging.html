@@ -455,7 +455,7 @@
         <button class="main-tab-btn" onclick="window.showMainSection('analytics')">📊 Analytics</button>
         <button class="main-tab-btn" onclick="window.showMainSection('onboarding')">🚀 Student Kit</button> 
     </nav>
-<section id="section-classes" class="section show">
+    <section id="section-classes" class="section show">
         <div class="section-card">
             <div class="section-header">
                 <div><span class="section-title">Dashboard Overview</span></div>
@@ -627,8 +627,7 @@
             </div>
         </div>
     </section>
-    
-    <section id="section-communications" class="section">
+<section id="section-communications" class="section">
         <div class="section-card" style="padding-bottom: 0;">
             <div class="section-header" style="margin-bottom: 0; border-bottom: none;">
                 <div><span class="section-title">Communications Hub</span><span class="section-caption">Progress Reports, Demos & PTM Scheduling</span></div>
@@ -737,7 +736,7 @@
                                 <div id="demo-improvements-pills">
                                     <input type="checkbox" id="di1" value="Grammar Accuracy" class="pill-checkbox"><label for="di1" class="pill-label">Grammar Accuracy</label>
                                     <input type="checkbox" id="di2" value="Sentence Construction" class="pill-checkbox"><label for="di2" class="pill-label">Sentence Construction</label>
-                                    <input type="checkbox" id="di3" value="Voice Modulation" class="pill-checkbox"><label for="di3" class="pill-label">Voice Modulation</label>
+                                    <input type="checkbox" id="di3" value="Voice Modulation" class="pill-checkbox"><label for="di3" class="pill-checkbox"><label for="di3" class="pill-label">Voice Modulation</label>
                                     <input type="checkbox" id="di4" value="Body Language/Gestures" class="pill-checkbox"><label for="di4" class="pill-label">Body Language/Gestures</label>
                                     <input type="checkbox" id="di5" value="Hesitation / Pauses" class="pill-checkbox"><label for="di5" class="pill-label">Hesitation / Pauses</label>
                                     <input type="checkbox" id="di6" value="Eye Contact" class="pill-checkbox"><label for="di6" class="pill-label">Eye Contact</label>
@@ -1019,7 +1018,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v127.0 STAGING | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v126.3 STAGING | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1260,7 +1259,7 @@
 
     <div id="system-popup-modal" class="modal-backdrop" style="z-index: 99999 !important;">
         <div class="modal">
-            <div class="modal-content" style="padding: 24px; max-width: 400px; text-align: center; margin: auto; background: #fff; border-radius: 12px;">
+            <div class="modal-content" style="padding: 24px; max-width: 400px; text-align: center; margin: auto;">
                 <h3 id="system-popup-title" style="margin-top:0; color: var(--primary);">System Alert</h3>
                 <p id="system-popup-message" style="color: var(--text-sub); margin: 20px 0; font-size: 1.05rem;"></p>
                 <button class="btn btn-primary btn-block" onclick="document.getElementById('system-popup-modal').classList.remove('show')">Acknowledge</button>
@@ -1281,242 +1280,160 @@
     </div>
 </div>
 <script>
-    const esc = str => String(str).replace(/[&<>'"]/g, tag => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[tag]));
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwR_4iX1Q9A0q3M9-G4S2j-U7a4Hk9R1o0b/exec";
 
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzAMPOuj9s-oSBAccdUl09QeKj8EX4BMz31PQmvm-rJ6BqSY3Le2nXsAIsdtiJqyCzzjQ/exec";
-    const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
-    const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "", roster: [], editingStudentName: null };
-    
-    // --- FUZZY SEARCH LOGIC ---
-    function getLevenshteinDistance(a, b) {
-        if(a.length === 0) return b.length;
-        if(b.length === 0) return a.length;
-        let matrix = [];
-        for(let i = 0; i <= b.length; i++) matrix[i] = [i];
-        for(let j = 0; j <= a.length; j++) matrix[0][j] = j;
-        for(let i = 1; i <= b.length; i++){
-            for(let j = 1; j <= a.length; j++){
-                if(b.charAt(i-1) == a.charAt(j-1)) {
-                    matrix[i][j] = matrix[i-1][j-1];
-                } else {
-                    matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, Math.min(matrix[i][j-1] + 1, matrix[i-1][j] + 1));
-                }
-            }
-        }
-        return matrix[b.length][a.length];
+let studentsData = [];
+let APP_STATE = {
+    todayDate: new Date().toLocaleDateString('en-CA'),
+    cache: {},
+    roster: {},
+    weeklySummary: {},
+    availabilityCache: null,
+    earningsCache: null
+};
+
+window.levenshteinDistance = function(a, b) {
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) {
+        matrix[i] = [i];
     }
-
-    // --- PRECISION HISTORY ROUTING ---
-    window.triggerPrecisionHistory = (name, status, month) => {
-        const monthMap = {"january":"01", "february":"02", "march":"03", "april":"04", "may":"05", "june":"06", "july":"07", "august":"08", "september":"09", "october":"10", "november":"11", "december":"12", "jan":"01", "feb":"02", "mar":"03", "apr":"04", "jun":"06", "jul":"07", "aug":"08", "sep":"09", "oct":"10", "nov":"11", "dec":"12"};
-        let mNum = monthMap[month.toLowerCase()] || "01";
-        let year = new Date().getFullYear();
-        let start = `${year}-${mNum}-01`;
-        let end = new Date(year, parseInt(mNum), 0).toISOString().split('T')[0];
-        
-        window.closeOmnibox();
-        window.showMainSection('analytics');
-        window.openHistoryReport();
-        
-        setTimeout(() => {
-            document.getElementById('historyStartDate').value = start;
-            document.getElementById('historyEndDate').value = end;
-            
-            let statVal = "All";
-            let sLow = status.toLowerCase();
-            if(sLow === "no show") statVal = "Student No Show";
-            else if(sLow === "completed") statVal = "Completed";
-            else if(sLow === "cancelled") statVal = "Cancelled";
-            else if(sLow === "absent") statVal = "Absent";
-            
-            document.getElementById('historyStatusFilter').value = statVal;
-            window._precisionHistoryNameFilter = name.toLowerCase(); 
-            
-            document.getElementById('historyGenBtn').click();
-        }, 300);
-    };
-
-    window.showSystemPopup = function(title, message) {
-        document.getElementById('system-popup-title').innerText = title || "System Alert";
-        document.getElementById('system-popup-message').innerText = message || "";
-        document.getElementById('system-popup-modal').classList.add('show');
-    };
-
-    let refreshDebounceTimer = null;
-    let statusUpdateCount = 0;
-
-    window.triggerDebouncedRefresh = function(dateStr) {
-        statusUpdateCount++;
-        clearTimeout(refreshDebounceTimer);
-        refreshDebounceTimer = setTimeout(() => {
-            if(window.loadEarnings) window.loadEarnings();
-            if(window.loadWeekly) window.loadWeekly();
-            if(window.renderAvailabilityFeed) window.renderAvailabilityFeed();
-            if(dateStr && window.renderClassesForDate) window.renderClassesForDate(dateStr);
-
-            if(statusUpdateCount > 0) {
-                window.showSystemPopup("Updates Complete", `Successfully updated the status of ${statusUpdateCount} class(es).`);
-                statusUpdateCount = 0;
-            }
-        }, 5000);
-    };
-
-    window.showToast = function(msg, type = "success") {
-        let title = type === "error" ? "System Error" : (type === "info" ? "System Info" : "System Update");
-        window.showSystemPopup(title, msg);
-    };
-
-    // Reusable Backend Fetch wrapper
-    async function fetchAPI(url, payload) { 
-        try { 
-            const res = await fetch(GAS_API_URL, { 
-                method: "POST", 
-                headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-                body: JSON.stringify(payload || {}) 
-            }); 
-            const text = await res.text(); 
-            try { 
-                return JSON.parse(text); 
-            } catch(e) { 
-                console.error("Parse Error from Server:", text); 
-                return { status: "error", message: "Server returned an invalid format.", textResponse: text }; 
-            } 
-        } catch (e) { 
-            return { status: "error", message: e.toString() }; 
-        } 
+    for (let j = 0; j <= a.length; j++) {
+        matrix[0][j] = j;
     }
-
-    let charts = {}; let previousCrmStudent = ""; let previousCrmAction = "progress"; let currentCrmDetails = ""; let currentCrmType = ""; let previousAiType = 'parent';
-    let speechRecog = null; let isRecording = false; let dispatchState = { students: [], template: "", currentIndex: 0 };
-
-    window.toggleQuickMenu = (e) => { e.stopPropagation(); document.getElementById("fab-menu").classList.toggle("show"); };
-    document.addEventListener('click', (e) => { const menu = document.getElementById("fab-menu"); if (menu && menu.classList.contains("show") && e.target.id !== "fab-main") { menu.classList.remove("show"); } });
-    
-    function getCurrentISTDateString() { 
-      const d = new Date(); 
-      const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
-      const formatter = new Intl.DateTimeFormat('en-GB', options);
-      const parts = formatter.formatToParts(d);
-      let y, m, day;
-      parts.forEach(p => { if(p.type === 'year') y = p.value; if(p.type === 'month') m = p.value; if(p.type === 'day') day = p.value; });
-      return `${y}-${m}-${day}`;
-    }
-
-    function showConfirm(text, onYes, onNo) { document.getElementById("confirmText").textContent = text; document.getElementById("confirmModal").classList.add("show"); const yesBtn = document.getElementById("confirmYes"); const noBtn = document.getElementById("confirmNo"); const newYes = yesBtn.cloneNode(true); const newNo = noBtn.cloneNode(true); yesBtn.parentNode.replaceChild(newYes, yesBtn); noBtn.parentNode.replaceChild(newNo, noBtn); newYes.onclick = () => { document.getElementById("confirmModal").classList.remove("show"); if(onYes) onYes(); }; newNo.onclick = () => { document.getElementById("confirmModal").classList.remove("show"); if(onNo) onNo(); }; }
-    function showReport(text) { document.getElementById("reportText").textContent = text; document.getElementById("reportModal").classList.add("show"); }
-    window.showAuditReport = (successArr, failedArr, title = "Execution Audit Report") => { document.getElementById('auditModalTitle').innerText = `📋 ${title}`; let html = ``; if (failedArr && failedArr.length > 0) { html += `<div style="margin-bottom:20px;"><div style="font-weight:bold; color:#b91c1c; margin-bottom:8px; display:flex; align-items:center; gap:6px;"><span>❌</span> Rejected / Conflicts (${failedArr.length})</div><div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:12px; max-height:150px; overflow-y:auto;"><ul style="margin-left:20px; color:#991b1b; font-size:0.85rem; padding-left:0;">${failedArr.map(f => `<li style="margin-bottom:4px;">${f}</li>`).join('')}</ul></div></div>`; } if (successArr && successArr.length > 0) { html += `<div><div style="font-weight:bold; color:#15803d; margin-bottom:8px; display:flex; align-items:center; gap:6px;"><span>✅</span> Successfully Processed (${successArr.length})</div><div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:12px; max-height:200px; overflow-y:auto;"><ul style="margin-left:20px; color:#166534; font-size:0.85rem; padding-left:0;">${successArr.map(s => `<li style="margin-bottom:4px;">${s}</li>`).join('')}</ul></div></div>`; } if (!successArr?.length && !failedArr?.length) { html += `<div style="color:var(--text-sub); text-align:center; padding:20px;">No modifications were made to the database.</div>`; } document.getElementById('auditModalBody').innerHTML = html; document.getElementById('auditModal').classList.add('show'); };
-    window.toggleVoiceDictation = (targetId, btnElement) => { if (!window.SpeechRecognition && !window.webkitSpeechRecognition) return window.showSystemPopup("System Error", "Voice dictation not supported in this browser."); if (isRecording) { speechRecog.stop(); return; } const SR = window.SpeechRecognition || window.webkitSpeechRecognition; speechRecog = new SR(); speechRecog.continuous = true; speechRecog.interimResults = false; speechRecog.onstart = function() { isRecording = true; btnElement.classList.add("recording-pulse"); btnElement.innerHTML = "🔴"; }; speechRecog.onresult = function(event) { const target = document.getElementById(targetId); const transcript = event.results[event.results.length - 1][0].transcript; target.value += (target.value ? " " : "") + transcript.trim(); }; speechRecog.onend = function() { isRecording = false; btnElement.classList.remove("recording-pulse"); btnElement.innerHTML = "🎤"; }; speechRecog.start(); };
-
-    function addDaysUTC(iso, days) { const parts = iso.split('-'); const utcMs = Date.UTC(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2])); return new Date(utcMs + (days * 86400000)).toISOString().split('T')[0]; }
-    function isoToDisplayDate(iso) { if(!iso) return ''; const p=iso.split('-'); return p.length===3 ? `${p[2]}/${p[1]}/${p[0]}` : iso; }
-    function getDayAbbr(iso) { if(!iso) return ''; const d = new Date(iso); if(isNaN(d.getTime())) return ''; return d.toLocaleDateString('en-GB', {weekday: 'short'}); }
-    function time24To12(t24) { if(!t24) return ''; const [h,m] = t24.split(':'); let hh=parseInt(h); const ap=hh>=12?'PM':'AM'; hh=hh%12||12; return `${String(hh).padStart(2, '0')}:${m} ${ap}`; }
-    function parseUserTimeTo24(t) { if(!t) return ""; t=t.trim().toUpperCase(); const m=t.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i); if(!m) return ""; let hh=parseInt(m[1]); const mm=m[2]||"00"; if(m[3]==="PM" && hh!==12) hh+=12; if(m[3]==="AM" && hh===12) hh=0; return String(hh).padStart(2,"0")+":"+mm; }
-    function minToTime(m) { let h=Math.floor(m/60); let mm=m%60; let ap=h>=12?"PM":"AM"; if(h>12) h-=12; if(h===0) h=12; return `${String(h).padStart(2, '0')}:${String(mm).padStart(2,'0')} ${ap}`; }
-    
-    function parseBackendTime(t) {
-        if (!t) return "";
-        let str = String(t).trim();
-        let isoMatch = str.match(/T(\d{2}:\d{2})/);
-        if (isoMatch) return isoMatch[1];
-        let hmMatch = str.match(/^(\d{2}:\d{2})/);
-        if (hmMatch) return hmMatch[1];
-        return str;
-    }
-    
-    function isTimeInPast(dateStr, time24) { if(dateStr !== APP_STATE.todayDate) return false; const now = new Date(); const ist = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); const currentMins = ist.getHours() * 60 + ist.getMinutes(); const [h, m] = time24.split(':').map(Number); return (h * 60 + m) < currentMins; }
-    window.normalizeUserTime = function(input) { const t = input.value.trim().toUpperCase(); if(!t) return; if(t.match(/^\d{1,2}:\d{2}$/)) { input.value = time24To12(t); return; } const m = t.match(/^(\d{1,2})(?::(\d{2}))?\s*(A|P|AM|PM)/i); if(m) { let hh=parseInt(m[1]); let mm=m[2]||"00"; let ap="PM"; if(m[3] && m[3].startsWith("A")) ap="AM"; if(hh>=1 && hh<=12) input.value = `${String(hh).padStart(2, '0')}:${mm} ${ap}`; } };
-
-    function initClocks() { setInterval(() => { document.getElementById("clock-india").textContent = "India: " + new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true }); }, 1000); window.calcConv = () => { const dateIn = document.getElementById("conv-student-date"); const zone = document.getElementById("conv-student-zone"); const timeIn = document.getElementById("conv-student-time"); const resDiv = document.getElementById("conv-result-ist"); if(!zone.value || zone.value === "ADD_NEW" || !timeIn.value || !dateIn.value) { resDiv.textContent = "--:-- IST"; return; } window.normalizeUserTime(timeIn); const t24 = parseUserTimeTo24(timeIn.value); if(!t24) return; const [h, m] = t24.split(':'); const baseDate = new Date(dateIn.value); baseDate.setHours(parseInt(h), parseInt(m), 0, 0); const sTime = baseDate.toLocaleString("en-US", { timeZone: zone.value }); const iTime = baseDate.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }); const diff = new Date(iTime) - new Date(sTime); resDiv.textContent = new Date(baseDate.getTime() + diff).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " IST"; }; document.getElementById("conv-student-zone").onchange = (e) => { if (e.target.value === "ADD_NEW") { e.target.value = ""; document.getElementById("customTzSearch").value = ""; document.getElementById("customTzModal").classList.add("show"); } else { window.calcConv(); } }; }
-    window.resetConv = () => { document.getElementById("conv-student-date").value = APP_STATE.todayDate; document.getElementById("conv-student-zone").value = ""; document.getElementById("conv-student-time").value = ""; document.getElementById("conv-result-ist").textContent = "--:-- IST"; };
-
-    window.openStudyMaterial = () => { if(APP_STATE.studyMaterialLink) window.open(APP_STATE.studyMaterialLink, '_blank'); else window.showSystemPopup("System Error", "Link not set. Click ⚙️ to add."); };
-    window.editStudyMaterial = () => { document.getElementById("driveLinkInput").value = APP_STATE.studyMaterialLink || ""; document.getElementById("driveLinkModal").classList.add("show"); };
-    window.saveDriveLink = async () => { const link = document.getElementById("driveLinkInput").value.trim(); APP_STATE.studyMaterialLink = link; document.getElementById("driveLinkModal").classList.remove("show"); await fetchAPI(null, { action: "updateDriveLink", Link: link }); window.showSystemPopup("System Update", "Study Material Link Saved!"); };
-
-    window.showMainSection = (sec) => { 
-        document.querySelectorAll(".main-tab-btn").forEach(b => b.classList.toggle("active", b.getAttribute("onclick").includes(sec))); 
-        document.querySelectorAll(".section").forEach(s => s.classList.toggle("show", s.id === `section-${sec}`)); 
-        if (sec !== 'onboarding' && window.clearOnboarding) window.clearOnboarding(); 
-        if (sec === 'analytics' && !APP_STATE.analyticsLoaded && !APP_STATE.isAnalyticsLoading && window.loadAnalytics) { window.loadAnalytics(false); } 
-        if (sec === 'timetable' && window.renderTimetable) { window.renderTimetable(); }
-    };
-    
-    // --- TIMETABLE LOGIC ---
-    window.renderTimetable = () => {
-        const container = document.getElementById("timetable-container");
-        if(!container) return;
-        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        let html = `<div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:10px; min-height: 400px; width: 100%;">`;
-
-        days.forEach(d => {
-            let slots = (APP_STATE.roster || []).filter(r => String(r.dayofweek).trim() === d);
-            slots.sort((a,b) => String(a.starttime).localeCompare(String(b.starttime)));
-
-            html += `<div style="flex:1; min-width:100px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; display:flex; flex-direction:column; overflow:hidden;">
-                <div style="background:#f1f5f9; padding:10px 4px; font-weight:700; text-align:center; font-size:0.85rem; border-bottom:1px solid #e2e8f0; color:var(--text-main);">${d} (${slots.length})</div>
-                <div style="padding:6px; display:flex; flex-direction:column; gap:6px; flex:1; overflow-y:auto;">`;
-
-            if(slots.length === 0) {
-                if (d === "Wednesday") html += `<div style="color:#0369a1; font-size:0.75rem; font-weight:700; text-align:center; margin-top:20px;">🏖️ Scheduled Weekly Off</div>`;
-                else html += `<div style="color:#94a3b8; font-size:0.8rem; text-align:center; margin-top:20px;">No classes</div>`;
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) == a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
             } else {
-                slots.forEach(s => {
-                    let t12 = time24To12(parseBackendTime(s.starttime));
-                    let bgCol = '#ffffff', textCol = '#000000', borderCol = '#cccccc';
-                    if (s.classtype === 'CM') { bgCol = '#dbeafe'; textCol = '#1d4ed8'; borderCol = '#bfdbfe'; }
-                    else if (s.classtype === 'Personal') { bgCol = '#f3e5f5'; textCol = '#7b1fa2'; borderCol = '#e1bee7'; }
-                    else { bgCol = '#dcfce7'; textCol = '#166534'; borderCol = '#bbf7d0'; } // PS
-
-                    html += `<div style="background:${bgCol}; color:${textCol}; border:1px solid ${borderCol}; padding:8px 6px; border-radius:6px; font-size:0.8rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                        <div style="font-weight:800; margin-bottom:2px; font-size:0.75rem;">${t12}</div>
-                        <div style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${esc(s.studentname)}">${esc(s.studentname)}</div>
-                    </div>`;
-                });
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, 
+                    Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
+                );
             }
-            html += `</div></div>`;
-        });
-        html += `</div>`;
-        container.innerHTML = html;
-    };
-
-    window.refreshTimetableData = async () => {
-        const btn = document.querySelector(".section-header button[onclick='window.refreshTimetableData()']");
-        if(btn) { btn.textContent = "⟳ Refreshing..."; btn.disabled = true; }
-        try {
-            const bootData = await fetchAPI(null, { action: "bootApp", todayDate: APP_STATE.todayDate, startDate: APP_STATE.todayDate });
-            if (bootData.rosterRes) APP_STATE.roster = bootData.rosterRes;
-            window.renderTimetable();
-            if(window.renderStudents) window.renderStudents();
-            window.showSystemPopup("System Update", "Blueprint Refreshed!");
-        } catch(e) {
-            window.showSystemPopup("System Error", "Failed to refresh timetable.");
-        } finally {
-            if(btn) { btn.textContent = "⟳ Refresh Blueprint"; btn.disabled = false; }
         }
+    }
+    return matrix[b.length][a.length];
+};
+
+window.showToast = function(msg, type='success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type === 'error' ? 'toast-error' : ''}`;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+};
+
+window.showConfirm = function(text, onYes) {
+    document.getElementById('confirmText').textContent = text;
+    const modal = document.getElementById('confirmModal');
+    modal.classList.add('show');
+    const yesBtn = document.getElementById('confirmYes');
+    const newYes = yesBtn.cloneNode(true);
+    yesBtn.parentNode.replaceChild(newYes, yesBtn);
+    newYes.onclick = () => {
+        modal.classList.remove('show');
+        onYes();
     };
+};
 
-    // --- OMNIBOX & COMMAND LOGIC ---
-    window.openOmnibox = () => { document.getElementById("omniboxModal").classList.add("show"); const input = document.getElementById("omniboxInput"); input.value = ""; document.getElementById("omniboxResults").style.display = "none"; setTimeout(() => input.focus(), 100); };
-    window.closeOmnibox = () => { document.getElementById("omniboxModal").classList.remove("show"); };
+window.showSystemPopup = function(title, message) {
+    document.getElementById('system-popup-title').textContent = title;
+    document.getElementById('system-popup-message').textContent = message;
+    document.getElementById('system-popup-modal').classList.add('show');
+};
 
-    document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); window.openOmnibox(); } if (e.key === 'Escape') { window.closeOmnibox(); } });
-    document.getElementById("omniboxModal").addEventListener('click', (e) => { if(e.target.id === "omniboxModal") window.closeOmnibox(); });
-    document.getElementById("omniboxInput").addEventListener('keydown', (e) => { if(e.key === 'Enter') { const firstResult = document.querySelector('.ob-result-item'); if(firstResult) firstResult.click(); } });
-    document.getElementById("omniboxInput").addEventListener('input', (e) => { window.processOmniboxQuery(e.target.value.toLowerCase().trim()); });
+async function fetchAPI(action, payload = {}) {
+    try {
+        const body = new URLSearchParams({ action, payload: JSON.stringify(payload) });
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        return data;
+    } catch (e) {
+        window.showToast(e.message, 'error');
+        throw e;
+    }
+}
 
-    window.processOmniboxQuery = (query) => {
+window.normalizeUserTime = function(inputElem) {
+    let val = inputElem.value.trim().toLowerCase();
+    if (!val) return;
+    val = val.replace(/\s+/g, '');
+    let isPm = val.includes('p');
+    let isAm = val.includes('a');
+    val = val.replace(/[apm]/g, '');
+    let hrs, mins;
+    
+    if (val.includes(':')) {
+        let parts = val.split(':');
+        hrs = parseInt(parts[0], 10);
+        mins = parseInt(parts[1], 10);
+    } else if (val.length <= 2) {
+        hrs = parseInt(val, 10);
+        mins = 0;
+    } else if (val.length === 3) {
+        hrs = parseInt(val.substring(0, 1), 10);
+        mins = parseInt(val.substring(1), 10);
+    } else if (val.length === 4) {
+        hrs = parseInt(val.substring(0, 2), 10);
+        mins = parseInt(val.substring(2), 10);
+    } else {
+        return;
+    }
+    
+    if (isNaN(hrs) || isNaN(mins)) return;
+    if (hrs < 1 || hrs > 12) return;
+    if (mins < 0 || mins > 59) return;
+    
+    if (!isPm && !isAm) {
+        isPm = (hrs >= 1 && hrs <= 11);
+    }
+    
+    let ampm = isPm ? 'PM' : 'AM';
+    let hrsStr = hrs.toString().padStart(2, '0');
+    let minsStr = mins.toString().padStart(2, '0');
+    inputElem.value = `${hrsStr}:${minsStr} ${ampm}`;
+};
+
+window.triggerPrecisionHistory = (name, status, month) => {
+    document.getElementById('historyModal').classList.add('show');
+    
+    if (month !== undefined && month !== null) {
+        let d = new Date();
+        d.setMonth(d.getMonth() - parseInt(month));
+        let year = d.getFullYear();
+        let m = d.getMonth();
+        let start = new Date(year, m, 1);
+        let end = new Date(year, m + 1, 0);
+        
+        document.getElementById('historyStartDate').value = start.toLocaleDateString('en-CA');
+        document.getElementById('historyEndDate').value = end.toLocaleDateString('en-CA');
+    }
+
+    if (status) {
+        let statusSelect = document.getElementById('historyStatusFilter');
+        let found = Array.from(statusSelect.options).some(opt => opt.value === status);
+        if (found) {
+            statusSelect.value = status;
+        }
+    }
+
+    window._precisionHistoryNameTarget = name || null;
+    
+    const genBtn = document.getElementById('historyGenBtn');
+    if (genBtn) {
+        genBtn.click();
+    }
+};
+window.processOmniboxQuery = (query) => {
         const resultsContainer = document.getElementById("omniboxResults"); if (!query) { resultsContainer.style.display = "none"; return; }
         resultsContainer.style.display = "block"; let html = ""; let matched = false; const q = query.toLowerCase();
-
-        let nlpMatch = query.match(/^([a-zA-Z]+)\s+(no show|completed|cancelled|absent)\s+([a-zA-Z]+)$/i);
-        if (nlpMatch) {
-            let targetName = nlpMatch[1];
-            let targetStatus = nlpMatch[2];
-            let targetMonth = nlpMatch[3];
-            window.triggerPrecisionHistory(targetName, targetStatus, targetMonth); 
-            return; 
-        }
 
         let targetDateStr = null; let dateLabel = ""; const todayObj = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
         if (q.includes("today")) { targetDateStr = APP_STATE.todayDate; dateLabel = "Today"; }
@@ -1524,7 +1441,7 @@
         else { const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]; for (let i=0; i<7; i++) { if (q.includes(days[i])) { let d = new Date(todayObj); let diff = i - d.getDay(); if (diff <= 0) diff += 7; d.setDate(d.getDate() + diff); targetDateStr = d.toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'}); dateLabel = days[i].charAt(0).toUpperCase() + days[i].slice(1); break; } } }
 
         let targetTimeStr = ""; const timeMatch = q.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i); if (timeMatch) { let hh = parseInt(timeMatch[1]); let mm = timeMatch[2] || "00"; let ap = timeMatch[3].toUpperCase(); if(hh>=1 && hh<=12) targetTimeStr = `${String(hh).padStart(2, '0')}:${mm} ${ap}`; }
-        let targetStudent = ""; const words = q.replace(/[^a-z0-9\s]/g, '').split(' '); for (let word of words) { if (word.length > 2) { const found = APP_STATE.students.find(s => s.name.toLowerCase().includes(word) || getLevenshteinDistance(word, s.name.toLowerCase()) <= 2); if (found) { targetStudent = found.name; break; } } }
+        let targetStudent = ""; const words = q.replace(/[^a-z0-9\s]/g, '').split(' '); for (let word of words) { if (word.length > 2) { const found = APP_STATE.students.find(s => s.name.toLowerCase().includes(word)); if (found) { targetStudent = found.name; break; } } }
 
         const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan"); const isReschedule = q.includes("reschedule") || q.includes("shift"); const isSlots = q.includes("free") || q.includes("slot") || q.includes("available"); const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee"); const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback"); const isAnalytics = q.includes("no show") || q.includes("absent") || q.includes("analytics") || q.includes("revenue") || q.includes("stats") || q.includes("limit");
 
@@ -1534,7 +1451,7 @@
             html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📅</span><span style="font-weight:600; color:var(--text-main);">${titleText}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
         if (isReschedule && targetStudent) {
-            matched = true; let action = `window.closeOmnibox(); window.showMainSection('students'); window.openSchedulingModal('${esc(targetStudent)}');`;
+            matched = true; let action = `window.closeOmnibox(); window.showMainSection('students'); window.openSchedulingModal('${esc(targetStudent)}', 'shift');`;
             html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">🔁</span><span style="font-weight:600; color:var(--text-main);">Reschedule ${esc(targetStudent)}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
         if ((isReceipt || isProgress) && targetStudent) {
@@ -1590,10 +1507,7 @@
         }
 
         if (!matched || q.length < 15) {
-            const matchingStudents = APP_STATE.students.filter(s => {
-                const nameLower = s.name.toLowerCase();
-                return nameLower.includes(q) || getLevenshteinDistance(q, nameLower) <= 2;
-            });
+            const matchingStudents = APP_STATE.students.filter(s => s.name.toLowerCase().includes(q));
             matchingStudents.forEach(s => {
                 matched = true;
                 html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><div><div style="font-weight:700; color:var(--text-main);">${esc(s.name)}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div></div></div><button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6; height: 28px; padding: 0 8px;" onclick="event.stopPropagation(); window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${esc(s.name)}');">✨ Find Slots</button></div><div style="display:flex; gap:8px;"><button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${esc(s.name)}')">💬 Jump to CRM</button><button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); el.value='${esc(s.name)}'; el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);">📅 Schedule</button></div></div>`;
@@ -1612,58 +1526,115 @@
         speechRecog.onend = function() { isRecording = false; btnElement.classList.remove("recording-pulse"); btnElement.innerHTML = "🎤"; document.getElementById("omniboxInput").placeholder = "Search students, slots, or commands..."; };
         speechRecog.start();
     };
-window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 'POST', body: JSON.stringify({Action: "updateStudentData", StudentName: name, MonthlyLimit: parseInt(limit)})}).then(()=> { window.showSystemPopup("System Update", 'Limit updated for ' + name); const globalStudents = APP_STATE.students; const stu = globalStudents.find(x => x.name === name); if(stu) stu.monthlyLimit = parseInt(limit); window.renderClassLimits(); }); };
 
-    window.renderClassLimits = function() {
-        const container = document.getElementById('smart-class-limit-alerts');
+    window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 'POST', body: JSON.stringify({Action: "updateStudentData", StudentName: name, MonthlyLimit: parseInt(limit)})}).then(()=> { window.showSystemPopup("System Update", 'Limit updated for ' + name); const globalStudents = APP_STATE.students; const stu = globalStudents.find(x => x.name === name); if(stu) stu.monthlyLimit = parseInt(limit); window.renderClassLimits(); }); };
+
+window.renderClassLimits = function() {
+    const container = document.getElementById('smart-class-limit-alerts');
+    if(!container) return;
+    container.innerHTML = '';
+
+    let globalClasses = APP_STATE.currentClasses || [];
+    let todayStudentNames = globalClasses.map(c => c.StudentName);
+    let targets = window.globalStudents.filter(s => 
+        String(s.status).toLowerCase() !== 'deleted' && 
+        s.type === 'PS' && 
+        s.monthCompleted >= ((s.monthlyLimit || 4) - 1) &&
+        todayStudentNames.includes(s.name)
+    );
+
+    if(targets.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = 'flex';
+
+    targets.sort((a,b) => {
+        const ratioA = a.monthCompleted / (a.monthlyLimit || 4);
+        const ratioB = b.monthCompleted / (b.monthlyLimit || 4);
+        return ratioB - ratioA;
+    });
+
+    let htmlString = `<h3 style="font-size: 0.95rem; font-weight: 700; color: #dc2626; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">⚠️ Action Required: PS Class Limits</h3>`;
+
+    targets.forEach(s => {
+        const limit = s.monthlyLimit || 4;
+        const isCritical = s.monthCompleted >= limit;
+
+        const bgColor = isCritical ? '#fef2f2' : '#fffbeb'; 
+        const borderColor = isCritical ? '#ef4444' : '#f59e0b'; 
+        const textColor = isCritical ? '#991b1b' : '#92400e'; 
+        const icon = isCritical ? '🛑 Limit Reached' : '⚠️ Nearing Limit';
+
+        htmlString += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${bgColor}; border-radius: 8px; border-left: 5px solid ${borderColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <span style="font-size: 0.95rem; font-weight: 600; color: ${textColor};">${esc(s.name)} <span style="font-weight: 500; font-size: 0.8rem; margin-left: 8px; opacity: 0.8;">${icon}</span></span>
+            <span style="font-size: 1rem; font-weight: 800; color: ${borderColor};">${s.monthCompleted} / ${limit}</span>
+        </div>`;
+    });
+
+    container.innerHTML = htmlString;
+};
+
+    // --- OVERRIDES FOR DYNAMIC TIMETABLE, ROSTER MODAL & CONFLICTS ---
+
+    window.renderTimetable = () => {
+        const container = document.getElementById("timetable-container");
         if(!container) return;
-        container.innerHTML = '';
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        let html = `<div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:10px; min-height: 400px; width: 100%;">`;
 
-        let globalClasses = APP_STATE.currentClasses || [];
-        let todayStudentNames = globalClasses.map(c => c.StudentName);
-        let targets = window.globalStudents.filter(s => 
-            String(s.status).toLowerCase() !== 'deleted' && 
-            s.type === 'PS' && 
-            s.monthCompleted >= ((s.monthlyLimit || 4) - 1) &&
-            todayStudentNames.includes(s.name)
-        );
+        days.forEach(d => {
+            let slots = (APP_STATE.roster || []).filter(r => String(r.dayofweek).trim() === d);
+            slots.sort((a,b) => String(a.starttime).localeCompare(String(b.starttime)));
 
-        if(targets.length === 0) {
-            container.style.display = 'none';
-            return;
-        }
+            html += `<div style="flex:1; min-width:100px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; display:flex; flex-direction:column; overflow:hidden;">
+                <div style="background:#f1f5f9; padding:10px 4px; font-weight:700; text-align:center; font-size:0.85rem; border-bottom:1px solid #e2e8f0; color:var(--text-main);">${d} (${slots.length})</div>
+                <div style="padding:6px; display:flex; flex-direction:column; gap:6px; flex:1; overflow-y:auto;">`;
 
-        container.style.display = 'flex';
+            if(slots.length === 0) {
+                if (d === "Wednesday") html += `<div style="color:#0369a1; font-size:0.75rem; font-weight:700; text-align:center; margin-top:20px;">🏖️ Scheduled Weekly Off</div>`;
+                else html += `<div style="color:#94a3b8; font-size:0.8rem; text-align:center; margin-top:20px;">No classes</div>`;
+            } else {
+                slots.forEach(s => {
+                    let t12 = time24To12(parseBackendTime(s.starttime));
+                    let bgCol = '#ffffff', textCol = '#000000', borderCol = '#cccccc';
+                    if (s.classtype === 'CM') { bgCol = '#dbeafe'; textCol = '#1d4ed8'; borderCol = '#bfdbfe'; }
+                    else if (s.classtype === 'Personal') { bgCol = '#f3e5f5'; textCol = '#7b1fa2'; borderCol = '#e1bee7'; }
+                    else { bgCol = '#dcfce7'; textCol = '#166534'; borderCol = '#bbf7d0'; } 
 
-        targets.sort((a,b) => {
-            const ratioA = a.monthCompleted / (a.monthlyLimit || 4);
-            const ratioB = b.monthCompleted / (b.monthlyLimit || 4);
-            return ratioB - ratioA;
+                    html += `<div style="background:${bgCol}; color:${textCol}; border:1px solid ${borderCol}; padding:8px 6px; border-radius:6px; font-size:0.8rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                        <div style="font-weight:800; margin-bottom:2px; font-size:0.75rem;">${t12}</div>
+                        <div style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${esc(s.studentname)}">${esc(s.studentname)}</div>
+                    </div>`;
+                });
+            }
+            html += `</div></div>`;
         });
-
-        let htmlString = `<h3 style="font-size: 0.95rem; font-weight: 700; color: #dc2626; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">⚠️ Action Required: PS Class Limits</h3>`;
-
-        targets.forEach(s => {
-            const limit = s.monthlyLimit || 4;
-            const isCritical = s.monthCompleted >= limit;
-
-            const bgColor = isCritical ? '#fef2f2' : '#fffbeb'; 
-            const borderColor = isCritical ? '#ef4444' : '#f59e0b'; 
-            const textColor = isCritical ? '#991b1b' : '#92400e'; 
-            const icon = isCritical ? '🛑 Limit Reached' : '⚠️ Nearing Limit';
-
-            htmlString += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${bgColor}; border-radius: 8px; border-left: 5px solid ${borderColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <span style="font-size: 0.95rem; font-weight: 600; color: ${textColor};">${esc(s.name)} <span style="font-weight: 500; font-size: 0.8rem; margin-left: 8px; opacity: 0.8;">${icon}</span></span>
-                <span style="font-size: 1rem; font-weight: 800; color: ${borderColor};">${s.monthCompleted} / ${limit}</span>
-            </div>`;
-        });
-
-        container.innerHTML = htmlString;
+        html += `</div>`;
+        container.innerHTML = html;
     };
 
-    // --- PHASE 1 FRONTEND UPGRADES (OVERRIDES) ---
+    window.dropRosterSlot = async (name, day, time, btn) => {
+        btn.disabled = true; btn.textContent = "Dropping...";
+        try {
+            const res = await fetchAPI(null, { action: "dropRosterSlot", StudentName: name, dayofweek: day, starttime: time });
+            if(res.status !== "error") {
+                APP_STATE.roster = APP_STATE.roster.filter(r => !(r.studentname === name && r.dayofweek === day && r.starttime === time));
+                btn.parentElement.remove();
+                window.showToast("Slot dropped successfully.");
+                window.renderTimetable();
+                window.renderStudents();
+            } else {
+                btn.disabled = false; btn.textContent = "Drop Slot";
+                window.showToast(res.message || "Failed to drop slot.", "error");
+            }
+        } catch (e) {
+            btn.disabled = false; btn.textContent = "Drop Slot";
+            window.showToast("Error dropping slot.", "error");
+        }
+    };
 
-    // 1. Smart Roster Modal Rewrite & Frontend Conflict UI Intercept
     window.openSchedulingModal = (name, mode) => {
         document.getElementById("schedStudentNameDisplay").textContent = "🗓️ " + name;
         
@@ -1671,7 +1642,6 @@ window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 
         document.getElementById("schedShiftNewTime").value = "";
         document.getElementById("schedShiftStartDate").value = APP_STATE.todayDate;
         document.getElementById("schedShiftNewDay").value = "";
-        
         document.getElementById("schedShiftSaveBtn").onclick = async () => {
             const ot = parseUserTimeTo24(document.getElementById("schedShiftOldTime").value);
             const nt = parseUserTimeTo24(document.getElementById("schedShiftNewTime").value);
@@ -1679,54 +1649,30 @@ window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 
             const nd = document.getElementById("schedShiftNewDay").value;
             if(!ot || !nt || !sd) return window.showSystemPopup("System Error", "Invalid inputs");
             const btn = document.getElementById("schedShiftSaveBtn"); btn.textContent = "Processing..."; btn.disabled = true;
-            
-            // Backend Conflict UI Intercept Check
-            const r = await fetchAPI(null, { action: "validateBookingConflict", StudentName: name, StartDate: sd, NewTime: nt, NewDay: nd });
-            if (r.conflict) {
-                btn.textContent = "Shift All Future Classes"; btn.disabled = false;
-                return window.showToast(r.message || "Conflict: Target slot is already occupied!", "error");
-            }
-
-            const shiftReq = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: name, OldTime: ot, NewTime: nt, StartDate: sd, NewDay: nd });
+            const r = await fetchAPI(null, { action: "bulkShiftClasses", StudentName: name, OldTime: ot, NewTime: nt, StartDate: sd, NewDay: nd });
             btn.textContent = "Shift All Future Classes"; btn.disabled = false;
-            if (shiftReq.status === "error") return window.showSystemPopup("System Error", shiftReq.message || "Shift failed.");
-            window.showAuditReport(shiftReq.success, shiftReq.failed, "Bulk Shift Results"); window.fetchToday();
+            if (r.status === "error") return window.showSystemPopup("System Error", r.message || "Shift failed.");
+            window.showAuditReport(r.success, r.failed, "Bulk Shift Results"); window.fetchToday();
         };
-        
+
         const activeContainer = document.getElementById("activeRosterSlotsContainer");
-        if(activeContainer) {
+        if (activeContainer) {
             activeContainer.innerHTML = "";
-            let existing = (APP_STATE.roster || []).filter(r => r.studentname === name);
-            if(existing.length > 0) { 
-                existing.forEach(r => {
-                    const dropDiv = document.createElement("div");
-                    dropDiv.style.display = "flex"; dropDiv.style.justifyContent = "space-between"; dropDiv.style.alignItems = "center";
-                    dropDiv.style.padding = "8px"; dropDiv.style.background = "#f8fafc"; dropDiv.style.borderRadius = "6px"; dropDiv.style.border = "1px solid #cbd5e1";
-                    const displayTime = time24To12(parseBackendTime(r.starttime));
-                    dropDiv.innerHTML = `<span style="font-weight:600; color:var(--text-main); font-size:0.9rem;">${r.dayofweek}s at ${displayTime}</span>
-                                         <button class="btn btn-danger btn-sm" style="height:28px; font-size:0.75rem; padding:0 10px; background:#ef4444; border:none;">Drop Slot</button>`;
-                    dropDiv.querySelector("button").onclick = async (e) => {
-                        e.target.disabled = true; e.target.textContent = "Dropping...";
-                        const res = await fetchAPI(null, { action: "dropRosterSlot", studentName: name, dayOfWeek: r.dayofweek, startTime: r.starttime });
-                        if(res.status === "error") {
-                            e.target.disabled = false; e.target.textContent = "Drop Slot";
-                            return window.showToast("Failed to drop slot", "error");
-                        }
-                        window.showToast("Slot dropped successfully");
-                        APP_STATE.roster = APP_STATE.roster.filter(x => !(x.studentname === name && x.dayofweek === r.dayofweek && x.starttime === r.starttime));
-                        dropDiv.remove();
-                        window.renderTimetable();
-                    };
-                    activeContainer.appendChild(dropDiv);
-                });
+            let currentRoster = (APP_STATE.roster || []).filter(r => r.studentname === name);
+            if(currentRoster.length === 0) {
+                activeContainer.innerHTML = "<div style='font-size:0.85rem; color:#94a3b8;'>No active slots in master roster.</div>";
             } else {
-                activeContainer.innerHTML = `<div style="color:var(--text-sub); font-size:0.85rem; padding:4px 0;">No active roster slots found.</div>`;
+                currentRoster.forEach(r => {
+                    let div = document.createElement('div');
+                    div.style.display = 'flex'; div.style.justifyContent = 'space-between'; div.style.alignItems = 'center'; div.style.padding = '8px 12px'; div.style.background = '#f1f5f9'; div.style.border = '1px solid #cbd5e1'; div.style.borderRadius = '6px';
+                    div.innerHTML = `<span style="font-weight:600; color:var(--primary); font-size:0.9rem;">${r.dayofweek} at ${time24To12(parseBackendTime(r.starttime))}</span> <button class="btn btn-danger btn-sm" onclick="window.dropRosterSlot('${name}', '${r.dayofweek}', '${r.starttime}', this)">Drop Slot</button>`;
+                    activeContainer.appendChild(div);
+                });
             }
         }
-
+        
         const container = document.getElementById("schedRosterSlotsContainer");
         container.innerHTML = "";
-        window.addRosterSlot(); // Empty row for adding new
         
         const shiftBlock = document.getElementById("schedBulkShiftBlock");
         const rosterBlock = document.getElementById("schedMasterRosterBlock");
@@ -1736,9 +1682,11 @@ window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 
         } else if (mode === 'roster') {
             shiftBlock.style.display = 'none';
             rosterBlock.style.display = 'block';
+            window.addRosterSlot(); 
         } else {
             shiftBlock.style.display = 'block';
             rosterBlock.style.display = 'block';
+            window.addRosterSlot();
         }
 
         document.getElementById("schedulingModal").classList.add("show");
@@ -1754,36 +1702,58 @@ window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 
             if(day && time) slots.push({day: day, time: time});
         });
         
-        const btn = document.getElementById("schedRosterSaveBtn"); btn.textContent = "Saving..."; btn.disabled = true;
-        
-        // Conflict Intercept
-        const rCheck = await fetchAPI(null, { action: "validateBookingConflict", StudentName: name, slots: slots });
-        if (rCheck.conflict) {
-            btn.textContent = "Save to Roster"; btn.disabled = false;
-            return window.showToast(rCheck.message || "Conflict: Selected roster slot overlaps with an existing booking!", "error");
+        if(slots.length === 0) {
+            window.showToast("No slots added to save.", "info");
+            return;
         }
 
-        await fetchAPI(null, {action: "overwriteMasterRoster", StudentName: name, slots: slots});
-        APP_STATE.roster = (APP_STATE.roster || []).filter(r => r.studentname !== name);
-        slots.forEach(s => APP_STATE.roster.push({studentname: name, dayofweek: s.day, starttime: s.time}));
+        const btn = document.getElementById("schedRosterSaveBtn"); btn.textContent = "Validating..."; btn.disabled = true;
+        
+        try {
+            const conflictCheck = await fetchAPI(null, { action: "validateBookingConflict", slots: slots, studentName: name, isRoster: true });
+            if (conflictCheck && conflictCheck.conflict) {
+                btn.textContent = "Save to Roster"; btn.disabled = false;
+                window.showToast("Conflict detected! Roster overlaps with existing bookings.", "error");
+                return;
+            }
+        } catch(e) {
+            console.warn("Validation check skipped or failed.");
+        }
+
+        btn.textContent = "Saving...";
+        const res = await fetchAPI(null, {action: "overwriteMasterRoster", StudentName: name, slots: slots});
+        
+        if (res.status === "error") {
+            window.showSystemPopup("System Error", res.message || "Failed to save roster.");
+            btn.textContent = "Save to Roster"; btn.disabled = false;
+            return;
+        }
+
+        slots.forEach(s => APP_STATE.roster.push({studentname: name, dayofweek: s.day, starttime: s.time, classtype: APP_STATE.students.find(x => x.name === name)?.type || 'PS'}));
         btn.textContent = "Save to Roster"; btn.disabled = false;
+        
+        window.openSchedulingModal(name, 'roster'); 
         window.showSystemPopup("System Update", "Master Roster Updated!");
         window.renderTimetable();
         window.renderStudents();
-        window.openSchedulingModal(name, 'roster'); // Refresh modal to show new active slots
     };
 
     window.executeScheduleClass = async () => { 
         const sT = document.getElementById("schedule-time"); const s = document.getElementById("schedule-student-select").value; const d = document.getElementById("schedule-date").value; const t = parseUserTimeTo24(sT.value); const rep = parseInt(document.getElementById("schedule-repeat").value); 
         if(!s || !d || !t) return window.showSystemPopup("System Error", "Fill all fields"); let hasPast = false; for(let i=0; i<=rep; i++) { const cd = addDaysUTC(d, i*7); if(isTimeInPast(cd, t)) hasPast = true; } 
         const executeSchedule = async () => { 
-            const btn = document.getElementById("schedule-class-btn"); btn.disabled = true; const tasks = []; for(let i=0; i<=rep; i++) { tasks.push({ s: s, d: addDaysUTC(d, i*7), t: t }); } 
-            
-            // Conflict Intercept
-            const rCheck = await fetchAPI(null, { action: "validateBookingConflict", tasks: tasks });
-            if (rCheck.conflict) {
-                btn.disabled = false;
-                return window.showToast(rCheck.message || "Conflict: Class time overlaps with another session!", "error");
+            const btn = document.getElementById("schedule-class-btn"); btn.disabled = true; 
+            const tasks = []; for(let i=0; i<=rep; i++) { tasks.push({ s: s, d: addDaysUTC(d, i*7), t: t }); } 
+
+            try {
+                const conflictCheck = await fetchAPI(null, { action: "validateBookingConflict", tasks: tasks, studentName: s, isRoster: false });
+                if (conflictCheck && conflictCheck.conflict) {
+                    btn.disabled = false;
+                    window.showToast(conflictCheck.message || "Conflict detected! Slot already booked.", "error");
+                    return;
+                }
+            } catch(e) {
+                console.warn("Validation check skipped or failed.");
             }
 
             const r = await fetchAPI(null, { action: "bulkScheduleClasses", tasks: tasks }); 
@@ -1798,11 +1768,11 @@ window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 
             if (r.status === "error") return window.showSystemPopup("System Error", r.message || "Scheduling failed."); 
             if (rosterWarning) { r.failed = r.failed || []; r.failed.unshift(rosterWarning); }
             window.showAuditReport(r.success, r.failed, "Scheduling Report"); window.loadWeekly(); window.fetchToday(); window.renderAvailabilityFeed(); document.getElementById("schedule-student-select").value = ""; sT.value = ""; 
+            window.renderTimetable();
         }; 
         if(hasPast) { showConfirm("Warning: Past time detected. Proceed?", executeSchedule); } else { executeSchedule(); }
     };
 
-    // --- BOOT SEQUENCE ---
     async function runBootSequence() {
         APP_STATE.todayDate = getCurrentISTDateString(); 
         document.getElementById("view-date").value = APP_STATE.todayDate; document.getElementById("schedule-date").value = APP_STATE.todayDate; document.getElementById("conv-student-date").value = APP_STATE.todayDate;
