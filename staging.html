@@ -1328,6 +1328,11 @@
             else if(sLow === 'completed') statVal = 'Completed'; 
             else if(sLow === 'cancelled') statVal = 'Cancelled'; 
             else if(sLow === 'absent') statVal = 'Absent'; 
+            else if(sLow === 'scheduled') statVal = 'Scheduled';
+            else if(sLow === 'system glitch' || sLow === 'glitch') statVal = 'System Glitch';
+            else if(sLow === 'rescheduled') statVal = 'Rescheduled';
+            else if(sLow === 'paused') statVal = 'Paused';
+            else if(sLow === 'class limit reached' || sLow === 'limit') statVal = 'Class Limit Reached';
             
             document.getElementById('historyStatusFilter').value = statVal; 
             window.historyNlpName = name.trim(); 
@@ -2640,28 +2645,48 @@
     window.processOmniboxQuery = (query) => {
         const resultsContainer = document.getElementById("omniboxResults"); 
         if (!query) { resultsContainer.style.display = "none"; return; }
-        resultsContainer.style.display = "block"; let html = ""; let matched = false; const q = query.toLowerCase();
+        resultsContainer.style.display = "block"; let html = ""; let matched = false; const q = query.toLowerCase().trim();
 
-        // 1. NLP PRECISION ROUTING
-        let nlpMatch = query.match(/^([a-zA-Z\s]+?)\s+(no show|completed|cancelled|absent)\s+([a-zA-Z]+)$/i);
-        if (nlpMatch) {
-            let targetName = nlpMatch[1].trim();
-            let targetStatus = nlpMatch[2].trim();
-            let targetMonth = nlpMatch[3].trim();
+        // 1. SMART NLP PARSER (Token-Based & Forgiving)
+        const statuses = ["no show", "completed", "cancelled", "absent", "scheduled", "system glitch", "glitch", "rescheduled", "paused", "class limit reached", "limit"];
+        const months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+        
+        let foundStatus = statuses.find(s => q.includes(s));
+        
+        if (foundStatus) {
+            // Check if they started typing a month after the status
+            let afterStatus = q.substring(q.indexOf(foundStatus) + foundStatus.length).trim();
             
-            // Bulletproof string escaping for the onclick handler
-            let action = `window.triggerPrecisionHistory('${esc(targetName)}', '${esc(targetStatus)}', '${esc(targetMonth)}')`;
-            
-            html += `<div class="ob-result-item" onclick="${action}">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span style="font-size:1.2rem;">🎯</span>
-                    <span style="font-weight:600; color:var(--text-main);">Precision Report: ${esc(targetName)} (${esc(targetStatus)})</span>
-                    <span class="ob-command-badge">NLP Active</span>
-                </div>
-                <span style="color:#cbd5e1;">⏎</span>
-            </div>`;
-            resultsContainer.innerHTML = html;
-            return; 
+            if (afterStatus.length > 0) {
+                // Auto-predict the month based on the first few letters typed
+                let foundMonth = months.find(m => m.startsWith(afterStatus));
+                
+                if (foundMonth) {
+                    let targetStatus = foundStatus;
+                    let rawName = q.substring(0, q.indexOf(foundStatus)).trim();
+                    
+                    // Name Resolution Engine (Resolves "jasnoor" to "Jasnoor Kaur" if needed)
+                    let qName = rawName.toLowerCase();
+                    let bestMatch = APP_STATE.students.find(s => s.name.toLowerCase() === qName) 
+                                 || APP_STATE.students.find(s => s.name.toLowerCase().includes(qName)) 
+                                 || APP_STATE.students.find(s => getLevenshteinDistance(qName, s.name.toLowerCase()) <= 2);
+                                 
+                    let targetName = bestMatch ? bestMatch.name : rawName;
+                    
+                    let action = `window.triggerPrecisionHistory('${esc(targetName)}', '${esc(targetStatus)}', '${esc(foundMonth)}')`;
+                    
+                    html += `<div class="ob-result-item" onclick="${action}">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size:1.2rem;">🎯</span>
+                            <span style="font-weight:600; color:var(--text-main);">Precision Report: ${esc(targetName)} (${esc(targetStatus)})</span>
+                            <span class="ob-command-badge">NLP Active</span>
+                        </div>
+                        <span style="color:#cbd5e1;">⏎</span>
+                    </div>`;
+                    resultsContainer.innerHTML = html;
+                    return; 
+                }
+            }
         }
 
         // 2. FUZZY SEARCH FALLBACK
