@@ -1018,7 +1018,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v127.0 STAGING | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v127.1 STAGING | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1301,14 +1301,24 @@
     }
 
     window.triggerPrecisionHistory = (name, status, month) => {
+        // Fallback type safety guard
+        if (typeof name !== 'string') name = String(name);
+        
         let mNum = {"january":"01", "february":"02", "march":"03", "april":"04", "may":"05", "june":"06", "july":"07", "august":"08", "september":"09", "october":"10", "november":"11", "december":"12", "jan":"01", "feb":"02", "mar":"03", "apr":"04", "jun":"06", "jul":"07", "aug":"08", "sep":"09", "oct":"10", "nov":"11", "dec":"12"}[month.toLowerCase()] || "01";
         let year = new Date().getFullYear();
         let start = `${year}-${mNum}-01`;
-        let end = new Date(year, parseInt(mNum), 0).toISOString().split('T')[0];
+        // Bulletproof local date constructor (Bypasses UTC Timezone Shift)
+        let endDay = new Date(year, parseInt(mNum), 0).getDate();
+        let end = `${year}-${mNum}-${String(endDay).padStart(2, '0')}`;
         
         window.closeOmnibox(); 
         window.showMainSection('analytics'); 
         window.openHistoryReport(); 
+        
+        // Inject the visual UI badge securely
+        const titleEl = document.querySelector("#historyModal .modal-title");
+        titleEl.innerHTML = `Advanced Data Report <span style="background:var(--accent); color:#fff; font-size:0.75rem; padding:4px 8px; border-radius:12px; margin-left:10px;">🎯 NLP Filter: ${esc(name)}</span>`;
+
         setTimeout(() => { 
             document.getElementById('historyStartDate').value = start; 
             document.getElementById('historyEndDate').value = end; 
@@ -1320,8 +1330,16 @@
             else if(sLow === 'absent') statVal = 'Absent'; 
             
             document.getElementById('historyStatusFilter').value = statVal; 
-            window.historyNlpName = name; 
+            window.historyNlpName = name.trim(); 
             document.getElementById('historyGenBtn').click(); 
+            
+            // Clean up the modal title next time it opens normally
+            document.getElementById('historyModal').addEventListener('click', function resetTitle(e) {
+                if (e.target.classList.contains('modal-close-btn') || e.target.id === 'historyModal') {
+                    titleEl.innerHTML = "Advanced Data Report";
+                    this.removeEventListener('click', resetTitle);
+                }
+            });
         }, 300);
     };
 
@@ -1569,23 +1587,25 @@
                     const displayTime = time24To12(parseBackendTime(r.starttime));
                     dropDiv.innerHTML = `<span style="font-weight:600; color:var(--text-main); font-size:0.9rem;">${r.dayofweek}s at ${displayTime}</span>
                                          <button class="btn btn-danger btn-sm" style="height:28px; font-size:0.75rem; padding:0 10px; background:#ef4444; border:none;">Drop Slot</button>`;
-                    dropDiv.querySelector("button").onclick = async (e) => {
-                        e.target.disabled = true; e.target.textContent = "Dropping...";
-                        const res = await fetchAPI(null, { action: "dropRosterSlot", studentName: name, dayOfWeek: r.dayofweek, timeStr24: parseBackendTime(r.starttime) });
-                        if(res.status === "error") {
-                            e.target.disabled = false; e.target.textContent = "Drop Slot";
-                            return window.showToast("Failed to drop slot", "error");
-                        }
-                        window.showToast("Slot dropped & future classes purged.");
-                        APP_STATE.roster = APP_STATE.roster.filter(x => !(x.studentname === name && x.dayofweek === r.dayofweek && x.starttime === r.starttime));
-                        dropDiv.remove();
-                        window.renderTimetable();
-                    };
-                    activeContainer.appendChild(dropDiv);
+                    dropDiv.querySelector("button").onclick = (e) => {
+                window.showConfirm(`Are you sure you want to drop ${r.dayofweek} at ${displayTime} for ${name}? This will delete all future scheduled classes for this slot.`, async () => {
+                    e.target.disabled = true; e.target.textContent = "Dropping...";
+                    const res = await fetchAPI(null, { action: "dropRosterSlot", studentName: name, dayOfWeek: r.dayofweek, timeStr24: parseBackendTime(r.starttime) });
+                    if(res.status === "error") {
+                        e.target.disabled = false; e.target.textContent = "Drop Slot";
+                        return window.showToast("Failed to drop slot", "error");
+                    }
+                    window.showToast("Slot dropped & future classes purged.");
+                    APP_STATE.roster = APP_STATE.roster.filter(x => !(x.studentname === name && x.dayofweek === r.dayofweek && x.starttime === r.starttime));
+                    dropDiv.remove();
+                    window.renderTimetable();
                 });
-            } else {
-                activeContainer.innerHTML = `<div style="color:var(--text-sub); font-size:0.85rem; padding:4px 0;">No active roster slots found.</div>`;
-            }
+            };
+            activeContainer.appendChild(dropDiv);
+        });
+    } else {
+        activeContainer.innerHTML = `<div style="color:var(--text-sub); font-size:0.85rem; padding:4px 0;">No active roster slots found.</div>`;
+    }
         }
         
         const container = document.getElementById("schedRosterSlotsContainer");
@@ -2616,20 +2636,35 @@
     document.getElementById("omniboxModal").addEventListener('click', (e) => { if(e.target.id === "omniboxModal") window.closeOmnibox(); });
     document.getElementById("omniboxInput").addEventListener('keydown', (e) => { if(e.key === 'Enter') { const firstResult = document.querySelector('.ob-result-item'); if(firstResult) firstResult.click(); } });
     document.getElementById("omniboxInput").addEventListener('input', (e) => { window.processOmniboxQuery(e.target.value.toLowerCase().trim()); });
-window.processOmniboxQuery = (query) => {
+
+    window.processOmniboxQuery = (query) => {
         const resultsContainer = document.getElementById("omniboxResults"); 
         if (!query) { resultsContainer.style.display = "none"; return; }
         resultsContainer.style.display = "block"; let html = ""; let matched = false; const q = query.toLowerCase();
 
-        let nlpMatch = query.match(/^([a-zA-Z]+)\s+(no show|completed|cancelled|absent)\s+([a-zA-Z]+)$/i);
+        // 1. NLP PRECISION ROUTING
+        let nlpMatch = query.match(/^([a-zA-Z\s]+?)\s+(no show|completed|cancelled|absent)\s+([a-zA-Z]+)$/i);
         if (nlpMatch) {
-            let targetName = nlpMatch[1];
-            let targetStatus = nlpMatch[2];
-            let targetMonth = nlpMatch[3];
-            window.triggerPrecisionHistory(targetName, targetStatus, targetMonth); 
+            let targetName = nlpMatch[1].trim();
+            let targetStatus = nlpMatch[2].trim();
+            let targetMonth = nlpMatch[3].trim();
+            
+            // Bulletproof string escaping for the onclick handler
+            let action = `window.triggerPrecisionHistory('${esc(targetName)}', '${esc(targetStatus)}', '${esc(targetMonth)}')`;
+            
+            html += `<div class="ob-result-item" onclick="${action}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.2rem;">🎯</span>
+                    <span style="font-weight:600; color:var(--text-main);">Precision Report: ${esc(targetName)} (${esc(targetStatus)})</span>
+                    <span class="ob-command-badge">NLP Active</span>
+                </div>
+                <span style="color:#cbd5e1;">⏎</span>
+            </div>`;
+            resultsContainer.innerHTML = html;
             return; 
         }
 
+        // 2. FUZZY SEARCH FALLBACK
         const matchingStudents = APP_STATE.students.filter(s => {
             const nameLower = s.name.toLowerCase();
             return nameLower.includes(q) || getLevenshteinDistance(q, nameLower) <= 2;
