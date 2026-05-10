@@ -1019,7 +1019,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: May 10, 2026, 12:50 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v130 STAGING | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: May 10, 2026, 01:00 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v130 STAGING | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1252,7 +1252,7 @@
     </div>
     
     <div id="pendingReviewModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Class Status Pending</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('pendingReviewModal').classList.remove('show')">✕</button></div><div class="modal-body" style="max-height:60vh; overflow-y:auto; background:#f8fafc; padding:10px;" id="pendingReviewList"></div><div class="modal-footer" style="justify-content:space-between;"><span style="font-size:0.8rem; color:var(--text-sub);">Select status to clear item</span><button class="btn btn-soft btn-sm" onclick="document.getElementById('pendingReviewModal').classList.remove('show')">Close</button></div></div></div>
-    <div id="historyModal" class="modal-backdrop"><div class="modal" style="max-width: 600px;"><div class="modal-header"><div class="modal-title">Advanced Data Report</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('historyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group" style="display:flex; gap:10px; margin-bottom:12px;"><div style="flex:1;"><label>Start Date</label><input type="date" id="historyStartDate"></div><div style="flex:1;"><label>End Date</label><input type="date" id="historyEndDate"></div></div><div class="form-group" style="display:flex; gap:10px; margin-bottom:16px;"><div style="flex:1;"><label>Org Filter</label><select id="historyTypeFilter"><option value="All">All Orgs</option><option value="CM">CM</option><option value="PS">PS</option><option value="Personal">Personal</option><option value="Trial">Trial</option></select></div><div style="flex:1;"><label>Status Filter</label><select id="historyStatusFilter"><option value="All">All Statuses</option><option value="Completed">Completed</option><option value="Student No Show">No Show</option><option value="Absent">Absent</option><option value="Cancelled">Cancelled</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Paused</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div></div><button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button><div id="historyResult" style="display:none; margin-top:20px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;"><span style="font-weight:700; color:var(--primary);">Report Summary</span><button class="btn btn-outline btn-sm" onclick="window.copyHistoryData()">📋 Copy Data</button></div><div id="histOrgBreakdown"></div><table style="width:100%; text-align:left; border-collapse:collapse; margin-top:10px; font-size:0.9rem;"><thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead><tbody id="histTableBody"></tbody></table></div></div></div></div>
+    <div id="historyModal" class="modal-backdrop"><div class="modal" style="max-width: 600px;"><div class="modal-header"><div class="modal-title">Advanced Data Report</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('historyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group" style="display:flex; gap:10px; margin-bottom:12px;"><div style="flex:1;"><label>Start Date</label><input type="date" id="historyStartDate"></div><div style="flex:1;"><label>End Date</label><input type="date" id="historyEndDate"></div></div><div class="form-group" style="display:flex; gap:10px; margin-bottom:16px;"><div style="flex:1;"><label>Student</label><select id="history-student-filter"><option value="ALL">All Students</option></select></div><div style="flex:1;"><label>Org Filter</label><select id="historyTypeFilter"><option value="All">All Orgs</option><option value="CM">CM</option><option value="PS">PS</option><option value="Personal">Personal</option><option value="Trial">Trial</option></select></div><div style="flex:1;"><label>Status Filter</label><select id="historyStatusFilter"><option value="All">All Statuses</option><option value="Completed">Completed</option><option value="Student No Show">No Show</option><option value="Absent">Absent</option><option value="Cancelled">Cancelled</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Paused</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div></div><button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button><div id="historyResult" style="display:none; margin-top:20px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;"><span style="font-weight:700; color:var(--primary);">Report Summary</span><button class="btn btn-outline btn-sm" onclick="window.copyHistoryData()">📋 Copy Data</button></div><div id="histOrgBreakdown"></div><table style="width:100%; text-align:left; border-collapse:collapse; margin-top:10px; font-size:0.9rem;"><thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead><tbody id="histTableBody"></tbody></table></div></div></div></div>
     <div id="smartCopyModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Select Shifts to Copy</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('smartCopyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group"><label class="radio-label"><input type="checkbox" id="scMorn" checked> 🌅 Morning (Before 12 PM)</label><label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scAft" checked> ☀️ Afternoon (12 PM - 5 PM)</label><label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scEve" checked> 🌙 Evening (5 PM Onwards)</label></div><input type="hidden" id="scDateTarget"></div><div class="modal-footer"><button class="btn btn-primary" onclick="window.executeSmartCopy()">📋 Copy Selected</button></div></div></div>
 
     <div id="omniboxModal" class="modal-backdrop" style="z-index: 4000; align-items: flex-start; padding-top: 10vh;"><div class="modal" style="max-width: 600px; background: transparent; box-shadow: none;"><div style="background: #fff; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--primary);"><div style="display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 1.2rem; color: #64748b; margin-right: 12px;">🔍</span><input type="text" id="omniboxInput" style="flex: 1; border: none; font-size: 1.15rem; outline: none; padding: 4px 0; background: transparent; color: var(--text-main);" placeholder="Search students, slots, or commands..." autocomplete="off"><button type="button" class="mic-btn" id="omniboxMicBtn" onclick="window.toggleOmniboxVoice(this)" style="border:none; background:transparent; font-size:1.2rem; padding: 4px;">🎤</button><div class="omnibox-shortcut" style="margin-left: 12px;">ESC</div></div><div id="omniboxResults" style="max-height: 350px; overflow-y: auto; background: #f8fafc; padding: 12px; display: none;"></div></div></div></div>
@@ -1281,6 +1281,23 @@
 </div>
 <script>
     const esc = str => String(str).replace(/[&<>'"]/g, tag => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[tag]));
+
+    // Restored Core Math Logic for NLP Search
+    window.levenshtein = function(a, b) {
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
+        for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+                }
+            }
+        }
+        return matrix[b.length][a.length];
+    };
 
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzAMPOuj9s-oSBAccdUl09QeKj8EX4BMz31PQmvm-rJ6BqSY3Le2nXsAIsdtiJqyCzzjQ/exec";
     const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
@@ -1581,6 +1598,8 @@
         let opts = '<option value="">Select student...</option>'; let optsDisabled = '<option value="" disabled selected>Select active student...</option>';
         APP_STATE.students.forEach(s => { const o = `<option value="${esc(s.name)}">${esc(s.name)}</option>`; opts += o; optsDisabled += o; });
         if(delSel) delSel.innerHTML = opts; if(schSel) schSel.innerHTML = opts; if(crmSel) crmSel.innerHTML = optsDisabled; if(obSel) obSel.innerHTML = optsDisabled; if(manualRelSel) manualRelSel.innerHTML = optsDisabled;
+        const histSel = document.getElementById("history-student-filter");
+        if(histSel) { let histOpts = '<option value="ALL">-- All Students --</option>'; APP_STATE.students.forEach(s => { histOpts += `<option value="${esc(s.name)}">${esc(s.name)}</option>`; }); histSel.innerHTML = histOpts; }
         const pillsContainer = document.getElementById("ai-student-pills"); if (pillsContainer) { let pillsHtml = ""; APP_STATE.students.forEach((s, i) => { pillsHtml += `<input type="checkbox" id="aud-${i}" value="${esc(s.name)}" class="pill-checkbox"><label for="aud-${i}" class="pill-label">${esc(s.name)}</label>`; }); pillsContainer.innerHTML = pillsHtml; }
     }
 
@@ -1815,7 +1834,6 @@
         const resDiv = document.getElementById("lm-results"); 
         const btn = document.getElementById("btn-lm-analyze");
         
-        // Backdate Protection Logic
         const loadMonthDate = new Date(mStr + " 1");
         const currentMonthDate = new Date();
         currentMonthDate.setDate(1);
@@ -1873,7 +1891,7 @@
         window.triggerDebouncedRefresh(APP_STATE.todayDate); 
     };
 
-    window.openHistoryReport = () => { document.getElementById("historyModal").classList.add("show"); const nowIST = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); const isoStart = nowIST.getFullYear() + '-' + String(nowIST.getMonth()+1).padStart(2,'0') + '-01'; document.getElementById("historyStartDate").value = isoStart; document.getElementById("historyEndDate").value = APP_STATE.todayDate || new Date().toISOString().split('T')[0]; document.getElementById("historyGenBtn").onclick = async () => { const sd = document.getElementById("historyStartDate").value; const ed = document.getElementById("historyEndDate").value; const tf = document.getElementById("historyTypeFilter").value; const sf = document.getElementById("historyStatusFilter").value; const btn = document.getElementById("historyGenBtn"); btn.disabled = true; btn.textContent = "Crunching Data..."; try { const r = await fetchAPI(null, { action: "getHistoryReport", startDate: sd, endDate: ed, typeFilter: tf, statusFilter: sf }); let osHtml = `<div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">`; let copyText = `📊 *Data Report* (${isoToDisplayDate(sd)} to ${isoToDisplayDate(ed)})\nFilter: ${tf} | Status: ${sf}\n\n*Total Classes:* ${r.totalClasses}\n*Total Earnings:* ₹${(r.earnings||0).toLocaleString('en-IN')}\n\n*Breakdown:*\n`; if(r.orgStats) { ['PS', 'CM', 'Personal', 'Trial'].forEach(org => { let stats = r.orgStats[org]; if(stats && Object.keys(stats).length > 0) { osHtml += `<div style="flex:1; min-width:120px; background:#f1f5f9; border:1px solid #e2e8f0; padding:12px; border-radius:8px; font-size:0.85rem;"><div style="font-weight:700; color:var(--primary); margin-bottom:8px; border-bottom:1px solid #cbd5e1; padding-bottom:4px;">${org}</div>`; for(let stat in stats) { osHtml += `<div style="display:flex; justify-content:space-between;"><span>${stat}</span> <b>${stats[stat]}</b></div>`; } osHtml += `</div>`; } }); } osHtml += `</div>`; document.getElementById("histOrgBreakdown").innerHTML = osHtml; const tb = document.getElementById("histTableBody"); tb.innerHTML = ""; const s = Object.entries(r.breakdown||{}).sort((a,b)=>b[1]-a[1]); if(!s.length) { tb.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No records found.</td></tr>"; copyText += "No records found.\n"; } else { s.forEach(([n,c]) => { tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px;">${esc(n)}</td><td style="padding:8px; font-weight:700;">${c}</td></tr>`; copyText += `• ${n}: ${c}\n`; }); } APP_STATE.lastHistoryCopyText = copyText.trim(); document.getElementById("historyResult").style.display = "block"; } catch(e) { console.error(e); window.showSystemPopup("System Error", "Failed to generate report."); } finally { btn.disabled = false; btn.textContent = "Generate Report"; } }; };
+    window.openHistoryReport = () => { document.getElementById("historyModal").classList.add("show"); const nowIST = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); const isoStart = nowIST.getFullYear() + '-' + String(nowIST.getMonth()+1).padStart(2,'0') + '-01'; document.getElementById("historyStartDate").value = isoStart; document.getElementById("historyEndDate").value = APP_STATE.todayDate || new Date().toISOString().split('T')[0]; document.getElementById("historyGenBtn").onclick = async () => { const sd = document.getElementById("historyStartDate").value; const ed = document.getElementById("historyEndDate").value; const tf = document.getElementById("historyTypeFilter").value; const sf = document.getElementById("historyStatusFilter").value; const btn = document.getElementById("historyGenBtn"); btn.disabled = true; btn.textContent = "Crunching Data..."; try { const r = await fetchAPI(null, { action: "getHistoryReport", startDate: sd, endDate: ed, typeFilter: tf, statusFilter: sf }); let osHtml = `<div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">`; let copyText = `📊 *Data Report* (${isoToDisplayDate(sd)} to ${isoToDisplayDate(ed)})\nFilter: ${tf} | Status: ${sf}\n\n*Total Classes:* ${r.totalClasses}\n*Total Earnings:* ₹${(r.earnings||0).toLocaleString('en-IN')}\n\n*Breakdown:*\n`; if(r.orgStats) { ['PS', 'CM', 'Personal', 'Trial'].forEach(org => { let stats = r.orgStats[org]; if(stats && Object.keys(stats).length > 0) { osHtml += `<div style="flex:1; min-width:120px; background:#f1f5f9; border:1px solid #e2e8f0; padding:12px; border-radius:8px; font-size:0.85rem;"><div style="font-weight:700; color:var(--primary); margin-bottom:8px; border-bottom:1px solid #cbd5e1; padding-bottom:4px;">${org}</div>`; for(let stat in stats) { osHtml += `<div style="display:flex; justify-content:space-between;"><span>${stat}</span> <b>${stats[stat]}</b></div>`; } osHtml += `</div>`; } }); } osHtml += `</div>`; document.getElementById("histOrgBreakdown").innerHTML = osHtml; const tb = document.getElementById("histTableBody"); tb.innerHTML = ""; const stfEl = document.getElementById("history-student-filter"); const stf = stfEl ? stfEl.value : "ALL"; const s = Object.entries(r.breakdown||{}).filter(([n,c]) => stf === "ALL" || n === stf).sort((a,b)=>b[1]-a[1]); if(!s.length) { tb.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No records found for selected filters.</td></tr>"; copyText += "No records found.\n"; } else { s.forEach(([n,c]) => { tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px;">${esc(n)}</td><td style="padding:8px; font-weight:700;">${c}</td></tr>`; copyText += `• ${n}: ${c}\n`; }); } APP_STATE.lastHistoryCopyText = copyText.trim(); document.getElementById("historyResult").style.display = "block"; } catch(e) { console.error(e); window.showSystemPopup("System Error", "Failed to generate report."); } finally { btn.disabled = false; btn.textContent = "Generate Report"; } }; };
     window.copyHistoryData = () => { if(APP_STATE.lastHistoryCopyText) { navigator.clipboard.writeText(APP_STATE.lastHistoryCopyText); window.showSystemPopup("System Update", "Report data copied!"); } else { window.showSystemPopup("System Error", "No data to copy."); } };
 
     window.loadEarnings = async () => { 
@@ -2307,7 +2325,8 @@
             document.getElementById("ai-output-container").innerHTML = html; document.getElementById("ai-output-container").style.display = "flex"; document.getElementById("ai-output-container").scrollIntoView({ behavior: 'smooth', block: 'start' });
         } catch (e) { window.showSystemPopup("System Error", e.message || "Failed to connect to AI."); } finally { btn.disabled = false; btn.textContent = "✨ Generate AI Options"; }
     }
-/* --- SMART SLOT (INDIVIDUAL AI BALANCER) --- */
+
+    // --- SMART SLOT LOGIC ---
     window.openSmartSlotModal = (name) => {
         document.getElementById("smartSlotStudentName").textContent = "Student: " + name; document.getElementById("smartSlotStudentName").dataset.name = name; document.getElementById("smartSlotPrefs").value = ""; document.getElementById("smartSlotResults").style.display = "none"; document.getElementById("smartSlotModal").classList.add("show");
     };
@@ -2327,7 +2346,7 @@
         setTimeout(() => { document.getElementById("schedule-student-select").value = name; document.getElementById("schedule-date").value = dateStr; const timeInput = document.getElementById("schedule-time"); timeInput.value = timeStr; window.normalizeUserTime(timeInput); document.getElementById("schedule-student-select").scrollIntoView({behavior: "smooth", block: "center"}); window.showSystemPopup("System Info", "Draft copied! Just hit 'Schedule Class' to lock it in."); }, 300);
     };
 
-    /* --- ROSTER HEALTH ENGINE (HYBRID MACRO-BALANCER) --- */
+    // --- ROSTER HEALTH ENGINE ---
     window.openRosterHealth = async () => {
         document.getElementById("rosterHealthModal").classList.add("show"); document.getElementById("rh-loading").style.display = "block"; document.getElementById("rh-content").style.display = "none";
         try {
@@ -2336,14 +2355,10 @@
             
             const sel = document.getElementById("rh-top-days-select");
             sel.innerHTML = "";
-            r.topDays.forEach(d => {
-                sel.innerHTML += `<option value="${d.day}">${d.day} (${d.avg} avg)</option>`;
-            });
+            r.topDays.forEach(d => { sel.innerHTML += `<option value="${d.day}">${d.day} (${d.avg} avg)</option>`; });
             
             document.getElementById("rh-oasis-days").textContent = r.oasis.join(" & ");
-            
             window.filterRosterHealthByDay();
-
             document.getElementById("rh-manual-result").style.display = "none";
             document.getElementById("rh-loading").style.display = "none"; document.getElementById("rh-content").style.display = "block";
         } catch(e) { document.getElementById("rh-loading").innerHTML = `<div style="color:#ef4444;">Failed to calculate Class Schedule Optimiser: ${e.message}</div>`; }
@@ -2351,15 +2366,12 @@
 
     window.filterRosterHealthByDay = () => {
         const sel = document.getElementById("rh-top-days-select");
-        const selectedDay = sel.value;
-        const r = window._currentHealthData;
-        const dayObj = r.topDays.find(d => d.day === selectedDay);
+        const selectedDay = sel.value; const r = window._currentHealthData; const dayObj = r.topDays.find(d => d.day === selectedDay);
         
         document.getElementById("rh-bottleneck-day").textContent = selectedDay; 
         document.getElementById("rh-bottleneck-avg").textContent = dayObj.avg + " classes / avg"; 
         
         const aiList = document.getElementById("rh-ai-suggestions-list"); aiList.innerHTML = "";
-        
         const filteredPlan = (r.actionPlan || []).filter(plan => plan.sourceDay === selectedDay);
 
         if (filteredPlan.length === 0) { 
@@ -2388,11 +2400,8 @@
         const manualSel = document.getElementById("rh-manual-target-select");
         let opts = '<option value="" disabled selected>Select student from peak load day...</option>';
         let targets = r.allTargetsMap[selectedDay] || [];
-        if(targets.length > 0) {
-            targets.forEach(t => { opts += `<option value="${esc(t.name)}" data-time="${t.time}">${esc(t.name)} (Current: ${time24To12(t.time)})</option>`; });
-        }
-        manualSel.innerHTML = opts;
-        document.getElementById("rh-manual-result").style.display = "none";
+        if(targets.length > 0) { targets.forEach(t => { opts += `<option value="${esc(t.name)}" data-time="${t.time}">${esc(t.name)} (Current: ${time24To12(t.time)})</option>`; }); }
+        manualSel.innerHTML = opts; document.getElementById("rh-manual-result").style.display = "none";
     };
 
     window.executeAiSuggestion = async (studentName, oldTime, newDate, newTime, newDay, bottleneckDay, btnEl, idx) => {
@@ -2405,22 +2414,18 @@
             if (r.status === "error") throw new Error(r.message);
             
             const data = r; const safeName = studentName.replace(/\s+/g, '-');
-            
             const dayObj = window._currentHealthData.topDays.find(d => d.day === bottleneckDay);
-            let currentBnAvg = parseFloat(dayObj.avg);
-            let currentOasisAvg = parseFloat(data.oasisLoads[newDay] || 0);
+            let currentBnAvg = parseFloat(dayObj.avg); let currentOasisAvg = parseFloat(data.oasisLoads[newDay] || 0);
 
             outDiv.innerHTML = `
                 <textarea id="ai-mb-draft-${safeName}" readonly style="width:100%; height:160px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:10px;">${data.draft}</textarea>
                 <button class="btn btn-outline btn-sm btn-block" style="margin-bottom:12px;" onclick="window.copyAiOpt('ai-mb-draft-${safeName}')">📋 Copy Draft</button>
-                
                 <div style="background:#f1f5f9; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
                     <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--primary); margin-bottom:6px;">📊 Projected Roster Impact</div>
                     <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:12px; background:#fff; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">
                         <span style="color:#b91c1c;">🔴 <b>${bottleneckDay}:</b> ${currentBnAvg.toFixed(1)} ➔ ${(currentBnAvg - 1).toFixed(1)} classes</span>
                         <span style="color:#166534;">🟢 <b>${newDay}:</b> ${currentOasisAvg.toFixed(1)} ➔ ${(currentOasisAvg + 1).toFixed(1)} classes</span>
                     </div>
-
                     <div style="font-size:0.8rem; font-weight:700; margin-bottom:6px; color:var(--text-sub);">IF PARENT APPROVES:</div>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
                         <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px;" onclick="window.executeMacroReschedule('${studentName}', '${oldTime}', '${newDate}', '${newTime}', '${newDay}', false)">🔁 Shift Next Class</button>
@@ -2431,47 +2436,31 @@
     };
 
     window.triggerManualRelocate = async (btnEl) => {
-        const sel = document.getElementById("rh-manual-target-select");
-        const studentName = sel.value;
+        const sel = document.getElementById("rh-manual-target-select"); const studentName = sel.value;
         if(!studentName) return window.showSystemPopup("System Error", "Select a student first.");
-        
-        const oldTime = sel.options[sel.selectedIndex].dataset.time;
-        const bottleneckDay = document.getElementById("rh-top-days-select").value;
-        const outDiv = document.getElementById("rh-manual-result");
-        
-        outDiv.style.display = "block"; outDiv.innerHTML = `<div style="color:var(--primary); font-size:0.85rem; font-weight:600;">🧠 AI drafting manual options...</div>`;
-        btnEl.disabled = true;
+        const oldTime = sel.options[sel.selectedIndex].dataset.time; const bottleneckDay = document.getElementById("rh-top-days-select").value; const outDiv = document.getElementById("rh-manual-result");
+        outDiv.style.display = "block"; outDiv.innerHTML = `<div style="color:var(--primary); font-size:0.85rem; font-weight:600;">🧠 AI drafting manual options...</div>`; btnEl.disabled = true;
 
         try {
             const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, originalTime: oldTime, bottleneckDay: bottleneckDay, oasisDays: window._currentOasisDays }); 
             if (r.status === "error") throw new Error(r.message);
 
-            const data = r; let slotOpts = ""; 
-            data.slots.forEach((s, idx) => { slotOpts += `<option value="${idx}" data-day="${s.dayName}">${isoToDisplayDate(s.date)} at ${time24To12(s.time)}</option>`; });
-            const safeSlots = encodeURIComponent(JSON.stringify(data.slots)); const safeName = studentName.replace(/\s+/g, '-');
-            const safeLoads = encodeURIComponent(JSON.stringify(data.oasisLoads));
-
+            const data = r; let slotOpts = ""; data.slots.forEach((s, idx) => { slotOpts += `<option value="${idx}" data-day="${s.dayName}">${isoToDisplayDate(s.date)} at ${time24To12(s.time)}</option>`; });
+            const safeSlots = encodeURIComponent(JSON.stringify(data.slots)); const safeName = studentName.replace(/\s+/g, '-'); const safeLoads = encodeURIComponent(JSON.stringify(data.oasisLoads));
             const dayObj = window._currentHealthData.topDays.find(d => d.day === bottleneckDay);
-            let currentBnAvg = parseFloat(dayObj.avg);
-            let initialOasisDay = data.slots[0] ? data.slots[0].dayName : "TBD";
-            let initialOasisAvg = parseFloat(data.oasisLoads[initialOasisDay] || 0);
+            let currentBnAvg = parseFloat(dayObj.avg); let initialOasisDay = data.slots[0] ? data.slots[0].dayName : "TBD"; let initialOasisAvg = parseFloat(data.oasisLoads[initialOasisDay] || 0);
 
             outDiv.innerHTML = `
                 <textarea id="man-mb-draft-${safeName}" readonly style="width:100%; height:160px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:10px;">${data.draft}</textarea>
                 <button class="btn btn-outline btn-sm btn-block" style="margin-bottom:12px;" onclick="window.copyAiOpt('man-mb-draft-${safeName}')">📋 Copy Draft</button>
-                
                 <div style="background:#f1f5f9; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
                     <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--primary); margin-bottom:6px;">📊 Projected Roster Impact</div>
                     <div id="man-impact-box" style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:12px; background:#fff; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">
                         <span style="color:#b91c1c;">🔴 <b>${bottleneckDay}:</b> ${currentBnAvg.toFixed(1)} ➔ ${(currentBnAvg - 1).toFixed(1)} classes</span>
                         <span style="color:#166534;" id="man-oasis-impact">🟢 <b>${initialOasisDay}:</b> ${initialOasisAvg.toFixed(1)} ➔ ${(initialOasisAvg + 1).toFixed(1)} classes</span>
                     </div>
-
                     <div style="font-size:0.8rem; font-weight:700; margin-bottom:6px; color:var(--text-sub);">IF PARENT APPROVES:</div>
-                    <select id="man-slot-select" style="width:100%; margin-bottom:8px; height:32px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px; outline:none;" onchange="window.updateManualImpact(this, '${safeLoads}')">
-                        ${slotOpts}
-                    </select>
-                    
+                    <select id="man-slot-select" style="width:100%; margin-bottom:8px; height:32px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px; outline:none;" onchange="window.updateManualImpact(this, '${safeLoads}')">${slotOpts}</select>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
                         <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px;" onclick="window.executeManualReschedule('${studentName}', '${oldTime}', '${safeSlots}', false)">🔁 Shift Next Class</button>
                         <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px; background:#8b5cf6; border-color:#8b5cf6;" onclick="window.executeManualReschedule('${studentName}', '${oldTime}', '${safeSlots}', true)">🚀 Shift ALL Future</button>
@@ -2482,29 +2471,20 @@
     };
 
     window.updateManualImpact = (selEl, safeLoads) => {
-        const loads = JSON.parse(decodeURIComponent(safeLoads));
-        const dayName = selEl.options[selEl.selectedIndex].dataset.day;
-        let avg = parseFloat(loads[dayName] || 0);
+        const loads = JSON.parse(decodeURIComponent(safeLoads)); const dayName = selEl.options[selEl.selectedIndex].dataset.day; let avg = parseFloat(loads[dayName] || 0);
         document.getElementById("man-oasis-impact").innerHTML = `🟢 <b>${dayName}:</b> ${avg.toFixed(1)} ➔ ${(avg + 1).toFixed(1)} classes`;
     };
 
     window.executeManualReschedule = async (studentName, oldTime24, safeSlots, isPermanent) => {
-        const selEl = document.getElementById("man-slot-select");
-        const slots = JSON.parse(decodeURIComponent(safeSlots));
-        const pickedSlot = slots[selEl.value];
+        const selEl = document.getElementById("man-slot-select"); const slots = JSON.parse(decodeURIComponent(safeSlots)); const pickedSlot = slots[selEl.value];
         if(!pickedSlot) return window.showSystemPopup("System Error", "Invalid slot.");
-
-        let dummyInput = { value: pickedSlot.time }; window.normalizeUserTime(dummyInput); 
-        let newTime24 = parseUserTimeTo24(dummyInput.value); 
+        let dummyInput = { value: pickedSlot.time }; window.normalizeUserTime(dummyInput); let newTime24 = parseUserTimeTo24(dummyInput.value); 
         if (!newTime24) return window.showSystemPopup("System Error", "Failed to parse time.");
-
         window.executeMacroReschedule(studentName, oldTime24, pickedSlot.date, pickedSlot.time, pickedSlot.dayName, isPermanent);
     };
 
     window.executeMacroReschedule = async (studentName, oldTime24, newDate, newTime12, newDayName, isPermanent) => {
-        let dummyInput = { value: newTime12 }; window.normalizeUserTime(dummyInput); 
-        let newTime24 = parseUserTimeTo24(dummyInput.value);
-
+        let dummyInput = { value: newTime12 }; window.normalizeUserTime(dummyInput); let newTime24 = parseUserTimeTo24(dummyInput.value);
         if (isPermanent) {
             const d = new Date(newDate); const newDayNum = d.getDay(); 
             showConfirm(`Permanently move ${esc(studentName)}'s future classes to ${newDayName}s at ${newTime12}?`, async () => {
@@ -2520,198 +2500,8 @@
             });
         }
     };
-/* --- OMNIBOX / COMMAND PALETTE ENGINE --- */
-    window.openOmnibox = () => { document.getElementById("omniboxModal").classList.add("show"); const input = document.getElementById("omniboxInput"); input.value = ""; document.getElementById("omniboxResults").style.display = "none"; setTimeout(() => input.focus(), 100); };
-    window.closeOmnibox = () => { document.getElementById("omniboxModal").classList.remove("show"); };
 
-    document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); window.openOmnibox(); } if (e.key === 'Escape') { window.closeOmnibox(); } });
-    document.getElementById("omniboxModal").addEventListener('click', (e) => { if(e.target.id === "omniboxModal") window.closeOmnibox(); });
-    document.getElementById("omniboxInput").addEventListener('keydown', (e) => { if(e.key === 'Enter') { const firstResult = document.querySelector('.ob-result-item'); if(firstResult) firstResult.click(); } });
-    document.getElementById("omniboxInput").addEventListener('input', (e) => { window.processOmniboxQuery(e.target.value.toLowerCase().trim()); });
-
-    window.processOmniboxQuery = (query) => {
-        const resultsContainer = document.getElementById("ob-results-container"); if (!query) { resultsContainer.style.display = "none"; return; }
-        resultsContainer.style.display = "block"; let html = ""; let matched = false; const q = query.toLowerCase();
-
-        let targetDateStr = null; let dateLabel = ""; const todayObj = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-        if (q.includes("today")) { targetDateStr = APP_STATE.todayDate; dateLabel = "Today"; }
-        else if (q.includes("tomorrow") || q.includes("tmrw")) { let tmrw = new Date(todayObj); tmrw.setDate(todayObj.getDate() + 1); targetDateStr = tmrw.toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'}); dateLabel = "Tomorrow"; } 
-        else { const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]; for (let i=0; i<7; i++) { if (q.includes(days[i])) { let d = new Date(todayObj); let diff = i - d.getDay(); if (diff <= 0) diff += 7; d.setDate(d.getDate() + diff); targetDateStr = d.toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'}); dateLabel = days[i].charAt(0).toUpperCase() + days[i].slice(1); break; } } }
-
-        let targetTimeStr = ""; const timeMatch = q.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i); if (timeMatch) { let hh = parseInt(timeMatch[1]); let mm = timeMatch[2] || "00"; let ap = timeMatch[3].toUpperCase(); if(hh>=1 && hh<=12) targetTimeStr = `${String(hh).padStart(2, '0')}:${mm} ${ap}`; }
-        
-        let cleanQ = q;
-        const intents = ["cancelled", "cancel", "no show", "absent", "glitch", "limit", "exhaust", "schedule", "class", "plan", "reschedule", "shift", "free", "slot", "available", "receipt", "payment", "fee", "progress", "report", "feedback"];
-        const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-        intents.forEach(i => cleanQ = cleanQ.replace(new RegExp('\\b'+i+'\\b', 'gi'), ''));
-        months.forEach(m => cleanQ = cleanQ.replace(new RegExp('\\b'+m+'\\b', 'gi'), ''));
-        ["today", "tomorrow", "tmrw"].forEach(d => cleanQ = cleanQ.replace(new RegExp('\\b'+d+'\\b', 'gi'), ''));
-        
-        let targetStudent = ""; let potentialStudents = [];
-        const nameTarget = cleanQ.replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
-        
-        if (nameTarget.length > 2) {
-            APP_STATE.students.forEach(s => {
-                const sName = s.name.toLowerCase();
-                if (sName.includes(nameTarget)) potentialStudents.push({ name: s.name, type: 'exact' });
-                else if (window.levenshtein(nameTarget.split(' ')[0], sName.split(' ')[0]) <= 2) potentialStudents.push({ name: s.name, type: 'fuzzy' });
-            });
-        }
-        
-        if (potentialStudents.length > 0) {
-            let unique = Array.from(new Set(potentialStudents.map(s => s.name))).map(name => potentialStudents.find(s => s.name === name));
-            unique.sort((a, b) => (a.type === 'exact' ? -1 : 1));
-            targetStudent = unique[0].name; 
-            if (unique[0].type === 'fuzzy' && unique.length > 1) {
-                let ambiguityHtml = `<div style="padding: 8px 16px; font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Ambiguous Match: Did you mean?</div>`;
-                unique.forEach(ps => { ambiguityHtml += `<div class="ob-result-item" onclick="window.processOmniboxQuery('${q.replace(nameTarget, ps.name.toLowerCase())}')"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><span style="font-weight:600; color:var(--text-main);">${esc(ps.name)}</span><span class="ob-command-badge">Select</span></div><span style="color:#cbd5e1;">⏎</span></div>`; });
-                resultsContainer.innerHTML = ambiguityHtml; return; 
-            }
-        }
-
-        const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan"); const isReschedule = q.includes("reschedule") || q.includes("shift"); const isSlots = q.includes("free") || q.includes("slot") || q.includes("available"); const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee"); const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback"); const isAnalytics = q.includes("no show") || q.includes("absent") || q.includes("limit") || q.includes("cancelled");
-
-        if (isSchedule && targetStudent && !isReschedule) {
-            matched = true; let action = `window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { document.getElementById('schedule-student-select').value='${esc(targetStudent)}'; if('${targetDateStr}' !== 'null') document.getElementById('schedule-date').value='${targetDateStr}'; if('${targetTimeStr}') document.getElementById('schedule-time').value='${targetTimeStr}'; document.getElementById('schedule-student-select').scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📅</span><span style="font-weight:600; color:var(--text-main);">Schedule ${esc(targetStudent)} ${dateLabel ? 'for ' + dateLabel : ''} ${targetTimeStr ? 'at ' + targetTimeStr : ''}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
-        }
-        if (isReschedule && targetStudent) {
-            matched = true; let action = `window.closeOmnibox(); window.showMainSection('students'); window.openSchedulingModal('${esc(targetStudent)}');`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">🔁</span><span style="font-weight:600; color:var(--text-main);">Reschedule ${esc(targetStudent)}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
-        }
-        if ((isReceipt || isProgress) && targetStudent) {
-            matched = true; let crmAction = isReceipt ? 'receipt' : 'progress'; let action = `window.closeOmnibox(); window.showMainSection('communications'); setTimeout(() => { document.getElementById('crm-student-select').value='${esc(targetStudent)}'; window.loadStudentCRM('${esc(targetStudent)}'); document.querySelector('input[name="crmAction"][value="${crmAction}"]').click(); document.getElementById('crm-student-select').scrollIntoView({behavior: 'smooth', block: 'start'}); }, 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${isReceipt ? '🧾' : '📝'}</span><span style="font-weight:600; color:var(--text-main);">Write ${isReceipt ? 'Receipt' : 'Progress Report'} for ${esc(targetStudent)}</span><span class="ob-command-badge">Smart Route</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
-        }
-        if (isAnalytics) {
-            matched = true; let statFilter = q.includes("no show") ? "Student No Show" : q.includes("absent") ? "Absent" : q.includes("limit") ? "Class Limit Reached" : "Cancelled";
-            let action = targetStudent 
-                ? `window.closeOmnibox(); window.showMainSection('analytics'); window.openHistoryReport(); setTimeout(() => { document.getElementById('historyStatusFilter').value='${statFilter}'; document.getElementById('history-student-filter').value='${esc(targetStudent)}'; }, 200);`
-                : `window.closeOmnibox(); window.showMainSection('analytics'); window.openHistoryReport(); setTimeout(() => { document.getElementById('historyStatusFilter').value='${statFilter}'; }, 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📊</span><span style="font-weight:600; color:var(--text-main);">View ${targetStudent ? statFilter + ' Report for ' + esc(targetStudent) : 'Global ' + statFilter + ' Report'}</span><span class="ob-command-badge">Smart Data</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
-        }
-        
-        const commands = [
-            { keywords: ["slot", "slots", "free", "available", "open", "empty", "calendar", "schedule", "book"], title: "View Available Slots (Today)", icon: "🟢", action: "window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value=APP_STATE.todayDate; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);" },
-            { keywords: ["vacation", "ooo", "leave", "holiday", "off", "break", "trip"], title: "Draft Out of Office Message", icon: "✈️", action: "window.closeOmnibox(); window.openSmartBulletin(); window.switchSbTab('vacation');" },
-            { keywords: ["add", "new", "create", "enroll"], title: "Quick Add Student", icon: "🆕", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(() => { let el = document.getElementById('student-name-input'); el.scrollIntoView({behavior: 'smooth', block: 'center'}); el.focus(); }, 200);" },
-            { keywords: ["revenue", "analytics", "stats", "money", "earnings", "dashboard", "report", "graph"], title: "View Executive Analytics", icon: "📊", action: "window.closeOmnibox(); window.showMainSection('analytics'); setTimeout(() => window.scrollTo({top: 0, behavior: 'smooth'}), 100);" },
-            { keywords: ["pending", "review", "done", "approve", "check"], title: "Clear Pending Reviews", icon: "📝", action: "window.closeOmnibox(); window.openPendingReviews();" }
-        ];
-
-        if (!matched) { commands.forEach(cmd => { if (q.split(/\s+/).filter(w => w.length > 1).some(qw => cmd.keywords.some(kw => kw.includes(qw)))) { matched = true; html += `<div class="ob-result-item" onclick="${cmd.action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${cmd.icon}</span><span style="font-weight:600; color:var(--text-main);">${cmd.title}</span><span class="ob-command-badge">Command</span></div><span style="color:#cbd5e1;">⏎</span></div>`; } }); }
-
-        if (!matched || q.length < 15) {
-            APP_STATE.students.filter(s => s.name.toLowerCase().includes(nameTarget || q)).forEach(s => {
-                matched = true; html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><div><div style="font-weight:700; color:var(--text-main);">${esc(s.name)}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div></div></div><button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6; height: 28px; padding: 0 8px;" onclick="event.stopPropagation(); window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${esc(s.name)}');">✨ Find Slots</button></div><div style="display:flex; gap:8px;"><button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${esc(s.name)}')">💬 Jump to CRM</button><button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); el.value='${esc(s.name)}'; el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);">📅 Schedule</button></div></div>`;
-            });
-        }
-        
-        if (!matched) { html = `<div style="text-align:center; padding:20px; color:#94a3b8;">No precise matches found.<br><span style="font-size:0.8rem; margin-top:8px; display:block;">Try: "Schedule Aadira for tomorrow at 3 PM" or "Jasnoor cancelled apr".</span></div>`; }
-        resultsContainer.innerHTML = html;
-    };
-
-    window.toggleOmniboxVoice = (btnElement) => {
-        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) return window.showSystemPopup("System Error", "Voice not supported.");
-        if (isRecording) { speechRecog.stop(); return; }
-        const SR = window.SpeechRecognition || window.webkitSpeechRecognition; speechRecog = new SR(); speechRecog.continuous = false; 
-        speechRecog.onstart = function() { isRecording = true; btnElement.classList.add("recording-pulse"); btnElement.innerHTML = "🔴"; document.getElementById("omniboxInput").placeholder = "Listening..."; };
-        speechRecog.onresult = function(event) { const transcript = event.results[0][0].transcript; const input = document.getElementById("omniboxInput"); input.value = transcript.trim(); window.processOmniboxQuery(transcript.trim().toLowerCase()); };
-        speechRecog.onend = function() { isRecording = false; btnElement.classList.remove("recording-pulse"); btnElement.innerHTML = "🎤"; document.getElementById("omniboxInput").placeholder = "Search students, slots, or commands..."; };
-        speechRecog.start();
-    };
-
-    window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 'POST', body: JSON.stringify({Action: "updateStudentData", StudentName: name, MonthlyLimit: parseInt(limit)})}).then(()=> { window.showSystemPopup("System Update", 'Limit updated for ' + name); const globalStudents = APP_STATE.students; const stu = globalStudents.find(x => x.name === name); if(stu) stu.monthlyLimit = parseInt(limit); window.renderClassLimits(); }); };
-
-window.renderClassLimits = function() {
-    const container = document.getElementById('smart-class-limit-alerts');
-    if(!container) return;
-    container.innerHTML = '';
-
-    let globalClasses = APP_STATE.currentClasses || [];
-    let todayStudentNames = globalClasses.map(c => c.StudentName);
-    let targets = window.globalStudents.filter(s => 
-        String(s.status).toLowerCase() !== 'deleted' && 
-        s.type === 'PS' && 
-        s.monthCompleted >= ((s.monthlyLimit || 4) - 1) &&
-        todayStudentNames.includes(s.name)
-    );
-
-    if(targets.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-
-    container.style.display = 'flex';
-
-    targets.sort((a,b) => {
-        const ratioA = a.monthCompleted / (a.monthlyLimit || 4);
-        const ratioB = b.monthCompleted / (b.monthlyLimit || 4);
-        return ratioB - ratioA;
-    });
-
-    let htmlString = `<h3 style="font-size: 0.95rem; font-weight: 700; color: #dc2626; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">⚠️ Action Required: PS Class Limits</h3>`;
-
-    targets.forEach(s => {
-        const limit = s.monthlyLimit || 4;
-        const isCritical = s.monthCompleted >= limit;
-
-        const bgColor = isCritical ? '#fef2f2' : '#fffbeb'; 
-        const borderColor = isCritical ? '#ef4444' : '#f59e0b'; 
-        const textColor = isCritical ? '#991b1b' : '#92400e'; 
-        const icon = isCritical ? '🛑 Limit Reached' : '⚠️ Nearing Limit';
-
-        htmlString += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${bgColor}; border-radius: 8px; border-left: 5px solid ${borderColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <span style="font-size: 0.95rem; font-weight: 600; color: ${textColor};">${esc(s.name)} <span style="font-weight: 500; font-size: 0.8rem; margin-left: 8px; opacity: 0.8;">${icon}</span></span>
-            <span style="font-size: 1rem; font-weight: 800; color: ${borderColor};">${s.monthCompleted} / ${limit}</span>
-        </div>`;
-    });
-
-    container.innerHTML = htmlString;
-};
-
-    async function runBootSequence() {
-        APP_STATE.todayDate = getCurrentISTDateString(); 
-        document.getElementById("view-date").value = APP_STATE.todayDate; document.getElementById("schedule-date").value = APP_STATE.todayDate; document.getElementById("conv-student-date").value = APP_STATE.todayDate;
-        try { const tzs = Intl.supportedValuesOf('timeZone'); const list = document.getElementById("tz-list"); if (list) { tzs.forEach(tz => list.innerHTML += `<option value="${tz}"></option>`); } window.loadCustomTzs(); } catch(e) { console.error("TZ API not supported in this browser."); }
-        initClocks(); 
-        const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7); const isoWeekStart = d.toISOString().split('T')[0];
-        try {
-            const bootData = await fetchAPI(null, { action: "bootApp", todayDate: APP_STATE.todayDate, startDate: isoWeekStart });
-            if (bootData.status !== "error") {
-                APP_STATE.studyMaterialLink = bootData.studyMaterialLink || "";
-                APP_STATE.roster = bootData.rosterRes || [];
-                if (bootData.studentsRes && bootData.studentsRes.students) { 
-                    APP_STATE.students = bootData.studentsRes.students.sort((a,b) => a.name.localeCompare(b.name)); 
-                    window.globalStudents = APP_STATE.students;
-                    populateStudentDropdowns(); 
-                    renderStudents(); 
-                    window.renderClassLimits();
-                    document.getElementById("stats-total-students").textContent = APP_STATE.students.length; 
-                    document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`; 
-                    window.renderDashboardPersonalProgress();
-                }
-                if (bootData.classesRes && bootData.classesRes.classes) { APP_STATE.cache[APP_STATE.todayDate] = bootData.classesRes.classes; }
-                if (bootData.weekRes && bootData.weekRes.summary) { APP_STATE.weeklySummary = bootData.weekRes.summary; }
-                updateStats(APP_STATE.todayDate, APP_STATE.cache[APP_STATE.todayDate] || []); window.renderClassesForDate(APP_STATE.todayDate, false, APP_STATE.cache[APP_STATE.todayDate] || []);
-                if (bootData.earningsRes) { 
-                  if(bootData.earningsRes.personalEarnings !== undefined) { 
-                    document.getElementById("stats-earnings-prepaid").textContent = "₹" + (bootData.earningsRes.personalEarnings||0).toLocaleString('en-IN'); 
-                    document.getElementById("stats-earnings-accrued").textContent = "₹" + (bootData.earningsRes.cmEarnings||0).toLocaleString('en-IN'); 
-                    document.getElementById("stats-earnings-bal").textContent = "Dues: ₹" + (bootData.earningsRes.personalBalance||0).toLocaleString('en-IN'); 
-                    document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.personalCount || 0} Personal Pkgs | ${bootData.earningsRes.cmCount || 0} CM Classes`; 
-                  } 
-                }
-                if (bootData.upcomingFeed) { window.renderAvailabilityFeed(bootData.upcomingFeed); }
-                window.renderClassLimits();
-            }
-        } catch(e) {}
-        setTimeout(() => { try { window.loadAnalytics(true); } catch(e) {} }, 1000);
-    }
-    
-    // --- SURGICAL INSERTIONS: NEW FEATURES ---
-    
-    // 1. Multi-Day Cancel Logic
+    // --- MULTI-DAY CANCEL & DROP SLOT ---
     window.openCancelMultiDayModal = function() {
         const viewDate = document.getElementById('view-date').value || APP_STATE.todayDate;
         document.getElementById('cancel-multi-start').value = viewDate;
@@ -2733,18 +2523,13 @@ window.renderClassLimits = function() {
             window.showSystemPopup(res.status === "error" ? "System Error" : "System Update", res.message);
             document.getElementById('cancelMultiDayModal').classList.remove('show');
             
-            APP_STATE.cache = {}; // RUTHLESS CACHE WIPE TO FIX STALE UI
+            APP_STATE.cache = {}; // Clear stale data cache
             
             if(window.fetchToday) window.fetchToday(true); 
             if(window.loadClassesForViewDate) window.loadClassesForViewDate();
-        } catch(e) {
-            window.showSystemPopup("System Error", e.toString());
-        } finally {
-            btn.textContent = originalText; btn.disabled = false;
-        }
+        } catch(e) { window.showSystemPopup("System Error", e.toString()); } finally { btn.textContent = originalText; btn.disabled = false; }
     };
 
-    // 2. SAFE Drop Roster Slot Logic
     window.confirmDropRosterSlot = function(studentName, dayOfWeek, startTime) {
         let warningText = `🚨 DROP SLOT: ${studentName} on ${dayOfWeek}s at ${startTime}\n\nThis permanently purges FUTURE occurrences of this specific slot from the DB and Calendar.\n\nPast revenue and history remain entirely untouched.\n\nProceed?`;
         
@@ -2754,23 +2539,216 @@ window.renderClassLimits = function() {
                 const res = await fetchAPI(null, { action: "dropRosterSlot", studentName: studentName, dayOfWeek: dayOfWeek, startTime: startTime });
                 window.showSystemPopup(res.status === "error" ? "System Error" : "System Update", res.message);
                 
-                // Live refresh the roster memory
+                // Clear from memory instantly
                 APP_STATE.roster = (APP_STATE.roster || []).filter(r => !(r.studentname === studentName && String(r.dayofweek).trim() === dayOfWeek && String(r.starttime).startsWith(startTime.substring(0,5))));
                 
-                // Refresh UI views instantly
                 if(window.renderTimetable) window.renderTimetable();
                 if(window.renderStudents) window.renderStudents();
-                
-                // Live reload the modal to show the slot is gone
-                if(document.getElementById('schedulingModal').classList.contains('show')) {
-                    window.openSchedulingModal(studentName, 'roster');
-                }
-            } catch(e) {
-                window.showSystemPopup("System Error", e.toString());
-            }
+                if(document.getElementById('schedulingModal').classList.contains('show')) window.openSchedulingModal(studentName, 'roster');
+            } catch(e) { window.showSystemPopup("System Error", e.toString()); }
         });
     };
 
+    // --- OMNIBOX & NLP ---
+    window.openOmnibox = () => { document.getElementById("omniboxModal").classList.add("show"); const input = document.getElementById("omniboxInput"); input.value = ""; document.getElementById("omniboxResults").style.display = "none"; setTimeout(() => input.focus(), 100); };
+    window.closeOmnibox = () => { document.getElementById("omniboxModal").classList.remove("show"); };
+
+    document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); window.openOmnibox(); } if (e.key === 'Escape') { window.closeOmnibox(); } });
+    document.getElementById("omniboxModal").addEventListener('click', (e) => { if(e.target.id === "omniboxModal") window.closeOmnibox(); });
+    document.getElementById("omniboxInput").addEventListener('keydown', (e) => { if(e.key === 'Enter') { const firstResult = document.querySelector('.ob-result-item'); if(firstResult) firstResult.click(); } });
+    document.getElementById("omniboxInput").addEventListener('input', (e) => { window.processOmniboxQuery(e.target.value.toLowerCase().trim()); });
+
+    window.processOmniboxQuery = (query) => {
+        const resultsContainer = document.getElementById("ob-results-container") || document.getElementById("omniboxResults"); 
+        if (!query) { resultsContainer.style.display = "none"; return; }
+        resultsContainer.style.display = "block"; let html = ""; let matched = false; const q = query.toLowerCase();
+
+        // 1. Bulletproof Array Checker (Prevents the .forEach crash)
+        let safeStudents = Array.isArray(APP_STATE.students) ? APP_STATE.students : (Array.isArray(window.globalStudents) ? window.globalStudents : []);
+
+        let targetDateStr = null; let dateLabel = ""; const todayObj = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+        if (q.includes("today")) { targetDateStr = APP_STATE.todayDate; dateLabel = "Today"; }
+        else if (q.includes("tomorrow") || q.includes("tmrw")) { let tmrw = new Date(todayObj); tmrw.setDate(todayObj.getDate() + 1); targetDateStr = tmrw.toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'}); dateLabel = "Tomorrow"; } 
+        else { const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]; for (let i=0; i<7; i++) { if (q.includes(days[i])) { let d = new Date(todayObj); let diff = i - d.getDay(); if (diff <= 0) diff += 7; d.setDate(d.getDate() + diff); targetDateStr = d.toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'}); dateLabel = days[i].charAt(0).toUpperCase() + days[i].slice(1); break; } } }
+
+        let targetTimeStr = ""; const timeMatch = q.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i); if (timeMatch) { let hh = parseInt(timeMatch[1]); let mm = timeMatch[2] || "00"; let ap = timeMatch[3].toUpperCase(); if(hh>=1 && hh<=12) targetTimeStr = `${String(hh).padStart(2, '0')}:${mm} ${ap}`; }
+        
+        // 2. Canonical NLP Mapping
+        const NLP_STATUS_MAP = {
+            "no show": "Student No Show", "noshow": "Student No Show",
+            "absent": "Absent",
+            "cancelled": "Cancelled", "canceled": "Cancelled",
+            "pause": "Paused", "paused": "Paused",
+            "limit": "Class Limit Reached", "exhaust": "Class Limit Reached",
+            "glitch": "System Glitch"
+        };
+        
+        let cleanQ = q;
+        const intents = Object.keys(NLP_STATUS_MAP).concat(["schedule", "class", "plan", "reschedule", "shift", "free", "slot", "available", "receipt", "payment", "fee", "progress", "report", "feedback", "analytics"]);
+        const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+        let targetMonthNum = null; let foundStatus = null;
+        
+        months.forEach((m, idx) => { if (new RegExp('\\b'+m+'\\b', 'i').test(q)) targetMonthNum = String(idx + 1).padStart(2, '0'); });
+        Object.keys(NLP_STATUS_MAP).forEach(k => { if (new RegExp('\\b'+k+'\\b', 'i').test(q)) foundStatus = NLP_STATUS_MAP[k]; });
+        
+        intents.forEach(i => cleanQ = cleanQ.replace(new RegExp('\\b'+i+'\\b', 'gi'), ''));
+        months.forEach(m => cleanQ = cleanQ.replace(new RegExp('\\b'+m+'\\b', 'gi'), ''));
+        ["today", "tomorrow", "tmrw"].forEach(d => cleanQ = cleanQ.replace(new RegExp('\\b'+d+'\\b', 'gi'), ''));
+        
+        let targetStudent = ""; let potentialStudents = [];
+        const nameTarget = cleanQ.replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+        
+        if (nameTarget.length > 2) {
+            safeStudents.forEach(s => {
+                if (!s || !s.name) return;
+                const sName = s.name.toLowerCase();
+                if (sName.includes(nameTarget)) potentialStudents.push({ name: s.name, type: 'exact' });
+                else {
+                    const dist = window.levenshtein ? window.levenshtein(nameTarget.split(' ')[0], sName.split(' ')[0]) : 99;
+                    if (dist <= 2) potentialStudents.push({ name: s.name, type: 'fuzzy' });
+                }
+            });
+        }
+        
+        if (potentialStudents.length > 0) {
+            let unique = Array.from(new Set(potentialStudents.map(s => s.name))).map(name => potentialStudents.find(s => s.name === name));
+            unique.sort((a, b) => (a.type === 'exact' ? -1 : 1));
+            targetStudent = unique[0].name; 
+            if (unique[0].type === 'fuzzy' && unique.length > 1) {
+                let ambiguityHtml = `<div style="padding: 8px 16px; font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Ambiguous Match: Did you mean?</div>`;
+                unique.forEach(ps => { ambiguityHtml += `<div class="ob-result-item" onclick="window.processOmniboxQuery('${q.replace(nameTarget, ps.name.toLowerCase())}')"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><span style="font-weight:600; color:var(--text-main);">${esc(ps.name)}</span><span class="ob-command-badge">Select</span></div><span style="color:#cbd5e1;">⏎</span></div>`; });
+                resultsContainer.innerHTML = ambiguityHtml; return; 
+            }
+        }
+
+        const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan"); const isReschedule = q.includes("reschedule") || q.includes("shift"); const isSlots = q.includes("free") || q.includes("slot") || q.includes("available"); const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee"); const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback"); 
+        const isAnalytics = foundStatus !== null || q.includes("analytics") || q.includes("report");
+
+        if (isSchedule && targetStudent && !isReschedule) {
+            matched = true; let action = `window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); if(el) { el.value='${esc(targetStudent)}'; } if('${targetDateStr}' !== 'null') { let d = document.getElementById('schedule-date'); if(d) d.value='${targetDateStr}'; } if('${targetTimeStr}') { let t = document.getElementById('schedule-time'); if(t) t.value='${targetTimeStr}'; } if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);`;
+            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📅</span><span style="font-weight:600; color:var(--text-main);">Schedule ${esc(targetStudent)} ${dateLabel ? 'for ' + dateLabel : ''} ${targetTimeStr ? 'at ' + targetTimeStr : ''}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+        }
+        if (isReschedule && targetStudent) {
+            matched = true; let action = `window.closeOmnibox(); window.showMainSection('students'); window.openSchedulingModal('${esc(targetStudent)}');`;
+            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">🔁</span><span style="font-weight:600; color:var(--text-main);">Reschedule ${esc(targetStudent)}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+        }
+        if ((isReceipt || isProgress) && targetStudent) {
+            matched = true; let crmAction = isReceipt ? 'receipt' : 'progress'; let icon = isReceipt ? '🧾' : '📝';
+            let action = `window.closeOmnibox(); window.showMainSection('communications'); setTimeout(() => { let el = document.getElementById('crm-student-select'); if(el) el.value='${esc(targetStudent)}'; window.loadStudentCRM('${esc(targetStudent)}'); let rad = document.querySelector('input[name="crmAction"][value="${crmAction}"]'); if(rad) rad.click(); if(el) el.scrollIntoView({behavior: 'smooth', block: 'start'}); }, 200);`;
+            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${icon}</span><span style="font-weight:600; color:var(--text-main);">Write ${isReceipt ? 'Receipt' : 'Progress Report'} for ${esc(targetStudent)}</span><span class="ob-command-badge">Smart Route</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+        }
+        if (isAnalytics) {
+            matched = true; 
+            let statFilter = foundStatus || "All";
+            
+            // 3. The Race-Condition Patch
+            // We delay the actual DOM injection and .click() by 400ms to guarantee the modal has fully animated onto the screen.
+            let forceInjection = `
+                window.closeOmnibox(); 
+                window.showMainSection('analytics'); 
+                window.openHistoryReport(); 
+                setTimeout(() => { 
+                    let statEl = document.getElementById('historyStatusFilter'); 
+                    if(statEl) statEl.value = '${statFilter}'; 
+                    
+                    let stuEl = document.getElementById('history-student-filter'); 
+                    if(stuEl && '${targetStudent}') stuEl.value = '${esc(targetStudent)}'; 
+                    
+                    if('${targetMonthNum}' !== 'null') {
+                        let yr = new Date().getFullYear(); 
+                        let lastDay = new Date(yr, parseInt('${targetMonthNum}'), 0).getDate(); 
+                        let startInput = document.getElementById('historyStartDate'); 
+                        let endInput = document.getElementById('historyEndDate'); 
+                        if(startInput) startInput.value = yr + '-${targetMonthNum}-01'; 
+                        if(endInput) endInput.value = yr + '-${targetMonthNum}-' + lastDay;
+                    }
+                    setTimeout(() => { 
+                        let btn = document.getElementById('historyGenBtn'); 
+                        if(btn) btn.click(); 
+                    }, 250); 
+                }, 400);
+            `;
+            html += `<div class="ob-result-item" onclick="${forceInjection}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📊</span><span style="font-weight:600; color:var(--text-main);">Generate ${targetStudent ? statFilter + ' Report for ' + esc(targetStudent) : 'Global ' + statFilter + ' Report'}</span><span class="ob-command-badge">Smart Data</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+        }
+        
+        const commands = [
+            { keywords: ["slot", "slots", "free", "available", "open", "empty", "calendar", "schedule", "book"], title: "View Available Slots (Today)", icon: "🟢", action: "window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value=APP_STATE.todayDate; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);" },
+            { keywords: ["vacation", "ooo", "leave", "holiday", "off", "break", "trip"], title: "Draft Out of Office Message", icon: "✈️", action: "window.closeOmnibox(); window.openSmartBulletin(); window.switchSbTab('vacation');" },
+            { keywords: ["add", "new", "create", "enroll"], title: "Quick Add Student", icon: "🆕", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(() => { let el = document.getElementById('student-name-input'); el.scrollIntoView({behavior: 'smooth', block: 'center'}); el.focus(); }, 200);" },
+            { keywords: ["revenue", "analytics", "stats", "money", "earnings", "dashboard", "report", "graph"], title: "View Executive Analytics", icon: "📊", action: "window.closeOmnibox(); window.showMainSection('analytics'); setTimeout(() => window.scrollTo({top: 0, behavior: 'smooth'}), 100);" },
+            { keywords: ["pending", "review", "done", "approve", "check"], title: "Clear Pending Reviews", icon: "📝", action: "window.closeOmnibox(); window.openPendingReviews();" }
+        ];
+
+        if (!matched) { commands.forEach(cmd => { if (q.split(/\s+/).filter(w => w.length > 1).some(qw => cmd.keywords.some(kw => kw.includes(qw)))) { matched = true; html += `<div class="ob-result-item" onclick="${cmd.action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${cmd.icon}</span><span style="font-weight:600; color:var(--text-main);">${cmd.title}</span><span class="ob-command-badge">Command</span></div><span style="color:#cbd5e1;">⏎</span></div>`; } }); }
+
+        if (!matched || q.length < 15) {
+            safeStudents.filter(s => s && s.name && s.name.toLowerCase().includes(nameTarget || q)).forEach(s => {
+                matched = true; html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><div><div style="font-weight:700; color:var(--text-main);">${esc(s.name)}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div></div></div><button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6; height: 28px; padding: 0 8px;" onclick="event.stopPropagation(); window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${esc(s.name)}');">✨ Find Slots</button></div><div style="display:flex; gap:8px;"><button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${esc(s.name)}')">💬 Jump to CRM</button><button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); if(el) el.value='${esc(s.name)}'; if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);">📅 Schedule</button></div></div>`;
+            });
+        }
+        
+        if (!matched) { html = `<div style="text-align:center; padding:20px; color:#94a3b8;">No precise matches found.<br><span style="font-size:0.8rem; margin-top:8px; display:block;">Try: "Schedule Aadira for tomorrow at 3 PM" or "Jasnoor cancelled apr".</span></div>`; }
+        resultsContainer.innerHTML = html;
+    };
+
+    window.toggleOmniboxVoice = (btnElement) => {
+        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) return window.showSystemPopup("System Error", "Voice not supported.");
+        if (isRecording) { speechRecog.stop(); return; }
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition; speechRecog = new SR(); speechRecog.continuous = false; 
+        speechRecog.onstart = function() { isRecording = true; btnElement.classList.add("recording-pulse"); btnElement.innerHTML = "🔴"; document.getElementById("omniboxInput").placeholder = "Listening..."; };
+        speechRecog.onresult = function(event) { const transcript = event.results[0][0].transcript; const input = document.getElementById("omniboxInput"); input.value = transcript.trim(); window.processOmniboxQuery(transcript.trim().toLowerCase()); };
+        speechRecog.onend = function() { isRecording = false; btnElement.classList.remove("recording-pulse"); btnElement.innerHTML = "🎤"; document.getElementById("omniboxInput").placeholder = "Search students, slots, or commands..."; };
+        speechRecog.start();
+    };
+
+    window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 'POST', body: JSON.stringify({Action: "updateStudentData", StudentName: name, MonthlyLimit: parseInt(limit)})}).then(()=> { window.showSystemPopup("System Update", 'Limit updated for ' + name); const globalStudents = APP_STATE.students; const stu = globalStudents.find(x => x.name === name); if(stu) stu.monthlyLimit = parseInt(limit); window.renderClassLimits(); }); };
+
+    window.renderClassLimits = function() {
+        const container = document.getElementById('smart-class-limit-alerts'); if(!container) return; container.innerHTML = '';
+        let globalClasses = APP_STATE.currentClasses || []; let todayStudentNames = globalClasses.map(c => c.StudentName);
+        let targets = (window.globalStudents || []).filter(s => String(s.status).toLowerCase() !== 'deleted' && s.type === 'PS' && s.monthCompleted >= ((s.monthlyLimit || 4) - 1) && todayStudentNames.includes(s.name));
+        if(targets.length === 0) { container.style.display = 'none'; return; }
+        container.style.display = 'flex';
+        targets.sort((a,b) => { const ratioA = a.monthCompleted / (a.monthlyLimit || 4); const ratioB = b.monthCompleted / (b.monthlyLimit || 4); return ratioB - ratioA; });
+        let htmlString = `<h3 style="font-size: 0.95rem; font-weight: 700; color: #dc2626; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">⚠️ Action Required: PS Class Limits</h3>`;
+        targets.forEach(s => {
+            const limit = s.monthlyLimit || 4; const isCritical = s.monthCompleted >= limit;
+            const bgColor = isCritical ? '#fef2f2' : '#fffbeb'; const borderColor = isCritical ? '#ef4444' : '#f59e0b'; const textColor = isCritical ? '#991b1b' : '#92400e'; const icon = isCritical ? '🛑 Limit Reached' : '⚠️ Nearing Limit';
+            htmlString += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${bgColor}; border-radius: 8px; border-left: 5px solid ${borderColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.05);"><span style="font-size: 0.95rem; font-weight: 600; color: ${textColor};">${esc(s.name)} <span style="font-weight: 500; font-size: 0.8rem; margin-left: 8px; opacity: 0.8;">${icon}</span></span><span style="font-size: 1rem; font-weight: 800; color: ${borderColor};">${s.monthCompleted} / ${limit}</span></div>`;
+        });
+        container.innerHTML = htmlString;
+    };
+
+    async function runBootSequence() {
+        APP_STATE.todayDate = getCurrentISTDateString(); 
+        document.getElementById("view-date").value = APP_STATE.todayDate; document.getElementById("schedule-date").value = APP_STATE.todayDate; document.getElementById("conv-student-date").value = APP_STATE.todayDate;
+        try { const tzs = Intl.supportedValuesOf('timeZone'); const list = document.getElementById("tz-list"); if (list) { tzs.forEach(tz => list.innerHTML += `<option value="${tz}"></option>`); } window.loadCustomTzs(); } catch(e) {}
+        initClocks(); 
+        const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7); const isoWeekStart = d.toISOString().split('T')[0];
+        try {
+            const bootData = await fetchAPI(null, { action: "bootApp", todayDate: APP_STATE.todayDate, startDate: isoWeekStart });
+            if (bootData.status !== "error") {
+                APP_STATE.studyMaterialLink = bootData.studyMaterialLink || ""; APP_STATE.roster = bootData.rosterRes || [];
+                if (bootData.studentsRes && bootData.studentsRes.students) { 
+                    APP_STATE.students = bootData.studentsRes.students.sort((a,b) => a.name.localeCompare(b.name)); window.globalStudents = APP_STATE.students;
+                    populateStudentDropdowns(); renderStudents(); window.renderClassLimits();
+                    document.getElementById("stats-total-students").textContent = APP_STATE.students.length; 
+                    document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`; 
+                    window.renderDashboardPersonalProgress();
+                }
+                if (bootData.classesRes && bootData.classesRes.classes) { APP_STATE.cache[APP_STATE.todayDate] = bootData.classesRes.classes; }
+                if (bootData.weekRes && bootData.weekRes.summary) { APP_STATE.weeklySummary = bootData.weekRes.summary; }
+                updateStats(APP_STATE.todayDate, APP_STATE.cache[APP_STATE.todayDate] || []); window.renderClassesForDate(APP_STATE.todayDate, false, APP_STATE.cache[APP_STATE.todayDate] || []);
+                if (bootData.earningsRes && bootData.earningsRes.personalEarnings !== undefined) { 
+                    document.getElementById("stats-earnings-prepaid").textContent = "₹" + (bootData.earningsRes.personalEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-accrued").textContent = "₹" + (bootData.earningsRes.cmEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-bal").textContent = "Dues: ₹" + (bootData.earningsRes.personalBalance||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.personalCount || 0} Personal Pkgs | ${bootData.earningsRes.cmCount || 0} CM Classes`; 
+                }
+                if (bootData.upcomingFeed) { window.renderAvailabilityFeed(bootData.upcomingFeed); }
+                window.renderClassLimits();
+            }
+        } catch(e) {}
+        setTimeout(() => { try { window.loadAnalytics(true); } catch(e) {} }, 1000);
+    }
+    
     window.onload = runBootSequence;
 </script>
 
@@ -2781,7 +2759,7 @@ window.renderClassLimits = function() {
             <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('cancelMultiDayModal').classList.remove('show')">✕</button>
         </div>
         <div class="modal-body">
-            <div style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">Cancel all active classes within a specified date range (Max 7 Days). Marks classes as 'Cancelled (Teacher)'.</div>
+            <div style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">Cancel all active classes within a specified date range (Max 7 Days). Marks classes as 'Cancelled'.</div>
             <div class="card-row" style="margin-bottom: 15px;">
                 <div class="card-column"><div class="form-group"><label>Start Date</label><input type="date" id="cancel-multi-start"></div></div>
                 <div class="card-column"><div class="form-group"><label>End Date</label><input type="date" id="cancel-multi-end"></div></div>
