@@ -587,10 +587,10 @@
                 </div>
                 <div class="card-column" style="flex:1;">
                     <div class="form-group">
-                        <label>Danger Zone</label>
+                        <label>Remove Student</label>
                         <div style="display:flex; gap:10px;">
                             <select id="student-delete-select" style="flex:1;"><option value="">Select...</option></select>
-                            <button class="btn btn-danger" onclick="window.executeDeleteStudent()">Delete</button>
+                            <button class="btn btn-danger" onclick="window.executeDeleteStudent()">Remove</button>
                         </div>
                     </div>
                 </div>
@@ -1019,7 +1019,7 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: May 10, 2026, 02:45 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v130 STAGING | Powered by LazifAI</div></footer>
+    <footer class="footer"><div>Last Updated: May 15, 2026, 06:40 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v130 STAGING | Powered by LazifAI</div></footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1392,7 +1392,7 @@
 
     window.loadCustomTzs = () => { const saved = JSON.parse(localStorage.getItem('acm_custom_tzs') || '[]'); const select = document.getElementById("conv-student-zone"); let optgroup = document.getElementById("custom-tz-group"); if (!optgroup) { optgroup = document.createElement("optgroup"); optgroup.id = "custom-tz-group"; optgroup.label = "Custom Saved"; const addNewOpt = select.querySelector("option[value='ADD_NEW']"); select.insertBefore(optgroup, addNewOpt); } optgroup.innerHTML = ""; saved.forEach(tz => { const label = tz.split('/').pop().replace(/_/g, ' '); optgroup.innerHTML += `<option value="${tz}">${label}</option>`; }); };
     window.saveCustomTz = () => { const tz = document.getElementById("customTzSearch").value.trim(); if (!tz) return; try { new Intl.DateTimeFormat('en-US', { timeZone: tz }); let saved = JSON.parse(localStorage.getItem('acm_custom_tzs') || '[]'); if (!saved.includes(tz)) { saved.push(tz); localStorage.setItem('acm_custom_tzs', JSON.stringify(saved)); } window.loadCustomTzs(); document.getElementById("conv-student-zone").value = tz; document.getElementById("customTzModal").classList.remove("show"); window.calcConv(); window.showSystemPopup("System Update", "City saved to your list!"); } catch(err) { window.showSystemPopup("System Error", "Invalid Timezone. Select from the dropdown."); } };
-    function initClocks() { setInterval(() => { document.getElementById("clock-india").textContent = "India: " + new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true }); }, 1000); window.calcConv = () => { const dateIn = document.getElementById("conv-student-date"); const zone = document.getElementById("conv-student-zone"); const timeIn = document.getElementById("conv-student-time"); const resDiv = document.getElementById("conv-result-ist"); if(!zone.value || zone.value === "ADD_NEW" || !timeIn.value || !dateIn.value) { resDiv.textContent = "--:-- IST"; return; } window.normalizeUserTime(timeIn); const t24 = parseUserTimeTo24(timeIn.value); if(!t24) return; const [h, m] = t24.split(':'); const baseDate = new Date(dateIn.value); baseDate.setHours(parseInt(h), parseInt(m), 0, 0); const sTime = baseDate.toLocaleString("en-US", { timeZone: zone.value }); const iTime = baseDate.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }); const diff = new Date(iTime) - new Date(sTime); resDiv.textContent = new Date(baseDate.getTime() + diff).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " IST"; }; document.getElementById("conv-student-zone").onchange = (e) => { if (e.target.value === "ADD_NEW") { e.target.value = ""; document.getElementById("customTzSearch").value = ""; document.getElementById("customTzModal").classList.add("show"); } else { window.calcConv(); } }; }
+    function initClocks() { setInterval(() => { document.getElementById("clock-india").textContent = "India: " + new Date().toLocaleTimeString("en-US", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true }); }, 1000); window.calcConv = () => { const dateIn = document.getElementById("conv-student-date"); const zone = document.getElementById("conv-student-zone"); const timeIn = document.getElementById("conv-student-time"); const resDiv = document.getElementById("conv-result-ist"); if(!zone.value || zone.value === "ADD_NEW" || !timeIn.value || !dateIn.value) { resDiv.textContent = "--:-- IST"; return; } window.normalizeUserTime(timeIn); const t24 = parseUserTimeTo24(timeIn.value); if(!t24) return; const [h, m] = t24.split(':'); const baseDate = new Date(dateIn.value); baseDate.setHours(parseInt(h), parseInt(m), 0, 0); const sTime = baseDate.toLocaleString("en-US", { timeZone: zone.value }); const iTime = baseDate.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }); const diff = new Date(iTime) - new Date(sTime); resDiv.textContent = new Date(baseDate.getTime() + diff).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " IST"; }; document.getElementById("conv-student-zone").onchange = (e) => { if (e.target.value === "ADD_NEW") { e.target.value = ""; document.getElementById("customTzSearch").value = ""; document.getElementById("customTzModal").classList.add("show"); } else { window.calcConv(); } }; }
     window.resetConv = () => { document.getElementById("conv-student-date").value = APP_STATE.todayDate; document.getElementById("conv-student-zone").value = ""; document.getElementById("conv-student-time").value = ""; document.getElementById("conv-result-ist").textContent = "--:-- IST"; };
 
     window.openStudyMaterial = () => { if(APP_STATE.studyMaterialLink) window.open(APP_STATE.studyMaterialLink, '_blank'); else window.showSystemPopup("System Error", "Link not set. Click ⚙️ to add."); };
@@ -1684,8 +1684,33 @@
         renderStudents(); window.updateSmartBarText(); 
     }
 
-    window.executeDeleteStudent = () => { const name = document.getElementById("student-delete-select").value; if(!name) return window.showSystemPopup("System Error", "Select student"); showConfirm(`Delete ${name}? This completely clears all their future classes.`, async () => { await fetchAPI(null, { action: "deleteStudent", StudentName: name }); window.showSystemPopup("System Update", "Student deleted successfully."); await window.loadStudents(); window.fetchToday(); window.renderClassesForDate(document.getElementById("view-date").value); }); };
-    window.executeAddStudent = async () => { const name = document.getElementById("student-name-input").value.trim(); const type = document.querySelector("input[name='studentType']:checked").value; if(!name) return window.showSystemPopup("System Error", "Enter name"); let payload = { action: "addStudent", StudentName: name, Type: type }; if(type === "Personal") { payload.PackageTotal = document.getElementById("add-pkg-total").value; payload.CustomPrice = document.getElementById("add-custom-price").value; payload.PendingBalance = document.getElementById("add-pending-balance").value; } const r = await fetchAPI(null, payload); if (r.status !== "error") window.showSystemPopup("System Update", "Student added successfully!"); await window.loadStudents(); document.getElementById("student-name-input").value = ""; };
+    window.executeDeleteStudent = () => { const name = document.getElementById("student-delete-select").value; if(!name) return window.showSystemPopup("System Error", "Select student"); showConfirm(`Remove ${name} and clear all their future classes?`, async () => { await fetchAPI(null, { action: "deleteStudent", StudentName: name }); window.showSystemPopup("System Update", "Student removed successfully."); await window.loadStudents(); window.fetchToday(); window.renderClassesForDate(document.getElementById("view-date").value); }); };
+    window.executeAddStudent = async () => { 
+        const name = document.getElementById("student-name-input").value.trim(); 
+        const type = document.querySelector("input[name='studentType']:checked").value; 
+        if(!name) return window.showSystemPopup("System Error", "Enter name"); 
+        
+        let payload = { action: "addStudent", StudentName: name, Type: type }; 
+        if(type === "Personal") { 
+            payload.PackageTotal = document.getElementById("add-pkg-total").value; 
+            payload.CustomPrice = document.getElementById("add-custom-price").value; 
+            payload.PendingBalance = document.getElementById("add-pending-balance").value; 
+        } 
+        
+        const btn = document.getElementById("add-student-btn");
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Adding...";
+        
+        const r = await fetchAPI(null, payload); 
+        
+        btn.disabled = false;
+        btn.textContent = originalText;
+        
+        if (r.status !== "error") window.showSystemPopup("System Update", "Student added successfully!"); 
+        await window.loadStudents(); 
+        document.getElementById("student-name-input").value = ""; 
+    };
 
     async function fetchToday(force=false) { const cls = await fetchAPI(null, { action: "getClasses", selectedDate: APP_STATE.todayDate }); if(cls.status === "error") return window.showSystemPopup("System Error", "Failed to load today's classes."); APP_STATE.cache[APP_STATE.todayDate] = cls.classes || []; if(force) loadWeekly(); updateStats(APP_STATE.todayDate, cls.classes || []); }
     async function loadWeekly() { const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7); const iso = d.toISOString().split('T')[0]; const r = await fetchAPI(null, { action: "getWeekSummary", startDate: iso }); if(r.status === "error") return; APP_STATE.weeklySummary = r.summary || {}; updateStats(APP_STATE.todayDate, APP_STATE.currentClasses); setTimeout(() => { const todayEl = document.querySelector('.weekly-day.today'); if(todayEl) todayEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }, 800); }
@@ -1753,9 +1778,14 @@
                 const originalValue = c.Status;
                 const proceedUpdate = async () => {
                     e.target.disabled = true; 
-                    await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: e.target.value }); 
+                    const r = await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: e.target.value }); 
                     e.target.disabled = false; 
-                    window.triggerDebouncedRefresh(dateStr); 
+                    if (r && r.status === "error") {
+                        window.showSystemPopup("System Error", r.message || "Failed to update status. Please try again.");
+                        e.target.value = originalValue;
+                    } else {
+                        window.triggerDebouncedRefresh(dateStr); 
+                    }
                 };
 
                 if (dateStr < APP_STATE.todayDate) {
@@ -1844,8 +1874,15 @@
         const sT = document.getElementById("schedule-time"); const s = document.getElementById("schedule-student-select").value; const d = document.getElementById("schedule-date").value; const t = parseUserTimeTo24(sT.value); const rep = parseInt(document.getElementById("schedule-repeat").value); 
         if(!s || !d || !t) return window.showSystemPopup("System Error", "Fill all fields"); let hasPast = false; for(let i=0; i<=rep; i++) { const cd = addDaysUTC(d, i*7); if(isTimeInPast(cd, t)) hasPast = true; } 
         const executeSchedule = async () => { 
-            const btn = document.getElementById("schedule-class-btn"); btn.disabled = true; const tasks = []; for(let i=0; i<=rep; i++) { tasks.push({ s: s, d: addDaysUTC(d, i*7), t: t }); } 
+            const btn = document.getElementById("schedule-class-btn"); 
+            const originalText = btn.textContent;
+            btn.disabled = true; 
+            btn.textContent = "Scheduling...";
+
+            const tasks = []; 
+            for(let i=0; i<=rep; i++) { tasks.push({ s: s, d: addDaysUTC(d, i*7), t: t }); } 
             const r = await fetchAPI(null, { action: "bulkScheduleClasses", tasks: tasks }); 
+            
             let rosterWarning = null;
             const isRosterChecked = document.getElementById("schedule-master-roster")?.checked;
             if (isRosterChecked && r.status !== "error") {
@@ -1853,10 +1890,19 @@
                 const rosRes = await triggerMasterRosterSave(s, d, t, stuType);
                 if (rosRes && rosRes.status === "warning") rosterWarning = "Master Roster Warning: " + rosRes.message;
             }
+            
             btn.disabled = false; 
+            btn.textContent = originalText;
+
             if (r.status === "error") return window.showSystemPopup("System Error", r.message || "Scheduling failed."); 
+            
             if (rosterWarning) { r.failed = r.failed || []; r.failed.unshift(rosterWarning); }
-            window.showAuditReport(r.success, r.failed, "Scheduling Report"); window.loadWeekly(); window.fetchToday(); window.renderAvailabilityFeed(); document.getElementById("schedule-student-select").value = ""; sT.value = ""; 
+            window.showAuditReport(r.success, r.failed, "Scheduling Report"); 
+            window.loadWeekly(); 
+            window.fetchToday(); 
+            window.renderAvailabilityFeed(); 
+            document.getElementById("schedule-student-select").value = ""; 
+            sT.value = ""; 
         }; 
         if(hasPast) { showConfirm("Warning: Past time detected. Proceed?", executeSchedule); } else { executeSchedule(); }
     };
