@@ -527,6 +527,7 @@
                 <div class="form-group" style="flex: 0 0 auto; margin-bottom:0;"><label>Select Date</label><input type="date" id="view-date" style="width: 160px;"/></div>
                 <button id="view-classes-btn" class="btn btn-primary" onclick="window.loadClassesForViewDate()">Load Schedule</button>
                 <button id="cancel-all-btn" class="btn btn-danger" onclick="window.cancelAllClassesForDay()">Cancel All</button>
+                <button id="cancel-multi-day-btn" class="btn btn-danger" style="margin-left: 8px;" onclick="window.openCancelMultiDayModal()">Cancel Multi-Day</button>
             </div>
             
             <div class="layout-with-sidebar" style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap; margin-top:24px;">
@@ -586,10 +587,10 @@
                 </div>
                 <div class="card-column" style="flex:1;">
                     <div class="form-group">
-                        <label>Danger Zone</label>
+                        <label>Remove Student</label>
                         <div style="display:flex; gap:10px;">
                             <select id="student-delete-select" style="flex:1;"><option value="">Select...</option></select>
-                            <button class="btn btn-danger" onclick="window.executeDeleteStudent()">Delete</button>
+                            <button class="btn btn-danger" onclick="window.executeDeleteStudent()">Remove</button>
                         </div>
                     </div>
                 </div>
@@ -1018,7 +1019,11 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: May 04, 2026, 4:06 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v126.3 PROD | Powered by LazifAI</div></footer>
+    <footer class="footer">
+        <div>Last Updated: May 15, 2026, 09:00 PM IST</div>
+        <div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div>
+        <div>v131 HYBRID PROD | Powered by LazifAI</div>
+    </footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1251,7 +1256,7 @@
     </div>
     
     <div id="pendingReviewModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Class Status Pending</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('pendingReviewModal').classList.remove('show')">✕</button></div><div class="modal-body" style="max-height:60vh; overflow-y:auto; background:#f8fafc; padding:10px;" id="pendingReviewList"></div><div class="modal-footer" style="justify-content:space-between;"><span style="font-size:0.8rem; color:var(--text-sub);">Select status to clear item</span><button class="btn btn-soft btn-sm" onclick="document.getElementById('pendingReviewModal').classList.remove('show')">Close</button></div></div></div>
-    <div id="historyModal" class="modal-backdrop"><div class="modal" style="max-width: 600px;"><div class="modal-header"><div class="modal-title">Advanced Data Report</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('historyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group" style="display:flex; gap:10px; margin-bottom:12px;"><div style="flex:1;"><label>Start Date</label><input type="date" id="historyStartDate"></div><div style="flex:1;"><label>End Date</label><input type="date" id="historyEndDate"></div></div><div class="form-group" style="display:flex; gap:10px; margin-bottom:16px;"><div style="flex:1;"><label>Org Filter</label><select id="historyTypeFilter"><option value="All">All Orgs</option><option value="CM">CM</option><option value="PS">PS</option><option value="Personal">Personal</option><option value="Trial">Trial</option></select></div><div style="flex:1;"><label>Status Filter</label><select id="historyStatusFilter"><option value="All">All Statuses</option><option value="Completed">Completed</option><option value="Student No Show">No Show</option><option value="Absent">Absent</option><option value="Cancelled">Cancelled</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Paused</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div></div><button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button><div id="historyResult" style="display:none; margin-top:20px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;"><span style="font-weight:700; color:var(--primary);">Report Summary</span><button class="btn btn-outline btn-sm" onclick="window.copyHistoryData()">📋 Copy Data</button></div><div id="histOrgBreakdown"></div><table style="width:100%; text-align:left; border-collapse:collapse; margin-top:10px; font-size:0.9rem;"><thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead><tbody id="histTableBody"></tbody></table></div></div></div></div>
+    <div id="historyModal" class="modal-backdrop"><div class="modal" style="max-width: 600px;"><div class="modal-header"><div class="modal-title">Advanced Data Report</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('historyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group" style="display:flex; gap:10px; margin-bottom:12px;"><div style="flex:1;"><label>Start Date</label><input type="date" id="historyStartDate"></div><div style="flex:1;"><label>End Date</label><input type="date" id="historyEndDate"></div></div><div class="form-group" style="display:flex; gap:10px; margin-bottom:16px;"><div style="flex:1;"><label>Student</label><select id="history-student-filter"><option value="ALL">All Students</option></select></div><div style="flex:1;"><label>Org Filter</label><select id="historyTypeFilter"><option value="All">All Orgs</option><option value="CM">CM</option><option value="PS">PS</option><option value="Personal">Personal</option><option value="Trial">Trial</option></select></div><div style="flex:1;"><label>Status Filter</label><select id="historyStatusFilter"><option value="All">All Statuses</option><option value="Completed">Completed</option><option value="Student No Show">No Show</option><option value="Absent">Absent</option><option value="Cancelled">Cancelled</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Paused</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div></div><button id="historyGenBtn" class="btn btn-primary btn-block">Generate Report</button><div id="historyResult" style="display:none; margin-top:20px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:2px solid #e2e8f0; padding-bottom:8px;"><span style="font-weight:700; color:var(--primary);">Report Summary</span><button class="btn btn-outline btn-sm" onclick="window.copyHistoryData()">📋 Copy Data</button></div><div id="histOrgBreakdown"></div><table style="width:100%; text-align:left; border-collapse:collapse; margin-top:10px; font-size:0.9rem;"><thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="padding:4px;">Student</th><th style="padding:4px;">Count</th></tr></thead><tbody id="histTableBody"></tbody></table></div></div></div></div>
     <div id="smartCopyModal" class="modal-backdrop"><div class="modal"><div class="modal-header"><div class="modal-title">Select Shifts to Copy</div><button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('smartCopyModal').classList.remove('show')">✕</button></div><div class="modal-body"><div class="form-group"><label class="radio-label"><input type="checkbox" id="scMorn" checked> 🌅 Morning (Before 12 PM)</label><label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scAft" checked> ☀️ Afternoon (12 PM - 5 PM)</label><label class="radio-label" style="margin-top:10px;"><input type="checkbox" id="scEve" checked> 🌙 Evening (5 PM Onwards)</label></div><input type="hidden" id="scDateTarget"></div><div class="modal-footer"><button class="btn btn-primary" onclick="window.executeSmartCopy()">📋 Copy Selected</button></div></div></div>
 
     <div id="omniboxModal" class="modal-backdrop" style="z-index: 4000; align-items: flex-start; padding-top: 10vh;"><div class="modal" style="max-width: 600px; background: transparent; box-shadow: none;"><div style="background: #fff; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--primary);"><div style="display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 1.2rem; color: #64748b; margin-right: 12px;">🔍</span><input type="text" id="omniboxInput" style="flex: 1; border: none; font-size: 1.15rem; outline: none; padding: 4px 0; background: transparent; color: var(--text-main);" placeholder="Search students, slots, or commands..." autocomplete="off"><button type="button" class="mic-btn" id="omniboxMicBtn" onclick="window.toggleOmniboxVoice(this)" style="border:none; background:transparent; font-size:1.2rem; padding: 4px;">🎤</button><div class="omnibox-shortcut" style="margin-left: 12px;">ESC</div></div><div id="omniboxResults" style="max-height: 350px; overflow-y: auto; background: #f8fafc; padding: 12px; display: none;"></div></div></div></div>
@@ -1281,10 +1286,29 @@
 <script>
     const esc = str => String(str).replace(/[&<>'"]/g, tag => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[tag]));
 
+    // --- PROD ENVIRONMENT BINDING ---
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcnNovhrSOIObYUJZg9fIPoG1IuojN9t5lnnATcX5rhsWagfixg/exec";
+    
     const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
     const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "", roster: [], editingStudentName: null };
     
+    // Restored Core Math Logic for NLP Search
+    window.levenshtein = function(a, b) {
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
+        for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+                }
+            }
+        }
+        return matrix[b.length][a.length];
+    };
+
     window.showSystemPopup = function(title, message) {
         document.getElementById('system-popup-title').innerText = title || "System Alert";
         document.getElementById('system-popup-message').innerText = message || "";
@@ -1374,7 +1398,7 @@
 
     window.loadCustomTzs = () => { const saved = JSON.parse(localStorage.getItem('acm_custom_tzs') || '[]'); const select = document.getElementById("conv-student-zone"); let optgroup = document.getElementById("custom-tz-group"); if (!optgroup) { optgroup = document.createElement("optgroup"); optgroup.id = "custom-tz-group"; optgroup.label = "Custom Saved"; const addNewOpt = select.querySelector("option[value='ADD_NEW']"); select.insertBefore(optgroup, addNewOpt); } optgroup.innerHTML = ""; saved.forEach(tz => { const label = tz.split('/').pop().replace(/_/g, ' '); optgroup.innerHTML += `<option value="${tz}">${label}</option>`; }); };
     window.saveCustomTz = () => { const tz = document.getElementById("customTzSearch").value.trim(); if (!tz) return; try { new Intl.DateTimeFormat('en-US', { timeZone: tz }); let saved = JSON.parse(localStorage.getItem('acm_custom_tzs') || '[]'); if (!saved.includes(tz)) { saved.push(tz); localStorage.setItem('acm_custom_tzs', JSON.stringify(saved)); } window.loadCustomTzs(); document.getElementById("conv-student-zone").value = tz; document.getElementById("customTzModal").classList.remove("show"); window.calcConv(); window.showSystemPopup("System Update", "City saved to your list!"); } catch(err) { window.showSystemPopup("System Error", "Invalid Timezone. Select from the dropdown."); } };
-    function initClocks() { setInterval(() => { document.getElementById("clock-india").textContent = "India: " + new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true }); }, 1000); window.calcConv = () => { const dateIn = document.getElementById("conv-student-date"); const zone = document.getElementById("conv-student-zone"); const timeIn = document.getElementById("conv-student-time"); const resDiv = document.getElementById("conv-result-ist"); if(!zone.value || zone.value === "ADD_NEW" || !timeIn.value || !dateIn.value) { resDiv.textContent = "--:-- IST"; return; } window.normalizeUserTime(timeIn); const t24 = parseUserTimeTo24(timeIn.value); if(!t24) return; const [h, m] = t24.split(':'); const baseDate = new Date(dateIn.value); baseDate.setHours(parseInt(h), parseInt(m), 0, 0); const sTime = baseDate.toLocaleString("en-US", { timeZone: zone.value }); const iTime = baseDate.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }); const diff = new Date(iTime) - new Date(sTime); resDiv.textContent = new Date(baseDate.getTime() + diff).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " IST"; }; document.getElementById("conv-student-zone").onchange = (e) => { if (e.target.value === "ADD_NEW") { e.target.value = ""; document.getElementById("customTzSearch").value = ""; document.getElementById("customTzModal").classList.add("show"); } else { window.calcConv(); } }; }
+    function initClocks() { setInterval(() => { document.getElementById("clock-india").textContent = "India: " + new Date().toLocaleTimeString("en-US", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true }); }, 1000); window.calcConv = () => { const dateIn = document.getElementById("conv-student-date"); const zone = document.getElementById("conv-student-zone"); const timeIn = document.getElementById("conv-student-time"); const resDiv = document.getElementById("conv-result-ist"); if(!zone.value || zone.value === "ADD_NEW" || !timeIn.value || !dateIn.value) { resDiv.textContent = "--:-- IST"; return; } window.normalizeUserTime(timeIn); const t24 = parseUserTimeTo24(timeIn.value); if(!t24) return; const [h, m] = t24.split(':'); const baseDate = new Date(dateIn.value); baseDate.setHours(parseInt(h), parseInt(m), 0, 0); const sTime = baseDate.toLocaleString("en-US", { timeZone: zone.value }); const iTime = baseDate.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }); const diff = new Date(iTime) - new Date(sTime); resDiv.textContent = new Date(baseDate.getTime() + diff).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " IST"; }; document.getElementById("conv-student-zone").onchange = (e) => { if (e.target.value === "ADD_NEW") { e.target.value = ""; document.getElementById("customTzSearch").value = ""; document.getElementById("customTzModal").classList.add("show"); } else { window.calcConv(); } }; }
     window.resetConv = () => { document.getElementById("conv-student-date").value = APP_STATE.todayDate; document.getElementById("conv-student-zone").value = ""; document.getElementById("conv-student-time").value = ""; document.getElementById("conv-result-ist").textContent = "--:-- IST"; };
 
     window.openStudyMaterial = () => { if(APP_STATE.studyMaterialLink) window.open(APP_STATE.studyMaterialLink, '_blank'); else window.showSystemPopup("System Error", "Link not set. Click ⚙️ to add."); };
@@ -1500,7 +1524,13 @@
         const container = document.getElementById("schedRosterSlotsContainer");
         container.innerHTML = "";
         let existing = (APP_STATE.roster || []).filter(r => r.studentname === name);
-        if(existing.length > 0) { existing.forEach(r => window.addRosterSlot(r.dayofweek, parseBackendTime(r.starttime))); } else { window.addRosterSlot(); }
+        
+        // UX FIX 1: The "No Slots" Message for new students
+        if(existing.length > 0) { 
+            existing.forEach(r => window.addRosterSlot(r.dayofweek, parseBackendTime(r.starttime), true)); 
+        } else { 
+            container.innerHTML = `<div id="no-slots-msg" style="text-align:center; padding:15px; color:var(--text-sub); font-size:0.9rem; background:#f8fafc; border-radius:8px; border:1px dashed #cbd5e1; margin-bottom:12px;">No Active Slots found. Use 'Add Slot' below.</div>`; 
+        }
         
         const shiftBlock = document.getElementById("schedBulkShiftBlock");
         const rosterBlock = document.getElementById("schedMasterRosterBlock");
@@ -1518,26 +1548,66 @@
         document.getElementById("schedulingModal").classList.add("show");
     };
 
-    window.addRosterSlot = (day = "Monday", time = "") => {
-        const d = document.createElement("div"); d.style.display = "flex"; d.style.gap = "10px"; d.style.marginBottom = "10px";
+    window.addRosterSlot = (day = "Monday", time = "", isExisting = false) => {
+        const msg = document.getElementById('no-slots-msg');
+        if (msg) msg.remove(); // Clear message when "Add Slot" is clicked
+
+        const d = document.createElement("div"); 
+        // UX FIX 2: Mobile responsive wrapping CSS
+        d.style.cssText = "display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;";
+        
+        let btnHtml = "";
+        
+        // UX FIX 3: Conditional Drop/Remove Buttons
+        if (isExisting) {
+            btnHtml = `<button type="button" class="btn btn-danger btn-sm" style="flex: 1 1 100%; height: 34px; font-weight: bold; background-color: #ef4444;" onclick="
+                const sName = document.getElementById('schedStudentNameDisplay').textContent.replace('🗓️ ', '').trim();
+                const dDay = this.parentElement.querySelector('.roster-day').value;
+                const tInput = this.parentElement.querySelector('.roster-time').value;
+                if(!tInput) { this.parentElement.remove(); return; }
+                let dummy = {value: tInput}; window.normalizeUserTime(dummy);
+                const dTime = parseUserTimeTo24(dummy.value);
+                window.confirmDropRosterSlot(sName, dDay, dTime);
+            ">Drop Slot</button>`;
+        } else {
+            btnHtml = `<button type="button" class="btn btn-outline btn-sm" style="flex: 0 0 auto; height: 38px; padding: 0 16px;" onclick="this.parentElement.remove()">✕ Remove</button>`;
+        }
+
         d.innerHTML = `
-            <select class="roster-day" style="flex:1; border:1px solid #cbd5e1; border-radius:6px; padding:6px; height: 38px;">
+            <select class="roster-day" style="flex: 1 1 120px; border:1px solid #cbd5e1; border-radius:6px; padding:6px; height: 38px;">
             <option value="Monday" ${day==='Monday'?'selected':''}>Monday</option><option value="Tuesday" ${day==='Tuesday'?'selected':''}>Tuesday</option><option value="Wednesday" ${day==='Wednesday'?'selected':''}>Wednesday</option><option value="Thursday" ${day==='Thursday'?'selected':''}>Thursday</option><option value="Friday" ${day==='Friday'?'selected':''}>Friday</option><option value="Saturday" ${day==='Saturday'?'selected':''}>Saturday</option><option value="Sunday" ${day==='Sunday'?'selected':''}>Sunday</option>
             </select>
-            <input type="text" class="roster-time" style="flex:1; border:1px solid #cbd5e1; border-radius:6px; padding:6px; height: 38px;" placeholder="hh:mm AM/PM" value="${time ? time24To12(time) : ''}" onblur="window.normalizeUserTime(this)">
-            <button class="btn btn-outline btn-sm" onclick="this.parentElement.remove()">✕</button>`;
+            <input type="text" class="roster-time" style="flex: 1 1 100px; border:1px solid #cbd5e1; border-radius:6px; padding:6px; height: 38px;" placeholder="hh:mm AM/PM" value="${time ? time24To12(time) : ''}" onblur="window.normalizeUserTime(this)">
+            ${btnHtml}`;
         document.getElementById("schedRosterSlotsContainer").appendChild(d);
     };
 
     window.saveRoster = async () => {
         const name = document.getElementById("schedStudentNameDisplay").textContent.replace("🗓️ ", "");
-        const rows = document.querySelectorAll("#schedRosterSlotsContainer > div");
+        const rows = document.querySelectorAll("#schedRosterSlotsContainer > div:not(#no-slots-msg)");
         let slots = [];
-        rows.forEach(r => {
-            let day = r.querySelector(".roster-day").value;
-            let time = parseUserTimeTo24(r.querySelector(".roster-time").value);
+        
+        for (let i = 0; i < rows.length; i++) {
+            let day = rows[i].querySelector(".roster-day").value;
+            let time = parseUserTimeTo24(rows[i].querySelector(".roster-time").value);
             if(day && time) slots.push({day: day, time: time});
-        });
+        }
+
+        // UX FIX 4: Master Roster Conflict Checking Engine
+        let conflictMsg = "";
+        for (let s of slots) {
+            let existingSlot = (APP_STATE.roster || []).find(r => r.studentname !== name && String(r.dayofweek).trim() === s.day && parseBackendTime(r.starttime) === s.time);
+            if (existingSlot) {
+                conflictMsg = `Conflict detected: ${existingSlot.studentname} is already scheduled on ${s.day}s at ${time24To12(s.time)}.`;
+                break;
+            }
+        }
+
+        if (conflictMsg) {
+            window.showSystemPopup("Conflict Alert", conflictMsg);
+            return;
+        }
+
         const btn = document.getElementById("schedRosterSaveBtn"); btn.textContent = "Saving..."; btn.disabled = true;
         await fetchAPI(null, {action: "overwriteMasterRoster", StudentName: name, slots: slots});
         APP_STATE.roster = (APP_STATE.roster || []).filter(r => r.studentname !== name);
@@ -1545,6 +1615,7 @@
         btn.textContent = "Save to Roster"; btn.disabled = false;
         window.showSystemPopup("System Update", "Master Roster Updated!");
         window.renderStudents();
+        if(window.renderTimetable) window.renderTimetable();
     };
 
     function renderStudents() {
@@ -1572,6 +1643,8 @@
         let opts = '<option value="">Select student...</option>'; let optsDisabled = '<option value="" disabled selected>Select active student...</option>';
         APP_STATE.students.forEach(s => { const o = `<option value="${esc(s.name)}">${esc(s.name)}</option>`; opts += o; optsDisabled += o; });
         if(delSel) delSel.innerHTML = opts; if(schSel) schSel.innerHTML = opts; if(crmSel) crmSel.innerHTML = optsDisabled; if(obSel) obSel.innerHTML = optsDisabled; if(manualRelSel) manualRelSel.innerHTML = optsDisabled;
+        const histSel = document.getElementById("history-student-filter");
+        if(histSel) { let histOpts = '<option value="ALL">-- All Students --</option>'; APP_STATE.students.forEach(s => { histOpts += `<option value="${esc(s.name)}">${esc(s.name)}</option>`; }); histSel.innerHTML = histOpts; }
         const pillsContainer = document.getElementById("ai-student-pills"); if (pillsContainer) { let pillsHtml = ""; APP_STATE.students.forEach((s, i) => { pillsHtml += `<input type="checkbox" id="aud-${i}" value="${esc(s.name)}" class="pill-checkbox"><label for="aud-${i}" class="pill-label">${esc(s.name)}</label>`; }); pillsContainer.innerHTML = pillsHtml; }
     }
 
@@ -1617,8 +1690,33 @@
         renderStudents(); window.updateSmartBarText(); 
     }
 
-    window.executeDeleteStudent = () => { const name = document.getElementById("student-delete-select").value; if(!name) return window.showSystemPopup("System Error", "Select student"); showConfirm(`Delete ${name}? This completely clears all their future classes.`, async () => { await fetchAPI(null, { action: "deleteStudent", StudentName: name }); window.showSystemPopup("System Update", "Student deleted successfully."); await window.loadStudents(); window.fetchToday(); window.renderClassesForDate(document.getElementById("view-date").value); }); };
-    window.executeAddStudent = async () => { const name = document.getElementById("student-name-input").value.trim(); const type = document.querySelector("input[name='studentType']:checked").value; if(!name) return window.showSystemPopup("System Error", "Enter name"); let payload = { action: "addStudent", StudentName: name, Type: type }; if(type === "Personal") { payload.PackageTotal = document.getElementById("add-pkg-total").value; payload.CustomPrice = document.getElementById("add-custom-price").value; payload.PendingBalance = document.getElementById("add-pending-balance").value; } const r = await fetchAPI(null, payload); if (r.status !== "error") window.showSystemPopup("System Update", "Student added successfully!"); await window.loadStudents(); document.getElementById("student-name-input").value = ""; };
+    window.executeDeleteStudent = () => { const name = document.getElementById("student-delete-select").value; if(!name) return window.showSystemPopup("System Error", "Select student"); showConfirm(`Remove ${name} and clear all their future classes?`, async () => { await fetchAPI(null, { action: "deleteStudent", StudentName: name }); window.showSystemPopup("System Update", "Student removed successfully."); await window.loadStudents(); window.fetchToday(); window.renderClassesForDate(document.getElementById("view-date").value); }); };
+    window.executeAddStudent = async () => { 
+        const name = document.getElementById("student-name-input").value.trim(); 
+        const type = document.querySelector("input[name='studentType']:checked").value; 
+        if(!name) return window.showSystemPopup("System Error", "Enter name"); 
+        
+        let payload = { action: "addStudent", StudentName: name, Type: type }; 
+        if(type === "Personal") { 
+            payload.PackageTotal = document.getElementById("add-pkg-total").value; 
+            payload.CustomPrice = document.getElementById("add-custom-price").value; 
+            payload.PendingBalance = document.getElementById("add-pending-balance").value; 
+        } 
+        
+        const btn = document.getElementById("add-student-btn");
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Adding...";
+        
+        const r = await fetchAPI(null, payload); 
+        
+        btn.disabled = false;
+        btn.textContent = originalText;
+        
+        if (r.status !== "error") window.showSystemPopup("System Update", "Student added successfully!"); 
+        await window.loadStudents(); 
+        document.getElementById("student-name-input").value = ""; 
+    };
 
     async function fetchToday(force=false) { const cls = await fetchAPI(null, { action: "getClasses", selectedDate: APP_STATE.todayDate }); if(cls.status === "error") return window.showSystemPopup("System Error", "Failed to load today's classes."); APP_STATE.cache[APP_STATE.todayDate] = cls.classes || []; if(force) loadWeekly(); updateStats(APP_STATE.todayDate, cls.classes || []); }
     async function loadWeekly() { const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7); const iso = d.toISOString().split('T')[0]; const r = await fetchAPI(null, { action: "getWeekSummary", startDate: iso }); if(r.status === "error") return; APP_STATE.weeklySummary = r.summary || {}; updateStats(APP_STATE.todayDate, APP_STATE.currentClasses); setTimeout(() => { const todayEl = document.querySelector('.weekly-day.today'); if(todayEl) todayEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }, 800); }
@@ -1686,9 +1784,14 @@
                 const originalValue = c.Status;
                 const proceedUpdate = async () => {
                     e.target.disabled = true; 
-                    await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: e.target.value }); 
+                    const r = await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: e.target.value }); 
                     e.target.disabled = false; 
-                    window.triggerDebouncedRefresh(dateStr); 
+                    if (r && r.status === "error") {
+                        window.showSystemPopup("System Error", r.message || "Failed to update status. Please try again.");
+                        e.target.value = originalValue;
+                    } else {
+                        window.triggerDebouncedRefresh(dateStr); 
+                    }
                 };
 
                 if (dateStr < APP_STATE.todayDate) {
@@ -1777,8 +1880,15 @@
         const sT = document.getElementById("schedule-time"); const s = document.getElementById("schedule-student-select").value; const d = document.getElementById("schedule-date").value; const t = parseUserTimeTo24(sT.value); const rep = parseInt(document.getElementById("schedule-repeat").value); 
         if(!s || !d || !t) return window.showSystemPopup("System Error", "Fill all fields"); let hasPast = false; for(let i=0; i<=rep; i++) { const cd = addDaysUTC(d, i*7); if(isTimeInPast(cd, t)) hasPast = true; } 
         const executeSchedule = async () => { 
-            const btn = document.getElementById("schedule-class-btn"); btn.disabled = true; const tasks = []; for(let i=0; i<=rep; i++) { tasks.push({ s: s, d: addDaysUTC(d, i*7), t: t }); } 
+            const btn = document.getElementById("schedule-class-btn"); 
+            const originalText = btn.textContent;
+            btn.disabled = true; 
+            btn.textContent = "Scheduling...";
+
+            const tasks = []; 
+            for(let i=0; i<=rep; i++) { tasks.push({ s: s, d: addDaysUTC(d, i*7), t: t }); } 
             const r = await fetchAPI(null, { action: "bulkScheduleClasses", tasks: tasks }); 
+            
             let rosterWarning = null;
             const isRosterChecked = document.getElementById("schedule-master-roster")?.checked;
             if (isRosterChecked && r.status !== "error") {
@@ -1786,10 +1896,19 @@
                 const rosRes = await triggerMasterRosterSave(s, d, t, stuType);
                 if (rosRes && rosRes.status === "warning") rosterWarning = "Master Roster Warning: " + rosRes.message;
             }
+            
             btn.disabled = false; 
+            btn.textContent = originalText;
+
             if (r.status === "error") return window.showSystemPopup("System Error", r.message || "Scheduling failed."); 
+            
             if (rosterWarning) { r.failed = r.failed || []; r.failed.unshift(rosterWarning); }
-            window.showAuditReport(r.success, r.failed, "Scheduling Report"); window.loadWeekly(); window.fetchToday(); window.renderAvailabilityFeed(); document.getElementById("schedule-student-select").value = ""; sT.value = ""; 
+            window.showAuditReport(r.success, r.failed, "Scheduling Report"); 
+            window.loadWeekly(); 
+            window.fetchToday(); 
+            window.renderAvailabilityFeed(); 
+            document.getElementById("schedule-student-select").value = ""; 
+            sT.value = ""; 
         }; 
         if(hasPast) { showConfirm("Warning: Past time detected. Proceed?", executeSchedule); } else { executeSchedule(); }
     };
@@ -1806,7 +1925,6 @@
         const resDiv = document.getElementById("lm-results"); 
         const btn = document.getElementById("btn-lm-analyze");
         
-        // Backdate Protection Logic
         const loadMonthDate = new Date(mStr + " 1");
         const currentMonthDate = new Date();
         currentMonthDate.setDate(1);
@@ -1864,7 +1982,7 @@
         window.triggerDebouncedRefresh(APP_STATE.todayDate); 
     };
 
-    window.openHistoryReport = () => { document.getElementById("historyModal").classList.add("show"); const nowIST = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); const isoStart = nowIST.getFullYear() + '-' + String(nowIST.getMonth()+1).padStart(2,'0') + '-01'; document.getElementById("historyStartDate").value = isoStart; document.getElementById("historyEndDate").value = APP_STATE.todayDate || new Date().toISOString().split('T')[0]; document.getElementById("historyGenBtn").onclick = async () => { const sd = document.getElementById("historyStartDate").value; const ed = document.getElementById("historyEndDate").value; const tf = document.getElementById("historyTypeFilter").value; const sf = document.getElementById("historyStatusFilter").value; const btn = document.getElementById("historyGenBtn"); btn.disabled = true; btn.textContent = "Crunching Data..."; try { const r = await fetchAPI(null, { action: "getHistoryReport", startDate: sd, endDate: ed, typeFilter: tf, statusFilter: sf }); let osHtml = `<div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">`; let copyText = `📊 *Data Report* (${isoToDisplayDate(sd)} to ${isoToDisplayDate(ed)})\nFilter: ${tf} | Status: ${sf}\n\n*Total Classes:* ${r.totalClasses}\n*Total Earnings:* ₹${(r.earnings||0).toLocaleString('en-IN')}\n\n*Breakdown:*\n`; if(r.orgStats) { ['PS', 'CM', 'Personal', 'Trial'].forEach(org => { let stats = r.orgStats[org]; if(stats && Object.keys(stats).length > 0) { osHtml += `<div style="flex:1; min-width:120px; background:#f1f5f9; border:1px solid #e2e8f0; padding:12px; border-radius:8px; font-size:0.85rem;"><div style="font-weight:700; color:var(--primary); margin-bottom:8px; border-bottom:1px solid #cbd5e1; padding-bottom:4px;">${org}</div>`; for(let stat in stats) { osHtml += `<div style="display:flex; justify-content:space-between;"><span>${stat}</span> <b>${stats[stat]}</b></div>`; } osHtml += `</div>`; } }); } osHtml += `</div>`; document.getElementById("histOrgBreakdown").innerHTML = osHtml; const tb = document.getElementById("histTableBody"); tb.innerHTML = ""; const s = Object.entries(r.breakdown||{}).sort((a,b)=>b[1]-a[1]); if(!s.length) { tb.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No records found.</td></tr>"; copyText += "No records found.\n"; } else { s.forEach(([n,c]) => { tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px;">${esc(n)}</td><td style="padding:8px; font-weight:700;">${c}</td></tr>`; copyText += `• ${n}: ${c}\n`; }); } APP_STATE.lastHistoryCopyText = copyText.trim(); document.getElementById("historyResult").style.display = "block"; } catch(e) { console.error(e); window.showSystemPopup("System Error", "Failed to generate report."); } finally { btn.disabled = false; btn.textContent = "Generate Report"; } }; };
+    window.openHistoryReport = () => { document.getElementById("historyModal").classList.add("show"); const nowIST = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); const isoStart = nowIST.getFullYear() + '-' + String(nowIST.getMonth()+1).padStart(2,'0') + '-01'; document.getElementById("historyStartDate").value = isoStart; document.getElementById("historyEndDate").value = APP_STATE.todayDate || new Date().toISOString().split('T')[0]; document.getElementById("historyGenBtn").onclick = async () => { const sd = document.getElementById("historyStartDate").value; const ed = document.getElementById("historyEndDate").value; const tf = document.getElementById("historyTypeFilter").value; const sf = document.getElementById("historyStatusFilter").value; const btn = document.getElementById("historyGenBtn"); btn.disabled = true; btn.textContent = "Crunching Data..."; try { const r = await fetchAPI(null, { action: "getHistoryReport", startDate: sd, endDate: ed, typeFilter: tf, statusFilter: sf }); let osHtml = `<div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">`; let copyText = `📊 *Data Report* (${isoToDisplayDate(sd)} to ${isoToDisplayDate(ed)})\nFilter: ${tf} | Status: ${sf}\n\n*Total Classes:* ${r.totalClasses}\n*Total Earnings:* ₹${(r.earnings||0).toLocaleString('en-IN')}\n\n*Breakdown:*\n`; if(r.orgStats) { ['PS', 'CM', 'Personal', 'Trial'].forEach(org => { let stats = r.orgStats[org]; if(stats && Object.keys(stats).length > 0) { osHtml += `<div style="flex:1; min-width:120px; background:#f1f5f9; border:1px solid #e2e8f0; padding:12px; border-radius:8px; font-size:0.85rem;"><div style="font-weight:700; color:var(--primary); margin-bottom:8px; border-bottom:1px solid #cbd5e1; padding-bottom:4px;">${org}</div>`; for(let stat in stats) { osHtml += `<div style="display:flex; justify-content:space-between;"><span>${stat}</span> <b>${stats[stat]}</b></div>`; } osHtml += `</div>`; } }); } osHtml += `</div>`; document.getElementById("histOrgBreakdown").innerHTML = osHtml; const tb = document.getElementById("histTableBody"); tb.innerHTML = ""; const stfEl = document.getElementById("history-student-filter"); const stf = stfEl ? stfEl.value : "ALL"; const s = Object.entries(r.breakdown||{}).filter(([n,c]) => stf === "ALL" || n === stf).sort((a,b)=>b[1]-a[1]); if(!s.length) { tb.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No records found for selected filters.</td></tr>"; copyText += "No records found.\n"; } else { s.forEach(([n,c]) => { tb.innerHTML += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px;">${esc(n)}</td><td style="padding:8px; font-weight:700;">${c}</td></tr>`; copyText += `• ${n}: ${c}\n`; }); } APP_STATE.lastHistoryCopyText = copyText.trim(); document.getElementById("historyResult").style.display = "block"; } catch(e) { console.error(e); window.showSystemPopup("System Error", "Failed to generate report."); } finally { btn.disabled = false; btn.textContent = "Generate Report"; } }; };
     window.copyHistoryData = () => { if(APP_STATE.lastHistoryCopyText) { navigator.clipboard.writeText(APP_STATE.lastHistoryCopyText); window.showSystemPopup("System Update", "Report data copied!"); } else { window.showSystemPopup("System Error", "No data to copy."); } };
 
     window.loadEarnings = async () => { 
@@ -1880,15 +1998,31 @@
       } catch(e) {} 
     };
 
+    window.updateTimetableBadges = function(rosterArray) {
+        const loadCounts = { Monday: 0, Tuesday: 0, Wednesday: 0, Thursday: 0, Friday: 0, Saturday: 0, Sunday: 0 };
+        if (rosterArray && Array.isArray(rosterArray)) {
+            rosterArray.forEach(row => {
+                if (['PS', 'CM', 'Personal'].includes(row.classtype || row.ClassType)) {
+                    let d = String(row.dayofweek || row.DayOfWeek).trim();
+                    if (loadCounts[d] !== undefined) loadCounts[d]++;
+                }
+            });
+        }
+        return loadCounts;
+    };
+
     window.renderTimetable = () => {
         const container = document.getElementById("timetable-container");
         if(!container) return;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        const loadCounts = window.updateTimetableBadges(APP_STATE.roster);
         let html = `<div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:10px; min-height: 400px; width: 100%;">`;
 
         days.forEach(d => {
+            const countStr = loadCounts[d] > 0 ? ` (${loadCounts[d]})` : '';
+            const colorStr = loadCounts[d] > 0 ? 'var(--text-main)' : 'var(--text-sub)';
             html += `<div style="flex:1; min-width:100px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; display:flex; flex-direction:column; overflow:hidden;">
-                <div style="background:#f1f5f9; padding:10px 4px; font-weight:700; text-align:center; font-size:0.85rem; border-bottom:1px solid #e2e8f0; color:var(--text-main);">${d}</div>
+                <div id="tt-header-${d}" style="background:#f1f5f9; padding:10px 4px; font-weight:700; text-align:center; font-size:0.85rem; border-bottom:1px solid #e2e8f0; color:${colorStr};">${d}${countStr}</div>
                 <div style="padding:6px; display:flex; flex-direction:column; gap:6px; flex:1; overflow-y:auto;">`;
 
             let slots = (APP_STATE.roster || []).filter(r => String(r.dayofweek).trim() === d);
@@ -2282,7 +2416,8 @@
             document.getElementById("ai-output-container").innerHTML = html; document.getElementById("ai-output-container").style.display = "flex"; document.getElementById("ai-output-container").scrollIntoView({ behavior: 'smooth', block: 'start' });
         } catch (e) { window.showSystemPopup("System Error", e.message || "Failed to connect to AI."); } finally { btn.disabled = false; btn.textContent = "✨ Generate AI Options"; }
     }
-/* --- SMART SLOT (INDIVIDUAL AI BALANCER) --- */
+
+    // --- SMART SLOT LOGIC ---
     window.openSmartSlotModal = (name) => {
         document.getElementById("smartSlotStudentName").textContent = "Student: " + name; document.getElementById("smartSlotStudentName").dataset.name = name; document.getElementById("smartSlotPrefs").value = ""; document.getElementById("smartSlotResults").style.display = "none"; document.getElementById("smartSlotModal").classList.add("show");
     };
@@ -2302,7 +2437,7 @@
         setTimeout(() => { document.getElementById("schedule-student-select").value = name; document.getElementById("schedule-date").value = dateStr; const timeInput = document.getElementById("schedule-time"); timeInput.value = timeStr; window.normalizeUserTime(timeInput); document.getElementById("schedule-student-select").scrollIntoView({behavior: "smooth", block: "center"}); window.showSystemPopup("System Info", "Draft copied! Just hit 'Schedule Class' to lock it in."); }, 300);
     };
 
-    /* --- ROSTER HEALTH ENGINE (HYBRID MACRO-BALANCER) --- */
+    // --- ROSTER HEALTH ENGINE ---
     window.openRosterHealth = async () => {
         document.getElementById("rosterHealthModal").classList.add("show"); document.getElementById("rh-loading").style.display = "block"; document.getElementById("rh-content").style.display = "none";
         try {
@@ -2311,14 +2446,10 @@
             
             const sel = document.getElementById("rh-top-days-select");
             sel.innerHTML = "";
-            r.topDays.forEach(d => {
-                sel.innerHTML += `<option value="${d.day}">${d.day} (${d.avg} avg)</option>`;
-            });
+            r.topDays.forEach(d => { sel.innerHTML += `<option value="${d.day}">${d.day} (${d.avg} avg)</option>`; });
             
             document.getElementById("rh-oasis-days").textContent = r.oasis.join(" & ");
-            
             window.filterRosterHealthByDay();
-
             document.getElementById("rh-manual-result").style.display = "none";
             document.getElementById("rh-loading").style.display = "none"; document.getElementById("rh-content").style.display = "block";
         } catch(e) { document.getElementById("rh-loading").innerHTML = `<div style="color:#ef4444;">Failed to calculate Class Schedule Optimiser: ${e.message}</div>`; }
@@ -2326,15 +2457,12 @@
 
     window.filterRosterHealthByDay = () => {
         const sel = document.getElementById("rh-top-days-select");
-        const selectedDay = sel.value;
-        const r = window._currentHealthData;
-        const dayObj = r.topDays.find(d => d.day === selectedDay);
+        const selectedDay = sel.value; const r = window._currentHealthData; const dayObj = r.topDays.find(d => d.day === selectedDay);
         
         document.getElementById("rh-bottleneck-day").textContent = selectedDay; 
         document.getElementById("rh-bottleneck-avg").textContent = dayObj.avg + " classes / avg"; 
         
         const aiList = document.getElementById("rh-ai-suggestions-list"); aiList.innerHTML = "";
-        
         const filteredPlan = (r.actionPlan || []).filter(plan => plan.sourceDay === selectedDay);
 
         if (filteredPlan.length === 0) { 
@@ -2363,11 +2491,8 @@
         const manualSel = document.getElementById("rh-manual-target-select");
         let opts = '<option value="" disabled selected>Select student from peak load day...</option>';
         let targets = r.allTargetsMap[selectedDay] || [];
-        if(targets.length > 0) {
-            targets.forEach(t => { opts += `<option value="${esc(t.name)}" data-time="${t.time}">${esc(t.name)} (Current: ${time24To12(t.time)})</option>`; });
-        }
-        manualSel.innerHTML = opts;
-        document.getElementById("rh-manual-result").style.display = "none";
+        if(targets.length > 0) { targets.forEach(t => { opts += `<option value="${esc(t.name)}" data-time="${t.time}">${esc(t.name)} (Current: ${time24To12(t.time)})</option>`; }); }
+        manualSel.innerHTML = opts; document.getElementById("rh-manual-result").style.display = "none";
     };
 
     window.executeAiSuggestion = async (studentName, oldTime, newDate, newTime, newDay, bottleneckDay, btnEl, idx) => {
@@ -2380,22 +2505,18 @@
             if (r.status === "error") throw new Error(r.message);
             
             const data = r; const safeName = studentName.replace(/\s+/g, '-');
-            
             const dayObj = window._currentHealthData.topDays.find(d => d.day === bottleneckDay);
-            let currentBnAvg = parseFloat(dayObj.avg);
-            let currentOasisAvg = parseFloat(data.oasisLoads[newDay] || 0);
+            let currentBnAvg = parseFloat(dayObj.avg); let currentOasisAvg = parseFloat(data.oasisLoads[newDay] || 0);
 
             outDiv.innerHTML = `
                 <textarea id="ai-mb-draft-${safeName}" readonly style="width:100%; height:160px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:10px;">${data.draft}</textarea>
                 <button class="btn btn-outline btn-sm btn-block" style="margin-bottom:12px;" onclick="window.copyAiOpt('ai-mb-draft-${safeName}')">📋 Copy Draft</button>
-                
                 <div style="background:#f1f5f9; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
                     <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--primary); margin-bottom:6px;">📊 Projected Roster Impact</div>
                     <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:12px; background:#fff; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">
                         <span style="color:#b91c1c;">🔴 <b>${bottleneckDay}:</b> ${currentBnAvg.toFixed(1)} ➔ ${(currentBnAvg - 1).toFixed(1)} classes</span>
                         <span style="color:#166534;">🟢 <b>${newDay}:</b> ${currentOasisAvg.toFixed(1)} ➔ ${(currentOasisAvg + 1).toFixed(1)} classes</span>
                     </div>
-
                     <div style="font-size:0.8rem; font-weight:700; margin-bottom:6px; color:var(--text-sub);">IF PARENT APPROVES:</div>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
                         <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px;" onclick="window.executeMacroReschedule('${studentName}', '${oldTime}', '${newDate}', '${newTime}', '${newDay}', false)">🔁 Shift Next Class</button>
@@ -2406,47 +2527,31 @@
     };
 
     window.triggerManualRelocate = async (btnEl) => {
-        const sel = document.getElementById("rh-manual-target-select");
-        const studentName = sel.value;
+        const sel = document.getElementById("rh-manual-target-select"); const studentName = sel.value;
         if(!studentName) return window.showSystemPopup("System Error", "Select a student first.");
-        
-        const oldTime = sel.options[sel.selectedIndex].dataset.time;
-        const bottleneckDay = document.getElementById("rh-top-days-select").value;
-        const outDiv = document.getElementById("rh-manual-result");
-        
-        outDiv.style.display = "block"; outDiv.innerHTML = `<div style="color:var(--primary); font-size:0.85rem; font-weight:600;">🧠 AI drafting manual options...</div>`;
-        btnEl.disabled = true;
+        const oldTime = sel.options[sel.selectedIndex].dataset.time; const bottleneckDay = document.getElementById("rh-top-days-select").value; const outDiv = document.getElementById("rh-manual-result");
+        outDiv.style.display = "block"; outDiv.innerHTML = `<div style="color:var(--primary); font-size:0.85rem; font-weight:600;">🧠 AI drafting manual options...</div>`; btnEl.disabled = true;
 
         try {
             const r = await fetchAPI(null, { action: "getMacroBalanceSuggestions", studentName: studentName, originalTime: oldTime, bottleneckDay: bottleneckDay, oasisDays: window._currentOasisDays }); 
             if (r.status === "error") throw new Error(r.message);
 
-            const data = r; let slotOpts = ""; 
-            data.slots.forEach((s, idx) => { slotOpts += `<option value="${idx}" data-day="${s.dayName}">${isoToDisplayDate(s.date)} at ${time24To12(s.time)}</option>`; });
-            const safeSlots = encodeURIComponent(JSON.stringify(data.slots)); const safeName = studentName.replace(/\s+/g, '-');
-            const safeLoads = encodeURIComponent(JSON.stringify(data.oasisLoads));
-
+            const data = r; let slotOpts = ""; data.slots.forEach((s, idx) => { slotOpts += `<option value="${idx}" data-day="${s.dayName}">${isoToDisplayDate(s.date)} at ${time24To12(s.time)}</option>`; });
+            const safeSlots = encodeURIComponent(JSON.stringify(data.slots)); const safeName = studentName.replace(/\s+/g, '-'); const safeLoads = encodeURIComponent(JSON.stringify(data.oasisLoads));
             const dayObj = window._currentHealthData.topDays.find(d => d.day === bottleneckDay);
-            let currentBnAvg = parseFloat(dayObj.avg);
-            let initialOasisDay = data.slots[0] ? data.slots[0].dayName : "TBD";
-            let initialOasisAvg = parseFloat(data.oasisLoads[initialOasisDay] || 0);
+            let currentBnAvg = parseFloat(dayObj.avg); let initialOasisDay = data.slots[0] ? data.slots[0].dayName : "TBD"; let initialOasisAvg = parseFloat(data.oasisLoads[initialOasisDay] || 0);
 
             outDiv.innerHTML = `
                 <textarea id="man-mb-draft-${safeName}" readonly style="width:100%; height:160px; padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; font-family:inherit; resize:vertical; font-size:0.85rem; margin-bottom:10px;">${data.draft}</textarea>
                 <button class="btn btn-outline btn-sm btn-block" style="margin-bottom:12px;" onclick="window.copyAiOpt('man-mb-draft-${safeName}')">📋 Copy Draft</button>
-                
                 <div style="background:#f1f5f9; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
                     <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--primary); margin-bottom:6px;">📊 Projected Roster Impact</div>
                     <div id="man-impact-box" style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:12px; background:#fff; padding:8px; border-radius:6px; border:1px solid #cbd5e1;">
                         <span style="color:#b91c1c;">🔴 <b>${bottleneckDay}:</b> ${currentBnAvg.toFixed(1)} ➔ ${(currentBnAvg - 1).toFixed(1)} classes</span>
                         <span style="color:#166534;" id="man-oasis-impact">🟢 <b>${initialOasisDay}:</b> ${initialOasisAvg.toFixed(1)} ➔ ${(initialOasisAvg + 1).toFixed(1)} classes</span>
                     </div>
-
                     <div style="font-size:0.8rem; font-weight:700; margin-bottom:6px; color:var(--text-sub);">IF PARENT APPROVES:</div>
-                    <select id="man-slot-select" style="width:100%; margin-bottom:8px; height:32px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px; outline:none;" onchange="window.updateManualImpact(this, '${safeLoads}')">
-                        ${slotOpts}
-                    </select>
-                    
+                    <select id="man-slot-select" style="width:100%; margin-bottom:8px; height:32px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px; outline:none;" onchange="window.updateManualImpact(this, '${safeLoads}')">${slotOpts}</select>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
                         <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px;" onclick="window.executeManualReschedule('${studentName}', '${oldTime}', '${safeSlots}', false)">🔁 Shift Next Class</button>
                         <button class="btn btn-primary btn-sm" style="flex:1; min-width:120px; background:#8b5cf6; border-color:#8b5cf6;" onclick="window.executeManualReschedule('${studentName}', '${oldTime}', '${safeSlots}', true)">🚀 Shift ALL Future</button>
@@ -2457,29 +2562,20 @@
     };
 
     window.updateManualImpact = (selEl, safeLoads) => {
-        const loads = JSON.parse(decodeURIComponent(safeLoads));
-        const dayName = selEl.options[selEl.selectedIndex].dataset.day;
-        let avg = parseFloat(loads[dayName] || 0);
+        const loads = JSON.parse(decodeURIComponent(safeLoads)); const dayName = selEl.options[selEl.selectedIndex].dataset.day; let avg = parseFloat(loads[dayName] || 0);
         document.getElementById("man-oasis-impact").innerHTML = `🟢 <b>${dayName}:</b> ${avg.toFixed(1)} ➔ ${(avg + 1).toFixed(1)} classes`;
     };
 
     window.executeManualReschedule = async (studentName, oldTime24, safeSlots, isPermanent) => {
-        const selEl = document.getElementById("man-slot-select");
-        const slots = JSON.parse(decodeURIComponent(safeSlots));
-        const pickedSlot = slots[selEl.value];
+        const selEl = document.getElementById("man-slot-select"); const slots = JSON.parse(decodeURIComponent(safeSlots)); const pickedSlot = slots[selEl.value];
         if(!pickedSlot) return window.showSystemPopup("System Error", "Invalid slot.");
-
-        let dummyInput = { value: pickedSlot.time }; window.normalizeUserTime(dummyInput); 
-        let newTime24 = parseUserTimeTo24(dummyInput.value); 
+        let dummyInput = { value: pickedSlot.time }; window.normalizeUserTime(dummyInput); let newTime24 = parseUserTimeTo24(dummyInput.value); 
         if (!newTime24) return window.showSystemPopup("System Error", "Failed to parse time.");
-
         window.executeMacroReschedule(studentName, oldTime24, pickedSlot.date, pickedSlot.time, pickedSlot.dayName, isPermanent);
     };
 
     window.executeMacroReschedule = async (studentName, oldTime24, newDate, newTime12, newDayName, isPermanent) => {
-        let dummyInput = { value: newTime12 }; window.normalizeUserTime(dummyInput); 
-        let newTime24 = parseUserTimeTo24(dummyInput.value);
-
+        let dummyInput = { value: newTime12 }; window.normalizeUserTime(dummyInput); let newTime24 = parseUserTimeTo24(dummyInput.value);
         if (isPermanent) {
             const d = new Date(newDate); const newDayNum = d.getDay(); 
             showConfirm(`Permanently move ${esc(studentName)}'s future classes to ${newDayName}s at ${newTime12}?`, async () => {
@@ -2495,7 +2591,56 @@
             });
         }
     };
-/* --- OMNIBOX / COMMAND PALETTE ENGINE --- */
+
+    // --- MULTI-DAY CANCEL & DROP SLOT ---
+    window.openCancelMultiDayModal = function() {
+        const viewDate = document.getElementById('view-date').value || APP_STATE.todayDate;
+        document.getElementById('cancel-multi-start').value = viewDate;
+        let endD = new Date(viewDate); endD.setDate(endD.getDate() + 6);
+        document.getElementById('cancel-multi-end').value = endD.toLocaleDateString('en-CA');
+        document.getElementById('cancelMultiDayModal').classList.add('show');
+    };
+
+    window.executeMultiDayCancel = async function() {
+        const startDate = document.getElementById('cancel-multi-start').value;
+        const endDate = document.getElementById('cancel-multi-end').value;
+        if (!startDate || !endDate) return window.showSystemPopup("System Error", "Dates required.");
+        
+        const btn = document.getElementById('btn-execute-multi-cancel');
+        const originalText = btn.textContent; btn.textContent = "Cancelling..."; btn.disabled = true;
+
+        try {
+            const res = await fetchAPI(null, { action: "cancelMultiDayClasses", startDate: startDate, endDate: endDate });
+            window.showSystemPopup(res.status === "error" ? "System Error" : "System Update", res.message);
+            document.getElementById('cancelMultiDayModal').classList.remove('show');
+            
+            APP_STATE.cache = {}; // Clear stale data cache
+            
+            if(window.fetchToday) window.fetchToday(true); 
+            if(window.loadClassesForViewDate) window.loadClassesForViewDate();
+        } catch(e) { window.showSystemPopup("System Error", e.toString()); } finally { btn.textContent = originalText; btn.disabled = false; }
+    };
+
+    window.confirmDropRosterSlot = function(studentName, dayOfWeek, startTime) {
+        let warningText = `🚨 DROP SLOT: ${studentName} on ${dayOfWeek}s at ${startTime}\n\nThis permanently purges FUTURE occurrences of this specific slot from the DB and Calendar.\n\nPast revenue and history remain entirely untouched.\n\nProceed?`;
+        
+        window.showConfirm(warningText, async function() {
+            window.showSystemPopup("System Info", "Dropping slot and purging future classes... please wait.");
+            try {
+                const res = await fetchAPI(null, { action: "dropRosterSlot", studentName: studentName, dayOfWeek: dayOfWeek, startTime: startTime });
+                window.showSystemPopup(res.status === "error" ? "System Error" : "System Update", res.message);
+                
+                // Clear from memory instantly
+                APP_STATE.roster = (APP_STATE.roster || []).filter(r => !(r.studentname === studentName && String(r.dayofweek).trim() === dayOfWeek && String(r.starttime).startsWith(startTime.substring(0,5))));
+                
+                if(window.renderTimetable) window.renderTimetable();
+                if(window.renderStudents) window.renderStudents();
+                if(document.getElementById('schedulingModal').classList.contains('show')) window.openSchedulingModal(studentName, 'roster');
+            } catch(e) { window.showSystemPopup("System Error", e.toString()); }
+        });
+    };
+
+    // --- OMNIBOX & NLP ---
     window.openOmnibox = () => { document.getElementById("omniboxModal").classList.add("show"); const input = document.getElementById("omniboxInput"); input.value = ""; document.getElementById("omniboxResults").style.display = "none"; setTimeout(() => input.focus(), 100); };
     window.closeOmnibox = () => { document.getElementById("omniboxModal").classList.remove("show"); };
 
@@ -2505,8 +2650,12 @@
     document.getElementById("omniboxInput").addEventListener('input', (e) => { window.processOmniboxQuery(e.target.value.toLowerCase().trim()); });
 
     window.processOmniboxQuery = (query) => {
-        const resultsContainer = document.getElementById("omniboxResults"); if (!query) { resultsContainer.style.display = "none"; return; }
+        const resultsContainer = document.getElementById("ob-results-container") || document.getElementById("omniboxResults"); 
+        if (!query) { resultsContainer.style.display = "none"; return; }
         resultsContainer.style.display = "block"; let html = ""; let matched = false; const q = query.toLowerCase();
+
+        // 1. Bulletproof Array Checker (Prevents the .forEach crash)
+        let safeStudents = Array.isArray(APP_STATE.students) ? APP_STATE.students : (Array.isArray(window.globalStudents) ? window.globalStudents : []);
 
         let targetDateStr = null; let dateLabel = ""; const todayObj = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
         if (q.includes("today")) { targetDateStr = APP_STATE.todayDate; dateLabel = "Today"; }
@@ -2514,14 +2663,61 @@
         else { const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]; for (let i=0; i<7; i++) { if (q.includes(days[i])) { let d = new Date(todayObj); let diff = i - d.getDay(); if (diff <= 0) diff += 7; d.setDate(d.getDate() + diff); targetDateStr = d.toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'}); dateLabel = days[i].charAt(0).toUpperCase() + days[i].slice(1); break; } } }
 
         let targetTimeStr = ""; const timeMatch = q.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i); if (timeMatch) { let hh = parseInt(timeMatch[1]); let mm = timeMatch[2] || "00"; let ap = timeMatch[3].toUpperCase(); if(hh>=1 && hh<=12) targetTimeStr = `${String(hh).padStart(2, '0')}:${mm} ${ap}`; }
-        let targetStudent = ""; const words = q.replace(/[^a-z0-9\s]/g, '').split(' '); for (let word of words) { if (word.length > 2) { const found = APP_STATE.students.find(s => s.name.toLowerCase().includes(word)); if (found) { targetStudent = found.name; break; } } }
+        
+        // 2. Canonical NLP Mapping
+        const NLP_STATUS_MAP = {
+            "no show": "Student No Show", "noshow": "Student No Show",
+            "absent": "Absent",
+            "cancelled": "Cancelled", "canceled": "Cancelled",
+            "pause": "Paused", "paused": "Paused",
+            "limit": "Class Limit Reached", "exhaust": "Class Limit Reached",
+            "glitch": "System Glitch"
+        };
+        
+        let cleanQ = q;
+        const intents = Object.keys(NLP_STATUS_MAP).concat(["schedule", "class", "plan", "reschedule", "shift", "free", "slot", "available", "receipt", "payment", "fee", "progress", "report", "feedback", "analytics"]);
+        const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+        let targetMonthNum = null; let foundStatus = null;
+        
+        months.forEach((m, idx) => { if (new RegExp('\\b'+m+'\\b', 'i').test(q)) targetMonthNum = String(idx + 1).padStart(2, '0'); });
+        Object.keys(NLP_STATUS_MAP).forEach(k => { if (new RegExp('\\b'+k+'\\b', 'i').test(q)) foundStatus = NLP_STATUS_MAP[k]; });
+        
+        intents.forEach(i => cleanQ = cleanQ.replace(new RegExp('\\b'+i+'\\b', 'gi'), ''));
+        months.forEach(m => cleanQ = cleanQ.replace(new RegExp('\\b'+m+'\\b', 'gi'), ''));
+        ["today", "tomorrow", "tmrw"].forEach(d => cleanQ = cleanQ.replace(new RegExp('\\b'+d+'\\b', 'gi'), ''));
+        
+        let targetStudent = ""; let potentialStudents = [];
+        const nameTarget = cleanQ.replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+        
+        if (nameTarget.length > 2) {
+            safeStudents.forEach(s => {
+                if (!s || !s.name) return;
+                const sName = s.name.toLowerCase();
+                if (sName.includes(nameTarget)) potentialStudents.push({ name: s.name, type: 'exact' });
+                else {
+                    const dist = window.levenshtein ? window.levenshtein(nameTarget.split(' ')[0], sName.split(' ')[0]) : 99;
+                    if (dist <= 2) potentialStudents.push({ name: s.name, type: 'fuzzy' });
+                }
+            });
+        }
+        
+        if (potentialStudents.length > 0) {
+            let unique = Array.from(new Set(potentialStudents.map(s => s.name))).map(name => potentialStudents.find(s => s.name === name));
+            unique.sort((a, b) => (a.type === 'exact' ? -1 : 1));
+            targetStudent = unique[0].name; 
+            if (unique[0].type === 'fuzzy' && unique.length > 1) {
+                let ambiguityHtml = `<div style="padding: 8px 16px; font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Ambiguous Match: Did you mean?</div>`;
+                unique.forEach(ps => { ambiguityHtml += `<div class="ob-result-item" onclick="window.processOmniboxQuery('${q.replace(nameTarget, ps.name.toLowerCase())}')"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><span style="font-weight:600; color:var(--text-main);">${esc(ps.name)}</span><span class="ob-command-badge">Select</span></div><span style="color:#cbd5e1;">⏎</span></div>`; });
+                resultsContainer.innerHTML = ambiguityHtml; return; 
+            }
+        }
 
-        const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan"); const isReschedule = q.includes("reschedule") || q.includes("shift"); const isSlots = q.includes("free") || q.includes("slot") || q.includes("available"); const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee"); const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback"); const isAnalytics = q.includes("no show") || q.includes("absent") || q.includes("analytics") || q.includes("revenue") || q.includes("stats") || q.includes("limit");
+        const isSchedule = q.includes("schedule") || q.includes("class") || q.includes("plan"); const isReschedule = q.includes("reschedule") || q.includes("shift"); const isSlots = q.includes("free") || q.includes("slot") || q.includes("available"); const isReceipt = q.includes("receipt") || q.includes("payment") || q.includes("fee"); const isProgress = q.includes("progress") || q.includes("report") || q.includes("feedback"); 
+        const isAnalytics = foundStatus !== null || q.includes("analytics") || q.includes("report");
 
         if (isSchedule && targetStudent && !isReschedule) {
-            matched = true; let titleText = `Schedule ${esc(targetStudent)}`; if (dateLabel) titleText += ` for ${dateLabel}`; if (targetTimeStr) titleText += ` at ${targetTimeStr}`;
-            let action = `window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { document.getElementById('schedule-student-select').value='${esc(targetStudent)}'; if('${targetDateStr}' !== 'null') document.getElementById('schedule-date').value='${targetDateStr}'; if('${targetTimeStr}') document.getElementById('schedule-time').value='${targetTimeStr}'; document.getElementById('schedule-student-select').scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📅</span><span style="font-weight:600; color:var(--text-main);">${titleText}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+            matched = true; let action = `window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); if(el) { el.value='${esc(targetStudent)}'; } if('${targetDateStr}' !== 'null') { let d = document.getElementById('schedule-date'); if(d) d.value='${targetDateStr}'; } if('${targetTimeStr}') { let t = document.getElementById('schedule-time'); if(t) t.value='${targetTimeStr}'; } if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);`;
+            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📅</span><span style="font-weight:600; color:var(--text-main);">Schedule ${esc(targetStudent)} ${dateLabel ? 'for ' + dateLabel : ''} ${targetTimeStr ? 'at ' + targetTimeStr : ''}</span><span class="ob-command-badge">Smart Action</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
         if (isReschedule && targetStudent) {
             matched = true; let action = `window.closeOmnibox(); window.showMainSection('students'); window.openSchedulingModal('${esc(targetStudent)}');`;
@@ -2529,64 +2725,60 @@
         }
         if ((isReceipt || isProgress) && targetStudent) {
             matched = true; let crmAction = isReceipt ? 'receipt' : 'progress'; let icon = isReceipt ? '🧾' : '📝';
-            let action = `window.closeOmnibox(); window.showMainSection('communications'); setTimeout(() => { document.getElementById('crm-student-select').value='${esc(targetStudent)}'; window.loadStudentCRM('${esc(targetStudent)}'); document.querySelector('input[name="crmAction"][value="${crmAction}"]').click(); document.getElementById('crm-student-select').scrollIntoView({behavior: 'smooth', block: 'start'}); }, 200);`;
+            let action = `window.closeOmnibox(); window.showMainSection('communications'); setTimeout(() => { let el = document.getElementById('crm-student-select'); if(el) el.value='${esc(targetStudent)}'; window.loadStudentCRM('${esc(targetStudent)}'); let rad = document.querySelector('input[name="crmAction"][value="${crmAction}"]'); if(rad) rad.click(); if(el) el.scrollIntoView({behavior: 'smooth', block: 'start'}); }, 200);`;
             html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${icon}</span><span style="font-weight:600; color:var(--text-main);">Write ${isReceipt ? 'Receipt' : 'Progress Report'} for ${esc(targetStudent)}</span><span class="ob-command-badge">Smart Route</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
-        if (q.includes("no show") || q.includes("absent") || q.includes("class limit reached") || q.includes("glitch")) {
-            matched = true; let statFilter = q.includes("no show") ? "Student No Show" : q.includes("absent") ? "Absent" : q.includes("glitch") ? "System Glitch" : "Class Limit Reached";
-            let action = `window.closeOmnibox(); window.showMainSection('analytics'); window.openHistoryReport(); setTimeout(() => { document.getElementById('historyStatusFilter').value='${statFilter}'; }, 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${statFilter === "Class Limit Reached" ? "🛑" : "📉"}</span><span style="font-weight:600; color:var(--text-main);">View ${statFilter} Report</span><span class="ob-command-badge">Smart Data</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
+        if (isAnalytics) {
+            matched = true; 
+            let statFilter = foundStatus || "All";
+            
+            // 3. The Race-Condition Patch
+            // We delay the actual DOM injection and .click() by 400ms to guarantee the modal has fully animated onto the screen.
+            let forceInjection = `
+                window.closeOmnibox(); 
+                window.showMainSection('analytics'); 
+                window.openHistoryReport(); 
+                setTimeout(() => { 
+                    let statEl = document.getElementById('historyStatusFilter'); 
+                    if(statEl) statEl.value = '${statFilter}'; 
+                    
+                    let stuEl = document.getElementById('history-student-filter'); 
+                    if(stuEl && '${targetStudent}') stuEl.value = '${esc(targetStudent)}'; 
+                    
+                    if('${targetMonthNum}' !== 'null') {
+                        let yr = new Date().getFullYear(); 
+                        let lastDay = new Date(yr, parseInt('${targetMonthNum}'), 0).getDate(); 
+                        let startInput = document.getElementById('historyStartDate'); 
+                        let endInput = document.getElementById('historyEndDate'); 
+                        if(startInput) startInput.value = yr + '-${targetMonthNum}-01'; 
+                        if(endInput) endInput.value = yr + '-${targetMonthNum}-' + lastDay;
+                    }
+                    setTimeout(() => { 
+                        let btn = document.getElementById('historyGenBtn'); 
+                        if(btn) btn.click(); 
+                    }, 250); 
+                }, 400);
+            `;
+            html += `<div class="ob-result-item" onclick="${forceInjection}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📊</span><span style="font-weight:600; color:var(--text-main);">Generate ${targetStudent ? statFilter + ' Report for ' + esc(targetStudent) : 'Global ' + statFilter + ' Report'}</span><span class="ob-command-badge">Smart Data</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
         }
-        if (q.includes("limit") || q.includes("exhaust")) {
-            matched = true;
-            const activePS = (window.globalStudents || []).filter(s => String(s.status).toLowerCase() !== 'deleted' && s.type === 'PS' && s.monthCompleted >= (s.monthlyLimit || 4));
-            if (activePS.length > 0) {
-                activePS.forEach(s => {
-                    html += `<div class="ob-result-item" onclick="window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${esc(s.name)}');"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;" class="alert-pulse">🔴</span><div><div style="font-weight:600; color:#ef4444;">Limit Exceeded: ${esc(s.name)}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.monthCompleted} / ${s.monthlyLimit || 4} Classes Completed</div></div><span class="ob-command-badge" style="background:#fef2f2; color:#ef4444; border:1px solid #fecaca;">Action Required</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
-                });
-            } else {
-                html += `<div class="ob-result-item"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">✅</span><span style="font-weight:600; color:var(--text-main);">No active PS students have exhausted their limit.</span></div></div>`;
-            }
-        }
-        if (isSlots && targetDateStr && !targetStudent) {
-            matched = true; let titleText = `View Free Slots for ${dateLabel}`;
-            let action = `window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value='${targetDateStr}'; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">🟢</span><span style="font-weight:600; color:var(--text-main);${titleText}</span><span class="ob-command-badge">Smart Route</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
-        } else if (isSchedule && targetDateStr && !targetStudent) {
-            matched = true; let titleText = `View Schedule for ${dateLabel}`;
-            let action = `window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value='${targetDateStr}'; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);`;
-            html += `<div class="ob-result-item" onclick="${action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">📅</span><span style="font-weight:600; color:var(--text-main);">${titleText}</span><span class="ob-command-badge">Smart Route</span></div><span style="color:#cbd5e1;">⏎</span></div>`;
-        }
-
+        
         const commands = [
             { keywords: ["slot", "slots", "free", "available", "open", "empty", "calendar", "schedule", "book"], title: "View Available Slots (Today)", icon: "🟢", action: "window.closeOmnibox(); window.showMainSection('classes'); document.getElementById('view-date').value=APP_STATE.todayDate; window.loadClassesForViewDate(); setTimeout(() => document.getElementById('view-date').scrollIntoView({behavior: 'smooth', block: 'center'}), 200);" },
             { keywords: ["vacation", "ooo", "leave", "holiday", "off", "break", "trip"], title: "Draft Out of Office Message", icon: "✈️", action: "window.closeOmnibox(); window.openSmartBulletin(); window.switchSbTab('vacation');" },
             { keywords: ["add", "new", "create", "enroll"], title: "Quick Add Student", icon: "🆕", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(() => { let el = document.getElementById('student-name-input'); el.scrollIntoView({behavior: 'smooth', block: 'center'}); el.focus(); }, 200);" },
             { keywords: ["revenue", "analytics", "stats", "money", "earnings", "dashboard", "report", "graph"], title: "View Executive Analytics", icon: "📊", action: "window.closeOmnibox(); window.showMainSection('analytics'); setTimeout(() => window.scrollTo({top: 0, behavior: 'smooth'}), 100);" },
-            { keywords: ["bulk", "shift", "reschedule", "move", "change"], title: "Bulk Shift / Reschedule", icon: "🔁", action: "window.closeOmnibox(); window.showMainSection('students'); setTimeout(() => document.getElementById('all-students-content').scrollIntoView({behavior: 'smooth', block: 'start'}), 200); window.showSystemPopup('System Info', 'Click the 🗓️ icon next to any student to shift.');" },
-            { keywords: ["scan", "photo", "correct", "image", "vision", "handwriting", "essay"], title: "Snap & Correct (Vision AI)", icon: "📸", action: "window.closeOmnibox(); window.showMainSection('drafter'); setTimeout(() => { document.querySelector('input[value=\\'vision\\']').click(); document.getElementById('ai-vision-file').scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);" },
             { keywords: ["pending", "review", "done", "approve", "check"], title: "Clear Pending Reviews", icon: "📝", action: "window.closeOmnibox(); window.openPendingReviews();" }
         ];
 
-        const queryWords = q.split(/\s+/).filter(word => word.length > 1);
-        
-        if (!matched) { 
-            commands.forEach(cmd => { 
-                if (queryWords.some(qw => cmd.keywords.some(kw => kw.includes(qw)))) { 
-                    matched = true; 
-                    html += `<div class="ob-result-item" onclick="${cmd.action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${cmd.icon}</span><span style="font-weight:600; color:var(--text-main);">${cmd.title}</span><span class="ob-command-badge">Command</span></div><span style="color:#cbd5e1;">⏎</span></div>`; 
-                } 
-            }); 
-        }
+        if (!matched) { commands.forEach(cmd => { if (q.split(/\s+/).filter(w => w.length > 1).some(qw => cmd.keywords.some(kw => kw.includes(qw)))) { matched = true; html += `<div class="ob-result-item" onclick="${cmd.action}"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">${cmd.icon}</span><span style="font-weight:600; color:var(--text-main);">${cmd.title}</span><span class="ob-command-badge">Command</span></div><span style="color:#cbd5e1;">⏎</span></div>`; } }); }
 
         if (!matched || q.length < 15) {
-            const matchingStudents = APP_STATE.students.filter(s => s.name.toLowerCase().includes(q));
-            matchingStudents.forEach(s => {
-                matched = true;
-                html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><div><div style="font-weight:700; color:var(--text-main);">${esc(s.name)}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div></div></div><button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6; height: 28px; padding: 0 8px;" onclick="event.stopPropagation(); window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${esc(s.name)}');">✨ Find Slots</button></div><div style="display:flex; gap:8px;"><button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${esc(s.name)}')">💬 Jump to CRM</button><button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); el.value='${esc(s.name)}'; el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);">📅 Schedule</button></div></div>`;
+            safeStudents.filter(s => s && s.name && s.name.toLowerCase().includes(nameTarget || q)).forEach(s => {
+                matched = true; html += `<div class="ob-result-item" style="flex-direction:column; align-items:stretch; gap:10px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.2rem;">👤</span><div><div style="font-weight:700; color:var(--text-main);">${esc(s.name)}</div><div style="font-size:0.75rem; color:var(--text-sub);">${s.type} Student | ${s.classesUsed || 0} Classes Used</div></div></div><button class="btn btn-outline btn-sm" style="border-color:#8b5cf6; color:#8b5cf6; height: 28px; padding: 0 8px;" onclick="event.stopPropagation(); window.closeOmnibox(); window.showMainSection('students'); window.openSmartSlotModal('${esc(s.name)}');">✨ Find Slots</button></div><div style="display:flex; gap:8px;"><button class="btn btn-soft btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.jumpToCRM('${esc(s.name)}')">💬 Jump to CRM</button><button class="btn btn-outline btn-sm" style="flex:1;" onclick="window.closeOmnibox(); window.showMainSection('classes'); setTimeout(() => { let el = document.getElementById('schedule-student-select'); if(el) el.value='${esc(s.name)}'; if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 200);">📅 Schedule</button></div></div>`;
             });
         }
-        if (!matched) { html = `<div style="text-align:center; padding:20px; color:#94a3b8;">No matching students or commands found.<br><span style="font-size:0.8rem; margin-top:8px; display:block;">Try: "Schedule Aadira for tomorrow at 3 PM", "Receipt for Shayraf", or "No shows".</span></div>`; }
+        
+        if (!matched) { html = `<div style="text-align:center; padding:20px; color:#94a3b8;">No precise matches found.<br><span style="font-size:0.8rem; margin-top:8px; display:block;">Try: "Schedule Aadira for tomorrow at 3 PM" or "Jasnoor cancelled apr".</span></div>`; }
         resultsContainer.innerHTML = html;
     };
 
@@ -2602,70 +2794,35 @@
 
     window.updateMonthlyLimit = function(name, limit) { fetch(GAS_API_URL, {method: 'POST', body: JSON.stringify({Action: "updateStudentData", StudentName: name, MonthlyLimit: parseInt(limit)})}).then(()=> { window.showSystemPopup("System Update", 'Limit updated for ' + name); const globalStudents = APP_STATE.students; const stu = globalStudents.find(x => x.name === name); if(stu) stu.monthlyLimit = parseInt(limit); window.renderClassLimits(); }); };
 
-window.renderClassLimits = function() {
-    const container = document.getElementById('smart-class-limit-alerts');
-    if(!container) return;
-    container.innerHTML = '';
-
-    let globalClasses = APP_STATE.currentClasses || [];
-    let todayStudentNames = globalClasses.map(c => c.StudentName);
-    let targets = window.globalStudents.filter(s => 
-        String(s.status).toLowerCase() !== 'deleted' && 
-        s.type === 'PS' && 
-        s.monthCompleted >= ((s.monthlyLimit || 4) - 1) &&
-        todayStudentNames.includes(s.name)
-    );
-
-    if(targets.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-
-    container.style.display = 'flex';
-
-    targets.sort((a,b) => {
-        const ratioA = a.monthCompleted / (a.monthlyLimit || 4);
-        const ratioB = b.monthCompleted / (b.monthlyLimit || 4);
-        return ratioB - ratioA;
-    });
-
-    let htmlString = `<h3 style="font-size: 0.95rem; font-weight: 700; color: #dc2626; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">⚠️ Action Required: PS Class Limits</h3>`;
-
-    targets.forEach(s => {
-        const limit = s.monthlyLimit || 4;
-        const isCritical = s.monthCompleted >= limit;
-
-        const bgColor = isCritical ? '#fef2f2' : '#fffbeb'; 
-        const borderColor = isCritical ? '#ef4444' : '#f59e0b'; 
-        const textColor = isCritical ? '#991b1b' : '#92400e'; 
-        const icon = isCritical ? '🛑 Limit Reached' : '⚠️ Nearing Limit';
-
-        htmlString += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${bgColor}; border-radius: 8px; border-left: 5px solid ${borderColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <span style="font-size: 0.95rem; font-weight: 600; color: ${textColor};">${esc(s.name)} <span style="font-weight: 500; font-size: 0.8rem; margin-left: 8px; opacity: 0.8;">${icon}</span></span>
-            <span style="font-size: 1rem; font-weight: 800; color: ${borderColor};">${s.monthCompleted} / ${limit}</span>
-        </div>`;
-    });
-
-    container.innerHTML = htmlString;
-};
+    window.renderClassLimits = function() {
+        const container = document.getElementById('smart-class-limit-alerts'); if(!container) return; container.innerHTML = '';
+        let globalClasses = APP_STATE.currentClasses || []; let todayStudentNames = globalClasses.map(c => c.StudentName);
+        let targets = (window.globalStudents || []).filter(s => String(s.status).toLowerCase() !== 'deleted' && s.type === 'PS' && s.monthCompleted >= ((s.monthlyLimit || 4) - 1) && todayStudentNames.includes(s.name));
+        if(targets.length === 0) { container.style.display = 'none'; return; }
+        container.style.display = 'flex';
+        targets.sort((a,b) => { const ratioA = a.monthCompleted / (a.monthlyLimit || 4); const ratioB = b.monthCompleted / (b.monthlyLimit || 4); return ratioB - ratioA; });
+        let htmlString = `<h3 style="font-size: 0.95rem; font-weight: 700; color: #dc2626; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">⚠️ Action Required: PS Class Limits</h3>`;
+        targets.forEach(s => {
+            const limit = s.monthlyLimit || 4; const isCritical = s.monthCompleted >= limit;
+            const bgColor = isCritical ? '#fef2f2' : '#fffbeb'; const borderColor = isCritical ? '#ef4444' : '#f59e0b'; const textColor = isCritical ? '#991b1b' : '#92400e'; const icon = isCritical ? '🛑 Limit Reached' : '⚠️ Nearing Limit';
+            htmlString += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${bgColor}; border-radius: 8px; border-left: 5px solid ${borderColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.05);"><span style="font-size: 0.95rem; font-weight: 600; color: ${textColor};">${esc(s.name)} <span style="font-weight: 500; font-size: 0.8rem; margin-left: 8px; opacity: 0.8;">${icon}</span></span><span style="font-size: 1rem; font-weight: 800; color: ${borderColor};">${s.monthCompleted} / ${limit}</span></div>`;
+        });
+        container.innerHTML = htmlString;
+    };
 
     async function runBootSequence() {
         APP_STATE.todayDate = getCurrentISTDateString(); 
         document.getElementById("view-date").value = APP_STATE.todayDate; document.getElementById("schedule-date").value = APP_STATE.todayDate; document.getElementById("conv-student-date").value = APP_STATE.todayDate;
-        try { const tzs = Intl.supportedValuesOf('timeZone'); const list = document.getElementById("tz-list"); if (list) { tzs.forEach(tz => list.innerHTML += `<option value="${tz}"></option>`); } window.loadCustomTzs(); } catch(e) { console.error("TZ API not supported in this browser."); }
+        try { const tzs = Intl.supportedValuesOf('timeZone'); const list = document.getElementById("tz-list"); if (list) { tzs.forEach(tz => list.innerHTML += `<option value="${tz}"></option>`); } window.loadCustomTzs(); } catch(e) {}
         initClocks(); 
         const d = new Date(APP_STATE.todayDate); d.setDate(d.getDate() - (d.getDay()+6)%7); const isoWeekStart = d.toISOString().split('T')[0];
         try {
             const bootData = await fetchAPI(null, { action: "bootApp", todayDate: APP_STATE.todayDate, startDate: isoWeekStart });
             if (bootData.status !== "error") {
-                APP_STATE.studyMaterialLink = bootData.studyMaterialLink || "";
-                APP_STATE.roster = bootData.rosterRes || [];
+                APP_STATE.studyMaterialLink = bootData.studyMaterialLink || ""; APP_STATE.roster = bootData.rosterRes || [];
                 if (bootData.studentsRes && bootData.studentsRes.students) { 
-                    APP_STATE.students = bootData.studentsRes.students.sort((a,b) => a.name.localeCompare(b.name)); 
-                    window.globalStudents = APP_STATE.students;
-                    populateStudentDropdowns(); 
-                    renderStudents(); 
-                    window.renderClassLimits();
+                    APP_STATE.students = bootData.studentsRes.students.sort((a,b) => a.name.localeCompare(b.name)); window.globalStudents = APP_STATE.students;
+                    populateStudentDropdowns(); renderStudents(); window.renderClassLimits();
                     document.getElementById("stats-total-students").textContent = APP_STATE.students.length; 
                     document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`; 
                     window.renderDashboardPersonalProgress();
@@ -2673,13 +2830,8 @@ window.renderClassLimits = function() {
                 if (bootData.classesRes && bootData.classesRes.classes) { APP_STATE.cache[APP_STATE.todayDate] = bootData.classesRes.classes; }
                 if (bootData.weekRes && bootData.weekRes.summary) { APP_STATE.weeklySummary = bootData.weekRes.summary; }
                 updateStats(APP_STATE.todayDate, APP_STATE.cache[APP_STATE.todayDate] || []); window.renderClassesForDate(APP_STATE.todayDate, false, APP_STATE.cache[APP_STATE.todayDate] || []);
-                if (bootData.earningsRes) { 
-                  if(bootData.earningsRes.personalEarnings !== undefined) { 
-                    document.getElementById("stats-earnings-prepaid").textContent = "₹" + (bootData.earningsRes.personalEarnings||0).toLocaleString('en-IN'); 
-                    document.getElementById("stats-earnings-accrued").textContent = "₹" + (bootData.earningsRes.cmEarnings||0).toLocaleString('en-IN'); 
-                    document.getElementById("stats-earnings-bal").textContent = "Dues: ₹" + (bootData.earningsRes.personalBalance||0).toLocaleString('en-IN'); 
-                    document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.personalCount || 0} Personal Pkgs | ${bootData.earningsRes.cmCount || 0} CM Classes`; 
-                  } 
+                if (bootData.earningsRes && bootData.earningsRes.personalEarnings !== undefined) { 
+                    document.getElementById("stats-earnings-prepaid").textContent = "₹" + (bootData.earningsRes.personalEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-accrued").textContent = "₹" + (bootData.earningsRes.cmEarnings||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-bal").textContent = "Dues: ₹" + (bootData.earningsRes.personalBalance||0).toLocaleString('en-IN'); document.getElementById("stats-earnings-sub").textContent = `${bootData.earningsRes.personalCount || 0} Personal Pkgs | ${bootData.earningsRes.cmCount || 0} CM Classes`; 
                 }
                 if (bootData.upcomingFeed) { window.renderAvailabilityFeed(bootData.upcomingFeed); }
                 window.renderClassLimits();
@@ -2690,5 +2842,23 @@ window.renderClassLimits = function() {
     
     window.onload = runBootSequence;
 </script>
+
+<div id="cancelMultiDayModal" class="modal-backdrop" style="z-index: 99999;">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">🏖️ Cancel Multi-Day</div>
+            <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('cancelMultiDayModal').classList.remove('show')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">Cancel all active classes within a specified date range (Max 7 Days). Marks classes as 'Cancelled'.</div>
+            <div class="card-row" style="margin-bottom: 15px;">
+                <div class="card-column"><div class="form-group"><label>Start Date</label><input type="date" id="cancel-multi-start"></div></div>
+                <div class="card-column"><div class="form-group"><label>End Date</label><input type="date" id="cancel-multi-end"></div></div>
+            </div>
+            <button id="btn-execute-multi-cancel" class="btn btn-danger btn-block" onclick="window.executeMultiDayCancel()">🚨 Cancel Classes</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
