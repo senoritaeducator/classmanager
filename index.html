@@ -7,6 +7,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
+#upcoming-feed {
+    color: #ffffff !important;
+    font-weight: 500 !important;
+    text-shadow: 0px 1px 2px rgba(0,0,0,0.5);
+}
         /* --- THEME: MIDNIGHT EXECUTIVE --- */
         :root {
             --primary: #334155;       
@@ -507,7 +512,7 @@
             <div class="section-header">
                 <div><span class="section-title">Schedule New Class</span></div></div>
             <div class="card-row">
-                <div class="card-column"><div class="form-group"><label>Student</label><select id="schedule-student-select"><option value="">Select...</option></select></div></div>
+                <div class="card-column"><div class="form-group"><label>Student</label><select id="schedule-student-select" onchange="window.handleScheduleType(this.value)"><option value="">Select...</option></select></div></div>
                 <div class="card-column"><div class="form-group"><label>Date</label><input type="date" id="schedule-date" /></div></div>
                 <div class="card-column"><div class="form-group"><label>Start Time</label><input type="text" id="schedule-time" placeholder="hh:mm AM/PM" onblur="if(window.normalizeUserTime) window.normalizeUserTime(this);" /></div></div>
                 <div class="card-column"><div class="form-group"><label>Repeat (Weeks)</label><select id="schedule-repeat"><option value="0">One-time</option><option value="1">1 Week</option><option value="2">2 Weeks</option><option value="4">4 Weeks</option></select></div></div>
@@ -1021,9 +1026,9 @@
     </section>
 
     <footer class="footer">
-        <div>Last Updated: May 16, 2026, 03:00 PM IST</div>
+        <div>Last Updated: May 16, 2026, 06:00 PM IST</div>
         <div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div>
-        <div>v131.1 HYBRID PROD | Powered by LazifAI</div>
+        <div>v131.5 HYBRID PROD | Powered by LazifAI</div>
     </footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
@@ -1713,7 +1718,12 @@
 
     async function loadStudents() {
         const r = await fetchAPI(null, { action: "getAllStudents" }); if(r.status === "error") { return window.showSystemPopup("System Error", "Failed to load students."); }
-        APP_STATE.students = (r.students || []).sort((a, b) => a.name.localeCompare(b.name)); populateStudentDropdowns();
+        APP_STATE.students = (r.students || []).sort((a, b) => a.name.localeCompare(b.name)); 
+        
+        // NEW: Ensure newly added trial students are instantly recognized globally
+        window.globalStudents = APP_STATE.students; 
+        
+        populateStudentDropdowns();
         document.getElementById("stats-total-students").textContent = APP_STATE.students.length; 
         document.getElementById("stats-students-sub").textContent = `${APP_STATE.students.filter(s => s.type === "PS").length} PS | ${APP_STATE.students.filter(s => s.type === "CM").length} CM | ${APP_STATE.students.filter(s => s.type === "Trial").length} Trial | ${APP_STATE.students.filter(s => s.type === "Personal").length} Personal`;
         window.renderDashboardPersonalProgress();
@@ -1768,11 +1778,18 @@
         const out = document.getElementById("view-classes-output"); if (!holdBanner) out.innerHTML = '<div style="color:var(--text-sub); text-align:center; padding:20px;">Loading schedule...</div>';
         let classes = preloadedClasses; if (!classes) { const res = await fetchAPI(null, { action: "getClasses", selectedDate: dateStr }); if(res.status === "error") { out.innerHTML = `<div style="color:#ef4444; text-align:center; padding:20px;">Failed to load.</div>`; return; } classes = res.classes || []; }
         updateStats(dateStr, classes); const dateObj = new Date(dateStr); const isWednesday = dateObj.getDay() === 3; const validClasses = classes.filter(c => c.Status !== "Deleted");
-        if (validClasses.length > 0 && validClasses.every(c => c.Status === "Cancelled")) { document.getElementById("free-slots-list").innerHTML = `<div style="background:#fef2f2; border:2px dashed #fca5a5; border-radius:12px; padding:30px 10px; text-align:center; color:#b91c1c; margin-top: 10px;"><div style="font-size:2rem; margin-bottom:8px;">🏝️</div><div style="font-weight:700; font-size:1rem;">All Cancelled</div><div style="font-size:0.8rem; margin-top:4px;">All classes for today have been gracefully cancelled.</div></div>`; } else if (isWednesday && validClasses.filter(c => c.Status !== "Cancelled").length === 0) { document.getElementById("free-slots-list").innerHTML = `<div style="background:#f0f9ff; border:2px dashed #bae6fd; border-radius:12px; padding:30px 10px; text-align:center; color:#0369a1; margin-top: 10px;"><div style="font-size:2rem; margin-bottom:8px;">🏖️</div><div style="font-weight:700; font-size:1rem;">Scheduled Weekly Off</div><div style="font-size:0.8rem; margin-top:4px;">Enjoy your day off!</div></div>`; } else {
-            const busy = []; const isToday = (dateStr === APP_STATE.todayDate); let currentMins = 0; if(isToday) { const now = new Date(); const ist = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); currentMins = ist.getHours() * 60 + ist.getMinutes(); }
+        
+        if (validClasses.length > 0 && validClasses.every(c => c.Status === "Cancelled")) { 
+            document.getElementById("free-slots-list").innerHTML = `<div style="background:#fef2f2; border:2px dashed #fca5a5; border-radius:12px; padding:30px 10px; text-align:center; color:#b91c1c; margin-top: 10px;"><div style="font-size:2rem; margin-bottom:8px;">🏝️</div><div style="font-weight:700; font-size:1rem;">All Cancelled</div><div style="font-size:0.8rem; margin-top:4px;">All classes for today have been gracefully cancelled.</div></div>`; 
+        } else if (isWednesday && validClasses.filter(c => c.Status !== "Cancelled").length === 0) { 
+            document.getElementById("free-slots-list").innerHTML = `<div style="background:#f0f9ff; border:2px dashed #bae6fd; border-radius:12px; padding:30px 10px; text-align:center; color:#0369a1; margin-top: 10px;"><div style="font-size:2rem; margin-bottom:8px;">🏖️</div><div style="font-weight:700; font-size:1rem;">Scheduled Weekly Off</div><div style="font-size:0.8rem; margin-top:4px;">Enjoy your day off!</div></div>`; 
+        } else {
+            // FIX: isPast logic accurately expires Yesterday's Slots
+            const busy = []; const isToday = (dateStr === APP_STATE.todayDate); const isPast = (dateStr < APP_STATE.todayDate); let currentMins = 0; if(isToday) { const now = new Date(); const ist = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); currentMins = ist.getHours() * 60 + ist.getMinutes(); }
             classes.forEach(c => { if(BLOCKED_STATUSES.includes(c.Status)) { let st = parseBackendTime(c.StartTime || "00:00"); let parts = st.split(':'); let h = parseInt(parts[0]) || 0; let m = parseInt(parts[1]) || 0; const s = h * 60 + m; busy.push({ s: s, e: s+60, status: c.Status }); } });
-            let htmlSlots = ""; for (let h = 540; h < 1320; h += 60) { const slotStart = h; const slotEnd = h + 60; const overlap = busy.find(b => (b.s < slotEnd) && (b.e > slotStart)); if (overlap) { if (overlap.status === "Cancelled") htmlSlots += `<div style="background:#fef2f2; color:#b91c1c; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #fecaca; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)} (Cancelled)</div>`; } else { if (isToday) { if (slotEnd <= currentMins) htmlSlots += `<div style="background:#fef2f2; color:#b91c1c; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #fecaca; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)} (Expired)</div>`; else if (slotStart <= currentMins && slotEnd > currentMins) htmlSlots += `<div style="background:#fef9c3; color:#854d0e; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #fde047; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)} (Ongoing)</div>`; else htmlSlots += `<div style="background:#f0fdf4; color:#166534; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #dcfce7; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)}</div>`; } else { htmlSlots += `<div style="background:#f0fdf4; color:#166534; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #dcfce7; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)}</div>`; } } } document.getElementById("free-slots-list").innerHTML = htmlSlots || "<div style='color:#94a3b8;font-size:0.8rem;text-align:center;'>No free slots</div>";
+            let htmlSlots = ""; for (let h = 540; h < 1320; h += 60) { const slotStart = h; const slotEnd = h + 60; const overlap = busy.find(b => (b.s < slotEnd) && (b.e > slotStart)); if (overlap) { if (overlap.status === "Cancelled") htmlSlots += `<div style="background:#fef2f2; color:#b91c1c; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #fecaca; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)} (Cancelled)</div>`; } else { if (isPast) { htmlSlots += `<div style="background:#fef2f2; color:#b91c1c; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #fecaca; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)} (Expired)</div>`; } else if (isToday) { if (slotEnd <= currentMins) htmlSlots += `<div style="background:#fef2f2; color:#b91c1c; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #fecaca; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)} (Expired)</div>`; else if (slotStart <= currentMins && slotEnd > currentMins) htmlSlots += `<div style="background:#fef9c3; color:#854d0e; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #fde047; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)} (Ongoing)</div>`; else htmlSlots += `<div style="background:#f0fdf4; color:#166534; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #dcfce7; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)}</div>`; } else { htmlSlots += `<div style="background:#f0fdf4; color:#166534; padding:8px; border-radius:6px; font-size:0.85rem; font-weight:500; text-align:center; border:1px solid #dcfce7; margin-bottom:6px;">${minToTime(slotStart)} - ${minToTime(slotEnd)}</div>`; } } } document.getElementById("free-slots-list").innerHTML = htmlSlots || "<div style='color:#94a3b8;font-size:0.8rem;text-align:center;'>No free slots</div>";
         }
+        
         if (holdBanner) return; out.innerHTML = ""; if(!classes.length) { out.innerHTML = '<div style="color:var(--text-sub); text-align:center; padding:20px; border:1px dashed #cbd5e1; border-radius:12px;">No classes scheduled for this date.</div>'; return; }
         
         classes.forEach(c => {
@@ -1790,98 +1807,91 @@
                 <button class="btn btn-primary btn-sm btn-save-notes">💾 Save</button>
             </div>`;
 
-            const sObj = APP_STATE.students.find(s => s.name === c.StudentName); const isTrial = sObj && sObj.type === "Trial"; const term = isTrial ? "Trial Class" : "English class"; 
+            const sObj = APP_STATE.students.find(s => s.name === c.StudentName); 
+            // FIX: Removed the duplicate 'let isTrial' that crashed the app
+            const isTrial = (c.MessageType === "Trial" || (sObj && sObj.type === "Trial")); 
+            const term = isTrial ? "Trial Class" : "English class"; 
             
             const stuObj = window.globalStudents ? window.globalStudents.find(x => x.name === c.StudentName) : sObj;
-            const isMaxedPS = stuObj && stuObj.type === 'PS' && stuObj.monthCompleted >= (stuObj.monthlyLimit || 4);
+            const isPS = (stuObj && stuObj.type === 'PS');
+            const isMaxedPS = isPS && stuObj.monthCompleted >= (stuObj.monthlyLimit || 4);
             const limitBadge = isMaxedPS ? `<span class="alert-pulse" title="Monthly Class Limit Exceeded" style="cursor: help; margin-right: 6px; font-size: 0.9em;">🔴</span>` : '';
-            const limitOption = isMaxedPS ? `<option value="class_limit_notice">🛑 Class Limit Notice</option>` : '';
-
-            let parsedTime = parseBackendTime(c.StartTime);
-            let defaultMsg = `Hi, this is a reminder regarding the ${term} for ${esc(c.StudentName)} scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(parsedTime)} IST.`; if (sObj && sObj.type === "PS") defaultMsg += `\n\nPlease join using your PlanetSpark class link.`; defaultMsg += `\n\nBest regards,\nSenorita`;
             
-            const dayAbbr = getDayAbbr(c.ClassDate);
+            // NEW: Restrict Limit option strictly to PS Students
+            const limitMsgOption = isPS ? `<option value="limit">🛑 Class Limit Full</option>` : ``;
 
-            card.innerHTML = `<div class="class-card__row"><div><div class="class-student">👤 ${limitBadge}${esc(c.StudentName)}</div><div class="meta">📅 ${dayAbbr}, ${isoToDisplayDate(c.ClassDate)} • ⏰ ${time24To12(parsedTime)} IST</div></div>${stat}</div>${notesHtml}<div class="expand-block generate-area" style="display:none;"><select class="msg-type-select" style="margin-bottom:8px; width:100%; border:1px solid #cbd5e1; border-radius:6px; padding:6px;"><option value="reminder">Class Reminder</option>${limitOption}</select><div class="msg-preview" style="white-space:pre-wrap;">${defaultMsg}</div><button class="btn btn-primary btn-sm btn-copy" style="margin-top:8px;">Copy</button></div><div class="expand-block resched-area" style="display:none;"><input type="date" class="res-date" value="${dateStr}"><input type="text" class="res-time" value="${time24To12(parsedTime)}" placeholder="hh:mm AM/PM" onblur="window.normalizeUserTime(this)">
-<div style="margin-top: 10px; margin-bottom: 10px; padding: 10px; background: #fff; border-radius: 6px; border: 1px solid #cbd5e1;">
-    <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.85rem; color: var(--primary); margin-bottom: 0;">
-        <input type="checkbox" class="res-master-roster-check" style="width: 16px; height: 16px; accent-color: var(--accent);"> Save as Permanent Shift
-    </label>
-</div>
-<button class="btn btn-primary btn-sm btn-res-submit" style="margin-top:8px;">Save</button></div>`;
-            
-            card.querySelector(".status-select").onchange = async (e) => { 
-                const originalValue = c.Status;
-                const proceedUpdate = async () => {
-                    e.target.disabled = true; 
-                    const r = await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: e.target.value }); 
-                    e.target.disabled = false; 
-                    if (r && r.status === "error") {
-                        window.showSystemPopup("System Error", r.message || "Failed to update status. Please try again.");
-                        e.target.value = originalValue;
-                    } else {
-                        // NEW: SWEEP ALERT TRIGGER
-                        if (r.sweptCount && r.sweptCount > 0) {
-                            window.showSystemPopup("System Update", `PS Limit Reached: ${r.sweptCount} future classes were automatically removed from the calendar to enforce class limits.`);
-                        }
-                        window.triggerDebouncedRefresh(dateStr); 
-                    }
-                };
+            card.innerHTML = `
+                <div class="class-card__row">
+                    <div style="display:flex; align-items:center; gap:8px;">${limitBadge}<span class="class-student">${c.StudentName}</span></div>
+                    ${stat}
+                </div>
+                <div class="meta">🕒 ${time24To12(parseBackendTime(c.StartTime))} IST | 📅 ${isoToDisplayDate(c.ClassDate)}</div>
+                <div class="meta" style="margin-bottom:10px;">🏷️ ${term}</div>
+                ${notesHtml}
+                
+                <div class="expand-block generate-area" style="display:none; margin-top:15px; border:1px solid var(--border); border-radius:8px; padding:15px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <select class="msg-select" style="max-width:200px; padding: 6px 8px; font-size:0.85rem; border-radius:6px; border:1px solid #cbd5e1; outline: none;">
+                            <option value="reminder" selected>🔔 Send Reminder</option>
+                            ${limitMsgOption}
+                        </select>
+                        <button class="btn btn-outline btn-sm btn-copy">📋 Copy</button>
+                    </div>
+                    <div class="msg-preview" style="background:#fff; border:1px solid #e2e8f0; border-radius:6px; padding:10px; font-size:0.85rem; white-space:pre-wrap; min-height:80px; max-height:200px; overflow-y:auto; color:var(--text-main);"></div>
+                </div>
 
-                if (dateStr < APP_STATE.todayDate) {
-                    document.getElementById("confirmText").textContent = "You are updating a historical class record. Proceed?";
-                    document.getElementById("confirmModal").classList.add("show");
-                    const yesBtn = document.getElementById("confirmYes");
-                    const noBtn = document.getElementById("confirmNo");
-                    const newYes = yesBtn.cloneNode(true);
-                    const newNo = noBtn.cloneNode(true);
-                    yesBtn.parentNode.replaceChild(newYes, yesBtn);
-                    noBtn.parentNode.replaceChild(newNo, noBtn);
-                    newYes.onclick = () => { document.getElementById("confirmModal").classList.remove("show"); proceedUpdate(); };
-                    newNo.onclick = () => { document.getElementById("confirmModal").classList.remove("show"); e.target.value = originalValue; };
-                } else {
-                    proceedUpdate();
-                }
-            };
-            card.querySelector(".btn-save-notes").onclick = async () => { const btn = card.querySelector(".btn-save-notes"); btn.disabled = true; btn.textContent="⌛"; await fetchAPI(null, { action: "saveClassNotes", ClassID: c.ClassID, Notes: card.querySelector(".card-notes-input").value, NextTopic: card.querySelector(".card-next-topic").value, StudentName: c.StudentName }); btn.textContent="✅"; setTimeout(()=> {btn.textContent="Save"; btn.disabled=false;}, 1000); };
-            
-            const msgSelect = card.querySelector(".msg-type-select");
+                <div class="expand-block resched-area" style="display:none; margin-top:15px; border:1px solid var(--border); border-radius:8px; padding:15px;">
+                    <div style="font-weight:700; margin-bottom:10px; font-size:0.9rem; color:var(--primary);">Reschedule Class</div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                        <div style="flex:1; min-width:120px;"><input type="date" class="res-date" style="width:100%; height:36px;"></div>
+                        <div style="flex:1; min-width:120px;"><input type="text" class="res-time" placeholder="hh:mm AM/PM" style="width:100%; height:36px;" onblur="window.normalizeUserTime(this)"></div>
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; margin-bottom: 12px; font-weight: 600; color: var(--text-main);"><input type="checkbox" class="res-master-roster-check" style="width:16px; height:16px;"> Update Master Roster</label>
+                    <button class="btn btn-primary btn-sm btn-block btn-res-submit" style="height:36px;">Confirm Reschedule</button>
+                </div>
+            `;
+
+            // ---------------------------------------------------------
+            // MESSAGE GENERATION & DROPDOWN LOGIC
+            // ---------------------------------------------------------
+            const msgSelect = card.querySelector(".msg-select");
             const preview = card.querySelector(".msg-preview");
+            let parsedTime = parseBackendTime(c.StartTime);
+            const currentHour = new Date().getHours();
+            let greeting = "Morning";
+            if (currentHour >= 12 && currentHour < 17) greeting = "Afternoon";
+            else if (currentHour >= 17) greeting = "Evening";
 
-            msgSelect.onchange = (e) => {
-                let selectedMessageType = e.target.value;
-                let draftText = defaultMsg;
-                if (selectedMessageType === 'class_limit_notice') {
-                    draftText = `Dear ${esc(c.StudentName)} / Parents,\n\nJust a quick heads-up that ${esc(c.StudentName)} has finished their class limit for this calendar month.\n\nWe will take a pause for today and jump back into our regular routine starting next month.\n\nThank you for your continued cooperation!\n\nBest regards,\nSenorita`;
-                }
-                preview.innerHTML = draftText;
-            };
+            let defaultMsg = "";
+            if (isTrial) {
+                defaultMsg = `Good ${greeting},\n\nWe have a demo session scheduled today for ${c.StudentName} at ${time24To12(parsedTime)} IST.\nPlease use the link below to join the trial class.\n\n*Note:* A laptop is the preferred device for a smooth class experience, and parental supervision is mandatory during the session.\n\nLooking forward to seeing you in the class.\n\nBest regards,\nSenorita`;
+            } else {
+                defaultMsg = `Hi, this is a reminder regarding the ${term} for ${c.StudentName} scheduled on ${isoToDisplayDate(c.ClassDate)} at ${time24To12(parsedTime)} IST.`;
+                if (isPS) defaultMsg += `\n\nPlease join using your PlanetSpark class link.`;
+                defaultMsg += `\n\nBest regards,\nSenorita`;
+            }
 
-            card.querySelector(".btn-generate").onclick = async () => { 
-                const x = card.querySelector(".generate-area"); 
-                if (x.style.display === "none") { 
-                    x.style.display = "block"; 
-                    if (isTrial && !card.dataset.trialLoaded) { 
-                        preview.innerHTML = "<i>✨ Generating dynamic Trial template...</i>"; 
-                        try { 
-                            const r = await fetchAPI(null, { action: "generateTrialMessage", StudentName: c.StudentName, ClassDate: c.ClassDate, ClassTime: time24To12(parsedTime) + " IST" }); 
-                            if (r.status === "success") { 
-                                defaultMsg = r.draft; 
-                                if (msgSelect.value === 'reminder') preview.innerHTML = defaultMsg; 
-                                card.dataset.trialLoaded = "true"; 
-                            } else { 
-                                preview.innerHTML = "Error loading template. Fallback:\n\n" + defaultMsg; 
-                            } 
-                        } catch(e) { 
-                            preview.innerHTML = defaultMsg; 
-                        } 
-                    } 
-                } else { 
-                    x.style.display = "none"; 
-                } 
+            let limitMsg = `Hi Parents,\n\nPlease note that the 4-class limit for ${c.StudentName} for this month has been reached.\n\nToday's scheduled class and any remaining classes for this month will be dropped.\n\nClasses will resume automatically from the 1st week of next month.\n\nBest regards,\nSenorita`;
+
+            if (msgSelect) {
+                msgSelect.onchange = () => {
+                    if (msgSelect.value === 'reminder') preview.innerText = defaultMsg;
+                    else if (msgSelect.value === 'limit') preview.innerText = limitMsg;
+                };
+            }
+
+            if (preview) preview.innerText = defaultMsg;
+
+            // RESTORED ACTION LISTENERS
+            card.querySelector(".btn-generate").onclick = () => {
+                const x = card.querySelector(".generate-area");
+                x.style.display = x.style.display === "none" ? "block" : "none";
             };
+            
             card.querySelector(".btn-copy").onclick = () => { navigator.clipboard.writeText(preview.innerText); window.showSystemPopup("System Update", "Copied"); };
+            
             card.querySelector(".btn-reschedule").onclick = () => { const x=card.querySelector(".resched-area"); x.style.display = x.style.display==="none"?"block":"none"; };
+            
             card.querySelector(".btn-res-submit").onclick = async () => { 
                 const nd = card.querySelector(".res-date").value; 
                 const nt = parseUserTimeTo24(card.querySelector(".res-time").value); 
@@ -1906,9 +1916,43 @@
                 }; 
                 if(isTimeInPast(nd, nt)) { showConfirm("Warning: Past time.", executeReschedule); } else { executeReschedule(); } 
             };
+
+            card.querySelector(".status-select").onchange = async (e) => {
+                const newStatus = e.target.value; const el = e.target; el.disabled = true;
+                const r = await fetchAPI(null, { action: "updateClassStatus", ClassID: c.ClassID, NewStatus: newStatus });
+                el.disabled = false;
+                if (r.status === "error") { window.showSystemPopup("System Error", "Failed to update status."); el.value = c.Status; } 
+                else {
+                    if (r.sweptCount && r.sweptCount > 0) window.showSystemPopup("System Update", `PS Limit Reached: ${r.sweptCount} future classes were automatically converted to Limit Reached.`);
+                    window.triggerDebouncedRefresh(dateStr);
+                }
+            };
+            
+            card.querySelector(".btn-save-notes").onclick = async (e) => {
+                const nInput = document.getElementById(`notes-${c.ClassID}`).value;
+                const btn = e.target; btn.textContent = "💾..."; btn.disabled = true;
+                const r = await fetchAPI(null, { action: "saveNotes", ClassID: c.ClassID, Notes: nInput });
+                btn.textContent = "💾 Save"; btn.disabled = false;
+                if (r.status === "error") window.showSystemPopup("System Error", "Failed to save notes."); else window.showToast("Notes saved.");
+            };
+
             out.appendChild(card);
         });
     }
+// 🚨 TRIAL SHIELD: Hides Master Roster option for Trial Students
+    window.handleScheduleType = (name) => {
+        const stu = APP_STATE.students.find(s => s.name === name);
+        const rosterCheckbox = document.getElementById("schedule-master-roster");
+        
+        if (rosterCheckbox && rosterCheckbox.parentElement) {
+            if (stu && stu.type === 'Trial') {
+                rosterCheckbox.parentElement.style.display = 'none'; // Hide the option entirely
+                rosterCheckbox.checked = false; // Force it to false
+            } else {
+                rosterCheckbox.parentElement.style.display = 'flex'; // Bring it back for PS/CM
+            }
+        }
+    };
 
     window.executeScheduleClass = async () => { 
         const sT = document.getElementById("schedule-time"); const s = document.getElementById("schedule-student-select").value; const d = document.getElementById("schedule-date").value; const t = parseUserTimeTo24(sT.value); const rep = parseInt(document.getElementById("schedule-repeat").value); 
@@ -1947,6 +1991,10 @@
             window.loadWeekly(); 
             window.fetchToday(); 
             window.renderAvailabilityFeed(); 
+            
+            // NEW: Instantly refresh the main UI so the new class appears immediately
+            window.loadClassesForViewDate();
+            
             document.getElementById("schedule-student-select").value = ""; 
             sT.value = ""; 
         }; 
