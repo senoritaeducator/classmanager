@@ -387,6 +387,7 @@
            }
         }
     </style>
+  </head>
 <body>
 
 <div class="container">
@@ -1289,12 +1290,27 @@
         <button class="fab-main" id="fab-main" title="Quick Actions" onclick="window.toggleQuickMenu(event)">⚡</button>
     </div>
 </div>
+<div id="cancelMultiDayModal" class="modal-backdrop" style="z-index: 99999;">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">🏖️ Cancel Multi-Day</div>
+            <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('cancelMultiDayModal').classList.remove('show')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">Cancel all active classes within a specified date range (Max 7 Days). Marks classes as 'Cancelled'.</div>
+            <div class="card-row" style="margin-bottom: 15px;">
+                <div class="card-column"><div class="form-group"><label>Start Date</label><input type="date" id="cancel-multi-start"></div></div>
+                <div class="card-column"><div class="form-group"><label>End Date</label><input type="date" id="cancel-multi-end"></div></div>
+            </div>
+            <button id="btn-execute-multi-cancel" class="btn btn-danger btn-block" onclick="window.executeMultiDayCancel()">🚨 Cancel Classes</button>
+        </div>
+    </div>
+</div>
 <script>
     const esc = str => String(str).replace(/[&<>'"]/g, tag => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[tag]));
 
     // --- PROD ENVIRONMENT BINDING ---
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxrI2GMBJsS7rhMIWcnNovhrSOIObYUJZg9fIPoG1IuojN9t5lnnATcX5rhsWagfixg/exec";
-    
     const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
     const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "", roster: [], editingStudentName: null };
     
@@ -2871,23 +2887,5 @@
     
     window.onload = runBootSequence;
 </script>
-
-<div id="cancelMultiDayModal" class="modal-backdrop" style="z-index: 99999;">
-    <div class="modal">
-        <div class="modal-header">
-            <div class="modal-title">🏖️ Cancel Multi-Day</div>
-            <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('cancelMultiDayModal').classList.remove('show')">✕</button>
-        </div>
-        <div class="modal-body">
-            <div style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">Cancel all active classes within a specified date range (Max 7 Days). Marks classes as 'Cancelled'.</div>
-            <div class="card-row" style="margin-bottom: 15px;">
-                <div class="card-column"><div class="form-group"><label>Start Date</label><input type="date" id="cancel-multi-start"></div></div>
-                <div class="card-column"><div class="form-group"><label>End Date</label><input type="date" id="cancel-multi-end"></div></div>
-            </div>
-            <button id="btn-execute-multi-cancel" class="btn btn-danger btn-block" onclick="window.executeMultiDayCancel()">🚨 Cancel Classes</button>
-        </div>
-    </div>
-</div>
-
 </body>
 </html>
