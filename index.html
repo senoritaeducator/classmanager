@@ -1025,10 +1025,10 @@
                             <label style="font-size:0.85rem; display:flex; align-items:center; gap:6px; cursor:pointer; margin-bottom:0; font-weight:600;"><input type="checkbox" id="block-2pm" checked onchange="window.renderPermanentFeed()" style="accent-color:var(--accent); width:16px; height:16px;"> 2:00 PM</label>
                             <label style="font-size:0.85rem; display:flex; align-items:center; gap:6px; cursor:pointer; margin-bottom:0; font-weight:600;"><input type="checkbox" id="block-3pm" checked onchange="window.renderPermanentFeed()" style="accent-color:var(--accent); width:16px; height:16px;"> 3:00 PM</label>
                         </div>
-                        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-bottom:12px;">
-                            <button class="btn btn-soft btn-sm" onclick="window.copyPermanentFeed('all')" style="font-weight:600; font-size:0.75rem; padding:6px 2px; white-space:nowrap;">📋 All</button>
-                            <button class="btn btn-soft btn-sm" onclick="window.copyPermanentFeed('weekdays')" style="font-weight:600; font-size:0.75rem; padding:6px 2px; white-space:nowrap;">📋 Weekdays</button>
-                            <button class="btn btn-soft btn-sm" onclick="window.copyPermanentFeed('weekends')" style="font-weight:600; font-size:0.75rem; padding:6px 2px; white-space:nowrap;">📋 Weekends</button>
+                        <div style="display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+                            <button class="btn btn-soft btn-sm" onclick="window.copyPermanentFeed('all')">📋 Copy All</button>
+                            <button class="btn btn-outline btn-sm" onclick="window.copyPermanentFeed('weekdays')">📋 Weekdays</button>
+                            <button class="btn btn-primary btn-sm" onclick="window.copyPermanentFeed('weekends')">📋 Weekends</button>
                         </div>
                         <div id="perm-feed-output" style="display: flex; flex-direction: column; gap: 12px; padding-bottom:10px;"></div>
                     </div>
@@ -1050,9 +1050,9 @@
     </section>
 
     <footer class="footer">
-        <div>Last Updated: May 16, 2026, 08:00 PM IST</div>
+        <div>Last Updated: May 16, 2026, 08:15 PM IST</div>
         <div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div>
-        <div>v131.7 HYBRID PROD | Powered by LazifAI</div>
+        <div>v132.0 HYBRID PROD | Powered by LazifAI</div>
     </footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
