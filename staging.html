@@ -387,6 +387,7 @@
            }
         }
     </style>
+  </head>
 <body>
 
 <div class="container">
@@ -1019,7 +1020,11 @@
         </div>
     </section>
 
-    <footer class="footer"><div>Last Updated: May 15, 2026, 06:40 PM IST</div><div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div><div>v130 STAGING | Powered by LazifAI</div></footer>
+    <footer class="footer">
+        <div>Last Updated: May 16, 2026, 03:00 PM IST</div>
+        <div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div>
+        <div>v131.1 HYBRID STAGING | Powered by LazifAI</div>
+    </footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
         <div class="modal">
@@ -1180,15 +1185,21 @@
                             <option value="PS">PS</option><option value="CM">CM</option><option value="Trial">Trial</option><option value="Personal">Personal</option>
                         </select>
                     </div>
+                    
+                    <div class="form-group" style="margin-bottom:16px;">
+                         <label>Monthly Class Limit</label>
+                         <input type="number" id="profile-monthly-limit" placeholder="e.g. 4 or 8">
+                    </div>
+
                     <div id="profile-personal-fields" style="display:none; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
-                        <div style="flex:1; min-width:80px;"><label>Package Size</label><input type="number" id="profile-pkg-total"></div>
-                        <div style="flex:1; min-width:80px;"><label>Pending Bal (₹)</label><input type="number" id="profile-pending-balance"></div>
-                        <div style="flex:1; min-width:80px;"><label>Custom Price</label><input type="number" id="profile-custom-price"></div>
-                    </div>
-                    <div style="margin-top:10px; border-top:1px solid #e2e8f0; padding-top:15px;">
-                        <button class="btn btn-outline btn-sm btn-block" onclick="window.scrubStudentData()" style="color:#f59e0b; border-color:#fcd34d;">🧹 Scrub PS Data (Convert to Personal)</button>
-                    </div>
-                </div>
+        <div style="flex:1; min-width:80px;"><label>Package Size</label><input type="number" id="profile-pkg-total"></div>
+        <div style="flex:1; min-width:80px;"><label>Pending Bal (₹)</label><input type="number" id="profile-pending-balance"></div>
+        <div style="flex:1; min-width:80px;"><label>Custom Price</label><input type="number" id="profile-custom-price"></div>
+    </div>
+    <div style="margin-top:10px; border-top:1px solid #e2e8f0; padding-top:15px;">
+        <button class="btn btn-outline btn-sm btn-block" onclick="window.scrubStudentData()" style="color:#f59e0b; border-color:#fcd34d;">🧹 Scrub PS Data (Convert to Personal)</button>
+    </div>
+</div>
             </div>
             <div class="modal-footer">
                 <button id="profileSaveBtn" class="btn btn-primary">Save Changes</button>
@@ -1279,9 +1290,30 @@
         <button class="fab-main" id="fab-main" title="Quick Actions" onclick="window.toggleQuickMenu(event)">⚡</button>
     </div>
 </div>
+<div id="cancelMultiDayModal" class="modal-backdrop" style="z-index: 99999;">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">🏖️ Cancel Multi-Day</div>
+            <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('cancelMultiDayModal').classList.remove('show')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">Cancel all active classes within a specified date range (Max 7 Days). Marks classes as 'Cancelled'.</div>
+            <div class="card-row" style="margin-bottom: 15px;">
+                <div class="card-column"><div class="form-group"><label>Start Date</label><input type="date" id="cancel-multi-start"></div></div>
+                <div class="card-column"><div class="form-group"><label>End Date</label><input type="date" id="cancel-multi-end"></div></div>
+            </div>
+            <button id="btn-execute-multi-cancel" class="btn btn-danger btn-block" onclick="window.executeMultiDayCancel()">🚨 Cancel Classes</button>
+        </div>
+    </div>
+</div>
 <script>
     const esc = str => String(str).replace(/[&<>'"]/g, tag => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[tag]));
 
+    // --- STAGING ENVIRONMENT BINDING ---
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzAMPOuj9s-oSBAccdUl09QeKj8EX4BMz31PQmvm-rJ6BqSY3Le2nXsAIsdtiJqyCzzjQ/exec";
+    const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
+    const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "", roster: [], editingStudentName: null };
+    
     // Restored Core Math Logic for NLP Search
     window.levenshtein = function(a, b) {
         const matrix = [];
@@ -1299,10 +1331,6 @@
         return matrix[b.length][a.length];
     };
 
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzAMPOuj9s-oSBAccdUl09QeKj8EX4BMz31PQmvm-rJ6BqSY3Le2nXsAIsdtiJqyCzzjQ/exec";
-    const BLOCKED_STATUSES = ["Scheduled", "Completed", "Student No Show", "Cancelled", "Rescheduled"];
-    const APP_STATE = { students: [], todayDate: null, currentClasses: [], weeklySummary: {}, cache: {}, analyticsLoaded: false, isAnalyticsLoading: false, currentCrmStudent: null, lastAlerts: [], studyMaterialLink: "", feedData: [], lastHistoryCopyText: "", roster: [], editingStudentName: null };
-    
     window.showSystemPopup = function(title, message) {
         document.getElementById('system-popup-title').innerText = title || "System Alert";
         document.getElementById('system-popup-message').innerText = message || "";
@@ -1435,6 +1463,10 @@
         document.getElementById("profileNewNameInput").value = name;
         const s = APP_STATE.students.find(x => x.name === name);
         document.getElementById("profileTypeSelect").value = s.type;
+        
+        // NEW: Set Monthly Limit Master Control
+        document.getElementById('profile-monthly-limit').value = s.monthlyLimit || (s.type === 'PS' ? 4 : 8);
+        
         window.toggleProfilePersonalFields(s.type);
         if(s.type === 'Personal') {
             document.getElementById('profile-pkg-total').value = s.packageTotal || "";
@@ -1476,6 +1508,10 @@
         const name = APP_STATE.editingStudentName;
         const nt = document.getElementById("profileTypeSelect").value;
         let payload = { action: "updateStudentData", StudentName: name, NewType: nt };
+        
+        // NEW: Grab the custom Monthly Limit
+        payload.MonthlyLimit = document.getElementById("profile-monthly-limit").value;
+
         if(nt === "Personal") {
             payload.PackageTotal = document.getElementById("profile-pkg-total").value;
             payload.CustomPrice = document.getElementById("profile-custom-price").value;
@@ -1784,6 +1820,10 @@
                         window.showSystemPopup("System Error", r.message || "Failed to update status. Please try again.");
                         e.target.value = originalValue;
                     } else {
+                        // NEW: SWEEP ALERT TRIGGER
+                        if (r.sweptCount && r.sweptCount > 0) {
+                            window.showSystemPopup("System Update", `PS Limit Reached: ${r.sweptCount} future classes were automatically removed from the calendar to enforce class limits.`);
+                        }
                         window.triggerDebouncedRefresh(dateStr); 
                     }
                 };
@@ -1897,6 +1937,12 @@
             if (r.status === "error") return window.showSystemPopup("System Error", r.message || "Scheduling failed."); 
             
             if (rosterWarning) { r.failed = r.failed || []; r.failed.unshift(rosterWarning); }
+            
+            // NEW: Catch backend overflow logic and alert the user
+            if (r.limitBlockedCount > 0) {
+                window.showToast(`${r.limitBlockedCount} class(es) marked as Class Limit Reached (Calendar skipped).`, "info");
+            }
+            
             window.showAuditReport(r.success, r.failed, "Scheduling Report"); 
             window.loadWeekly(); 
             window.fetchToday(); 
@@ -1973,6 +2019,11 @@
             return window.showSystemPopup("System Error", "Failed to update status."); 
         } 
         el.parentElement.remove(); 
+        
+        // NEW: MID-MONTH SWEEP ALERT CATCHER
+        if (r.sweptCount && r.sweptCount > 0) {
+            window.showSystemPopup("System Update", `PS Limit Reached: ${r.sweptCount} future classes were automatically converted to Limit Reached and removed from the calendar.`);
+        }
         window.triggerDebouncedRefresh(APP_STATE.todayDate); 
     };
 
@@ -2836,23 +2887,5 @@
     
     window.onload = runBootSequence;
 </script>
-
-<div id="cancelMultiDayModal" class="modal-backdrop" style="z-index: 99999;">
-    <div class="modal">
-        <div class="modal-header">
-            <div class="modal-title">🏖️ Cancel Multi-Day</div>
-            <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('cancelMultiDayModal').classList.remove('show')">✕</button>
-        </div>
-        <div class="modal-body">
-            <div style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">Cancel all active classes within a specified date range (Max 7 Days). Marks classes as 'Cancelled'.</div>
-            <div class="card-row" style="margin-bottom: 15px;">
-                <div class="card-column"><div class="form-group"><label>Start Date</label><input type="date" id="cancel-multi-start"></div></div>
-                <div class="card-column"><div class="form-group"><label>End Date</label><input type="date" id="cancel-multi-end"></div></div>
-            </div>
-            <button id="btn-execute-multi-cancel" class="btn btn-danger btn-block" onclick="window.executeMultiDayCancel()">🚨 Cancel Classes</button>
-        </div>
-    </div>
-</div>
-
 </body>
 </html>
