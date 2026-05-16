@@ -1004,10 +1004,34 @@
                 </div>
                 
                 <div class="avail-widget" style="background:#fff; padding:20px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow);">
-                    <div class="avail-header">
-                        <div style="font-weight:700; color:var(--text-main);">📅 Smart Availability Feed</div>
+                    <div class="avail-header" style="flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-weight:700; color:var(--text-main);">📅 Smart Availability Feed</div>
+                            <button id="btn-copy-feed" class="btn btn-outline btn-sm" onclick="window.openSmartCopyModal('week')" title="Copy for WhatsApp">📋 Copy All</button>
+                        </div>
+                        <div style="display:flex; gap:8px; background:#f1f5f9; padding:4px; border-radius:8px; border:1px solid #e2e8f0;">
+                            <button id="btn-tab-7day" class="btn btn-primary btn-sm" style="flex:1;" onclick="window.toggleFeedTab('7day')">📅 7 Days</button>
+                            <button id="btn-tab-perm" class="btn btn-outline btn-sm" style="flex:1; background:transparent; border-color:transparent;" onclick="window.toggleFeedTab('perm')">♾️ Permanent</button>
+                        </div>
                     </div>
-                    <div class="avail-list" id="avail-feed-list" style="max-height:200px;"><div style="padding:20px; text-align:center; color:#94a3b8;">Loading feed...</div></div>
+                    
+                    <div id="view-feed-7day" style="display:block; flex:1; overflow-y:auto;">
+                        <div class="avail-list" id="avail-feed-list" style="max-height:200px;"><div style="padding:20px; text-align:center; color:#94a3b8;">Loading feed...</div></div>
+                    </div>
+                    
+                    <div id="view-feed-perm" style="display:none; flex:1; overflow-y:auto; padding-right: 4px;">
+                        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px; padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
+                            <span style="font-size:0.85rem; font-weight:700; color:var(--text-main);">Optional Lunch Blocks:</span>
+                            <label style="font-size:0.85rem; display:flex; align-items:center; gap:6px; cursor:pointer; margin-bottom:0; font-weight:600;"><input type="checkbox" id="block-2pm" checked onchange="window.renderPermanentFeed()" style="accent-color:var(--accent); width:16px; height:16px;"> 2:00 PM</label>
+                            <label style="font-size:0.85rem; display:flex; align-items:center; gap:6px; cursor:pointer; margin-bottom:0; font-weight:600;"><input type="checkbox" id="block-3pm" checked onchange="window.renderPermanentFeed()" style="accent-color:var(--accent); width:16px; height:16px;"> 3:00 PM</label>
+                        </div>
+                        <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+                            <button class="btn btn-soft btn-sm" onclick="window.copyPermanentFeed('all')" style="flex:1; font-weight:600;">📋 Copy All</button>
+                            <button class="btn btn-soft btn-sm" onclick="window.copyPermanentFeed('weekdays')" style="flex:1; font-weight:600;">📋 Weekdays</button>
+                            <button class="btn btn-soft btn-sm" onclick="window.copyPermanentFeed('weekends')" style="flex:1; font-weight:600;">📋 Weekends</button>
+                        </div>
+                        <div id="perm-feed-output" style="display: flex; flex-direction: column; gap: 12px; padding-bottom:10px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1026,9 +1050,9 @@
     </section>
 
     <footer class="footer">
-        <div>Last Updated: May 16, 2026, 06:00 PM IST</div>
+        <div>Last Updated: May 16, 2026, 08:00 PM IST</div>
         <div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div>
-        <div>v131.5 HYBRID PROD | Powered by LazifAI</div>
+        <div>v131.7 HYBRID PROD | Powered by LazifAI</div>
     </footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
@@ -2179,13 +2203,6 @@
 
     window.renderAvailabilityFeed = async (feedDataMap) => {
         const list = document.getElementById("avail-feed-list"); if(!list) return;
-        const header = document.querySelector(".avail-header");
-        if(header && !header.innerHTML.includes("📋 Copy All")) {
-            header.innerHTML = `
-                <div style="font-weight:700; color:var(--text-main);">📅 Smart Availability Feed</div>
-                <button class="btn btn-outline btn-sm" onclick="window.openSmartCopyModal('week')" title="Copy Week for WhatsApp">📋 Copy All</button>
-            `;
-        }
 
         if (!feedDataMap) { 
             list.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8;">Refreshing feed...</div>'; 
@@ -2220,25 +2237,151 @@
         }
         
         list.innerHTML = ""; 
-        if(feedData.length === 0) { list.innerHTML = '<div style="padding:10px;text-align:center;">No slots available</div>'; return; }
-        
-        feedData.forEach(day => { 
-            if (day.status === 'cancelled') { list.innerHTML += `<div class="avail-row" style="margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:12px;"><div class="avail-date-row" style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:700;">${day.displayFmt}</span></div><div style="display:inline-block; padding:4px 8px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; border-radius:6px; font-size:0.8rem;">🏝️ All Cancelled</div></div>`; return; }
-            if (day.status === 'off') { list.innerHTML += `<div class="avail-row" style="margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:12px;"><div class="avail-date-row" style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:700;">${day.displayFmt}</span></div><div style="display:inline-block; padding:4px 8px; background:#f0f9ff; color:#0369a1; border:1px solid #bae6fd; border-radius:6px; font-size:0.8rem; font-weight:600;">🏖️ Scheduled Weekly Off</div></div>`; return; }
-            
-            let morn="", aft="", eve=""; let hasMorn=false, hasAft=false, hasEve=false;
-            day.slots.forEach(s => { 
-                let pill = `<div style="display:inline-block; margin:2px; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; ${s.status === 'expired' ? 'background:#fef2f2; color:#b91c1c; border:1px solid #fecaca;' : s.status === 'temp' ? 'background:#fef9c3; color:#854d0e; border:1px dashed #fde047;' : 'background:#dcfce7; color:#166534; border:1px solid #bbf7d0;'}">${String(s.h%12||12).padStart(2, '0')}:00 ${s.h<12?'AM':'PM'}</div>`; 
-                if(s.h < 12) { morn += pill; hasMorn=true; } else if(s.h < 17) { aft += pill; hasAft=true; } else { eve += pill; hasEve=true; } 
-            });
-            let blocksHtml = "";
-            if(hasMorn) blocksHtml += `<div style="margin-bottom:6px; display:flex; align-items:center;"><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:70px; font-weight:600;">🌅 Morning</span> <div style="flex:1;">${morn}</div></div>`;
-            if(hasAft) blocksHtml += `<div style="margin-bottom:6px; display:flex; align-items:center;"><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:70px; font-weight:600;">☀️ Afternoon</span> <div style="flex:1;">${aft}</div></div>`;
-            if(hasEve) blocksHtml += `<div style="display:flex; align-items:center;"><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:70px; font-weight:600;">🌙 Evening</span> <div style="flex:1;">${eve}</div></div>`;
-            
-            list.innerHTML += `<div class="avail-row" style="margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:12px;"><div class="avail-date-row" style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:700;">${day.displayFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${day.displayFmt}')">📋</button></div><div>${blocksHtml}</div></div>`; 
-        }); 
+        if(feedData.length === 0) { list.innerHTML = '<div style="padding:10px;text-align:center;">No slots available</div>'; }
+        else {
+            feedData.forEach(day => { 
+                if (day.status === 'cancelled') { list.innerHTML += `<div class="avail-row" style="margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:12px;"><div class="avail-date-row" style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:700;">${day.displayFmt}</span></div><div style="display:inline-block; padding:4px 8px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; border-radius:6px; font-size:0.8rem;">🏝️ All Cancelled</div></div>`; return; }
+                if (day.status === 'off') { list.innerHTML += `<div class="avail-row" style="margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:12px;"><div class="avail-date-row" style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:700;">${day.displayFmt}</span></div><div style="display:inline-block; padding:4px 8px; background:#f0f9ff; color:#0369a1; border:1px solid #bae6fd; border-radius:6px; font-size:0.8rem; font-weight:600;">🏖️ Scheduled Weekly Off</div></div>`; return; }
+                
+                let morn="", aft="", eve=""; let hasMorn=false, hasAft=false, hasEve=false;
+                day.slots.forEach(s => { 
+                    let pill = `<div style="display:inline-block; margin:2px; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; ${s.status === 'expired' ? 'background:#fef2f2; color:#b91c1c; border:1px solid #fecaca;' : s.status === 'temp' ? 'background:#fef9c3; color:#854d0e; border:1px dashed #fde047;' : 'background:#dcfce7; color:#166534; border:1px solid #bbf7d0;'}">${String(s.h%12||12).padStart(2, '0')}:00 ${s.h<12?'AM':'PM'}</div>`; 
+                    if(s.h < 12) { morn += pill; hasMorn=true; } else if(s.h < 17) { aft += pill; hasAft=true; } else { eve += pill; hasEve=true; } 
+                });
+                let blocksHtml = "";
+                if(hasMorn) blocksHtml += `<div style="margin-bottom:6px; display:flex; align-items:center;"><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:70px; font-weight:600;">🌅 Morning</span> <div style="flex:1;">${morn}</div></div>`;
+                if(hasAft) blocksHtml += `<div style="margin-bottom:6px; display:flex; align-items:center;"><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:70px; font-weight:600;">☀️ Afternoon</span> <div style="flex:1;">${aft}</div></div>`;
+                if(hasEve) blocksHtml += `<div style="display:flex; align-items:center;"><span style="font-size:0.75rem; color:var(--text-sub); display:inline-block; width:70px; font-weight:600;">🌙 Evening</span> <div style="flex:1;">${eve}</div></div>`;
+                
+                list.innerHTML += `<div class="avail-row" style="margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:12px;"><div class="avail-date-row" style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:700;">${day.displayFmt}</span><button class="btn btn-outline btn-sm" style="padding:2px 6px; height:24px;" onclick="window.openSmartCopyModal('${day.displayFmt}')">📋</button></div><div>${blocksHtml}</div></div>`; 
+            }); 
+        }
         APP_STATE.feedData = feedData;
+        
+        // Initialize permanent feed silently
+        if(window.renderPermanentFeed) window.renderPermanentFeed();
+    };
+
+    window.toggleFeedTab = (tab) => {
+        const btn7 = document.getElementById("btn-tab-7day");
+        const btnP = document.getElementById("btn-tab-perm");
+        const view7 = document.getElementById("view-feed-7day");
+        const viewP = document.getElementById("view-feed-perm");
+        const btnCopy = document.getElementById("btn-copy-feed");
+        
+        if(tab === '7day') {
+            btn7.style.background = "var(--primary)"; btn7.style.color = "#fff"; btn7.style.borderColor = "var(--primary)";
+            btnP.style.background = "transparent"; btnP.style.color = "var(--text-main)"; btnP.style.borderColor = "transparent";
+            view7.style.display = "block"; viewP.style.display = "none";
+            if (btnCopy) btnCopy.style.display = "block"; 
+        } else {
+            btnP.style.background = "var(--primary)"; btnP.style.color = "#fff"; btnP.style.borderColor = "var(--primary)";
+            btn7.style.background = "transparent"; btn7.style.color = "var(--text-main)"; btn7.style.borderColor = "transparent";
+            viewP.style.display = "flex"; viewP.style.flexDirection = "column"; view7.style.display = "none";
+            if (btnCopy) btnCopy.style.display = "none"; // Hides redundant top-right copy button for permanent tab
+        }
+    };
+
+    window.renderPermanentFeed = () => {
+        const out = document.getElementById("perm-feed-output");
+        if (!out) return;
+        
+        const roster = APP_STATE.roster || [];
+        const block2 = document.getElementById("block-2pm").checked;
+        const block3 = document.getElementById("block-3pm").checked;
+        
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        const standardSlots = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"];
+        
+        let html = "";
+        window.permFeedData = {}; // Stores array of formatted slots
+
+        days.forEach(day => {
+            html += `<div class="avail-row" style="margin-bottom:8px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">`;
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <div style="font-weight:700; color:var(--primary);">${day}</div>
+                        <button class="btn btn-outline btn-sm" style="padding:2px 8px; height:26px; font-size:0.75rem; font-weight:600;" onclick="window.copyPermanentFeedDay('${day}')">📋 Copy</button>
+                     </div>`;
+            
+            if (day === "Wednesday") {
+                html += `<div style="font-size:0.8rem; color:#0369a1; background:#f0f9ff; padding:4px 8px; border-radius:6px; border:1px dashed #bae6fd; display:inline-block;">🏖️ Scheduled Weekly Off</div></div>`;
+                window.permFeedData[day] = "off";
+                return;
+            }
+            
+            const occupied = roster.filter(r => String(r.dayofweek).trim().toLowerCase() === day.toLowerCase()).map(r => String(parseBackendTime(r.starttime)).substring(0,5));
+            let freeHtml = ""; let freeTextArr = [];
+            
+            standardSlots.forEach(t => {
+                if (t === "14:00" && block2) return;
+                if (t === "15:00" && block3) return;
+                
+                if (!occupied.includes(t)) {
+                    let t12 = time24To12(t);
+                    let endH = parseInt(t.split(":")[0]) + 1;
+                    let end12 = time24To12(String(endH).padStart(2, '0') + ":00");
+                    
+                    // Force 0 padding for clean alignment (e.g., "09:00 AM")
+                    if (t12.length < 8) t12 = "0" + t12;
+                    if (end12.length < 8) end12 = "0" + end12;
+
+                    freeHtml += `<div style="display:inline-block; margin:2px; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; background:#dcfce7; color:#166534; border:1px solid #bbf7d0;">${t12}</div>`;
+                    freeTextArr.push(`🟢 ${t12} - ${end12}`);
+                }
+            });
+            
+            if (freeHtml === "") {
+                html += `<div style="font-size:0.8rem; color:var(--text-sub);">Fully Booked</div></div>`;
+                window.permFeedData[day] = [];
+            } else {
+                html += `<div>${freeHtml}</div></div>`;
+                window.permFeedData[day] = freeTextArr;
+            }
+        });
+        out.innerHTML = html;
+    };
+
+    window.copyPermanentFeed = (type) => {
+        let text = "📅 *Availability Options*\n\n";
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        let targetDays = [];
+        
+        if (type === 'weekdays') targetDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+        else if (type === 'weekends') targetDays = ["Saturday", "Sunday"];
+        else targetDays = days; 
+
+        let hasSlots = false;
+        targetDays.forEach(d => {
+            let slots = window.permFeedData[d];
+            // Only add the day header if there are actually free slots (keeps the message sleek)
+            if (Array.isArray(slots) && slots.length > 0) {
+                text += `*${d}*\n${slots.join("\n")}\n\n`;
+                hasSlots = true;
+            }
+        });
+
+        if (!hasSlots) {
+            window.showSystemPopup("System Update", "No free slots available in this selection.");
+            return;
+        }
+
+        text += "Let me know which slot works best.\n\nBest regards,\nSenorita";
+        navigator.clipboard.writeText(text);
+        
+        let typeLabel = type === 'weekdays' ? "Weekdays" : type === 'weekends' ? "Weekends" : "Full";
+        window.showSystemPopup("System Update", `${typeLabel} availability copied!`);
+    };
+
+    window.copyPermanentFeedDay = (day) => {
+        let slots = window.permFeedData[day];
+        if (slots === "off" || (Array.isArray(slots) && slots.length === 0)) {
+            window.showSystemPopup("System Update", `No slots available on ${day}.`);
+            return;
+        }
+        
+        let text = `📅 *Availability Options*\n\n*${day}*\n${slots.join("\n")}\n\nLet me know which slot works best.\n\nBest regards,\nSenorita`;
+        navigator.clipboard.writeText(text);
+        window.showSystemPopup("System Update", `${day} availability copied!`);
     };
 
     window.openSmartCopyModal = (target = 'week') => { document.getElementById("scDateTarget").value = target; document.getElementById("smartCopyModal").classList.add("show"); };
