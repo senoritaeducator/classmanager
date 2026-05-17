@@ -15,7 +15,8 @@
 }
         /* --- THEME: MIDNIGHT EXECUTIVE --- */
         :root {
-            --primary: #334155;       
+            color-scheme: light only !important; /* FIX: Aggressive shield against forced dark mode */
+            --primary: #334155;
             --primary-hover: #0f172a; 
             --accent: #0f766e;        
             --danger: #ef4444;
@@ -217,7 +218,10 @@
         .modal-backdrop.show { display: flex; animation: fadeIn 0.2s; }
         .modal { background: #fff; width: 90%; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; max-height: 90vh; }
         .modal-header { padding: 16px 24px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; }
-        .modal-title { font-weight: 700; font-size: 1.1rem; color: var(--text-main); }
+        /* FIX: Restored heavy bolding for all modal headers */
+        .modal-title { font-weight: 800 !important; font-size: 1.2rem; color: var(--text-main); }
+        /* FIX: Permanent global shield for close buttons */
+        .modal-close-btn { width: 32px !important; height: 32px !important; min-width: 32px !important; max-width: 32px !important; padding: 0 !important; display: flex !important; justify-content: center !important; align-items: center !important; border-radius: 6px !important; margin: 0 !important; }
         .modal-body { padding: 24px; color: var(--text-main); line-height: 1.6; overflow-y: auto; }
         .modal-footer { padding: 16px 24px; border-top: 1px solid #e2e8f0; background: #fff; display: flex; justify-content: flex-end; gap: 10px; }
 
@@ -306,12 +310,11 @@
             .avail-date-row { align-items: center !important; }
             .avail-date-row .btn { width: auto !important; max-width: max-content !important; padding: 4px 10px !important; height: auto !important; }
 
-            /* 5. Daily Ops Actions & Status Dropdown (Zero Wasted Space) */
+            /* 5. Daily Ops Actions */
             .desktop-notes-row { flex-direction: column !important; gap: 6px !important; }
             .desktop-notes-row input { width: 100% !important; }
-            
-            /* FIX: Swapped to Flex so the Save button shrink-wraps to its text and aligns right */
-            .desktop-actions-row { display: flex !important; flex-wrap: wrap !important; justify-content: flex-end !important; gap: 8px !important; }
+            /* FIX: Swapped justify-content to flex-start to cleanly left-align the Save button */
+            .desktop-actions-row { display: flex !important; flex-wrap: wrap !important; justify-content: flex-start !important; gap: 8px !important; }
             .desktop-actions-row .btn { width: auto !important; flex: 0 1 auto !important; padding: 8px 16px !important; font-size: 0.85rem !important; }
 
             /* FIX: Force Status Selector to fill empty space */
@@ -356,19 +359,58 @@
            .avail-header { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; justify-content: space-between !important; align-items: center !important; }
            .avail-header button { width: auto !important; flex: 0 0 auto !important; padding: 4px 12px !important; height: 32px !important; margin: 0 !important; }
 
-           /* 6. Copy Schedule Radio Buttons - Stack Vertically */
-           #copyWeekModal .modal-body > div:first-child {
-               display: flex !important;
-               flex-direction: column !important;
-               gap: 12px !important;
-           }
-           #copyWeekModal .modal-body > div:first-child > label {
-               display: flex !important;
-               align-items: center !important;
-               justify-content: flex-start !important;
-               text-align: left !important;
-           }
+           /* 6. Copy Schedule Radio Buttons - Stack Vertically (Single Line) */
+           #copyWeekModal .modal-body > div:first-child { display: flex !important; flex-direction: column !important; gap: 12px !important; align-items: flex-start !important; }
+           #copyWeekModal .modal-body > div:first-child > label { display: flex !important; align-items: center !important; justify-content: flex-start !important; text-align: left !important; white-space: nowrap !important; }
+           #copyWeekModal .modal-body > div:first-child > label input[type="radio"] { flex-shrink: 0 !important; margin-right: 8px !important; }
         }
+
+	/* =========================================================
+           DESKTOP LEAN UI OPTIMIZATION V4 (Trimming the Fat)
+           ========================================================= */
+        @media (min-width: 769px) {
+            /* 1. Squeeze Utility Popups */
+            .modal-content:not(#largeModal) { max-width: 480px !important; padding: 24px !important; }
+
+            /* 2. Cap Massive Dropdowns and Inputs Globally */
+            .section-header select, .avail-widget select,
+            .card-column .form-group select, 
+            .card-column .form-group input[type="text"], 
+            .card-column .form-group input[type="date"],
+            .card-column .form-group input[type="number"],
+            .classes-controls input[type="date"],
+            .modal-body select, 
+            .modal-body input[type="text"],
+            .modal-body input[type="date"],
+            .modal-body input[type="month"],
+            .modal-body input[type="number"] {
+                max-width: 250px !important;
+            }
+
+            /* 3. Optimizer Text Normalization (De-bolding ONLY the colored metrics, saving the headers) */
+            .modal-body { font-size: 0.9rem !important; }
+            #rosterHealthModal .modal-body div[style*="color:#b91c1c"], 
+            #rosterHealthModal .modal-body div[style*="color:#166534"],
+            #rosterHealthModal .modal-body div[style*="color:#991b1b"],
+            #rosterHealthModal .modal-body div[style*="color:#15803d"] { font-weight: 500 !important; }
+
+            /* 4. Standardize Action Buttons (Safeguarding small & close buttons) */
+            .btn:not(.modal-close-btn):not(.day-copy-btn):not(.btn-sm) { 
+                width: max-content !important; 
+                min-width: 130px; 
+                padding-left: 20px !important; 
+                padding-right: 20px !important; 
+            }
+            button[onclick*="Analyze"], 
+            button[onclick*="Blueprint"], 
+            button[onclick*="Generate"] { 
+                width: max-content !important; 
+                margin: 10px auto !important; 
+                display: flex !important; 
+                justify-content: center !important; 
+            }
+        }
+  
     </style>
   </head>
 <body>
@@ -533,11 +575,13 @@
                     <button class="btn btn-outline btn-sm" onclick="document.getElementById('loadMonthModal').classList.remove('show')">✕</button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="form-group" style="text-align: center;">
                         <label>Select Month</label>
-                        <input type="month" id="lm-month-select" style="width: 100%; height: 42px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 0.95rem; cursor: pointer;">
+                        <input type="month" id="lm-month-select" style="width: 100%; max-width: 250px; height: 42px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 0.95rem; cursor: pointer; margin: 0 auto; display: block;">
                     </div>
-                    <button id="btn-lm-analyze" class="btn btn-outline btn-block" style="margin-top:15px;" onclick="window.analyzeBlueprint()">🔍 Analyze Blueprint</button>
+                    <div style="display:flex; justify-content:center;">
+                        <button id="btn-lm-analyze" class="btn btn-outline" style="margin-top:15px; width: max-content; padding: 0 24px;" onclick="window.analyzeBlueprint()">🔍 Analyze Blueprint</button>
+                    </div>
                     <div id="lm-results" style="display:none; margin-top:15px; padding:15px; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0; text-align:center;"></div>
                 </div>
             </div>
@@ -1037,7 +1081,7 @@
     </section>
 
     <footer class="footer">
-        <div>Last Updated: May 17, 2026, 11:45 PM IST</div>
+        <div>Last Updated: May 18, 2026, 01:11 AM IST</div>
         <div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div>
         <div>v133.0 STAGING | Powered by LazifAI</div>
     </footer>
@@ -1269,8 +1313,10 @@
                     <label style="cursor:pointer;"><input type="radio" name="copyMode" value="day"> Copy Single Day</label>
                     <label style="cursor:pointer; color:var(--primary); font-weight:700;"><input type="radio" name="copyMode" value="roster"> ✨ Load from Master Roster</label>
                 </div>
-                <div class="form-group"><label id="copySourceLabel">Source Date (Start)</label><input type="date" id="copySourceDate"></div>
-                <div class="form-group"><label id="copyTargetLabel">Target Date (Start)</label><input type="date" id="copyTargetDate"></div>
+                <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                    <div class="form-group" style="flex:1; min-width: 140px;"><label id="copySourceLabel">Source Date (Start)</label><input type="date" id="copySourceDate"></div>
+                    <div class="form-group" style="flex:1; min-width: 140px;"><label id="copyTargetLabel">Target Date (Start)</label><input type="date" id="copyTargetDate"></div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button id="copyWeekBtn" class="btn btn-primary">Execute Copy</button>
@@ -2072,7 +2118,37 @@
         } catch(e) { window.showSystemPopup("System Error", "Failed: " + e.message); }
     };
 
-    window.openPendingReviews = () => { document.getElementById("pendingReviewModal").classList.add("show"); document.getElementById("pendingReviewList").innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>'; fetchAPI(null, { action: "getPendingReviews" }).then(r => { const l = document.getElementById("pendingReviewList"); l.innerHTML = ""; if(!r.pending || !r.pending.length) { l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">No pending reviews.</div>'; return; } r.pending.forEach(p => { l.innerHTML += `<div style="background:#fff; border:1px solid #e2e8f0; padding:10px; margin-bottom:8px; border-radius:8px; font-size:0.9rem;"><div style="font-weight:700; margin-bottom:4px;">${esc(p.StudentName)}</div><div style="color:var(--text-sub); margin-bottom:8px;">${isoToDisplayDate(p.ClassDate)} ${time24To12(parseBackendTime(p.StartTime))}</div><select class="status-select" style="width:100%;" onchange="window.updatePendingStatus('${p.ClassID}', this.value, this)"><option disabled selected>Select Action</option><option value="Completed">✅ Done</option><option value="Student No Show">⚠️ No Show</option><option value="Absent">📉 Absent</option><option value="Cancelled">❌ Cancel</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Pause</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div>`; }); }); };
+    /* FIX: Filters out future classes based on IST time and shrink-wraps the status dropdown */
+    window.openPendingReviews = () => { 
+        document.getElementById("pendingReviewModal").classList.add("show"); 
+        document.getElementById("pendingReviewList").innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>'; 
+        fetchAPI(null, { action: "getPendingReviews" }).then(r => { 
+            const l = document.getElementById("pendingReviewList"); l.innerHTML = ""; 
+            if(!r.pending || !r.pending.length) { l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">No pending reviews.</div>'; return; } 
+            
+            const nowIST = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+            let validCount = 0;
+            
+            r.pending.forEach(p => { 
+                const [h,m] = parseBackendTime(p.StartTime).split(':');
+                const pDateParts = p.ClassDate.split('-');
+                const classDT = new Date(pDateParts[0], parseInt(pDateParts[1])-1, pDateParts[2], h, m);
+                if (classDT > nowIST) return; /* Skip classes that haven't happened yet */
+                
+                validCount++;
+                l.innerHTML += `<div style="background:#fff; border:1px solid #e2e8f0; padding:12px; margin-bottom:8px; border-radius:8px; font-size:0.9rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="flex:1; min-width: 150px;">
+                        <div style="font-weight:700; margin-bottom:4px; font-size: 1rem; color: var(--primary);">${esc(p.StudentName)}</div>
+                        <div style="color:var(--text-sub);">${isoToDisplayDate(p.ClassDate)} @ ${time24To12(parseBackendTime(p.StartTime))}</div>
+                    </div>
+                    <select class="status-select" style="width:auto; min-width: 160px; height: 36px; margin:0;" onchange="window.updatePendingStatus('${p.ClassID}', this.value, this)">
+                        <option disabled selected>Select Action</option><option value="Completed">✅ Done</option><option value="Student No Show">⚠️ No Show</option><option value="Absent">📉 Absent</option><option value="Cancelled">❌ Cancel</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Pause</option><option value="Class Limit Reached">🛑 Limit Reached</option>
+                    </select>
+                </div>`; 
+            }); 
+            if(validCount === 0) l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">All fetched classes are currently in the future.</div>';
+        }); 
+    };
     window.updatePendingStatus = async (id, status, el) => { 
         el.disabled = true; let originalText = el.options[el.selectedIndex].text; el.options[el.selectedIndex].text = "Saving..."; 
         const r = await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status }); 
