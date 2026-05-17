@@ -53,7 +53,8 @@
         .smart-bar { background: linear-gradient(135deg, #1e293b 0%, #0f766e 100%); color: white; padding: 12px 20px; border-radius: 10px; margin-bottom: 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(15, 118, 110, 0.25); transition: transform 0.2s, box-shadow 0.2s; }
         .smart-bar:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(15, 118, 110, 0.3); }
         .smart-bar-text { font-weight: 600; display: flex; align-items: center; gap: 10px; font-size:0.95rem; }
-        .smart-bar-action { background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* FIX: Added white-space: nowrap and text-align: center to balance the pill */
+        .smart-bar-action { background: rgba(255,255,255,0.15); padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; white-space: nowrap; flex-shrink: 0; }
 
         /* --- NAVIGATION --- */
         .main-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 0; overflow-x: auto; scroll-behavior: smooth; }
@@ -304,12 +305,19 @@
             .avail-date-row { align-items: center !important; }
             .avail-date-row .btn { width: auto !important; max-width: max-content !important; padding: 4px 10px !important; height: auto !important; }
 
-            /* 5. Daily Ops Mobile Actions (Clean Flex Wrap) */
+            /* 5. Daily Ops Actions & Status Dropdown (Zero Wasted Space) */
             .desktop-notes-row { flex-direction: column !important; gap: 6px !important; }
             .desktop-notes-row input { width: 100% !important; }
-            /* FIX: Swapped Grid to Flex so Message/Reschedule/Save wrap cleanly and retain icon alignment */
-            .desktop-actions-row { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; justify-content: flex-end !important; }
-            .desktop-actions-row .btn { flex: 1 1 auto !important; width: auto !important; padding: 8px 12px !important; font-size: 0.85rem !important; }
+            
+            /* FIX: Swapped to Grid to force buttons to stretch fully */
+            .desktop-actions-row { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+            .desktop-actions-row .btn { width: 100% !important; padding: 8px !important; font-size: 0.85rem !important; }
+            .desktop-actions-row .btn-save-notes { grid-column: span 2 !important; } /* Save button takes full width below */
+
+            /* FIX: Force Status Selector to fill empty space */
+            .class-card__row { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+            .class-card__row > div { width: 100% !important; }
+            .status-select { width: 100% !important; max-width: 100% !important; text-align-last: center !important; }
 
            /* --- MOBILE HOTFIXES V126.3 (TARGETED) --- */
 
@@ -333,63 +341,33 @@
            }
 
            /* 2. Danger Zone - Target Exact IDs to stop flexbox bloat */
-           #student-delete-select { 
-               width: 100% !important; 
-               flex: 1 1 auto !important; 
-               min-width: 120px !important; 
-               height: 42px !important; 
-           }
-           button[onclick="window.executeDeleteStudent()"] { 
-               width: auto !important; 
-               flex: 0 0 auto !important; 
-               padding: 0 16px !important; 
-               height: 42px !important; 
-           }
+           #student-delete-select { width: 100% !important; flex: 1 1 auto !important; min-width: 120px !important; height: 42px !important; }
+           button[onclick="window.executeDeleteStudent()"] { width: auto !important; flex: 0 0 auto !important; padding: 0 16px !important; height: 42px !important; }
 
            /* 3. Communication Hub - Target Exact IDs */
-           #crm-student-select { 
-               width: 100% !important; 
-               flex: 1 1 auto !important; 
-               min-width: 120px !important; 
-               height: 42px !important; 
-           }
-           button[onclick="window.triggerManualCrmReset()"] { 
-               width: auto !important; 
-               flex: 0 0 auto !important; 
-               padding: 0 16px !important; 
-               height: 42px !important; 
-           }
+           #crm-student-select { width: 100% !important; flex: 1 1 auto !important; min-width: 120px !important; height: 42px !important; }
+           button[onclick="window.triggerManualCrmReset()"] { width: auto !important; flex: 0 0 auto !important; padding: 0 16px !important; height: 42px !important; }
 
            /* 4. Fix Comm Hub Right-Align Bug (Resetting the flex directions) */
-           #section-communications .section-card > .form-group {
-               flex-wrap: nowrap !important;
-               align-items: flex-end !important;
-           }
-           #crm-action-area {
-               text-align: left !important;
-           }
+           #section-communications .section-card > .form-group { flex-wrap: nowrap !important; align-items: flex-end !important; }
+           #crm-action-area { text-align: left !important; }
 
            /* 5. Smart Availability "Copy All" Button - Target exact class */
-           .avail-header {
-               display: flex !important;
-               flex-direction: row !important;
-               flex-wrap: nowrap !important;
-               justify-content: space-between !important;
-               align-items: center !important;
-           }
-           .avail-header button {
-               width: auto !important;
-               flex: 0 0 auto !important;
-               padding: 4px 12px !important;
-               height: 32px !important;
-               margin: 0 !important;
-           }
+           .avail-header { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; justify-content: space-between !important; align-items: center !important; }
+           .avail-header button { width: auto !important; flex: 0 0 auto !important; padding: 4px 12px !important; height: 32px !important; margin: 0 !important; }
 
            /* 6. Copy Schedule Radio Buttons - Grid split */
            #copyWeekModal .modal-body > div:first-child {
                display: grid !important;
                grid-template-columns: 1fr 1fr !important;
                gap: 10px !important;
+           }
+           /* FIX: Left-align the radio buttons */
+           #copyWeekModal .modal-body > div:first-child > label {
+               display: flex !important;
+               align-items: center !important;
+               justify-content: flex-start !important;
+               text-align: left !important;
            }
            #copyWeekModal .modal-body > div:first-child > label:nth-child(3) {
                grid-column: span 2 !important;
@@ -701,7 +679,7 @@
                                 </select>
                                 <input type="text" id="fbHwInput1" placeholder="Enter Details..." style="display:none;">
                             </div>
-                            <button id="btn-crm-progress" class="btn btn-primary" style="max-width: 350px; display: flex; margin: 20px auto 0; width: 100%; justify-content: center; align-items: center;" onclick="window.generateCRMMessage('progress')">✨ Generate AI Draft</button>
+                            <button id="btn-crm-progress" class="btn btn-primary" style="display: flex; margin: 20px auto 0; width: max-content; justify-content: center; align-items: center; padding: 0 32px;" onclick="window.generateCRMMessage('progress')">✨ Generate AI Draft</button>
                         </div>
 
                         <div id="crm-view-demoFeedback" style="display:none;">
@@ -924,7 +902,7 @@
                 </div>
             </div>
             
-            <button id="btn-generate-draft" class="btn btn-primary" style="max-width: 350px; display: flex; margin: 0 auto; width: 100%; justify-content: center; align-items: center;" onclick="window.generateAIDraft()">✨ Generate Message</button>
+            <button id="btn-generate-draft" class="btn btn-primary" style="display: flex; margin: 0 auto; width: max-content; justify-content: center; align-items: center; padding: 0 32px;" onclick="window.generateAIDraft()">✨ Generate Message</button>
             <div id="ai-output-container" style="display:none; margin-top:30px; flex-direction:column; gap:16px;"></div>
         </div>
     </section>
@@ -1063,7 +1041,7 @@
     </section>
 
     <footer class="footer">
-        <div>Last Updated: May 17, 2026, 08:15 AM IST</div>
+        <div>Last Updated: May 17, 2026, 11:20 PM IST</div>
         <div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div>
         <div>v133.0 STAGING | Powered by LazifAI</div>
     </footer>
@@ -1869,12 +1847,12 @@
                 ${notesHtml}
                 
                 <div class="expand-block generate-area" style="display:none; margin-top:15px; border:1px solid var(--border); border-radius:8px; padding:15px;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <select class="msg-select" style="max-width:200px; padding: 6px 8px; font-size:0.85rem; border-radius:6px; border:1px solid #cbd5e1; outline: none;">
+                    <div style="display:flex; gap:10px; margin-bottom:12px; align-items:stretch; justify-content:flex-start;">
+                        <select class="msg-select" style="width: auto; min-width: 200px; padding: 6px 8px; font-size:0.85rem; border-radius:6px; border:1px solid #cbd5e1; outline: none; height:36px;">
                             <option value="reminder" selected>🔔 Send Reminder</option>
                             ${limitMsgOption}
                         </select>
-                        <button class="btn btn-outline btn-sm btn-copy">📋 Copy</button>
+                        <button class="btn btn-outline btn-sm btn-copy" style="height:36px; white-space:nowrap; padding:0 16px;">📋 Copy</button>
                     </div>
                     <div class="msg-preview" style="background:#fff; border:1px solid #e2e8f0; border-radius:6px; padding:10px; font-size:0.85rem; white-space:pre-wrap; min-height:80px; max-height:200px; overflow-y:auto; color:var(--text-main);"></div>
                 </div>
@@ -1886,7 +1864,8 @@
                         <div style="flex:1; min-width:120px;"><input type="text" class="res-time" placeholder="hh:mm AM/PM" style="width:100%; height:36px;" onblur="window.normalizeUserTime(this)"></div>
                     </div>
                     <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; margin-bottom: 12px; font-weight: 600; color: var(--text-main);"><input type="checkbox" class="res-master-roster-check" style="width:16px; height:16px;"> Update Master Roster</label>
-                    <button class="btn btn-primary btn-sm btn-block btn-res-submit" style="height:36px;">Confirm Reschedule</button>
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button class="btn btn-primary btn-sm btn-res-submit" style="height:36px; padding: 0 24px; width: auto;">Confirm Reschedule</button>
                 </div>
             `;
 
