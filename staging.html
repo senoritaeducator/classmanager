@@ -320,7 +320,8 @@
             /* FIX: Shrink Status Selector on mobile so it doesn't bloat */
             .class-card__row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
             .class-card__row > div { width: 100% !important; }
-            .status-select { width: 100% !important; max-width: 190px !important; text-align-last: left !important; }
+            /* FIX: Strict max-content shrink-wrap for the dropdown */
+            .status-select { width: max-content !important; max-width: 100% !important; text-align-last: left !important; }
 
            /* --- MOBILE HOTFIXES V126.3 (TARGETED) --- */
 
@@ -1081,7 +1082,7 @@
     </section>
 
     <footer class="footer">
-        <div>Last Updated: May 18, 2026, 01:40 AM IST</div>
+        <div>Last Updated: May 18, 2026, 02:00 AM IST</div>
         <div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div>
         <div>v133.0 STAGING | Powered by LazifAI</div>
     </footer>
@@ -1308,10 +1309,10 @@
                 <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('copyWeekModal').classList.remove('show')">✕</button>
             </div>
             <div class="modal-body">
-                <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px; align-items:flex-start;">
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:8px; margin:0;"><input type="radio" name="copyMode" value="week" checked style="margin:0;"> Copy Full Week</label>
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:8px; margin:0;"><input type="radio" name="copyMode" value="day" style="margin:0;"> Copy Single Day</label>
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:8px; margin:0; color:var(--primary); font-weight:700;"><input type="radio" name="copyMode" value="roster" style="margin:0;"> ✨ Load from Master Roster</label>
+                <div style="display:block; margin-bottom:20px;">
+                    <label style="cursor:pointer; display:flex; align-items:center; justify-content:flex-start; gap:8px; margin-bottom:12px; text-align:left;"><input type="radio" name="copyMode" value="week" checked style="margin:0; flex-shrink:0;"> Copy Full Week</label>
+                    <label style="cursor:pointer; display:flex; align-items:center; justify-content:flex-start; gap:8px; margin-bottom:12px; text-align:left;"><input type="radio" name="copyMode" value="day" style="margin:0; flex-shrink:0;"> Copy Single Day</label>
+                    <label style="cursor:pointer; display:flex; align-items:center; justify-content:flex-start; gap:8px; margin:0; text-align:left; color:var(--primary); font-weight:700;"><input type="radio" name="copyMode" value="roster" style="margin:0; flex-shrink:0;"> ✨ Load from Master Roster</label>
                 </div>
                 <div style="display:flex; gap:15px; flex-wrap:wrap;">
                     <div class="form-group" style="flex:1; min-width: 140px;"><label id="copySourceLabel">Source Date (Start)</label><input type="date" id="copySourceDate"></div>
@@ -2130,17 +2131,14 @@
             let validCount = 0;
             
             r.pending.forEach(p => { 
-                // Robust date extraction to handle both YYYY-MM-DD and DD/MM/YYYY formats
-                let y, m, d;
-                if (p.ClassDate.includes('/')) {
-                    const parts = p.ClassDate.split('/');
-                    y = parts[2].length === 4 ? parts[2] : parts[0];
-                    m = parts[1]; 
-                    d = parts[2].length === 4 ? parts[0] : parts[2];
-                } else {
-                    const parts = p.ClassDate.split('T')[0].split('-');
-                    y = parts[0]; m = parts[1]; d = parts[2];
-                }
+                // FIX: Bulletproof extraction protecting against the 1918 bug
+                let parts;
+                if (p.ClassDate.includes('/')) parts = p.ClassDate.split('/');
+                else parts = p.ClassDate.split('T')[0].split('-');
+                
+                let y = parts[0].length === 4 ? parts[0] : parts[2];
+                let m = parts[1]; 
+                let d = parts[0].length === 4 ? parts[2] : parts[0];
                 
                 const [h, min] = parseBackendTime(p.StartTime).split(':').map(Number);
                 const classDT = new Date(parseInt(y), parseInt(m)-1, parseInt(d), h, min);
