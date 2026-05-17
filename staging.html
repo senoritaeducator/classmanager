@@ -1081,7 +1081,7 @@
     </section>
 
     <footer class="footer">
-        <div>Last Updated: May 18, 2026, 01:11 AM IST</div>
+        <div>Last Updated: May 18, 2026, 01:25 AM IST</div>
         <div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div>
         <div>v133.0 STAGING | Powered by LazifAI</div>
     </footer>
@@ -2118,7 +2118,7 @@
         } catch(e) { window.showSystemPopup("System Error", "Failed: " + e.message); }
     };
 
-    /* FIX: Filters out future classes based on IST time and shrink-wraps the status dropdown */
+    /* FIX: Bulletproof date/time parser to filter out future classes accurately in IST */
     window.openPendingReviews = () => { 
         document.getElementById("pendingReviewModal").classList.add("show"); 
         document.getElementById("pendingReviewList").innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>'; 
@@ -2130,10 +2130,23 @@
             let validCount = 0;
             
             r.pending.forEach(p => { 
-                const [h,m] = parseBackendTime(p.StartTime).split(':');
-                const pDateParts = p.ClassDate.split('-');
-                const classDT = new Date(pDateParts[0], parseInt(pDateParts[1])-1, pDateParts[2], h, m);
-                if (classDT > nowIST) return; /* Skip classes that haven't happened yet */
+                // Robust date extraction to handle both YYYY-MM-DD and DD/MM/YYYY formats
+                let y, m, d;
+                if (p.ClassDate.includes('/')) {
+                    const parts = p.ClassDate.split('/');
+                    y = parts[2].length === 4 ? parts[2] : parts[0];
+                    m = parts[1]; 
+                    d = parts[2].length === 4 ? parts[0] : parts[2];
+                } else {
+                    const parts = p.ClassDate.split('T')[0].split('-');
+                    y = parts[0]; m = parts[1]; d = parts[2];
+                }
+                
+                const [h, min] = parseBackendTime(p.StartTime).split(':').map(Number);
+                const classDT = new Date(parseInt(y), parseInt(m)-1, parseInt(d), h, min);
+                
+                // If the class is strictly in the future, skip it completely.
+                if (isNaN(classDT) || classDT > nowIST) return; 
                 
                 validCount++;
                 l.innerHTML += `<div style="background:#fff; border:1px solid #e2e8f0; padding:12px; margin-bottom:8px; border-radius:8px; font-size:0.9rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -2149,6 +2162,7 @@
             if(validCount === 0) l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">All fetched classes are currently in the future.</div>';
         }); 
     };
+    
     window.updatePendingStatus = async (id, status, el) => { 
         el.disabled = true; let originalText = el.options[el.selectedIndex].text; el.options[el.selectedIndex].text = "Saving..."; 
         const r = await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status }); 
