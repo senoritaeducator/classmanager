@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="color-scheme" content="light">
     <title>📖 ACM Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -14,7 +15,8 @@
 }
         /* --- THEME: MIDNIGHT EXECUTIVE --- */
         :root {
-            --primary: #334155;       
+            color-scheme: light only !important; /* FIX: Aggressive shield against forced dark mode */
+            --primary: #334155;
             --primary-hover: #0f172a; 
             --accent: #0f766e;        
             --danger: #ef4444;
@@ -53,7 +55,8 @@
         .smart-bar { background: linear-gradient(135deg, #1e293b 0%, #0f766e 100%); color: white; padding: 12px 20px; border-radius: 10px; margin-bottom: 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(15, 118, 110, 0.25); transition: transform 0.2s, box-shadow 0.2s; }
         .smart-bar:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(15, 118, 110, 0.3); }
         .smart-bar-text { font-weight: 600; display: flex; align-items: center; gap: 10px; font-size:0.95rem; }
-        .smart-bar-action { background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* FIX: Added white-space: nowrap and text-align: center to balance the pill */
+        .smart-bar-action { background: rgba(255,255,255,0.15); padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; white-space: nowrap; flex-shrink: 0; }
 
         /* --- NAVIGATION --- */
         .main-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 0; overflow-x: auto; scroll-behavior: smooth; }
@@ -78,6 +81,9 @@
         .form-group { margin-bottom: 16px; width: 100%; }
         label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
         input[type="text"], input[type="date"], input[type="number"], select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; background: #fff; color: var(--text-main); outline: none; font-family: inherit; }
+        /* FIX: High-contrast placeholders and dropdown truncation prevention */
+        ::placeholder { color: #64748b; opacity: 1; font-weight: 500; }
+        select { min-width: 140px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem; }
         input[type="text"], input[type="date"], input[type="number"], select { height: 42px; }
         textarea { resize: vertical; min-height: 80px; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.1); }
@@ -205,7 +211,6 @@
             .student-col { flex: 1 1 100%; min-width: 100%; max-height: 400px; margin-bottom: 12px; } 
             .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
             .section-caption { margin-left: 0; padding-left: 0; border-left: none; display: block; margin-top: 4px; }
-            .btn { width: 100% !important; max-width: none !important; }
         }
 
         /* --- MODALS & TOAST --- */
@@ -213,7 +218,10 @@
         .modal-backdrop.show { display: flex; animation: fadeIn 0.2s; }
         .modal { background: #fff; width: 90%; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; max-height: 90vh; }
         .modal-header { padding: 16px 24px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; }
-        .modal-title { font-weight: 700; font-size: 1.1rem; color: var(--text-main); }
+        /* FIX: Restored heavy bolding for all modal headers */
+        .modal-title { font-weight: 800 !important; font-size: 1.2rem; color: var(--text-main); }
+        /* FIX: Permanent global shield for close buttons */
+        .modal-close-btn { width: 32px !important; height: 32px !important; min-width: 32px !important; max-width: 32px !important; padding: 0 !important; display: flex !important; justify-content: center !important; align-items: center !important; border-radius: 6px !important; margin: 0 !important; }
         .modal-body { padding: 24px; color: var(--text-main); line-height: 1.6; overflow-y: auto; }
         .modal-footer { padding: 16px 24px; border-top: 1px solid #e2e8f0; background: #fff; display: flex; justify-content: flex-end; gap: 10px; }
 
@@ -259,7 +267,6 @@
         /* Mobile UI & Animation Overrides */
         @keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         .alert-pulse { animation: softPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        .btn { display: flex !important; justify-content: center !important; align-items: center !important; text-align: center !important; white-space: normal !important; line-height: 1.2 !important; }
         input[type="date"], input[type="time"] { min-width: 125px !important; padding-left: 8px !important; padding-right: 8px !important; letter-spacing: -0.5px; }
         @media (max-width: 768px) {
             td[data-label]:before { padding-right: 12px; font-weight: 700; }
@@ -275,7 +282,8 @@
             /* 1. Header Column Stacking */
             .section-header { flex-direction: column !important; align-items: stretch !important; gap: 10px; }
             .section-header > div:first-child { text-align: center; margin-bottom: 4px; }
-            .section-header .btn { width: 100% !important; margin: 0 !important; }
+            /* FIX: Stopped forcing header buttons to stretch */
+            .section-header .btn { width: auto !important; margin: 0 !important; align-self: flex-start; }
 
             /* 2. Stop Flexbox Wars in Modals (Stack Dropdowns and Buttons) */
             #copyWeekModal .modal-body > div, 
@@ -286,7 +294,8 @@
                 gap: 12px !important;
             }
             .modal-body select, .modal-body input { width: 100% !important; max-width: 100% !important; }
-            .modal-body .btn { width: 100% !important; max-width: 100% !important; height: auto !important; padding: 10px !important; }
+            /* FIX: Stopped forcing modal buttons to bloat */
+            .modal-body .btn { width: auto !important; height: auto !important; padding: 10px 16px !important; }
 
             /* 3. Student Card Swipeable Ribbon */
             .student-card .btn-group, .student-card div[style*="display:flex"][style*="gap"] { 
@@ -301,11 +310,18 @@
             .avail-date-row { align-items: center !important; }
             .avail-date-row .btn { width: auto !important; max-width: max-content !important; padding: 4px 10px !important; height: auto !important; }
 
-            /* 5. Daily Ops Mobile Grid (Stack Inputs, Grid Buttons) */
+            /* 5. Daily Ops Actions */
             .desktop-notes-row { flex-direction: column !important; gap: 6px !important; }
             .desktop-notes-row input { width: 100% !important; }
-            .desktop-actions-row { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 6px !important; justify-content: stretch !important; }
-            .desktop-actions-row .btn { width: 100% !important; padding: 6px 2px !important; font-size: 0.75rem !important; }
+            /* FIX: Swapped justify-content to flex-start to cleanly left-align the Save button */
+            .desktop-actions-row { display: flex !important; flex-wrap: wrap !important; justify-content: flex-start !important; gap: 8px !important; }
+            .desktop-actions-row .btn { width: auto !important; flex: 0 1 auto !important; padding: 8px 16px !important; font-size: 0.85rem !important; }
+
+            /* FIX: Shrink Status Selector on mobile so it doesn't bloat */
+            .class-card__row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+            .class-card__row > div { width: 100% !important; }
+            /* FIX: Strict max-content shrink-wrap for the dropdown */
+            .status-select { width: max-content !important; max-width: 100% !important; text-align-last: left !important; }
 
            /* --- MOBILE HOTFIXES V126.3 (TARGETED) --- */
 
@@ -329,68 +345,73 @@
            }
 
            /* 2. Danger Zone - Target Exact IDs to stop flexbox bloat */
-           #student-delete-select { 
-               width: 100% !important; 
-               flex: 1 1 auto !important; 
-               min-width: 120px !important; 
-               height: 42px !important; 
-           }
-           button[onclick="window.executeDeleteStudent()"] { 
-               width: auto !important; 
-               flex: 0 0 auto !important; 
-               padding: 0 16px !important; 
-               height: 42px !important; 
-           }
+           #student-delete-select { width: 100% !important; flex: 1 1 auto !important; min-width: 120px !important; height: 42px !important; }
+           button[onclick="window.executeDeleteStudent()"] { width: auto !important; flex: 0 0 auto !important; padding: 0 16px !important; height: 42px !important; }
 
            /* 3. Communication Hub - Target Exact IDs */
-           #crm-student-select { 
-               width: 100% !important; 
-               flex: 1 1 auto !important; 
-               min-width: 120px !important; 
-               height: 42px !important; 
-           }
-           button[onclick="window.triggerManualCrmReset()"] { 
-               width: auto !important; 
-               flex: 0 0 auto !important; 
-               padding: 0 16px !important; 
-               height: 42px !important; 
-           }
+           #crm-student-select { width: 100% !important; flex: 1 1 auto !important; min-width: 120px !important; height: 42px !important; }
+           button[onclick="window.triggerManualCrmReset()"] { width: auto !important; flex: 0 0 auto !important; padding: 0 16px !important; height: 42px !important; }
 
            /* 4. Fix Comm Hub Right-Align Bug (Resetting the flex directions) */
-           #section-communications .section-card > .form-group {
-               flex-wrap: nowrap !important;
-               align-items: flex-end !important;
-           }
-           #crm-action-area {
-               text-align: left !important;
-           }
+           #section-communications .section-card > .form-group { flex-wrap: nowrap !important; align-items: flex-end !important; }
+           #crm-action-area { text-align: left !important; }
 
            /* 5. Smart Availability "Copy All" Button - Target exact class */
-           .avail-header {
-               display: flex !important;
-               flex-direction: row !important;
-               flex-wrap: nowrap !important;
-               justify-content: space-between !important;
-               align-items: center !important;
-           }
-           .avail-header button {
-               width: auto !important;
-               flex: 0 0 auto !important;
-               padding: 4px 12px !important;
-               height: 32px !important;
-               margin: 0 !important;
-           }
+           .avail-header { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; justify-content: space-between !important; align-items: center !important; }
+           .avail-header button { width: auto !important; flex: 0 0 auto !important; padding: 4px 12px !important; height: 32px !important; margin: 0 !important; }
 
-           /* 6. Copy Schedule Radio Buttons - Grid split */
-           #copyWeekModal .modal-body > div:first-child {
-               display: grid !important;
-               grid-template-columns: 1fr 1fr !important;
-               gap: 10px !important;
-           }
-           #copyWeekModal .modal-body > div:first-child > label:nth-child(3) {
-               grid-column: span 2 !important;
-           }
+           /* 6. Copy Schedule Radio Buttons - Stack Vertically (Single Line) */
+           #copyWeekModal .modal-body > div:first-child { display: flex !important; flex-direction: column !important; gap: 12px !important; align-items: flex-start !important; }
+           #copyWeekModal .modal-body > div:first-child > label { display: flex !important; align-items: center !important; justify-content: flex-start !important; text-align: left !important; white-space: nowrap !important; }
+           #copyWeekModal .modal-body > div:first-child > label input[type="radio"] { flex-shrink: 0 !important; margin-right: 8px !important; }
         }
+
+	/* =========================================================
+           DESKTOP LEAN UI OPTIMIZATION V4 (Trimming the Fat)
+           ========================================================= */
+        @media (min-width: 769px) {
+            /* 1. Squeeze Utility Popups */
+            .modal-content:not(#largeModal) { max-width: 480px !important; padding: 24px !important; }
+
+            /* 2. Cap Massive Dropdowns and Inputs Globally */
+            .section-header select, .avail-widget select,
+            .card-column .form-group select, 
+            .card-column .form-group input[type="text"], 
+            .card-column .form-group input[type="date"],
+            .card-column .form-group input[type="number"],
+            .classes-controls input[type="date"],
+            .modal-body select, 
+            .modal-body input[type="text"],
+            .modal-body input[type="date"],
+            .modal-body input[type="month"],
+            .modal-body input[type="number"] {
+                max-width: 250px !important;
+            }
+
+            /* 3. Optimizer Text Normalization (De-bolding ONLY the colored metrics, saving the headers) */
+            .modal-body { font-size: 0.9rem !important; }
+            #rosterHealthModal .modal-body div[style*="color:#b91c1c"], 
+            #rosterHealthModal .modal-body div[style*="color:#166534"],
+            #rosterHealthModal .modal-body div[style*="color:#991b1b"],
+            #rosterHealthModal .modal-body div[style*="color:#15803d"] { font-weight: 500 !important; }
+
+            /* 4. Standardize Action Buttons (Safeguarding small & close buttons) */
+            .btn:not(.modal-close-btn):not(.day-copy-btn):not(.btn-sm) { 
+                width: max-content !important; 
+                min-width: 130px; 
+                padding-left: 20px !important; 
+                padding-right: 20px !important; 
+            }
+            button[onclick*="Analyze"], 
+            button[onclick*="Blueprint"], 
+            button[onclick*="Generate"] { 
+                width: max-content !important; 
+                margin: 10px auto !important; 
+                display: flex !important; 
+                justify-content: center !important; 
+            }
+        }
+  
     </style>
   </head>
 <body>
@@ -555,11 +576,13 @@
                     <button class="btn btn-outline btn-sm" onclick="document.getElementById('loadMonthModal').classList.remove('show')">✕</button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="form-group" style="text-align: center;">
                         <label>Select Month</label>
-                        <input type="month" id="lm-month-select" style="width: 100%; height: 42px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 0.95rem; cursor: pointer;">
+                        <input type="month" id="lm-month-select" style="width: 100%; max-width: 250px; height: 42px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 0.95rem; cursor: pointer; margin: 0 auto; display: block;">
                     </div>
-                    <button id="btn-lm-analyze" class="btn btn-outline btn-block" style="margin-top:15px;" onclick="window.analyzeBlueprint()">🔍 Analyze Blueprint</button>
+                    <div style="display:flex; justify-content:center;">
+                        <button id="btn-lm-analyze" class="btn btn-outline" style="margin-top:15px; width: max-content; padding: 0 24px;" onclick="window.analyzeBlueprint()">🔍 Analyze Blueprint</button>
+                    </div>
                     <div id="lm-results" style="display:none; margin-top:15px; padding:15px; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0; text-align:center;"></div>
                 </div>
             </div>
@@ -697,7 +720,7 @@
                                 </select>
                                 <input type="text" id="fbHwInput1" placeholder="Enter Details..." style="display:none;">
                             </div>
-                            <button id="btn-crm-progress" class="btn btn-primary" style="max-width: 350px; display: flex; margin: 20px auto 0; width: 100%; justify-content: center; align-items: center;" onclick="window.generateCRMMessage('progress')">✨ Generate AI Draft</button>
+                            <button id="btn-crm-progress" class="btn btn-primary" style="display: flex; margin: 20px auto 0; width: max-content; justify-content: center; align-items: center; padding: 0 32px;" onclick="window.generateCRMMessage('progress')">✨ Generate AI Draft</button>
                         </div>
 
                         <div id="crm-view-demoFeedback" style="display:none;">
@@ -920,7 +943,7 @@
                 </div>
             </div>
             
-            <button id="btn-generate-draft" class="btn btn-primary" style="max-width: 350px; display: flex; margin: 0 auto; width: 100%; justify-content: center; align-items: center;" onclick="window.generateAIDraft()">✨ Generate Message</button>
+            <button id="btn-generate-draft" class="btn btn-primary" style="display: flex; margin: 0 auto; width: max-content; justify-content: center; align-items: center; padding: 0 32px;" onclick="window.generateAIDraft()">✨ Generate Message</button>
             <div id="ai-output-container" style="display:none; margin-top:30px; flex-direction:column; gap:16px;"></div>
         </div>
     </section>
@@ -1059,9 +1082,9 @@
     </section>
 
     <footer class="footer">
-        <div>Last Updated: May 17, 2026, 08:30 AM IST</div>
+        <div>Last Updated: May 18, 2026, 11:30 AM IST</div>
         <div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div>
-        <div>v132.0 HYBRID PROD | Powered by LazifAI</div>
+        <div>v133.0 PROD | Powered by LazifAI</div>
     </footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
@@ -1286,13 +1309,15 @@
                 <button class="btn btn-outline btn-sm modal-close-btn" onclick="document.getElementById('copyWeekModal').classList.remove('show')">✕</button>
             </div>
             <div class="modal-body">
-                <div style="display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap;">
-                    <label style="cursor:pointer;"><input type="radio" name="copyMode" value="week" checked> Copy Full Week</label>
-                    <label style="cursor:pointer;"><input type="radio" name="copyMode" value="day"> Copy Single Day</label>
-                    <label style="cursor:pointer; color:var(--primary); font-weight:700;"><input type="radio" name="copyMode" value="roster"> ✨ Load from Master Roster</label>
+                <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px; align-items:flex-start; padding-left:0; margin-left:0;">
+                    <label style="cursor:pointer; display:flex; align-items:center; margin:0; padding:0;"><input type="radio" name="copyMode" value="week" checked style="margin: 0 8px 0 0 !important; padding: 0 !important; width: 16px !important; height: 16px !important; flex-shrink: 0 !important;"> Copy Full Week</label>
+                    <label style="cursor:pointer; display:flex; align-items:center; margin:0; padding:0;"><input type="radio" name="copyMode" value="day" style="margin: 0 8px 0 0 !important; padding: 0 !important; width: 16px !important; height: 16px !important; flex-shrink: 0 !important;"> Copy Single Day</label>
+                    <label style="cursor:pointer; display:flex; align-items:center; margin:0; padding:0; color:var(--primary); font-weight:700;"><input type="radio" name="copyMode" value="roster" style="margin: 0 8px 0 0 !important; padding: 0 !important; width: 16px !important; height: 16px !important; flex-shrink: 0 !important;"> ✨ Load from Master Roster</label>
                 </div>
-                <div class="form-group"><label id="copySourceLabel">Source Date (Start)</label><input type="date" id="copySourceDate"></div>
-                <div class="form-group"><label id="copyTargetLabel">Target Date (Start)</label><input type="date" id="copyTargetDate"></div>
+                <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                    <div class="form-group" style="flex:1; min-width: 140px;"><label id="copySourceLabel">Source Date (Start)</label><input type="date" id="copySourceDate"></div>
+                    <div class="form-group" style="flex:1; min-width: 140px;"><label id="copyTargetLabel">Target Date (Start)</label><input type="date" id="copyTargetDate"></div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button id="copyWeekBtn" class="btn btn-primary">Execute Copy</button>
@@ -1558,7 +1583,9 @@
         const btn = document.getElementById("profileSaveBtn"); btn.textContent = "Saving...";
         await fetchAPI(null, payload);
         btn.textContent = "Save Changes"; document.getElementById("profileModal").classList.remove("show");
-        window.showSystemPopup("System Update", "Profile Updated"); await window.loadStudents();
+        window.showSystemPopup("System Update", "Profile Updated"); 
+        APP_STATE.analyticsLoaded = false; // Flags analytics cache for refresh
+        await window.loadStudents(); window.fetchToday();
     };
 
     window.scrubStudentData = async () => {
@@ -1863,12 +1890,12 @@
                 ${notesHtml}
                 
                 <div class="expand-block generate-area" style="display:none; margin-top:15px; border:1px solid var(--border); border-radius:8px; padding:15px;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <select class="msg-select" style="max-width:200px; padding: 6px 8px; font-size:0.85rem; border-radius:6px; border:1px solid #cbd5e1; outline: none;">
+                    <div style="display:flex; gap:8px; margin-bottom:12px; align-items:stretch; width:100%;">
+                        <select class="msg-select" style="flex: 6; min-width: 0; padding: 6px 8px; font-size:0.85rem; border-radius:6px; border:1px solid #cbd5e1; outline: none; height:36px;">
                             <option value="reminder" selected>🔔 Send Reminder</option>
                             ${limitMsgOption}
                         </select>
-                        <button class="btn btn-outline btn-sm btn-copy">📋 Copy</button>
+                        <button class="btn btn-outline btn-sm btn-copy" style="flex: 4; min-width: 0; height:36px; white-space:nowrap; padding:0 8px;">📋 Copy</button>
                     </div>
                     <div class="msg-preview" style="background:#fff; border:1px solid #e2e8f0; border-radius:6px; padding:10px; font-size:0.85rem; white-space:pre-wrap; min-height:80px; max-height:200px; overflow-y:auto; color:var(--text-main);"></div>
                 </div>
@@ -1880,7 +1907,8 @@
                         <div style="flex:1; min-width:120px;"><input type="text" class="res-time" placeholder="hh:mm AM/PM" style="width:100%; height:36px;" onblur="window.normalizeUserTime(this)"></div>
                     </div>
                     <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; margin-bottom: 12px; font-weight: 600; color: var(--text-main);"><input type="checkbox" class="res-master-roster-check" style="width:16px; height:16px;"> Update Master Roster</label>
-                    <button class="btn btn-primary btn-sm btn-block btn-res-submit" style="height:36px;">Confirm Reschedule</button>
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button class="btn btn-primary btn-sm btn-res-submit" style="height:36px; padding: 0 24px; width: auto;">Confirm Reschedule</button>
                 </div>
             `;
 
@@ -2091,7 +2119,48 @@
         } catch(e) { window.showSystemPopup("System Error", "Failed: " + e.message); }
     };
 
-    window.openPendingReviews = () => { document.getElementById("pendingReviewModal").classList.add("show"); document.getElementById("pendingReviewList").innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>'; fetchAPI(null, { action: "getPendingReviews" }).then(r => { const l = document.getElementById("pendingReviewList"); l.innerHTML = ""; if(!r.pending || !r.pending.length) { l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">No pending reviews.</div>'; return; } r.pending.forEach(p => { l.innerHTML += `<div style="background:#fff; border:1px solid #e2e8f0; padding:10px; margin-bottom:8px; border-radius:8px; font-size:0.9rem;"><div style="font-weight:700; margin-bottom:4px;">${esc(p.StudentName)}</div><div style="color:var(--text-sub); margin-bottom:8px;">${isoToDisplayDate(p.ClassDate)} ${time24To12(parseBackendTime(p.StartTime))}</div><select class="status-select" style="width:100%;" onchange="window.updatePendingStatus('${p.ClassID}', this.value, this)"><option disabled selected>Select Action</option><option value="Completed">✅ Done</option><option value="Student No Show">⚠️ No Show</option><option value="Absent">📉 Absent</option><option value="Cancelled">❌ Cancel</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Pause</option><option value="Class Limit Reached">🛑 Class Limit Reached</option></select></div>`; }); }); };
+    /* FIX: Bulletproof date/time parser to filter out future classes accurately in IST */
+    window.openPendingReviews = () => { 
+        document.getElementById("pendingReviewModal").classList.add("show"); 
+        document.getElementById("pendingReviewList").innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>'; 
+        fetchAPI(null, { action: "getPendingReviews" }).then(r => { 
+            const l = document.getElementById("pendingReviewList"); l.innerHTML = ""; 
+            if(!r.pending || !r.pending.length) { l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">No pending reviews.</div>'; return; } 
+            
+            const nowIST = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+            let validCount = 0;
+            
+            r.pending.forEach(p => { 
+                // FIX: Bulletproof extraction protecting against the 1918 bug
+                let parts;
+                if (p.ClassDate.includes('/')) parts = p.ClassDate.split('/');
+                else parts = p.ClassDate.split('T')[0].split('-');
+                
+                let y = parts[0].length === 4 ? parts[0] : parts[2];
+                let m = parts[1]; 
+                let d = parts[0].length === 4 ? parts[2] : parts[0];
+                
+                const [h, min] = parseBackendTime(p.StartTime).split(':').map(Number);
+                const classDT = new Date(parseInt(y), parseInt(m)-1, parseInt(d), h, min);
+                
+                // If the class is strictly in the future, skip it completely.
+                if (isNaN(classDT) || classDT > nowIST) return; 
+                
+                validCount++;
+                l.innerHTML += `<div style="background:#fff; border:1px solid #e2e8f0; padding:12px; margin-bottom:8px; border-radius:8px; font-size:0.9rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="flex:1; min-width: 150px;">
+                        <div style="font-weight:700; margin-bottom:4px; font-size: 1rem; color: var(--primary);">${esc(p.StudentName)}</div>
+                        <div style="color:var(--text-sub);">${isoToDisplayDate(p.ClassDate)} @ ${time24To12(parseBackendTime(p.StartTime))}</div>
+                    </div>
+                    <select class="status-select" style="width:auto; min-width: 160px; height: 36px; margin:0;" onchange="window.updatePendingStatus('${p.ClassID}', this.value, this)">
+                        <option disabled selected>Select Action</option><option value="Completed">✅ Done</option><option value="Student No Show">⚠️ No Show</option><option value="Absent">📉 Absent</option><option value="Cancelled">❌ Cancel</option><option value="System Glitch">💻 System Glitch</option><option value="Paused">⏸ Pause</option><option value="Class Limit Reached">🛑 Limit Reached</option>
+                    </select>
+                </div>`; 
+            }); 
+            if(validCount === 0) l.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">All fetched classes are currently in the future.</div>';
+        }); 
+    };
+    
     window.updatePendingStatus = async (id, status, el) => { 
         el.disabled = true; let originalText = el.options[el.selectedIndex].text; el.options[el.selectedIndex].text = "Saving..."; 
         const r = await fetchAPI(null, { action: "updateClassStatus", ClassID: id, NewStatus: status }); 
@@ -2459,7 +2528,7 @@
     window.executeTabSwitch = (tab) => { document.querySelectorAll(".sb-tab-btn").forEach(b => b.classList.remove("active")); document.querySelector(`.sb-tab-btn[onclick*="${tab}"]`).classList.add("active"); document.querySelectorAll(".sb-content").forEach(c => c.classList.remove("show")); document.getElementById(`sb-${tab}`).classList.add("show"); };
 
     window.renderTrialScout = () => { const trials = APP_STATE.students.filter(s => s.type === "Trial"); const list = document.getElementById("sb-scout-list"); if(trials.length === 0) { list.innerHTML = `<div style="text-align:center; padding:30px; background:#f8fafc; border-radius:8px; color:var(--text-sub);">🎉 No active Trial students!</div>`; return; } let html = ""; trials.forEach(t => { html += `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:12px 16px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:8px;"><div style="font-weight:700; font-size:1rem;">👤 ${esc(t.name)}</div><div style="display:flex; gap:8px;"><button class="btn btn-outline btn-sm" onclick="window.convertTrial('${esc(t.name)}', 'PS')">Make PS</button><button class="btn btn-primary btn-sm" onclick="window.convertTrial('${esc(t.name)}', 'CM')">Make CM</button></div></div>`; }); list.innerHTML = html; };
-    window.convertTrial = async (name, newType) => { document.getElementById("sb-scout-list").innerHTML = `<div style="text-align:center; padding:20px; color:var(--primary);">Converting ${name}...</div>`; await fetchAPI(null, { action: "updateStudentData", StudentName: name, NewType: newType }); window.showSystemPopup("System Update", `${name} converted to ${newType}!`); await window.loadStudents(); window.renderTrialScout(); };
+    window.convertTrial = async (name, newType) => { document.getElementById("sb-scout-list").innerHTML = `<div style="text-align:center; padding:20px; color:var(--primary);">Converting ${name}...</div>`; await fetchAPI(null, { action: "updateStudentData", StudentName: name, NewType: newType }); window.showSystemPopup("System Update", `${name} converted to ${newType}!`); APP_STATE.analyticsLoaded = false; await window.loadStudents(); window.renderTrialScout(); };
     
     window.renderBulletinAlerts = async () => { 
         const fbList = document.getElementById("sb-fbAlerts-list");
