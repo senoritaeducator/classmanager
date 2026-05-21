@@ -915,10 +915,17 @@
                         <input type="checkbox" id="fo1" value="Step-by-Step Guide" class="pill-checkbox"><label for="fo1" class="pill-label">Guide</label>
                         <input type="checkbox" id="fo2" value="Sample Essay" class="pill-checkbox"><label for="fo2" class="pill-label">Sample Essay</label>
                         <input type="checkbox" id="fo3" value="Vocabulary List" class="pill-checkbox"><label for="fo3" class="pill-label">Vocab List</label>
-                        <input type="checkbox" id="fo4" value="Worksheet" class="pill-checkbox"><label for="fo4" class="pill-label">Worksheet</label>
-                    </div>
+                    <input type="checkbox" id="fo4" value="Worksheet" class="pill-checkbox"><label for="fo4" class="pill-label">Worksheet</label>
                 </div>
             </div>
+            
+            <div class="form-group" style="margin-top: 15px; margin-bottom: 0;">
+                <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; color: var(--primary);">
+                    <input type="checkbox" id="cf-include-answers" style="width: 18px; height: 18px; flex-shrink: 0; margin: 0; accent-color: var(--accent);">
+                    🔐 Include Separate Answer Key for Teacher
+                </label>
+            </div>
+        </div>
 
             <div id="ai-vision-inputs" style="display: none; margin-bottom: 20px; padding: 16px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
                 <div class="form-group">
@@ -1082,9 +1089,9 @@
     </section>
 
     <footer class="footer">
-        <div>Last Updated: May 18, 2026, 11:30 AM IST</div>
+        <div>Last Updated: May 21, 2026, 08:30 PM IST</div>
         <div>✨ Advanced Class Manager &copy; 2026<br>Licensed to Senorita</div>
-        <div>v133.0 PROD | Powered by LazifAI</div>
+        <div>v133.1 PROD | Powered by LazifAI</div>
     </footer>
 
     <div id="smartSlotModal" class="modal-backdrop">
@@ -2698,14 +2705,37 @@
         if (type === "forge") {
             const topic = document.getElementById("ai-forge-topic").value.trim(); const grade = document.getElementById("ai-forge-grade").value.trim(); const region = document.getElementById("ai-forge-region").value.trim(); let outputs = [];
             document.querySelectorAll('#ai-forge-inputs .pill-checkbox:checked').forEach(cb => outputs.push(cb.value));
+            const includeAnswers = document.getElementById("cf-include-answers") ? document.getElementById("cf-include-answers").checked : false;
+
             if (!topic) return window.showSystemPopup("System Error", "Enter a Topic."); if (outputs.length === 0) return window.showSystemPopup("System Error", "Select at least one output type.");
             btn.disabled = true; btn.textContent = "✨ Forging Content...";
             try {
-                const r = await fetchAPI(null, { action: "generateContentForge", topic: topic, grade: grade, region: region, outputTypes: outputs });
+                const r = await fetchAPI(null, { action: "generateContentForge", topic: topic, grade: grade, region: region, outputTypes: outputs, includeAnswers: includeAnswers });
                 if (r.status === "error") throw new Error(r.message);
-                let html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Forged Academic Content</label><div style="background: #f8fafc; border-radius:10px; padding:16px; border: 1px solid #cbd5e1;"><div style="display:flex; justify-content:flex-end; margin-bottom:10px;"><button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('ai-opt-forge')">📋 Copy Lesson</button></div><textarea id="ai-opt-forge" readonly style="width:100%; min-height:300px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${r.draft}</textarea></div>`;
+                
+                let html = "";
+                if (r.draft.includes("|||ANSWER_KEY|||")) {
+                    let parts = r.draft.split("|||ANSWER_KEY|||");
+                    let worksheetText = parts[0].trim();
+                    let answerText = parts[1].trim();
+                    html = `
+                        <label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">📖 Student Worksheet</label>
+                        <div style="background: #f8fafc; border-radius:10px; padding:16px; border: 1px solid #cbd5e1; margin-bottom:16px;">
+                            <div style="display:flex; justify-content:flex-end; margin-bottom:10px;"><button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('ai-opt-forge-ws')">📋 Copy Worksheet</button></div>
+                            <textarea id="ai-opt-forge-ws" readonly style="width:100%; min-height:300px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${worksheetText}</textarea>
+                        </div>
+                        <label style="color: var(--accent); font-weight:700; display:block; margin-bottom: 8px;">🔐 Teacher Answer Key</label>
+                        <div style="background: #f0fdf4; border-radius:10px; padding:16px; border: 1px solid #bbf7d0;">
+                            <div style="display:flex; justify-content:flex-end; margin-bottom:10px;"><button class="btn btn-primary btn-sm" style="background:#166534; border-color:#166534;" onclick="window.copyAiOpt('ai-opt-forge-ans')">📋 Copy Answers</button></div>
+                            <textarea id="ai-opt-forge-ans" readonly style="width:100%; min-height:200px; padding:12px; border-radius:6px; border:1px solid #bbf7d0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#166534; line-height:1.5;">${answerText}</textarea>
+                        </div>
+                    `;
+                } else {
+                    html = `<label style="color: var(--primary); font-weight:700; display:block; margin-bottom: 8px;">Forged Academic Content</label><div style="background: #f8fafc; border-radius:10px; padding:16px; border: 1px solid #cbd5e1;"><div style="display:flex; justify-content:flex-end; margin-bottom:10px;"><button class="btn btn-primary btn-sm" onclick="window.copyAiOpt('ai-opt-forge')">📋 Copy Lesson</button></div><textarea id="ai-opt-forge" readonly style="width:100%; min-height:300px; padding:12px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-family:inherit; resize:vertical; font-size:0.95rem; color:#1e293b; line-height:1.5;">${r.draft}</textarea></div>`;
+                }
+                
                 document.getElementById("ai-output-container").innerHTML = html; document.getElementById("ai-output-container").style.display = "flex"; document.getElementById("ai-output-container").scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } catch(e) { window.showSystemPopup("System Error", e.message || "Failed to generate content."); } finally { btn.disabled = false; btn.textContent = "✨ Generate Options"; }
+            } catch(e) { window.showSystemPopup("System Error", e.message || "Failed to generate content."); } finally { btn.disabled = false; btn.textContent = "✨ Generate Message"; }
             return;
         }
         
